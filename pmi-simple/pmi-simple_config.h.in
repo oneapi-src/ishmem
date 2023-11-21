@@ -1,0 +1,13 @@
+/* Copyright (C) 2023 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#cmakedefine HAVE_ASSERT_H
+#cmakedefine HAVE_UNISTD_H
+#cmakedefine HAVE_STDLIB_H
+#cmakedefine HAVE_STRING_H
+#cmakedefine HAVE_STRINGS_H
+#cmakedefine HAVE_SYS_SOCKET_H
+#cmakedefine HAVE_SYS_TYPES_H
+#cmakedefine HAVE_ARPA_INET_H
+#cmakedefine USE_PMI_PORT

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+num_pes=$1
+launch_script=$2
+test_exe=$3
+test_args=${@:4}
+
+srun -N 1 mpirun -n $num_pes $launch_script $test_exe $test_args

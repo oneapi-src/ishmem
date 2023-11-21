@@ -1,0 +1,24 @@
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: BSD-3-Clause
+
+Language:                                   Cpp
+BasedOnStyle:                               Google
+AccessModifierOffset:                       -2
+AlignConsecutiveMacros:                     true
+AlignEscapedNewlines:                       Right
+AllowAllArgumentsOnNextLine:                false
+AllowAllParametersOfDeclarationOnNextLine:  false
+AlwaysBreakBeforeMultilineStrings:          true
+AllowShortEnumsOnASingleLine:               false
+AllowShortFunctionsOnASingleLine:           Empty
+AllowShortLoopsOnASingleLine:               false
+AllowShortIfStatementsOnASingleLine:        AllIfsAndElse
+BreakBeforeBraces:                          WebKit
+ColumnLimit:                                100
+Cpp11BracedListStyle:                       true
+DerivePointerAlignment:                     false
+PointerAlignment:                           Right
+IndentWidth:                                4
+KeepEmptyLinesAtTheStartOfBlocks:           false
+SortIncludes:                               false
+SpaceAfterCStyleCast:                       true

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+num_pes=$1
+launch_script=$2
+test_exe=$3
+test_args=${@:4}
+
+Q_FLAG=""
+if [ -n "${JOB_QUEUE}" ]; then
+    Q_FLAG="-q ${JOB_QUEUE}"
+fi
+
+qsub ${Q_FLAG} -V -Wblock=true -- $(which mpirun) -n $num_pes $launch_script $test_exe $test_args
+
