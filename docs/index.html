@@ -1,0 +1,560 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Intel® SHMEM &#8212; Documentation for Intel® SHMEM</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/index.html" />
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Introduction" href="intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo-classicblue-400px.png" class="logo__image only-light" alt="Documentation for Intel® SHMEM - Home"/>
+    <script>document.write(`<img src="_static/logo-classicblue-400px.png" class="logo__image only-dark" alt="Documentation for Intel® SHMEM - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming_model.html">Programming Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_model.html">Memory Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution_model.html">Execution Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_features.html">Supported/Unsupported Features</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Intel® SHMEM</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="intel-shmem">
+<h1>Intel® SHMEM<a class="headerlink" href="#intel-shmem" title="Permalink to this heading">#</a></h1>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-intel-shmem">What is Intel® SHMEM?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-openshmem">What is OpenSHMEM?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="programming_model.html">Programming Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="programming_model.html#the-intel-shmem-apis-overview">The Intel® SHMEM APIs Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_model.html#the-work-group-apis-overview">The <code class="docutils literal notranslate"><span class="pre">work_group</span></code> APIs Overview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_model.html">Memory Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory_model.html#pointers-to-symmetric-objects">Pointers to Symmetric Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_model.html#atomicity-guarantees">Atomicity Guarantees</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="execution_model.html">Execution Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="execution_model.html#invoking-intel-shmem-operations">Invoking Intel® SHMEM Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="supported_features.html">Supported/Unsupported Features</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html#environment-variables">Environment Variables</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound" id="ishmem-api">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#id1">ISHMEM_INIT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmemx-init-attr">ISHMEMX_INIT_ATTR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-my-pe">ISHMEM_MY_PE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-n-pes">ISHMEM_N_PES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-finalize">ISHMEM_FINALIZE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-ptr">ISHMEM_PTR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-info-get-version">ISHMEM_INFO_GET_VERSION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-info-get-name">ISHMEM_INFO_GET_NAME</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-malloc">ISHMEM_MALLOC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-free">ISHMEM_FREE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-align">ISHMEM_ALIGN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-calloc">ISHMEM_CALLOC</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rma.html#blocking-rma">Blocking RMA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-put">ISHMEM_PUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-put-work-group">ISHMEMX_PUT_WORK_GROUP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-p">ISHMEM_P</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-iput">ISHMEM_IPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-iput-work-group">ISHMEMX_IPUT_WORK_GROUP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-get">ISHMEM_GET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-get-work-group">ISHMEMX_GET_WORK_GROUP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-g">ISHMEM_G</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-iget">ISHMEM_IGET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-iget-work-group">ISHMEMX_IGET_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rma.html#nonblocking-rma">Nonblocking RMA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-put-nbi">ISHMEM_PUT_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-put-nbi-work-group">ISHMEMX_PUT_NBI_WORK_GROUP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-get-nbi">ISHMEM_GET_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-get-nbi-work-group">ISHMEMX_GET_NBI_WORK_GROUP</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#atomicity-guarantees-for-signaling-operations">Atomicity Guarantees for Signaling Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#available-signal-operators">Available Signal Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#blocking-put-signal">Blocking Put-Signal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="signaling.html#ishmem-put-signal">ISHMEM_PUT_SIGNAL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="signaling.html#ishmemx-put-signal-work-group">ISHMEMX_PUT_SIGNAL_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#nonblocking-put-signal">Nonblocking Put-Signal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="signaling.html#ishmem-put-nbi-signal">ISHMEM_PUT_NBI_SIGNAL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="signaling.html#ishmemx-put-nbi-signal-work-group">ISHMEMX_PUT_NBI_SIGNAL_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmem-signal-fetch">ISHMEM_SIGNAL_FETCH</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-barrier-all">ISHMEM_BARRIER_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-barrier-all-work-group">ISHMEMX_BARRIER_ALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-sync-all">ISHMEM_SYNC_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-sync-all-work-group">ISHMEMX_SYNC_ALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-alltoall">ISHMEM_ALLTOALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-alltoall-work-group">ISHMEMX_ALLTOALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-broadcast">ISHMEM_BROADCAST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-broadcast-work-group">ISHMEMX_BROADCAST_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-collect-ishmem-fcollect">ISHMEM_COLLECT, ISHMEM_FCOLLECT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-f-collect-work-group">ISHMEMX_[F]COLLECT_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-reduce">ISHMEM_REDUCE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-reduce-work-group">ISHMEMX_REDUCE_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until">ISHMEM_WAIT_UNTIL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-work-group">ISHMEMX_WAIT_UNTIL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test">ISHMEM_TEST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-work-group">ISHMEMX_TEST_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmem-fence">ISHMEM_FENCE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-fence-work-group">ISHMEMX_FENCE_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmem-quiet">ISHMEM_QUIET</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group">ISHMEMX_QUIET_WORK_GROUP</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html#notices-disclaimers">Notices &amp; Disclaimers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html#copyright">Copyright</a></li>
+</ul>
+</div>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="right-next"
+       href="intro.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Introduction</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Intel Corporation
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

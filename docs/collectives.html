@@ -1,0 +1,1152 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Collective Operations &#8212; Documentation for Intel® SHMEM</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'collectives';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/collectives.html" />
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Point-To-Point Synchronization" href="pt2pt_sync.html" />
+    <link rel="prev" title="Signaling Operations" href="signaling.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo-classicblue-400px.png" class="logo__image only-light" alt="Documentation for Intel® SHMEM - Home"/>
+    <script>document.write(`<img src="_static/logo-classicblue-400px.png" class="logo__image only-dark" alt="Documentation for Intel® SHMEM - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming_model.html">Programming Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_model.html">Memory Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution_model.html">Execution Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_features.html">Supported/Unsupported Features</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Collective Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/collectives.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Collective Operations</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-barrier-all">ISHMEM_BARRIER_ALL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-barrier-all-work-group">ISHMEMX_BARRIER_ALL_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-sync-all">ISHMEM_SYNC_ALL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-sync-all-work-group">ISHMEMX_SYNC_ALL_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-alltoall">ISHMEM_ALLTOALL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-alltoall-work-group">ISHMEMX_ALLTOALL_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-broadcast">ISHMEM_BROADCAST</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-broadcast-work-group">ISHMEMX_BROADCAST_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-collect-ishmem-fcollect">ISHMEM_COLLECT, ISHMEM_FCOLLECT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-f-collect-work-group">ISHMEMX_[F]COLLECT_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-reduce">ISHMEM_REDUCE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-reduce-work-group">ISHMEMX_REDUCE_WORK_GROUP</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="collective-operations">
+<span id="collectives"></span><h1>Collective Operations<a class="headerlink" href="#collective-operations" title="Permalink to this heading">#</a></h1>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Intel® SHMEM does not yet support teams-based
+collectives.  All collectives must operate on the world team.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>All collective operations must complete before another kernel
+calls collective operations.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>A collective call must be either all host-initiated or
+device-initiated. For example, a program that initiate a collective
+operation from the host on some PEs but from the device on other PEs has
+undefined behavior.</p>
+</div>
+<section id="ishmem-barrier-all">
+<h2>ISHMEM_BARRIER_ALL<a class="headerlink" href="#ishmem-barrier-all" title="Permalink to this heading">#</a></h2>
+<p>Registers the arrival of a PE at a barrier and blocks the PE until all other
+PEs arrive at the barrier and all local updates and remote memory updates are
+completed.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418ishmem_barrier_allv">
+<span id="_CPPv318ishmem_barrier_allv"></span><span id="_CPPv218ishmem_barrier_allv"></span><span id="ishmem_barrier_all"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_barrier_all</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418ishmem_barrier_allv" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all</span></code> routine is a mechanism for synchronizing all PEs
+in the world team at once.
+This routine blocks the calling PE until all PEs have called
+<code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all</span></code>.</p>
+<p>Prior to synchronizing with other PEs, <code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all</span></code> ensures
+completion of all previously issued memory stores, and of all local and remote
+memory updates issued via <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> AMO and RMA routine calls such as
+<code class="docutils literal notranslate"><span class="pre">ishmem_int_add</span></code>, <code class="docutils literal notranslate"><span class="pre">ishmem_put_nbi</span></code>, and <code class="docutils literal notranslate"><span class="pre">ishmem_get_nbi</span></code>.</p>
+</section>
+<section id="ishmemx-barrier-all-work-group">
+<h2>ISHMEMX_BARRIER_ALL_WORK_GROUP<a class="headerlink" href="#ishmemx-barrier-all-work-group" title="Permalink to this heading">#</a></h2>
+<p>Registers the arrival of a PE at a barrier and blocks the PE until all other
+PEs arrive at the barrier and all local updates and remote memory updates are
+completed.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E30ishmemx_barrier_all_work_groupvRK5Group">
+<span id="_CPPv3I0E30ishmemx_barrier_all_work_groupRK5Group"></span><span id="_CPPv2I0E30ishmemx_barrier_all_work_groupRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_barrier_all_work_group</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E30ishmemx_barrier_all_work_groupvRK5Group" title="ishmemx_barrier_all_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E30ishmemx_barrier_all_work_groupvRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the barrier operation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmemx_barrier_all_work_group</span></code> routine is a mechanism for
+synchronizing all PEs.
+Unlike <code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all</span></code>, <code class="docutils literal notranslate"><span class="pre">ishmemx_barrier_all_work_group</span></code> allows
+for the device threads within <strong>group</strong> to cooperate towards the barrier
+operation.
+This may be more performant; for example, when <code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all</span></code>
+requires <cite>all</cite> device threads in the kernel to invoke RMA operations.
+This routine blocks the calling PE until all PEs have called
+<code class="docutils literal notranslate"><span class="pre">ishmemx_barrier_all_work_group</span></code>.
+All threads in <strong>group</strong> must call the routine with identical arguments.</p>
+</section>
+<section id="ishmem-sync-all">
+<h2>ISHMEM_SYNC_ALL<a class="headerlink" href="#ishmem-sync-all" title="Permalink to this heading">#</a></h2>
+<p>Registers the arrival of a PE at a synchronization point and suspends
+execution until all other PEs arrive at the synchronization point.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415ishmem_sync_allv">
+<span id="_CPPv315ishmem_sync_allv"></span><span id="_CPPv215ishmem_sync_allv"></span><span id="ishmem_sync_all"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_sync_all</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415ishmem_sync_allv" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>Callable from the <strong>host</strong> and the <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+This routine blocks the calling PE until all PEs have called
+<code class="docutils literal notranslate"><span class="pre">ishmem_sync_all</span></code>.</p>
+<p>In contrast with the <code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all</span></code> routines, <code class="docutils literal notranslate"><span class="pre">ishmem_sync_all</span></code>
+only ensures completion and visibility of previously issued memory
+stores and does not ensure completion of remote memory updates issued via
+<code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines.</p>
+</section>
+<section id="ishmemx-sync-all-work-group">
+<h2>ISHMEMX_SYNC_ALL_WORK_GROUP<a class="headerlink" href="#ishmemx-sync-all-work-group" title="Permalink to this heading">#</a></h2>
+<p>Registers the arrival of a PE at a synchronization point and suspends
+execution until all other PEs arrive at the synchronization point.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E27ishmemx_sync_all_work_groupvRK5Group">
+<span id="_CPPv3I0E27ishmemx_sync_all_work_groupRK5Group"></span><span id="_CPPv2I0E27ishmemx_sync_all_work_groupRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_sync_all_work_group</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E27ishmemx_sync_all_work_groupvRK5Group" title="ishmemx_sync_all_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E27ishmemx_sync_all_work_groupvRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the barrier operation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+This routine blocks the calling PE until all PEs have called
+<code class="docutils literal notranslate"><span class="pre">ishmemx_sync_all_work_group</span></code>.</p>
+<p>In contrast with the <code class="docutils literal notranslate"><span class="pre">ishmem_sync_all</span></code> routine, <code class="docutils literal notranslate"><span class="pre">ishmemx_sync_all_work_group</span></code> allows for the device threads within <strong>group</strong> to cooperate towards the sync operation.
+This may be more performant; for example, when <code class="docutils literal notranslate"><span class="pre">ishmem_sync_all</span></code>
+requires <cite>all</cite> device threads in the kernel to invoke RMA operations.
+This routine blocks the calling PE until all PEs have called
+<code class="docutils literal notranslate"><span class="pre">ishmemx_sync_all_work_group</span></code>.
+<code class="docutils literal notranslate"><span class="pre">ishmemx_sync_all_work_group</span></code> only ensures completion and visibility of
+previously issued memory stores and does not ensure completion of remote
+memory updates issued via <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines.
+All threads in <strong>group</strong> must call the routine with identical arguments.</p>
+</section>
+<section id="ishmem-alltoall">
+<h2>ISHMEM_ALLTOALL<a class="headerlink" href="#ishmem-alltoall" title="Permalink to this heading">#</a></h2>
+<p>Exchanges a fixed amount of contiguous data blocks between all pairs of PEs
+participating in the collective routine.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424ishmem_TYPENAME_alltoallP4TYPEPK4TYPE6size_t">
+<span id="_CPPv324ishmem_TYPENAME_alltoallP4TYPEPK4TYPE6size_t"></span><span id="_CPPv224ishmem_TYPENAME_alltoallP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_alltoall__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_alltoall</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmem_TYPENAME_alltoallP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418ishmem_alltoallmemPvPKv6size_t">
+<span id="_CPPv318ishmem_alltoallmemPvPKv6size_t"></span><span id="_CPPv218ishmem_alltoallmemPvPKv6size_t"></span><span id="ishmem_alltoallmem__voidP.voidCP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_alltoallmem</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418ishmem_alltoallmemPvPKv6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of a data object large enough to receive the combined total of <strong>nelems</strong> elements from each PE. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Symmetric address of a data object that contains <strong>nelems</strong> elements of data for each PE, ordered according to destination PE. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – The number of elements to exchange for each PE. For <code class="docutils literal notranslate"><span class="pre">ishmem_alltoallmem</span></code>, elements are bytes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>zero on successful local completion; otherwise, nonzero.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_alltoall</span></code> routines are collective routines. Each PE
+participating in the operation exchanges <strong>nelems</strong> data elements
+with all other PEs participating in the operation.
+The size of a data element is 8 bits for <code class="docutils literal notranslate"><span class="pre">ishmem_alltoallmem</span></code>.</p>
+<p>The data being sent and received are stored in a contiguous symmetric data
+object.
+The total size of each PE’s <strong>source</strong> object and <strong>dest</strong> object is <strong>nelems</strong>
+times the size of an element times <cite>N</cite>, where <cite>N</cite> equals the number of PEs
+participating in the operation.
+The <strong>source</strong> object contains <cite>N</cite> blocks of data (where the size of each block
+is defined by <strong>nelems</strong>) and each block of data is sent to a different PE.</p>
+<p>The same <strong>dest</strong> and <strong>source</strong> arrays, and same value for <strong>nelems</strong> must be
+passed by all PEs that participate in the collective.</p>
+<p>Given a PE <cite>i</cite> that is the <cite>i</cite><sup>th</sup> PE participating in the operation and a
+PE <cite>j</cite> that is the <cite>j</cite><sup>th</sup> PE participating in the operation, PE <cite>i</cite> sends
+the <cite>j</cite><sup>th</sup> block of its <strong>source</strong> object to the <cite>i</cite><sup>th</sup> block of
+the <strong>dest</strong> object of PE <cite>j</cite>.</p>
+<p>All PEs must participate in the collective.</p>
+<p>Before any PE calls a <code class="docutils literal notranslate"><span class="pre">ishmem_alltoall</span></code> routine, the following conditions must
+be ensured:</p>
+<ol class="arabic simple">
+<li><p>The <strong>dest</strong> data object on all PEs is ready to accept the
+<code class="docutils literal notranslate"><span class="pre">ishmem_alltoall</span></code> data.</p></li>
+<li><p>The <strong>source</strong> data object on all PEs is ready to send.</p></li>
+</ol>
+<p>Otherwise, the behavior is undefined.</p>
+<p>Upon return from a <code class="docutils literal notranslate"><span class="pre">ishmem_alltoall</span></code> routine, the following is true for
+the local PE:</p>
+<ol class="arabic simple">
+<li><p>Its <strong>dest</strong> symmetric data object is completely updated.</p></li>
+<li><p>The data has been copied out of the <strong>source</strong> data object.</p></li>
+</ol>
+</section>
+<section id="ishmemx-alltoall-work-group">
+<h2>ISHMEMX_ALLTOALL_WORK_GROUP<a class="headerlink" href="#ishmemx-alltoall-work-group" title="Permalink to this heading">#</a></h2>
+<p>Exchanges a fixed amount of contiguous data blocks between all pairs of PEs
+participating in the collective routine.</p>
+<p>In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
+Types</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E36ishmemx_TYPENAME_alltoall_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E36ishmemx_TYPENAME_alltoall_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E36ishmemx_TYPENAME_alltoall_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_alltoall_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E36ishmemx_TYPENAME_alltoall_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_alltoall_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E36ishmemx_TYPENAME_alltoall_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E30ishmemx_alltoallmem_work_groupiPvPKv6size_tRK5Group">
+<span id="_CPPv3I0E30ishmemx_alltoallmem_work_groupPvPKv6size_tRK5Group"></span><span id="_CPPv2I0E30ishmemx_alltoallmem_work_groupPvPKv6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_alltoallmem_work_group</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E30ishmemx_alltoallmem_work_groupiPvPKv6size_tRK5Group" title="ishmemx_alltoallmem_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E30ishmemx_alltoallmem_work_groupiPvPKv6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of a data object large enough to receive the combined total of <strong>nelems</strong> elements from each PE. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Symmetric address of a data object that contains <strong>nelems</strong> elements of data for each PE, ordered according to destination PE. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – The number of elements to exchange for each PE. For <code class="docutils literal notranslate"><span class="pre">ishmem_alltoallmem</span></code>, elements are bytes.</p></li>
+<li><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the barrier operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>zero on successful local completion; otherwise, nonzero.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmemx_alltoall_work_group</span></code> routines have similar semantics and
+requirements as the <code class="docutils literal notranslate"><span class="pre">ishmem_alltoall</span></code> routines.
+In contrast with the <code class="docutils literal notranslate"><span class="pre">ishmem_alltoall</span></code> routines,
+<code class="docutils literal notranslate"><span class="pre">ishmemx_alltoall_work_group</span></code> allows for the device threads within <strong>group</strong>
+to cooperate towards the all-to-all operation.
+This may be more performant; for example, when <code class="docutils literal notranslate"><span class="pre">ishmem_alltoall</span></code>
+requires <cite>all</cite> device threads in the kernel to invoke RMA operations.
+This routine blocks the calling PE until all PEs have called
+<code class="docutils literal notranslate"><span class="pre">ishmemx_alltoall_work_group</span></code>.
+<code class="docutils literal notranslate"><span class="pre">ishmemx_alltoall_work_group</span></code> only ensures completion and visibility of
+previously issued memory stores and does not ensure completion of remote memory
+updates issued via <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines.
+All threads in <strong>group</strong> must call the routine with identical arguments.</p>
+</section>
+<section id="ishmem-broadcast">
+<h2>ISHMEM_BROADCAST<a class="headerlink" href="#ishmem-broadcast" title="Permalink to this heading">#</a></h2>
+<p>Broadcasts a block of data from one PE to one or more destination PEs.</p>
+<p>Below, TYPE is one of the standard RMA types and has a corresponding TYPENAME
+specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA Types</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425ishmem_TYPENAME_broadcastP4TYPEPK4TYPE6size_ti">
+<span id="_CPPv325ishmem_TYPENAME_broadcastP4TYPEPK4TYPE6size_ti"></span><span id="_CPPv225ishmem_TYPENAME_broadcastP4TYPEPK4TYPE6size_ti"></span><span id="ishmem_TYPENAME_broadcast__TYPEP.TYPECP.s.i"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_broadcast</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">PE_root</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425ishmem_TYPENAME_broadcastP4TYPEPK4TYPE6size_ti" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419ishmem_broadcastmemPvPKv6size_ti">
+<span id="_CPPv319ishmem_broadcastmemPvPKv6size_ti"></span><span id="_CPPv219ishmem_broadcastmemPvPKv6size_ti"></span><span id="ishmem_broadcastmem__voidP.voidCP.s.i"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_broadcastmem</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">PE_root</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419ishmem_broadcastmemPvPKv6size_ti" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Symmetric address of the source data object. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – The number of elements in the <strong>source</strong> and <strong>dest</strong> arrays. For <code class="docutils literal notranslate"><span class="pre">ishmem_broadcastmem</span></code>, elements are bytes.</p></li>
+<li><p><strong>PE_root</strong> – The PE from which the data is copied.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>zero on successful local completion; otherwise, nonzero.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The broadcast routines are collective routines across all PEs.
+They copy the <strong>source</strong> data object on the PE specified by <strong>PE_root</strong> to
+the <strong>dest</strong> data object on the PEs participating in the collective
+operation.
+The same <strong>dest</strong> and <strong>source</strong> data objects and the same value of
+<strong>PE_root</strong> must be passed by all PEs participating in the collective
+operation.</p>
+<p>For broadcasts:</p>
+<ul class="simple">
+<li><p>The <strong>dest</strong> object is updated on all PEs.</p></li>
+<li><p>All PEs must participate in the operation.</p></li>
+<li><p>The values of argument <strong>PE_root</strong> must be the same value on all PEs.</p></li>
+<li><p>The value of <strong>PE_root</strong> must be between 0 and <strong>PE_size</strong> - 1.</p></li>
+</ul>
+<p>Before any PE calls a broadcast routine, the following conditions must be
+ensured:</p>
+<ul class="simple">
+<li><p>The <strong>dest</strong> array on all PEs participating in the broadcast is ready to accept the broadcast data.</p></li>
+</ul>
+<p>Otherwise, the behavior is undefined.</p>
+<p>Upon return from a broadcast routine, the following are true for the local
+PE:</p>
+<ul class="simple">
+<li><p>The <strong>dest</strong> data object is updated on all PEs.</p></li>
+<li><p>The <strong>source</strong> data object may be safely reused.</p></li>
+</ul>
+</section>
+<section id="ishmemx-broadcast-work-group">
+<h2>ISHMEMX_BROADCAST_WORK_GROUP<a class="headerlink" href="#ishmemx-broadcast-work-group" title="Permalink to this heading">#</a></h2>
+<p>Broadcasts a block of data from one PE to one or more destination PEs.</p>
+<p>Below, TYPE is one of the standard RMA types and has a corresponding TYPENAME
+specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA Types</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E37ishmemx_TYPENAME_broadcast_work_groupiP4TYPEPK4TYPE6size_tiRK5Group">
+<span id="_CPPv3I0E37ishmemx_TYPENAME_broadcast_work_groupP4TYPEPK4TYPE6size_tiRK5Group"></span><span id="_CPPv2I0E37ishmemx_TYPENAME_broadcast_work_groupP4TYPEPK4TYPE6size_tiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_broadcast_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">PE_root</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E37ishmemx_TYPENAME_broadcast_work_groupiP4TYPEPK4TYPE6size_tiRK5Group" title="ishmemx_TYPENAME_broadcast_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E37ishmemx_TYPENAME_broadcast_work_groupiP4TYPEPK4TYPE6size_tiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E31ishmemx_broadcastmem_work_groupiPvPKv6size_tiRK5Group">
+<span id="_CPPv3I0E31ishmemx_broadcastmem_work_groupPvPKv6size_tiRK5Group"></span><span id="_CPPv2I0E31ishmemx_broadcastmem_work_groupPvPKv6size_tiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_broadcastmem_work_group</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">PE_root</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E31ishmemx_broadcastmem_work_groupiPvPKv6size_tiRK5Group" title="ishmemx_broadcastmem_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E31ishmemx_broadcastmem_work_groupiPvPKv6size_tiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Symmetric address of the source data object. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – The number of elements in the <strong>source</strong> and <strong>dest</strong> arrays. For <code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_work_group</span></code>, elements are bytes.</p></li>
+<li><p><strong>PE_root</strong> – The PE from which the data is copied.</p></li>
+<li><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the barrier operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>zero on successful local completion; otherwise, nonzero.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmemx_broadcast_work_group</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_work_group</span></code> routines have similar semantics and
+requirements as the <code class="docutils literal notranslate"><span class="pre">ishmem_broadcast</span></code> routines.
+In contrast with the <code class="docutils literal notranslate"><span class="pre">ishmem_broadcast</span></code> routines,
+<code class="docutils literal notranslate"><span class="pre">ishmemx_broadcast_work_group</span></code> and <code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_work_group</span></code>
+allow for the device threads within <strong>group</strong> to cooperate towards the broadcast operation.
+This routine blocks the calling PE until all PEs have called
+<code class="docutils literal notranslate"><span class="pre">ishmemx_broadcast_work_group</span></code>.
+<code class="docutils literal notranslate"><span class="pre">ishmemx_broadcast_work_group</span></code> only ensures completion and visibility of
+previously issued memory stores and does not ensure completion of remote
+memory updates issued via <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines.
+All threads in <strong>group</strong> must call the routine with identical arguments.</p>
+</section>
+<section id="ishmem-collect-ishmem-fcollect">
+<h2>ISHMEM_COLLECT, ISHMEM_FCOLLECT<a class="headerlink" href="#ishmem-collect-ishmem-fcollect" title="Permalink to this heading">#</a></h2>
+<p>Concatenates blocks of data from multiple PEs to an array in every PE
+participating in the collective routine.</p>
+<p>In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
+Types</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423ishmem_TYPENAME_collectP4TYPEPK4TYPE6size_t">
+<span id="_CPPv323ishmem_TYPENAME_collectP4TYPEPK4TYPE6size_t"></span><span id="_CPPv223ishmem_TYPENAME_collectP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_collect__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_collect</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423ishmem_TYPENAME_collectP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424ishmem_TYPENAME_fcollectP4TYPEPK4TYPE6size_t">
+<span id="_CPPv324ishmem_TYPENAME_fcollectP4TYPEPK4TYPE6size_t"></span><span id="_CPPv224ishmem_TYPENAME_fcollectP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_fcollect__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_fcollect</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmem_TYPENAME_fcollectP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417ishmem_collectmemPvPKv6size_t">
+<span id="_CPPv317ishmem_collectmemPvPKv6size_t"></span><span id="_CPPv217ishmem_collectmemPvPKv6size_t"></span><span id="ishmem_collectmem__voidP.voidCP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_collectmem</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417ishmem_collectmemPvPKv6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418ishmem_fcollectmemPvPKv6size_t">
+<span id="_CPPv318ishmem_fcollectmemPvPKv6size_t"></span><span id="_CPPv218ishmem_fcollectmemPvPKv6size_t"></span><span id="ishmem_fcollectmem__voidP.voidCP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_fcollectmem</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418ishmem_fcollectmemPvPKv6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of an array large enough to accept the concatenation of the <strong>source</strong> arrays on all participating PEs. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Symmetric address of the <strong>source</strong> data object. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – The number of elements in <strong>source</strong> array. For <code class="docutils literal notranslate"><span class="pre">ishmem_[f]collectmem</span></code>, elements are bytes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Zero on successful local completion. Nonzero otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_collect</span></code> and <code class="docutils literal notranslate"><span class="pre">ishmem_fcollect</span></code> routines perform a
+collective operation to concatenate <strong>nelems</strong> data items from the <strong>source</strong>
+array into the <strong>dest</strong> array, over all PEs in processor number order.</p>
+<p>The collected result is written to the <strong>dest</strong> array for all PEs.
+The same <strong>dest</strong> and <strong>source</strong> arrays must be passed by all PEs that
+participate in the operation.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ishmem_fcollect</span></code> routines require that <strong>nelems</strong> be the same value
+in all participating PEs, while the <code class="docutils literal notranslate"><span class="pre">ishmem_collect</span></code> routines allow
+<strong>nelems</strong> to vary from PE to PE.</p>
+<p>Upon return from a collective routine, the following are true for the local
+PE:</p>
+<ul class="simple">
+<li><p>The <strong>dest</strong> array is updated and the <strong>source</strong> array may be safely
+reused.</p></li>
+</ul>
+</section>
+<section id="ishmemx-f-collect-work-group">
+<h2>ISHMEMX_[F]COLLECT_WORK_GROUP<a class="headerlink" href="#ishmemx-f-collect-work-group" title="Permalink to this heading">#</a></h2>
+<p>Concatenates blocks of data from multiple PEs to an array in every PE
+participating in the collective routine.</p>
+<p>In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
+Types</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E35ishmemx_TYPENAME_collect_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E35ishmemx_TYPENAME_collect_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E35ishmemx_TYPENAME_collect_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_collect_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E35ishmemx_TYPENAME_collect_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_collect_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E35ishmemx_TYPENAME_collect_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E36ishmemx_TYPENAME_fcollect_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E36ishmemx_TYPENAME_fcollect_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E36ishmemx_TYPENAME_fcollect_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_fcollect_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E36ishmemx_TYPENAME_fcollect_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_fcollect_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E36ishmemx_TYPENAME_fcollect_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E29ishmemx_collectmem_work_groupiPvPKv6size_tRK5Group">
+<span id="_CPPv3I0E29ishmemx_collectmem_work_groupPvPKv6size_tRK5Group"></span><span id="_CPPv2I0E29ishmemx_collectmem_work_groupPvPKv6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_collectmem_work_group</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E29ishmemx_collectmem_work_groupiPvPKv6size_tRK5Group" title="ishmemx_collectmem_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E29ishmemx_collectmem_work_groupiPvPKv6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E30ishmemx_fcollectmem_work_groupiPvPKv6size_tRK5Group">
+<span id="_CPPv3I0E30ishmemx_fcollectmem_work_groupPvPKv6size_tRK5Group"></span><span id="_CPPv2I0E30ishmemx_fcollectmem_work_groupPvPKv6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_fcollectmem_work_group</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E30ishmemx_fcollectmem_work_groupiPvPKv6size_tRK5Group" title="ishmemx_fcollectmem_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E30ishmemx_fcollectmem_work_groupiPvPKv6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of an array large enough to accept the concatenation of the <strong>source</strong> arrays on all participating PEs. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Symmetric address of the <strong>source</strong> data object. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – The number of elements in <strong>source</strong> array. For <code class="docutils literal notranslate"><span class="pre">ishmemx_[f]collectmem_work_group</span></code>, elements are bytes.</p></li>
+<li><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the barrier operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Zero on successful local completion. Nonzero otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmemx_[f]collect_work_group</span></code> routines have similar semantics and
+requirements as the <code class="docutils literal notranslate"><span class="pre">ishmem_[f]collect</span></code> routines.
+In contrast with the <code class="docutils literal notranslate"><span class="pre">ishmem_[f]collect</span></code> routines,
+<code class="docutils literal notranslate"><span class="pre">ishmemx_[f]collect_work_group</span></code> allows for the device threads within
+<strong>group</strong> to cooperate towards the collect operation.
+This may be more performant; for example, when <code class="docutils literal notranslate"><span class="pre">ishmem_collect</span></code>
+requires <cite>all</cite> device threads in the kernel to invoke RMA operations.
+This routine blocks the calling PE until all PEs have called
+<code class="docutils literal notranslate"><span class="pre">ishmemx_[f]collect_work_group</span></code>.
+<code class="docutils literal notranslate"><span class="pre">ishmemx_[f]collect_work_group</span></code> only ensures completion and visibility of
+previously issued memory stores and does not ensure completion of remote
+memory updates issued via <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines.
+All threads in <strong>group</strong> must call the routine with identical arguments.</p>
+</section>
+<section id="ishmem-reduce">
+<span id="reductions"></span><h2>ISHMEM_REDUCE<a class="headerlink" href="#ishmem-reduce" title="Permalink to this heading">#</a></h2>
+<p id="reducetypes"><strong>Reduction Types, Names, and Supporting Operations:</strong></p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>TYPE</p></th>
+<th class="head"><p>TYPENAME</p></th>
+<th class="head"><p>Operations Supporting TYPE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>char</p></td>
+<td><p>char</p></td>
+<td><p>MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>signed char</p></td>
+<td><p>schar</p></td>
+<td><p>MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>short</p></td>
+<td><p>short</p></td>
+<td><p>MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>int</p></td>
+<td><p>int</p></td>
+<td><p>MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>long</p></td>
+<td><p>long</p></td>
+<td><p>MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>long long</p></td>
+<td><p>longlong</p></td>
+<td><p>MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>ptrdiff_t</p></td>
+<td><p>ptrdiff</p></td>
+<td><p>MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>unsigned char</p></td>
+<td><p>uchar</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>unsigned short</p></td>
+<td><p>ushort</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>unsigned int</p></td>
+<td><p>uint</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>unsigned long</p></td>
+<td><p>ulong</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>unsigned long long</p></td>
+<td><p>ulonglong</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>int8_t</p></td>
+<td><p>int8</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>int16_t</p></td>
+<td><p>int16</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>int32_t</p></td>
+<td><p>int32</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>int64_t</p></td>
+<td><p>int64</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>uint8_t</p></td>
+<td><p>uint8</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>uint16_t</p></td>
+<td><p>uint16</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>uint32_t</p></td>
+<td><p>uint32</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>uint64_t</p></td>
+<td><p>uint64</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>size_t</p></td>
+<td><p>size</p></td>
+<td><p>AND, OR, XOR,  MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-odd"><td><p>float</p></td>
+<td><p>float</p></td>
+<td><p>MAX, MIN,  SUM, PROD</p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>double</p></td>
+<td><p>MAX, MIN,  SUM, PROD</p></td>
+</tr>
+</tbody>
+</table>
+<p>The following functions perform reduction operations across all PEs.</p>
+<p>In the functions below, TYPE is one of the reduction types and has a
+corresponding TYPENAME specified by Table <a class="reference internal" href="#reducetypes"><span class="std std-ref">Reduction Types, Names, and Supporting Operations</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_and_reduceP4TYPEPK4TYPE6size_t">
+<span id="_CPPv326ishmem_TYPENAME_and_reduceP4TYPEPK4TYPE6size_t"></span><span id="_CPPv226ishmem_TYPENAME_and_reduceP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_and_reduce__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_and_reduce</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_and_reduceP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425ishmem_TYPENAME_or_reduceP4TYPEPK4TYPE6size_t">
+<span id="_CPPv325ishmem_TYPENAME_or_reduceP4TYPEPK4TYPE6size_t"></span><span id="_CPPv225ishmem_TYPENAME_or_reduceP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_or_reduce__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_or_reduce</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425ishmem_TYPENAME_or_reduceP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_xor_reduceP4TYPEPK4TYPE6size_t">
+<span id="_CPPv326ishmem_TYPENAME_xor_reduceP4TYPEPK4TYPE6size_t"></span><span id="_CPPv226ishmem_TYPENAME_xor_reduceP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_xor_reduce__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_xor_reduce</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_xor_reduceP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_max_reduceP4TYPEPK4TYPE6size_t">
+<span id="_CPPv326ishmem_TYPENAME_max_reduceP4TYPEPK4TYPE6size_t"></span><span id="_CPPv226ishmem_TYPENAME_max_reduceP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_max_reduce__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_max_reduce</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_max_reduceP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_min_reduceP4TYPEPK4TYPE6size_t">
+<span id="_CPPv326ishmem_TYPENAME_min_reduceP4TYPEPK4TYPE6size_t"></span><span id="_CPPv226ishmem_TYPENAME_min_reduceP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_min_reduce__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_min_reduce</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_min_reduceP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_sum_reduceP4TYPEPK4TYPE6size_t">
+<span id="_CPPv326ishmem_TYPENAME_sum_reduceP4TYPEPK4TYPE6size_t"></span><span id="_CPPv226ishmem_TYPENAME_sum_reduceP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_sum_reduce__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_sum_reduce</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_sum_reduceP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427ishmem_TYPENAME_prod_reduceP4TYPEPK4TYPE6size_t">
+<span id="_CPPv327ishmem_TYPENAME_prod_reduceP4TYPEPK4TYPE6size_t"></span><span id="_CPPv227ishmem_TYPENAME_prod_reduceP4TYPEPK4TYPE6size_t"></span><span id="ishmem_TYPENAME_prod_reduce__TYPEP.TYPECP.s"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_prod_reduce</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_TYPENAME_prod_reduceP4TYPEPK4TYPE6size_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of an array, of length <strong>nreduce</strong> elements, to receive the result of the reduction routines. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#reducetypes"><span class="std std-ref">Reduction Types</span></a>.</p></li>
+<li><p><strong>source</strong> – Symmetric address of an array, of length <strong>nreduce</strong> elements, that contains one element for each separate reduction routine. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#reducetypes"><span class="std std-ref">Reduction Types</span></a>.</p></li>
+<li><p><strong>nreduce</strong> – The number of elements in the <strong>dest</strong> and <strong>source</strong> arrays. <strong>nreduce</strong> must be of type <strong>size_t</strong> and have the same value across all PEs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Zero on successful local completion. Nonzero otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+<code class="docutils literal notranslate"><span class="pre">ishmem</span></code> reduction routines are collective routines over all PEs that
+compute one or more reductions across symmetric arrays.
+A reduction performs an associative binary routine across a set of values.</p>
+<p>The <strong>nreduce</strong> argument determines the number of separate reductions to
+perform.
+The <strong>source</strong> array on all PEs provides one element for each reduction.
+The results of the reductions are placed in the <strong>dest</strong> array on all PEs.</p>
+<p>The <strong>source</strong> and <strong>dest</strong> arguments must either be the same symmetric
+address, or two different symmetric addresses corresponding to buffers that
+do not overlap in memory. That is, they must be completely overlapping or
+completely disjoint.</p>
+<p>Before any PE calls a reduction routine, the following conditions must be
+ensured:</p>
+<ul class="simple">
+<li><p>The <strong>dest</strong> array on all PEs participating in the reduction is ready to
+accept the results of the reduction.</p></li>
+</ul>
+<p>Otherwise, the behavior is undefined.</p>
+<p>Upon return from a reduction routine, the following are true for the local
+PE:</p>
+<ul class="simple">
+<li><p>The <strong>dest</strong> array is updated and the <strong>source</strong> array may be safely
+reused.</p></li>
+</ul>
+</section>
+<section id="ishmemx-reduce-work-group">
+<h2>ISHMEMX_REDUCE_WORK_GROUP<a class="headerlink" href="#ishmemx-reduce-work-group" title="Permalink to this heading">#</a></h2>
+<p>The following functions perform reduction operations across all PEs.</p>
+<p>In the functions below, TYPE is one of the reduction types and has a
+corresponding TYPENAME specified by Table <a class="reference internal" href="#reducetypes"><span class="std std-ref">Reduction Types, Names, and Supporting Operations</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E38ishmemx_TYPENAME_and_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E38ishmemx_TYPENAME_and_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E38ishmemx_TYPENAME_and_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_and_reduce_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E38ishmemx_TYPENAME_and_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_and_reduce_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E38ishmemx_TYPENAME_and_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E37ishmemx_TYPENAME_or_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E37ishmemx_TYPENAME_or_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E37ishmemx_TYPENAME_or_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_or_reduce_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E37ishmemx_TYPENAME_or_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_or_reduce_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E37ishmemx_TYPENAME_or_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E38ishmemx_TYPENAME_xor_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E38ishmemx_TYPENAME_xor_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E38ishmemx_TYPENAME_xor_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_xor_reduce_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E38ishmemx_TYPENAME_xor_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_xor_reduce_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E38ishmemx_TYPENAME_xor_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E38ishmemx_TYPENAME_max_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E38ishmemx_TYPENAME_max_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E38ishmemx_TYPENAME_max_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_max_reduce_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E38ishmemx_TYPENAME_max_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_max_reduce_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E38ishmemx_TYPENAME_max_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E38ishmemx_TYPENAME_min_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E38ishmemx_TYPENAME_min_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E38ishmemx_TYPENAME_min_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_min_reduce_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E38ishmemx_TYPENAME_min_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_min_reduce_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E38ishmemx_TYPENAME_min_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E38ishmemx_TYPENAME_sum_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E38ishmemx_TYPENAME_sum_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E38ishmemx_TYPENAME_sum_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_sum_reduce_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E38ishmemx_TYPENAME_sum_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_sum_reduce_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E38ishmemx_TYPENAME_sum_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E39ishmemx_TYPENAME_prod_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">
+<span id="_CPPv3I0E39ishmemx_TYPENAME_prod_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span id="_CPPv2I0E39ishmemx_TYPENAME_prod_reduce_work_groupP4TYPEPK4TYPE6size_tRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_prod_reduce_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nreduce</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E39ishmemx_TYPENAME_prod_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="ishmemx_TYPENAME_prod_reduce_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E39ishmemx_TYPENAME_prod_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of an array, of length <strong>nreduce</strong> elements, to receive the result of the reduction routines. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#reducetypes"><span class="std std-ref">Reduction Types</span></a>.</p></li>
+<li><p><strong>source</strong> – Symmetric address of an array, of length <strong>nreduce</strong> elements, that contains one element for each separate reduction routine. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#reducetypes"><span class="std std-ref">Reduction Types</span></a>.</p></li>
+<li><p><strong>nreduce</strong> – The number of elements in the <strong>dest</strong> and <strong>source</strong> arrays. <strong>nreduce</strong> must be of type <strong>size_t</strong> and have the same value across all PEs.</p></li>
+<li><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the barrier operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Zero on successful local completion. Nonzero otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmemx_reduce_work_group</span></code> routines have similar semantics and
+requirements as the <code class="docutils literal notranslate"><span class="pre">ishmem_reduce</span></code> routines.
+In contrast with the <code class="docutils literal notranslate"><span class="pre">ishmem_reduce</span></code> routines,
+<code class="docutils literal notranslate"><span class="pre">ishmemx_reduce_work_group</span></code> allows for the device threads within
+<strong>group</strong> to cooperate towards the reduction operation.
+This may be more performant; for example, when <code class="docutils literal notranslate"><span class="pre">ishmem_reduce</span></code>
+requires <cite>all</cite> device threads in the kernel to invoke RMA operations.
+This routine blocks the calling PE until all PEs have called
+<code class="docutils literal notranslate"><span class="pre">ishmemx_reduce_work_group</span></code>.
+<code class="docutils literal notranslate"><span class="pre">ishmemx_reduce_work_group</span></code> only ensures completion and visibility of
+previously issued memory stores and does not ensure completion of remote
+memory updates issued via <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines.
+All threads in <strong>group</strong> must call the routine with identical arguments.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>For the reduction operations <code class="docutils literal notranslate"><span class="pre">sum</span></code> and <code class="docutils literal notranslate"><span class="pre">prod</span></code>, the order of
+reduction may not be the same across all PEs, so the results for floating
+point datatypes may differ slightly. This is because floating addition and
+multiplication are not associative operations.</p>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="signaling.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Signaling Operations</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pt2pt_sync.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Point-To-Point Synchronization</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-barrier-all">ISHMEM_BARRIER_ALL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-barrier-all-work-group">ISHMEMX_BARRIER_ALL_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-sync-all">ISHMEM_SYNC_ALL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-sync-all-work-group">ISHMEMX_SYNC_ALL_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-alltoall">ISHMEM_ALLTOALL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-alltoall-work-group">ISHMEMX_ALLTOALL_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-broadcast">ISHMEM_BROADCAST</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-broadcast-work-group">ISHMEMX_BROADCAST_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-collect-ishmem-fcollect">ISHMEM_COLLECT, ISHMEM_FCOLLECT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-f-collect-work-group">ISHMEMX_[F]COLLECT_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-reduce">ISHMEM_REDUCE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-reduce-work-group">ISHMEMX_REDUCE_WORK_GROUP</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Intel Corporation
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Memory Model &#8212; Documentation for Intel® SHMEM</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'memory_model';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/memory_model.html" />
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Execution Model" href="execution_model.html" />
+    <link rel="prev" title="Programming Model Overview" href="programming_model.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo-classicblue-400px.png" class="logo__image only-light" alt="Documentation for Intel® SHMEM - Home"/>
+    <script>document.write(`<img src="_static/logo-classicblue-400px.png" class="logo__image only-dark" alt="Documentation for Intel® SHMEM - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming_model.html">Programming Model Overview</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Memory Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution_model.html">Execution Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_features.html">Supported/Unsupported Features</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/memory_model.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Memory Model</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pointers-to-symmetric-objects">Pointers to Symmetric Objects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#atomicity-guarantees">Atomicity Guarantees</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="memory-model">
+<span id="id1"></span><h1>Memory Model<a class="headerlink" href="#memory-model" title="Permalink to this heading">#</a></h1>
+<a class="reference internal image-reference" href="_images/memory_model-1PPD.png" id="memory-model-diagram"><img alt="_images/memory_model-1PPD.png" class="align-center" id="memory-model-diagram" src="_images/memory_model-1PPD.png" style="width: 1000px;" /></a>
+<p>An Intel® SHMEM program consists of data objects that are private to
+each PE and data objects that are remotely accessible by all PEs.
+Private data objects are stored in the local host memory of a given PE or in
+the device memory of the device local to the PE, and private objects cannot be
+accessed by other PEs via <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines.
+Private data objects on the host follow the memory model of C/C++ and private
+data objects on the device follow the SYCL device memory model (see <a class="reference external" href="https://www.khronos.org/registry/SYCL/specs/sycl-2020/html/sycl-2020.html#_sycl_device_memory_model">SYCL device memory model</a>).</p>
+<p>Remotely accessible objects, however, can be accessed by remote PEs using
+<code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines within SYCL device kernels.
+Remotely accessible data objects are called <cite>Symmetric Data Objects</cite>.
+Each symmetric data object has a corresponding object with the same name, type,
+and size on all PEs where that object is accessible via the Intel® SHMEM API.</p>
+<p>In Intel® SHMEM, global and static C++ variables are remotely
+accessible <cite>only</cite> by using <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines that are callable from the
+<strong>host</strong> (this kind of data object must not be defined in a dynamic shared
+object).
+On the other hand, C++ data allocated by the memory management
+routines (Section <a class="reference internal" href="memory_management.html#memory-management"><span class="std std-ref">Memory Management</span></a>) are remotely
+accessible by using <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> APIs that are callable from <cite>either</cite> the
+<strong>host</strong> or the <strong>device</strong>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> dynamic memory allocation routines (e.g., <code class="docutils literal notranslate"><span class="pre">ishmem_malloc</span></code>)
+allow collective allocation of <cite>Symmetric Data Objects</cite> on a special memory
+region called the <cite>Symmetric Heap</cite>.
+The Symmetric Heap is created during the execution of a program at a memory
+location determined by the implementation.
+The Symmetric Heap may reside in different memory regions on different PEs.
+<a class="reference internal" href="#memory-model-diagram"><span class="std std-ref">The memory model diagram</span></a> shows an example of the
+Intel® SHMEM memory layout, illustrating the location of remotely
+accessible symmetric objects and private data objects.</p>
+<section id="pointers-to-symmetric-objects">
+<span id="id2"></span><h2>Pointers to Symmetric Objects<a class="headerlink" href="#pointers-to-symmetric-objects" title="Permalink to this heading">#</a></h2>
+<p>Symmetric data objects are referenced in <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines through the
+local pointer to the desired remotely accessible object.
+The address contained in this pointer is referred to as a <cite>symmetric address</cite>.
+Every symmetric address is also a <cite>local address</cite> that is valid for direct
+memory access; however, not all local addresses are symmetric.
+Manipulation of symmetric addresses passed to <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines - including
+pointer arithmetic, array indexing, and access of structure or union members -
+are permitted as long as the resulting local pointer remains within the same
+symmetric allocation or object.
+Symmetric addresses are only valid at the PE where they were generated; using a
+symmetric address generated by a different PE for direct memory access or as an
+argument to a <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routine results in undefined behavior.</p>
+<p>Symmetric addresses provided to typed <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> interfaces must be naturally
+aligned based on their type and any requirements of the underlying
+architecture.</p>
+<p>The DPC++/SYCL programming model supports Unified Shared Memory between host
+and GPU.
+In that model, memory can be <cite>host</cite>, <cite>device</cite>, or <cite>shared</cite>.
+In Intel® SHMEM, the symmetric heap is in <cite>device</cite> memory and is not accessible
+from the host by loads and stores, but SYCL routines such as
+<code class="docutils literal notranslate"><span class="pre">sycl::queue::memcpy()</span></code> may be used.
+SYCL <cite>host</cite> Memory may be allocated by <code class="docutils literal notranslate"><span class="pre">sycl::malloc_host()</span></code> and is accesible
+using loads and stores in both host and device kernel code.
+SYCL kernels generally do not have access to host global and static objects.</p>
+<p>Intel® SHMEM augments the DPC++/SYCL memory model to some degree, in that
+host-initiated operations can reference objects in the symmetric heap on the
+same or other PEs, even though device memory is not accessible by loads and
+stores.
+Host-initiated operations can also refer to global and static objects on the
+same or other PEs.
+Device-initiated operations may only reference objects in the symmetric heap.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ishmem_ptr</span></code> routine allows the programmer to obtain a local pointer to a
+remotely accessible object at a specified PE if load-store access is possible.
+For Intel® <span class="math notranslate nohighlight">\(\text{X}^e\)</span> Link fabric connected GPUs, <code class="docutils literal notranslate"><span class="pre">ishmem_ptr</span></code> may
+return a valid address for direct access to symmetric heap objects that are
+accessible via the <span class="math notranslate nohighlight">\(\text{X}^e\)</span> Link fabric.
+<code class="docutils literal notranslate"><span class="pre">ishmem_ptr</span></code> called on the host will generally not return a valid address
+for a symmetric heap object even on the same PE.
+A pointer returned by <code class="docutils literal notranslate"><span class="pre">ishmem_optr</span></code> is valid for direct memory access; however,
+providing this address as an argument of an <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routine that requires a
+symmetric address results in undefined behavior.</p>
+</section>
+<section id="atomicity-guarantees">
+<span id="amo-guarantees"></span><h2>Atomicity Guarantees<a class="headerlink" href="#atomicity-guarantees" title="Permalink to this heading">#</a></h2>
+<p>Intel® SHMEM contains a number of routines that perform atomic
+operations on symmetric data objects, which are defined in the <a class="reference internal" href="atomics.html#atomics"><span class="std std-ref">Atomic
+Memory Operations</span></a> section.
+The atomic routines guarantee that concurrent accesses by any of these routines
+to the same location, using the same datatype (specified in the <a class="reference internal" href="atomics.html#stdamotypes"><span class="std std-ref">Standard
+AMO Types</span></a> and <a class="reference internal" href="atomics.html#extamotypes"><span class="std std-ref">Extended AMO Types</span></a> tables)
+will be exclusive.
+Exclusivity is also guaranteed when the target PE performs a wait or test
+operation on the same location and with the same datatype as one or more atomic
+operations.</p>
+<p>Intel® SHMEM atomic operations do not guarantee exclusivity in the
+following scenarios, all of which result in undefined behavior.</p>
+<ol class="arabic simple">
+<li><p>When concurrent accesses to the same location are performed using <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> atomic routines using different datatypes.</p></li>
+<li><p>When atomic and non-atomic <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines are used to access the same location concurrently.</p></li>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> atomic routines and non-<code class="docutils literal notranslate"><span class="pre">ishmem</span></code> operations (e.g., load, store, or other atomic operations) are used to access the same location concurrently.</p></li>
+</ol>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="programming_model.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Programming Model Overview</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="execution_model.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Execution Model</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pointers-to-symmetric-objects">Pointers to Symmetric Objects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#atomicity-guarantees">Atomicity Guarantees</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Intel Corporation
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

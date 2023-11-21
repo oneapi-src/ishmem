@@ -1,0 +1,780 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Signaling Operations &#8212; Documentation for Intel® SHMEM</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'signaling';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/signaling.html" />
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Collective Operations" href="collectives.html" />
+    <link rel="prev" title="Atomic Memory Operations (AMO)" href="atomics.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo-classicblue-400px.png" class="logo__image only-light" alt="Documentation for Intel® SHMEM - Home"/>
+    <script>document.write(`<img src="_static/logo-classicblue-400px.png" class="logo__image only-dark" alt="Documentation for Intel® SHMEM - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming_model.html">Programming Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_model.html">Memory Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution_model.html">Execution Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_features.html">Supported/Unsupported Features</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Signaling Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/signaling.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Signaling Operations</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#atomicity-guarantees-for-signaling-operations">Atomicity Guarantees for Signaling Operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-signal-operators">Available Signal Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#blocking-put-signal">Blocking Put-Signal</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-put-signal">ISHMEM_PUT_SIGNAL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-put-signal-work-group">ISHMEMX_PUT_SIGNAL_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nonblocking-put-signal">Nonblocking Put-Signal</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-put-nbi-signal">ISHMEM_PUT_NBI_SIGNAL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-put-nbi-signal-work-group">ISHMEMX_PUT_NBI_SIGNAL_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-signal-fetch">ISHMEM_SIGNAL_FETCH</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="signaling-operations">
+<span id="signaling"></span><h1>Signaling Operations<a class="headerlink" href="#signaling-operations" title="Permalink to this heading">#</a></h1>
+<p>This section specifies the Intel® SHMEM support for
+<cite>put-with-signal</cite>, nonblocking <cite>put-with-signal</cite>, and <cite>signal-fetch</cite> routines.
+The put-with-signal routines provide a method for copying data from a
+contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.
+The signal-fetch routine provides support for fetching a signal update
+operation.</p>
+<section id="atomicity-guarantees-for-signaling-operations">
+<span id="signal-atomicity"></span><h2>Atomicity Guarantees for Signaling Operations<a class="headerlink" href="#atomicity-guarantees-for-signaling-operations" title="Permalink to this heading">#</a></h2>
+<p>All signaling operations put-with-signal, nonblocking put-with-signal, and
+signal-fetch are performed on a signal data object, a remotely accessible
+symmetric object of type <strong>uint64_t</strong>.
+A signal operator in the put-with-signal routine is an Intel® SHMEM
+library constant that determines the type of update to be performed as a signal
+on the signal data object.</p>
+<p>All signaling operations on the signal data object complete as if performed
+atomically with respect to the following:</p>
+<ul class="simple">
+<li><p>other blocking or nonblocking variant of the put-with-signal routine that
+updates the signal data object using the same signal update operator;</p></li>
+<li><p>signal-fetch routine that fetches the signal data object; and</p></li>
+<li><p>any point-to-point synchronization routine that accesses the signal data
+object.</p></li>
+</ul>
+</section>
+<section id="available-signal-operators">
+<span id="signal-operators"></span><h2>Available Signal Operators<a class="headerlink" href="#available-signal-operators" title="Permalink to this heading">#</a></h2>
+<p>With the atomicity guarantees as described in Section <a class="reference internal" href="#signal-atomicity"><span class="std std-ref">Atomicity
+Guarantees for Signaling Operations</span></a>, the following options
+can be used as a signal operator.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_SIGNAL_SET</span></code> An update to signal data object is an atomic set
+operation. It writes an unsigned 64-bit value as a signal into the signal
+data object on a remote PE as an atomic operation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_SIGNAL_ADD</span></code> An update to signal data object is an atomic add
+operation. It adds an unsigned 64-bit value as a signal into the signal data
+object on a remote PE as an atomic operation.</p></li>
+</ul>
+</section>
+<section id="blocking-put-signal">
+<h2>Blocking Put-Signal<a class="headerlink" href="#blocking-put-signal" title="Permalink to this heading">#</a></h2>
+<section id="ishmem-put-signal">
+<h3>ISHMEM_PUT_SIGNAL<a class="headerlink" href="#ishmem-put-signal" title="Permalink to this heading">#</a></h3>
+<p>The <cite>put-with-signal</cite> routines provide a method for copying data from a
+contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.</p>
+<p>In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
+Types</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E17ishmem_put_signalvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">
+<span id="_CPPv3I0E17ishmem_put_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv2I0E17ishmem_put_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_put_signal</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_put_signalvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="ishmem_put_signal::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E17ishmem_put_signalvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="ishmem_put_signal::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_put_signalvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_put_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">
+<span id="_CPPv326ishmem_TYPENAME_put_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv226ishmem_TYPENAME_put_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="ishmem_TYPENAME_put_signal__TYPEP.TYPECP.s.uint64_tP.uint64_t.i.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_put_signal</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_put_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv429ishmem_TYPENAME_putmem_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">
+<span id="_CPPv329ishmem_TYPENAME_putmem_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv229ishmem_TYPENAME_putmem_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="ishmem_TYPENAME_putmem_signal__TYPEP.TYPECP.s.uint64_tP.uint64_t.i.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_putmem_signal</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv429ishmem_TYPENAME_putmem_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Local address of the data object containing the data to be copied. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – Number of elements in the <strong>dest</strong> and <strong>source</strong> arrays. For <code class="docutils literal notranslate"><span class="pre">ishmem_putmem_signal</span></code>, elements are bytes.</p></li>
+<li><p><strong>sig_addr</strong> – Symmetric address of the signal data object to be updated on the remote PE as a signal.</p></li>
+<li><p><strong>signal</strong> – Unsigned 64-bit value that is used for updating the remote <strong>sig_addr</strong> signal data object.</p></li>
+<li><p><strong>sig_op</strong> – Signal operator that represents the type of update to be performed on the remote <strong>sig_addr</strong> signal data object.</p></li>
+<li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <cite>put-with-signal</cite> routines provide a method for copying data from a
+contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.
+The routines return after the data has been copied out of the <strong>source</strong> array
+on the local PE.</p>
+<p>The <strong>sig_op</strong> signal operator determines the type of update to be performed on
+the remote <strong>sig_addr</strong> signal data object.
+The completion of signal update based on the <strong>sig_op</strong> signal operator using
+the <strong>signal</strong> flag on the remote PE indicates the delivery of its
+corresponding <strong>dest</strong> data words into the data object on the remote PE.</p>
+<p>An update to the <strong>sig_addr</strong> signal data object through a <cite>put-with-signal</cite>
+routine completes as if performed atomically as described in Section <a class="reference internal" href="#signal-atomicity"><span class="std std-ref">Atomicity
+Guarantees for Signaling Operations</span></a>.
+The various options as described in Section <a class="reference internal" href="#signal-operators"><span class="std std-ref">Available Signal
+Operators</span></a> can be used as the <strong>sig_op</strong> signal operator.</p>
+<p>The <strong>dest</strong> and <strong>sig_addr</strong> data objects must both be remotely accessible and
+may not be overlapping in memory.</p>
+<p>The completion of signal update using the <strong>signal</strong> flag on the remote PE
+indicates only the delivery of its corresponding <strong>dest</strong> data words into the
+data object on the remote PE.
+Without a memory-ordering operation, there is no implied ordering between the
+signal update of a <cite>put-with-signal</cite> routine and another data transfer.
+For example, the completion of the signal update in a sequence consisting of a
+put routine followed by a <cite>put-with-signal</cite> routine does not imply delivery of
+the <cite>put</cite> routine’s data.</p>
+</section>
+<section id="ishmemx-put-signal-work-group">
+<h3>ISHMEMX_PUT_SIGNAL_WORK_GROUP<a class="headerlink" href="#ishmemx-put-signal-work-group" title="Permalink to this heading">#</a></h3>
+<p>The <cite>put-with-signal</cite> routines provide a method for copying data from a
+contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.</p>
+<p>In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
+Types</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">
+<span id="_CPPv3I00E29ishmemx_put_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I00E29ishmemx_put_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_put_signal_work_group</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_work_group::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_work_group::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E38ishmemx_TYPENAME_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">
+<span id="_CPPv3I0E38ishmemx_TYPENAME_put_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I0E38ishmemx_TYPENAME_put_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_put_signal_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E38ishmemx_TYPENAME_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_TYPENAME_put_signal_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E38ishmemx_TYPENAME_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E32ishmemx_putmem_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">
+<span id="_CPPv3I0E32ishmemx_putmem_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I0E32ishmemx_putmem_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_putmem_signal_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E32ishmemx_putmem_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_putmem_signal_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E32ishmemx_putmem_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Local address of the data object containing the data to be copied. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – Number of elements in the <strong>dest</strong> and <strong>source</strong> arrays. For <code class="docutils literal notranslate"><span class="pre">ishmemx_putmem_signal_work_group</span></code>, elements are bytes.</p></li>
+<li><p><strong>sig_addr</strong> – Symmetric address of the signal data object to be updated on the remote PE as a signal.</p></li>
+<li><p><strong>signal</strong> – Unsigned 64-bit value that is used for updating the remote <strong>sig_addr</strong> signal data object.</p></li>
+<li><p><strong>sig_op</strong> – Signal operator that represents the type of update to be performed on the remote <strong>sig_addr</strong> signal data object.</p></li>
+<li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
+<li><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the <cite>Put</cite> operation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p>The <cite>put-with-signal</cite> routines provide a method for copying data from a
+contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.
+The routines return after the data has been copied out of the <strong>source</strong> array
+on the local PE.</p>
+<p>The <strong>sig_op</strong> signal operator determines the type of update to be performed on
+the remote <strong>sig_addr</strong> signal data object.
+The completion of signal update based on the <strong>sig_op</strong> signal operator using
+the <strong>signal</strong> flag on the remote PE indicates the delivery of its
+corresponding <strong>dest</strong> data words into the data object on the remote PE.</p>
+<p>An update to the <strong>sig_addr</strong> signal data object through a <cite>put-with-signal</cite>
+routine completes as if performed atomically as described in Section <a class="reference internal" href="#signal-atomicity"><span class="std std-ref">Atomicity
+Guarantees for Signaling Operations</span></a>.
+The various options as described in Section <a class="reference internal" href="#signal-operators"><span class="std std-ref">Available Signal
+Operators</span></a> can be used as the <strong>sig_op</strong> signal operator.</p>
+<p>The <strong>dest</strong> and <strong>sig_addr</strong> data objects must both be remotely accessible and
+may not be overlapping in memory.</p>
+<p>The completion of signal update using the <strong>signal</strong> flag on the remote PE
+indicates only the delivery of its corresponding <strong>dest</strong> data words into the
+data object on the remote PE.
+Without a memory-ordering operation, there is no implied ordering between the
+signal update of a <cite>put-with-signal</cite> routine and another data transfer.
+For example, the completion of the signal update in a sequence consisting of a
+put routine followed by a <cite>put-with-signal</cite> routine does not imply delivery of
+the <cite>put</cite> routine’s data.</p>
+</section>
+</section>
+<section id="nonblocking-put-signal">
+<h2>Nonblocking Put-Signal<a class="headerlink" href="#nonblocking-put-signal" title="Permalink to this heading">#</a></h2>
+<section id="ishmem-put-nbi-signal">
+<h3>ISHMEM_PUT_NBI_SIGNAL<a class="headerlink" href="#ishmem-put-nbi-signal" title="Permalink to this heading">#</a></h3>
+<p>The <cite>nonblocking put-with-signal</cite> routines provide a method for copying data from a
+contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.</p>
+<p>In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
+Types</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E21ishmem_put_signal_nbivP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">
+<span id="_CPPv3I0E21ishmem_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv2I0E21ishmem_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_put_signal_nbi</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E21ishmem_put_signal_nbivP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="ishmem_put_signal_nbi::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E21ishmem_put_signal_nbivP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="ishmem_put_signal_nbi::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E21ishmem_put_signal_nbivP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv430ishmem_TYPENAME_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">
+<span id="_CPPv330ishmem_TYPENAME_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv230ishmem_TYPENAME_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="ishmem_TYPENAME_put_signal_nbi__TYPEP.TYPECP.s.uint64_tP.uint64_t.i.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_put_signal_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430ishmem_TYPENAME_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE of TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Local address of the data object containing the data to be copied. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – Number of elements in the <strong>dest</strong> and <strong>source</strong> arrays. For <strong>ishmem_putmem</strong>, elements are bytes.</p></li>
+<li><p><strong>sig_addr</strong> – Symmetric address of the signal data object to be updated on the remote PE as a signal.</p></li>
+<li><p><strong>signal</strong> – Unsigned 64-bit value that is used for updating the remote <strong>sig_addr</strong> signal data object.</p></li>
+<li><p><strong>sig_op</strong> – Signal operator that represents the type of update to be performed on the remote <strong>sig_addr</strong> signal data object.</p></li>
+<li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <cite>nonblocking put-with-signal</cite> routines provide a method for copying data
+from a contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.</p>
+<p>The routines return after initiating the operation.
+The operation is considered complete after a subsequent call to
+<code class="docutils literal notranslate"><span class="pre">ishmem_quiet</span></code> or <code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_work_group</span></code>.
+At the completion of the quiet operation, the data has been copied out of the
+<strong>source</strong> array on the local PE and delivered into the <strong>dest</strong> array on the
+destination PE.</p>
+<p>The delivery of the <strong>signal</strong> flag on the remote PE indicates only the
+delivery of its corresponding <strong>dest</strong> data words into the data object on the
+remote PE.
+Furthermore, two successive nonblocking <cite>put-with-signal</cite> routines, or a
+nonblocking <cite>put-with-signal</cite> routine with another data transfer may deliver
+data out of order unless a call to <code class="docutils literal notranslate"><span class="pre">ishmem_fence</span></code> or
+<code class="docutils literal notranslate"><span class="pre">ishmemx_fence_work_group</span></code> is introduced between the two calls.</p>
+<p>The <strong>sig_op</strong> signal operator determines the type of update to be performed on
+the remote <strong>sig_addr</strong> signal data object.</p>
+<p>An update to the <strong>sig_addr</strong> signal data object through a nonblocking
+<cite>put-with-signal</cite> routine completes as if performed atomically as described in
+Section <a class="reference internal" href="#signal-atomicity"><span class="std std-ref">Atomicity Guarantees for Signaling Operations</span></a>.
+The various options as described in Section <a class="reference internal" href="#signal-operators"><span class="std std-ref">Available Signal
+Operators</span></a> can be used as the <strong>sig_op</strong> signal operator.</p>
+<p>The <strong>dest</strong> and <strong>sig_addr</strong> data objects must both be remotely accessible and
+may not be overlapping in memory.</p>
+</section>
+<section id="ishmemx-put-nbi-signal-work-group">
+<h3>ISHMEMX_PUT_NBI_SIGNAL_WORK_GROUP<a class="headerlink" href="#ishmemx-put-nbi-signal-work-group" title="Permalink to this heading">#</a></h3>
+<p>The <cite>nonblocking put-with-signal</cite> routines provide a method for copying data
+from a contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.</p>
+<p>In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
+Types</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">
+<span id="_CPPv3I00E33ishmemx_put_signal_nbi_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I00E33ishmemx_put_signal_nbi_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_put_signal_nbi_work_group</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_nbi_work_group::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_nbi_work_group::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_nbi_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">
+<span id="_CPPv3I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_put_signal_nbi_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_TYPENAME_put_signal_nbi_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE of TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>source</strong> – Local address of the data object containing the data to be copied. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA types</span></a>.</p></li>
+<li><p><strong>nelems</strong> – Number of elements in the <strong>dest</strong> and <strong>source</strong> arrays. For <strong>ishmem_putmem</strong>, elements are bytes.</p></li>
+<li><p><strong>sig_addr</strong> – Symmetric address of the signal data object to be updated on the remote PE as a signal.</p></li>
+<li><p><strong>signal</strong> – Unsigned 64-bit value that is used for updating the remote <strong>sig_addr</strong> signal data object.</p></li>
+<li><p><strong>sig_op</strong> – Signal operator that represents the type of update to be performed on the remote <strong>sig_addr</strong> signal data object.</p></li>
+<li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
+<li><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the <cite>Put</cite> operation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p>The <cite>nonblocking put-with-signal</cite> routines provide a method for copying data
+from a contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.</p>
+<p>The routines return after initiating the operation.
+The operation is considered complete after a subsequent call to
+<code class="docutils literal notranslate"><span class="pre">ishmem_quiet</span></code> or <code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_work_group</span></code>.
+At the completion of the quiet operation, the data has been copied out of the
+<strong>source</strong> array on the local PE and delivered into the <strong>dest</strong> array on the
+destination PE.</p>
+<p>The delivery of the <strong>signal</strong> flag on the remote PE indicates only the
+delivery of its corresponding <strong>dest</strong> data words into the data object on the
+remote PE.
+Furthermore, two successive nonblocking <cite>put-with-signal</cite> routines, or a
+nonblocking <cite>put-with-signal</cite> routine with another data transfer may deliver
+data out of order unless a call to <code class="docutils literal notranslate"><span class="pre">ishmem_fence</span></code> or
+<code class="docutils literal notranslate"><span class="pre">ishmemx_fence_work_group</span></code> is introduced between the two calls.</p>
+<p>The <strong>sig_op</strong> signal operator determines the type of update to be performed on
+the remote <strong>sig_addr</strong> signal data object.</p>
+<p>An update to the <strong>sig_addr</strong> signal data object through a nonblocking
+<cite>put-with-signal</cite> routine completes as if performed atomically as described in
+Section <a class="reference internal" href="#signal-atomicity"><span class="std std-ref">Atomicity Guarantees for Signaling Operations</span></a>.
+The various options as described in Section <a class="reference internal" href="#signal-operators"><span class="std std-ref">Available Signal
+Operators</span></a> can be used as the <strong>sig_op</strong> signal operator.</p>
+<p>The <strong>dest</strong> and <strong>sig_addr</strong> data objects must both be remotely accessible and
+may not be overlapping in memory.</p>
+</section>
+</section>
+<section id="ishmem-signal-fetch">
+<h2>ISHMEM_SIGNAL_FETCH<a class="headerlink" href="#ishmem-signal-fetch" title="Permalink to this heading">#</a></h2>
+<p>Fetches the signal update on a local data object.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419ishmem_signal_fetchPK8uint64_t">
+<span id="_CPPv319ishmem_signal_fetchPK8uint64_t"></span><span id="_CPPv219ishmem_signal_fetchPK8uint64_t"></span><span id="ishmem_signal_fetch__uint64_tCP"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_signal_fetch</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419ishmem_signal_fetchPK8uint64_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sig_addr</strong> – Local address of the remotely accessible signal variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The contents of the signal data object, <strong>sig_addr</strong>, at the calling PE.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+<code class="docutils literal notranslate"><span class="pre">ishmem_signal_fetch</span></code> performs a fetch operation and returns the contents of
+the <strong>sig_addr</strong> signal data object.
+Access to <strong>sig_addr</strong> signal object at the calling PE is expected to satisfy
+the atomicity guarantees as described in Section <a class="reference internal" href="#signal-atomicity"><span class="std std-ref">Atomicity Guarantees for
+Signaling Operations</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="atomics.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Atomic Memory Operations (AMO)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="collectives.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Collective Operations</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#atomicity-guarantees-for-signaling-operations">Atomicity Guarantees for Signaling Operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-signal-operators">Available Signal Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#blocking-put-signal">Blocking Put-Signal</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-put-signal">ISHMEM_PUT_SIGNAL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-put-signal-work-group">ISHMEMX_PUT_SIGNAL_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nonblocking-put-signal">Nonblocking Put-Signal</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-put-nbi-signal">ISHMEM_PUT_NBI_SIGNAL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-put-nbi-signal-work-group">ISHMEMX_PUT_NBI_SIGNAL_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-signal-fetch">ISHMEM_SIGNAL_FETCH</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Intel Corporation
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

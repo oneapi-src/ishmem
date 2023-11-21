@@ -1,0 +1,705 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Library Setup, Exit, and Query Routines &#8212; Documentation for Intel® SHMEM</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'library_setup_exit_query';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/library_setup_exit_query.html" />
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Memory Management" href="memory_management.html" />
+    <link rel="prev" title="Library Constants" href="library_constants.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo-classicblue-400px.png" class="logo__image only-light" alt="Documentation for Intel® SHMEM - Home"/>
+    <script>document.write(`<img src="_static/logo-classicblue-400px.png" class="logo__image only-dark" alt="Documentation for Intel® SHMEM - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming_model.html">Programming Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_model.html">Memory Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution_model.html">Execution Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_features.html">Supported/Unsupported Features</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Library Setup, Exit, and Query Routines</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/library_setup_exit_query.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Library Setup, Exit, and Query Routines</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ISHMEM_INIT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-init-attr">ISHMEMX_INIT_ATTR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-my-pe">ISHMEM_MY_PE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-n-pes">ISHMEM_N_PES</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-finalize">ISHMEM_FINALIZE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-ptr">ISHMEM_PTR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-info-get-version">ISHMEM_INFO_GET_VERSION</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-info-get-name">ISHMEM_INFO_GET_NAME</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="library-setup-exit-and-query-routines">
+<span id="library-setup-exit-query-routines"></span><h1>Library Setup, Exit, and Query Routines<a class="headerlink" href="#library-setup-exit-and-query-routines" title="Permalink to this heading">#</a></h1>
+<div class="toctree-wrapper compound" id="ishmem-init">
+</div>
+<p>The library setup, exit, and query interfaces initialize and monitor the
+parallel environment of the PEs.</p>
+<section id="id1">
+<h2>ISHMEM_INIT<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411ishmem_initv">
+<span id="_CPPv311ishmem_initv"></span><span id="_CPPv211ishmem_initv"></span><span id="ishmem_init"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411ishmem_initv" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+Initializes the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> library.
+<a class="reference internal" href="#ishmem-init"><span class="std std-ref">ishmem_init</span></a> and
+<a class="reference internal" href="#id2"><span class="std std-ref">ishmemx_init_attr</span></a> are collective operations that
+all PEs must call before any other <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routine may be called.</p>
+<p>At the end of the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> program which it initialized, the call to
+<code class="docutils literal notranslate"><span class="pre">ishmem_init</span></code> must be matched with a call to <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code>.
+After the first call to <code class="docutils literal notranslate"><span class="pre">ishmem_init</span></code>, a subsequent call to
+<code class="docutils literal notranslate"><span class="pre">ishmem_init</span></code> or <code class="docutils literal notranslate"><span class="pre">ishmemx_init_attr</span></code> in the same program results in
+undefined behavior.</p>
+</section>
+<section id="ishmemx-init-attr">
+<span id="ishmemx-runtime-type-t"></span><h2>ISHMEMX_INIT_ATTR<a class="headerlink" href="#ishmemx-init-attr" title="Permalink to this heading">#</a></h2>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv422ishmemx_runtime_type_t">
+<span id="_CPPv322ishmemx_runtime_type_t"></span><span id="_CPPv222ishmemx_runtime_type_t"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_runtime_type_t</span></span></span><a class="headerlink" href="#_CPPv422ishmemx_runtime_type_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_RUNTIME_OPENSHMEM">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_RUNTIME_OPENSHMEM</span></span></span><a class="headerlink" href="#c.ISHMEM_RUNTIME_OPENSHMEM" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_RUNTIME_MPI">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_RUNTIME_MPI</span></span></span><a class="headerlink" href="#c.ISHMEM_RUNTIME_MPI" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_RUNTIME_PMI">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_RUNTIME_PMI</span></span></span><a class="headerlink" href="#c.ISHMEM_RUNTIME_PMI" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+Indicates which runtime is used to initialize Intel® SHMEM: either
+OpenSHMEM, MPI, or PMI.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>As of Intel® SHMEM version 1.0.0 only ISHMEM_RUNTIME_OPENSHMEM is supported.</p>
+</div>
+<span class="target" id="ishmemx-attr-t"></span><dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv414ishmemx_attr_t">
+<span id="_CPPv314ishmemx_attr_t"></span><span id="_CPPv214ishmemx_attr_t"></span><span id="ishmemx_attr_t"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_attr_t</span></span></span><a class="headerlink" href="#_CPPv414ishmemx_attr_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="c var">
+<dt class="sig sig-object c" id="c.runtime">
+<span class="n"><span class="pre">ishmemx_runtime_type_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">runtime</span></span></span><a class="headerlink" href="#c.runtime" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="c var">
+<dt class="sig sig-object c" id="c.initialize_runtime">
+<span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">initialize_runtime</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><a class="headerlink" href="#c.initialize_runtime" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="c var">
+<dt class="sig sig-object c" id="c.gpu">
+<span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gpu</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><a class="headerlink" href="#c.gpu" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p><strong>Description:</strong>
+A struct declaration describing attributes for initialization.
+A valid <strong>runtime</strong> enumeration value must be set by the user and must
+correspond to a runtime that is enabled within the build of the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code>
+library.
+By default, the parallel runtime is assumed to be initialized by the user
+(<strong>initialize_runtime</strong> default is <code class="docutils literal notranslate"><span class="pre">false</span></code>).
+The <strong>gpu</strong> boolean indicates whether to use GPU memory for the symmetric
+heap (default is <code class="docutils literal notranslate"><span class="pre">false</span></code>).</p>
+<span class="target" id="id2"></span><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417ishmemx_init_attrP14ishmemx_attr_t">
+<span id="_CPPv317ishmemx_init_attrP14ishmemx_attr_t"></span><span id="_CPPv217ishmemx_init_attrP14ishmemx_attr_t"></span><span id="ishmemx_init_attr__ishmemx_attr_tP"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_init_attr</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv414ishmemx_attr_t" title="ishmemx_attr_t"><span class="n"><span class="pre">ishmemx_attr_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">attr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417ishmemx_init_attrP14ishmemx_attr_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attr</strong> – a struct of type <a class="reference internal" href="#ishmemx-attr-t"><span class="std std-ref">ishmemx_attr_t</span></a> specifying initialization attributes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+Initializes the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> library.
+<a class="reference internal" href="#ishmem-init"><span class="std std-ref">ishmem_init</span></a> and
+<a class="reference internal" href="#id2"><span class="std std-ref">ishmemx_init_attr</span></a> are collective operations that
+all PEs must call before any other <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routine may be called.
+At the end of the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> program which it initialized, the call to
+<code class="docutils literal notranslate"><span class="pre">ishmem_init</span></code> must be matched with a call to <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code>.
+After the first call to <code class="docutils literal notranslate"><span class="pre">ishmemx_init_attr</span></code>, a subsequent call to
+<code class="docutils literal notranslate"><span class="pre">ishmemx_init_attr</span></code> or <code class="docutils literal notranslate"><span class="pre">ishmem_init</span></code> in the same program results in
+undefined behavior.</p>
+</section>
+<section id="ishmem-my-pe">
+<h2>ISHMEM_MY_PE<a class="headerlink" href="#ishmem-my-pe" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412ishmem_my_pev">
+<span id="_CPPv312ishmem_my_pev"></span><span id="_CPPv212ishmem_my_pev"></span><span id="ishmem_my_pe"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_my_pe</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_my_pev" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the PE number</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+This routine returns the PE number of the calling PE.  The result is an
+integer between 0 and <em>npes</em> - 1, where <em>npes</em> is the total number of PEs
+executing the current program.</p>
+</section>
+<section id="ishmem-n-pes">
+<h2>ISHMEM_N_PES<a class="headerlink" href="#ishmem-n-pes" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412ishmem_n_pesv">
+<span id="_CPPv312ishmem_n_pesv"></span><span id="_CPPv212ishmem_n_pesv"></span><span id="ishmem_n_pes"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_n_pes</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_n_pesv" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the number of total PEs running in the program</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The routine returns the number of PEs running in the program.</p>
+</section>
+<section id="ishmem-finalize">
+<h2>ISHMEM_FINALIZE<a class="headerlink" href="#ishmem-finalize" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415ishmem_finalizev">
+<span id="_CPPv315ishmem_finalizev"></span><span id="_CPPv215ishmem_finalizev"></span><span id="ishmem_finalize"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_finalize</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415ishmem_finalizev" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+<code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code> is a collective operation that ends the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code>
+portion of a program previously initialized by
+<a class="reference internal" href="#ishmem-init"><span class="std std-ref">ishmem_init</span></a> or
+<a class="reference internal" href="#id2"><span class="std std-ref">ishmemx_init_attr</span></a> and releases all resources used
+by the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> library.
+This collective operation requires all PEs to participate in the call.
+There is an implicit global barrier in <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code> to ensure that
+pending communications are completed and that no resources are released until
+all PEs have entered <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code>.
+<code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code> must be the last <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> library call encountered in
+the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> portion of a program.
+A call to <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code> will release all resources initialized by a
+corresponding call to <code class="docutils literal notranslate"><span class="pre">ishmem_init</span></code> or <code class="docutils literal notranslate"><span class="pre">ishmemx_init_attr</span></code>. All
+processes that represent the PEs will still exist after the call to
+<code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code> returns, but they will no longer have access to resources
+that have been released.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Because SYCL kernel execution is non-blocking on the host, all
+kernels performing <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> calls must first <cite>complete</cite> (for example, by
+calling <code class="docutils literal notranslate"><span class="pre">wait</span></code> or <code class="docutils literal notranslate"><span class="pre">wait_and_throw</span></code> on the SYCL queue) before calling
+<code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code>.</p>
+</div>
+</section>
+<section id="ishmem-ptr">
+<h2>ISHMEM_PTR<a class="headerlink" href="#ishmem-ptr" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410ishmem_ptrPKvi">
+<span id="_CPPv310ishmem_ptrPKvi"></span><span id="_CPPv210ishmem_ptrPKvi"></span><span id="ishmem_ptr__voidCP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_ptr</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410ishmem_ptrPKvi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> – The symmetric address of the remotely accessible data object to be referenced</p></li>
+<li><p><strong>pe</strong> – An integer that indicates the PE number on which <strong>dest</strong> is to be accessed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A local pointer to the remotely accessible <strong>dest</strong> data object is returned when it can be accessed using memory loads and stores.  Otherwise, a null pointer is returned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+<code class="docutils literal notranslate"><span class="pre">ishmem_ptr</span></code> returns a <strong>device</strong> address that may be used to directly
+reference <strong>dest</strong> on the specified PE.
+This address can be assigned to a pointer.
+After that, ordinary loads and stores to <strong>dest</strong> may be performed from
+within the device kernel.
+The address returned by <code class="docutils literal notranslate"><span class="pre">ishmem_ptr</span></code> is a local address to a remotely
+accessible data object.
+Providing this address to an argument of a <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routine that requires
+a symmetric address results in undefined behavior.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ishmem_ptr</span></code> routine can provide an efficient means to accomplish
+communication, for example when a sequence of reads and writes to a data
+object on a remote PE does not match the access pattern provided in a
+<code class="docutils literal notranslate"><span class="pre">ishmem</span></code> data transfer routine like <code class="docutils literal notranslate"><span class="pre">ishmem_put</span></code> or
+<code class="docutils literal notranslate"><span class="pre">ishmem_iget</span></code>.</p>
+</section>
+<section id="ishmem-info-get-version">
+<h2>ISHMEM_INFO_GET_VERSION<a class="headerlink" href="#ishmem-info-get-version" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423ishmem_info_get_versionPiPi">
+<span id="_CPPv323ishmem_info_get_versionPiPi"></span><span id="_CPPv223ishmem_info_get_versionPiPi"></span><span id="ishmem_info_get_version__iP.iP"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_info_get_version</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">major</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">minor</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423ishmem_info_get_versionPiPi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>major</strong> – The major version of the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> specification in use.</p></li>
+<li><p><strong>minor</strong> – The minor version of the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> specification in use.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+Returns the major and minor version of the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> specification in use.
+For a given library implementation, the major and minor version returned by
+these calls are consistent with the library constants ISHMEM_MAJOR_VERSION
+and ISHMEM_MINOR_VERSION.</p>
+</section>
+<section id="ishmem-info-get-name">
+<h2>ISHMEM_INFO_GET_NAME<a class="headerlink" href="#ishmem-info-get-name" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420ishmem_info_get_namePc">
+<span id="_CPPv320ishmem_info_get_namePc"></span><span id="_CPPv220ishmem_info_get_namePc"></span><span id="ishmem_info_get_name__cP"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_info_get_name</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420ishmem_info_get_namePc" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> – The vendor defined string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+This routine returns the vendor defined name string of size defined by the
+library constant ISHMEM_MAX_NAME_LEN. The program calling this function
+provides the <strong>name</strong> memory buffer of at least size ISHMEM_MAX_NAME_LEN. The
+implementation copies the vendor defined string of size at most
+ISHMEM_MAX_NAME_LEN to <strong>name</strong>. The string is terminated by a null
+character.  If the <strong>name</strong> memory buffer is provided with size less than
+ISHMEM_MAX_NAME_LEN, behavior is undefined. For a given library
+implementation, the vendor string returned is consistent with the library
+constant ISHMEM_VENDOR_STRING.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="library_constants.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Library Constants</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="memory_management.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Memory Management</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ISHMEM_INIT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-init-attr">ISHMEMX_INIT_ATTR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-my-pe">ISHMEM_MY_PE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-n-pes">ISHMEM_N_PES</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-finalize">ISHMEM_FINALIZE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-ptr">ISHMEM_PTR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-info-get-version">ISHMEM_INFO_GET_VERSION</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-info-get-name">ISHMEM_INFO_GET_NAME</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Intel Corporation
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
