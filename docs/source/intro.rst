@@ -29,7 +29,7 @@ passing requests to the host CPU, which transfers the data through the network
 fabric to another GPU's memory.
 
 The original OpenSHMEM specification, described in the :ref:`"What is
-OpenSHMEM?" section<what_is_openshmem>`, establishes a programming and memory
+OpenSHMEM?" section <what_is_openshmem>`, establishes a programming and memory
 model that is most suitable for *host-driven* (CPU) communication.
 The Intel® SHMEM APIs are based on the original OpenSHMEM
 interfaces, but are augmented to support *device-driven* communication across
@@ -39,7 +39,7 @@ requires subtle modifications to the original OpenSHMEM interfaces, memory
 model, and execution model.
 The Intel® SHMEM APIs are defined in the context of this adjusted
 memory and execution model, which is described in sections :ref:`Memory
-Model<memory_model>` and :ref:`Execution Model<execution_model>`.
+Model <memory_model>` and :ref:`Execution Model <execution_model>`.
 
 .. |sycl_spec_link| raw:: html
 
