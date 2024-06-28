@@ -152,6 +152,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="current nav bd-sidenav">
@@ -159,12 +160,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -351,8 +354,16 @@ parallel environment of the PEs.</p>
 <h2>ISHMEM_INIT<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv411ishmem_initv">
-<span id="_CPPv311ishmem_initv"></span><span id="_CPPv211ishmem_initv"></span><span id="ishmem_init"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411ishmem_initv" title="Permalink to this definition">#</a><br /></dt>
-<dd></dd></dl>
+<span id="_CPPv311ishmem_initv"></span><span id="_CPPv211ishmem_initv"></span><span id="ishmem_init__void"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_init</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411ishmem_initv" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <p>Callable from the <strong>host</strong>.</p>
 <p><strong>Description:</strong>
@@ -394,7 +405,7 @@ Indicates which runtime is used to initialize Intel® SHMEM: either
 OpenSHMEM, MPI, or PMI.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>As of Intel® SHMEM version 1.0.0 only ISHMEM_RUNTIME_OPENSHMEM is supported.</p>
+<p>As of Intel® SHMEM 1.1.0 only ISHMEM_RUNTIME_OPENSHMEM is supported.</p>
 </div>
 <span class="target" id="ishmemx-attr-t"></span><dl class="cpp struct">
 <dt class="sig sig-object cpp" id="_CPPv414ishmemx_attr_t">
@@ -432,6 +443,9 @@ heap (default is <code class="docutils literal notranslate"><span class="pre">fa
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>attr</strong> – a struct of type <a class="reference internal" href="#ishmemx-attr-t"><span class="std std-ref">ishmemx_attr_t</span></a> specifying initialization attributes</p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -451,10 +465,13 @@ undefined behavior.</p>
 <h2>ISHMEM_MY_PE<a class="headerlink" href="#ishmem-my-pe" title="Permalink to this heading">#</a></h2>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv412ishmem_my_pev">
-<span id="_CPPv312ishmem_my_pev"></span><span id="_CPPv212ishmem_my_pev"></span><span id="ishmem_my_pe"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_my_pe</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_my_pev" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv312ishmem_my_pev"></span><span id="_CPPv212ishmem_my_pev"></span><span id="ishmem_my_pe__void"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_my_pe</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_my_pev" title="Permalink to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>the PE number</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The PE number.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -469,10 +486,13 @@ executing the current program.</p>
 <h2>ISHMEM_N_PES<a class="headerlink" href="#ishmem-n-pes" title="Permalink to this heading">#</a></h2>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv412ishmem_n_pesv">
-<span id="_CPPv312ishmem_n_pesv"></span><span id="_CPPv212ishmem_n_pesv"></span><span id="ishmem_n_pes"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_n_pes</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_n_pesv" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv312ishmem_n_pesv"></span><span id="_CPPv212ishmem_n_pesv"></span><span id="ishmem_n_pes__void"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_n_pes</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_n_pesv" title="Permalink to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>the number of total PEs running in the program</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of total PEs running in the program.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -485,8 +505,16 @@ The routine returns the number of PEs running in the program.</p>
 <h2>ISHMEM_FINALIZE<a class="headerlink" href="#ishmem-finalize" title="Permalink to this heading">#</a></h2>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv415ishmem_finalizev">
-<span id="_CPPv315ishmem_finalizev"></span><span id="_CPPv215ishmem_finalizev"></span><span id="ishmem_finalize"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_finalize</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415ishmem_finalizev" title="Permalink to this definition">#</a><br /></dt>
-<dd></dd></dl>
+<span id="_CPPv315ishmem_finalizev"></span><span id="_CPPv215ishmem_finalizev"></span><span id="ishmem_finalize__void"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_finalize</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415ishmem_finalizev" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <p>Callable from the <strong>host</strong>.</p>
 <p><strong>Description:</strong>
@@ -499,6 +527,7 @@ This collective operation requires all PEs to participate in the call.
 There is an implicit global barrier in <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code> to ensure that
 pending communications are completed and that no resources are released until
 all PEs have entered <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code>.
+This routine destroys all teams created by the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> program.
 <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code> must be the last <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> library call encountered in
 the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> portion of a program.
 A call to <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code> will release all resources initialized by a
@@ -515,7 +544,7 @@ calling <code class="docutils literal notranslate"><span class="pre">wait</span>
 </div>
 </section>
 <section id="ishmem-ptr">
-<h2>ISHMEM_PTR<a class="headerlink" href="#ishmem-ptr" title="Permalink to this heading">#</a></h2>
+<span id="id3"></span><h2>ISHMEM_PTR<a class="headerlink" href="#ishmem-ptr" title="Permalink to this heading">#</a></h2>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv410ishmem_ptrPKvi">
 <span id="_CPPv310ishmem_ptrPKvi"></span><span id="_CPPv210ishmem_ptrPKvi"></span><span id="ishmem_ptr__voidCP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_ptr</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410ishmem_ptrPKvi" title="Permalink to this definition">#</a><br /></dt>
@@ -535,7 +564,7 @@ calling <code class="docutils literal notranslate"><span class="pre">wait</span>
 <p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 <code class="docutils literal notranslate"><span class="pre">ishmem_ptr</span></code> returns a <strong>device</strong> address that may be used to directly
-reference <strong>dest</strong> on the specified PE.
+reference <strong>dest</strong> on the specified PE in the world team.
 This address can be assigned to a pointer.
 After that, ordinary loads and stores to <strong>dest</strong> may be performed from
 within the device kernel.
@@ -561,6 +590,9 @@ object on a remote PE does not match the access pattern provided in a
 <li><p><strong>minor</strong> – The minor version of the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> specification in use.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -579,6 +611,9 @@ and ISHMEM_MINOR_VERSION.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>name</strong> – The vendor defined string.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -672,7 +707,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

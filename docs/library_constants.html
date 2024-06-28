@@ -153,6 +153,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="nav bd-sidenav">
@@ -160,12 +161,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -324,6 +327,7 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Library Constants</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#library-handles">Library Handles</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment Variables</a></li>
 </ul>
 
@@ -367,6 +371,49 @@ in use.</p>
 <p>String representing vendor defined information of size at  most
 <code class="docutils literal notranslate"><span class="pre">ISHMEM_MAX_NAME_LEN</span></code>. The string <code class="docutils literal notranslate"><span class="pre">ISHMEM_VENDOR_STRING</span></code> is terminated by a
 null character.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_TEAM_INVALID">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_TEAM_INVALID</span></span></span><a class="headerlink" href="#c.ISHMEM_TEAM_INVALID" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>A value corresponding to an invalid team.
+This value can be used to initialize or update team handles to indicate that
+they do not reference a valid team.
+When managed in this way, applications can use an equality comparison to test
+whether a given team handle references a valid team.
+See Section <a class="reference internal" href="teams.html#team"><span class="std std-ref">Team Management Routines</span></a> for more detail about its
+use.</p>
+</section>
+<section id="library-handles">
+<span id="id2"></span><h1>Library Handles<a class="headerlink" href="#library-handles" title="Permalink to this heading">#</a></h1>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_TEAM_WORLD">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_TEAM_WORLD</span></span></span><a class="headerlink" href="#c.ISHMEM_TEAM_WORLD" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>Handle of type <strong>ishmem_team_t</strong> that corresponds to the world team that
+contains all PEs in the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> program.
+All point-to-point communication operations occur on PE numbers relative to the
+world team, and all collective synchronizations that do not specify a team are
+performed on the world team.
+See Section <a class="reference internal" href="teams.html#team"><span class="std std-ref">Team Management Routines</span></a> for more detail about its
+use.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_TEAM_SHARED">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_TEAM_SHARED</span></span></span><a class="headerlink" href="#c.ISHMEM_TEAM_SHARED" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>Handle of type <strong>ishmem_team_t</strong> that corresponds to a team of PEs that share
+a memory domain.
+<code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_SHARED</span></code> refers to the team of all PEs that would mutually
+return a non-null address from a call to <a class="reference internal" href="library_setup_exit_query.html#ishmem-ptr"><span class="std std-ref">ishmem_ptr</span></a> for
+all symmetric heap objects.
+That is, <a class="reference internal" href="library_setup_exit_query.html#ishmem-ptr"><span class="std std-ref">ishmem_ptr</span></a> must return a non-null pointer to the
+local PE for all symmetric heap objects on all target PEs in the team.
+This means that symmetric heap objects on each PE are directly load/store
+accessible by all PEs in the team.
+See Section <a class="reference internal" href="teams.html#team"><span class="std std-ref">Team Management Routines</span></a> for more detail about its
+use.</p>
 </section>
 <section id="environment-variables">
 <span id="env-vars"></span><h1>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this heading">#</a></h1>
@@ -440,15 +487,22 @@ Link fabric is not available or does not connect all the GPUs.</p>
 
 <p>Enables the pidfd implementation of IPC.
 This is enabled by default, but will fail on older Linux kernels that do not
-support the necessary systiem calls.
+support the necessary system calls.
 In such cases, use ISHMEM_ENABLE_GPU_IPC_PIDFD=0</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_ENABLE_ACCESSIBLE_HOST_HEAP">
 <span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_ACCESSIBLE_HOST_HEAP</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_ACCESSIBLE_HOST_HEAP" title="Permalink to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
-<p>Place symmetric heap in <cite>host</cite> unified shared memory (allocated on the host and
+<p>Places symmetric heap in <cite>host</cite> unified shared memory (allocated on the host and
 accessible by the host and device).</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_ENABLE_VERBOSE_PRINT">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_VERBOSE_PRINT</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_VERBOSE_PRINT" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>Includes the file, line, and function along with messages printed by the utility
+routines and other output for debug, warning, or error reporting.</p>
 </section>
 
 
@@ -496,6 +550,7 @@ accessible by the host and device).</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Library Constants</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#library-handles">Library Handles</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment Variables</a></li>
 </ul>
 
@@ -521,7 +576,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

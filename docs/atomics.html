@@ -152,6 +152,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="current nav bd-sidenav">
@@ -159,12 +160,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -322,20 +325,34 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#blocking-atomic-memory-operations">Blocking Atomic Memory Operations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-blocking-atomic-memory-operations">Non-blocking Atomic Memory Operations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-nbi">ISHMEM_ATOMIC_FETCH_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap-nbi">ISHMEM_ATOMIC_COMPARE_SWAP_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap-nbi">ISHMEM_ATOMIC_SWAP_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc-nbi">ISHMEM_ATOMIC_FETCH_INC_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add-nbi">ISHMEM_ATOMIC_FETCH_ADD_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and-nbi">ISHMEM_ATOMIC_FETCH_AND_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or-nbi">ISHMEM_ATOMIC_FETCH_OR_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor-nbi">ISHMEM_ATOMIC_FETCH_XOR_NBI</a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -349,26 +366,26 @@ document.write(`
                   
   <section id="atomic-memory-operations-amo">
 <span id="atomics"></span><h1>Atomic Memory Operations (AMO)<a class="headerlink" href="#atomic-memory-operations-amo" title="Permalink to this heading">#</a></h1>
-<p>An AMO is a one-sided communication mechanism that
-combines memory read, update, or write operations with
-atomicity guarantees described in <a class="reference internal" href="memory_model.html#amo-guarantees"><span class="std std-ref">Atomicity
-Guarantees</span></a>.
-Similar to the RMA routines, described in <a class="reference internal" href="rma.html#rma"><span class="std std-ref">Remote Memory
-Access (RMA)</span></a>, the AMOs are performed only on
-symmetric objects.
-Intel® SHMEM defines two types of AMO
-routines:</p>
-<ol class="arabic simple">
-<li><p>The <cite>fetching</cite> routines return the original value of, and optionally update, the remote data object in a single atomic operation.  The routines return after the data has been fetched from the target PE and delivered to the calling PE. The data type of the returned value is the same as the type of the remote data object.</p></li>
-</ol>
+<p>An AMO is a one-sided communication mechanism that combines memory read,
+update, or write operations with atomicity guarantees described in
+<a class="reference internal" href="memory_model.html#amo-guarantees"><span class="std std-ref">Atomicity Guarantees</span></a>. Similar to the RMA routines,
+described in <a class="reference internal" href="rma.html#rma"><span class="std std-ref">Remote Memory Access (RMA)</span></a>, the AMOs are performed
+only on symmetric data objects. Intel® SHMEM defines two types of AMO routines:</p>
+<p>#. The <cite>fetching</cite> routines return the original value of, and optionally update,
+the remote data object in a single atomic operation.  The routines return after
+the data has been fetched from the target PE and delivered to the calling PE.
+The data type of the returned value is the same as the type of the remote data
+object.</p>
 <blockquote>
 <div><p>The fetching routines include:
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_{fetch,compare_swap,swap}[_nbi]</span></code> and
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_{inc,add,and,or,xor}[_nbi]</span></code>.</p>
 </div></blockquote>
-<ol class="arabic simple">
-<li><p>The <cite>non-fetching</cite> routines update the remote data object in a single atomic operation.  A call to a non-fetching atomic routine issues the atomic operation and may return before the operation executes on the target PE. The <code class="docutils literal notranslate"><span class="pre">ishmem_quiet</span></code>, <code class="docutils literal notranslate"><span class="pre">ishmem_barrier</span></code>, or <code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all</span></code> routines can be used to force completion for these non-fetching atomic routines.</p></li>
-</ol>
+<p>#. The <cite>non-fetching</cite> routines update the remote data object in a single atomic
+operation.  A call to a non-fetching atomic routine issues the atomic operation
+and may return before the operation executes on the target PE. The
+<code class="docutils literal notranslate"><span class="pre">ishmem_quiet</span></code>, <code class="docutils literal notranslate"><span class="pre">ishmem_barrier</span></code>, or <code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all</span></code> routines can be
+used to force completion for these non-fetching atomic routines.</p>
 <blockquote>
 <div><p>The non-fetching routines include:
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_{set,inc,add,and,or,xor}[_nbi]</span></code>.</p>
@@ -504,8 +521,10 @@ integer types defined in the C++11 language library header <code class="docutils
 </tr>
 </tbody>
 </table>
+<section id="blocking-atomic-memory-operations">
+<h2>Blocking Atomic Memory Operations<a class="headerlink" href="#blocking-atomic-memory-operations" title="Permalink to this heading">#</a></h2>
 <section id="ishmem-atomic-fetch">
-<h2>ISHMEM_ATOMIC_FETCH<a class="headerlink" href="#ishmem-atomic-fetch" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_FETCH<a class="headerlink" href="#ishmem-atomic-fetch" title="Permalink to this heading">#</a></h3>
 <p>Atomically fetches the value of a remote data object.</p>
 <p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
@@ -530,13 +549,13 @@ specified by the <a class="reference internal" href="#extamotypes"><span class="
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch</span></code> performs an atomic fetch operation.  It returns the
 contents of the <strong>source</strong> as an atomic operation.</p>
 </section>
 <section id="ishmem-atomic-set">
-<h2>ISHMEM_ATOMIC_SET<a class="headerlink" href="#ishmem-atomic-set" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_SET<a class="headerlink" href="#ishmem-atomic-set" title="Permalink to this heading">#</a></h3>
 <p>Atomically sets the value of a remote data object.</p>
 <p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
@@ -556,16 +575,19 @@ specified by the <a class="reference internal" href="#extamotypes"><span class="
 <li><p><strong>pe</strong> – An integer that indicates the PE number on which <strong>dest</strong> is to be updated.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
-<code class="docutils literal notranslate"><span class="pre">ishmem_atomic_set</span></code> performs an atomic set operation.
-It writes the <strong>value</strong> into <strong>dest</strong> on <strong>pe</strong> as an atomic operation.</p>
+<code class="docutils literal notranslate"><span class="pre">ishmem_atomic_set</span></code> performs an atomic set operation. It writes the <strong>value</strong>
+into <strong>dest</strong> on <strong>pe</strong> as an atomic operation.</p>
 </section>
 <section id="ishmem-atomic-compare-swap">
-<h2>ISHMEM_ATOMIC_COMPARE_SWAP<a class="headerlink" href="#ishmem-atomic-compare-swap" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_COMPARE_SWAP<a class="headerlink" href="#ishmem-atomic-compare-swap" title="Permalink to this heading">#</a></h3>
 <p>Performs an atomic conditional swap on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
@@ -592,14 +614,14 @@ specified by the <a class="reference internal" href="#stdamotypes"><span class="
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 The conditional swap routines conditionally update a <strong>dest</strong> data object on
 the specified PE and return the prior contents of the data object in one
 atomic operation.</p>
 </section>
 <section id="ishmem-atomic-swap">
-<h2>ISHMEM_ATOMIC_SWAP<a class="headerlink" href="#ishmem-atomic-swap" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_SWAP<a class="headerlink" href="#ishmem-atomic-swap" title="Permalink to this heading">#</a></h3>
 <p>Performs an atomic swap to a remote data object.</p>
 <p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
@@ -625,14 +647,14 @@ specified by the <a class="reference internal" href="#extamotypes"><span class="
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
-<code class="docutils literal notranslate"><span class="pre">ishmem_atomic_swap</span></code> performs an atomic swap operation.
-It writes <strong>value</strong> into <strong>dest</strong> on <strong>pe</strong> and returns the previous contents
-of <strong>dest</strong> as an atomic operation.</p>
+<code class="docutils literal notranslate"><span class="pre">ishmem_atomic_swap</span></code> performs an atomic swap operation. It writes <strong>value</strong>
+into <strong>dest</strong> on <strong>pe</strong> and returns the previous contents of <strong>dest</strong> as an
+atomic operation.</p>
 </section>
 <section id="ishmem-atomic-fetch-inc">
-<h2>ISHMEM_ATOMIC_FETCH_INC<a class="headerlink" href="#ishmem-atomic-fetch-inc" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_FETCH_INC<a class="headerlink" href="#ishmem-atomic-fetch-inc" title="Permalink to this heading">#</a></h3>
 <p>Performs an atomic fetch-and-increment operation on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
@@ -657,14 +679,14 @@ specified by the <a class="reference internal" href="#stdamotypes"><span class="
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
-These routines perform a fetch-and-increment operation.
-The <strong>dest</strong> on PE <strong>pe</strong> is increased by one and the routine returns the
-previous contents of <strong>dest</strong> as an atomic operation.</p>
+These routines perform a fetch-and-increment operation. The <strong>dest</strong> on PE
+<strong>pe</strong> is increased by one and the routine returns the previous contents
+of <strong>dest</strong> as an atomic operation.</p>
 </section>
 <section id="ishmem-atomic-inc">
-<h2>ISHMEM_ATOMIC_INC<a class="headerlink" href="#ishmem-atomic-inc" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_INC<a class="headerlink" href="#ishmem-atomic-inc" title="Permalink to this heading">#</a></h3>
 <p>Performs an atomic increment operation on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
@@ -683,16 +705,19 @@ specified by the <a class="reference internal" href="#stdamotypes"><span class="
 <li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be updated.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 These routines perform an atomic increment operation on the <strong>dest</strong> data
 object on PE <strong>pe</strong>.</p>
 </section>
 <section id="ishmem-atomic-fetch-add">
-<h2>ISHMEM_ATOMIC_FETCH_ADD<a class="headerlink" href="#ishmem-atomic-fetch-add" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_FETCH_ADD<a class="headerlink" href="#ishmem-atomic-fetch-add" title="Permalink to this heading">#</a></h3>
 <p>Performs an atomic fetch-and-add operation on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
@@ -718,9 +743,9 @@ specified by the <a class="reference internal" href="#stdamotypes"><span class="
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
-<code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_add</span></code> routines perform an atomic fetch-and-add
+<code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_add</span></code> routine performs an atomic fetch-and-add
 operation.
 An atomic fetch-and-add operation fetches the old <strong>dest</strong> and adds <strong>value</strong>
 to <strong>dest</strong> without the possibility of another atomic operation on the
@@ -729,7 +754,7 @@ These routines add <strong>value</strong> to <strong>dest</strong> on <strong>pe
 contents of <strong>dest</strong> as an atomic operation.</p>
 </section>
 <section id="ishmem-atomic-add">
-<h2>ISHMEM_ATOMIC_ADD<a class="headerlink" href="#ishmem-atomic-add" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_ADD<a class="headerlink" href="#ishmem-atomic-add" title="Permalink to this heading">#</a></h3>
 <p>Performs an atomic add operation on a remote symmetric data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
@@ -749,17 +774,20 @@ specified by the <a class="reference internal" href="#stdamotypes"><span class="
 <li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be updated.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 The <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_add</span></code> routine performs an atomic add operation.
 It adds <strong>value</strong> to <strong>dest</strong> on PE <strong>pe</strong> and atomically updates the <strong>dest</strong>
 without returning the value.</p>
 </section>
 <section id="ishmem-atomic-fetch-and">
-<h2>ISHMEM_ATOMIC_FETCH_AND<a class="headerlink" href="#ishmem-atomic-fetch-and" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_FETCH_AND<a class="headerlink" href="#ishmem-atomic-fetch-and" title="Permalink to this heading">#</a></h3>
 <p>Atomically perform a fetching bitwise AND operation on a remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
@@ -785,14 +813,14 @@ specified by the <a class="reference internal" href="#bitamotypes"><span class="
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_and</span></code> atomically performs a fetching bitwise AND on the
 remotely accessible data object pointed to by <strong>dest</strong> at PE <strong>pe</strong> with the
 operand <strong>value</strong>.</p>
 </section>
 <section id="ishmem-atomic-and">
-<h2>ISHMEM_ATOMIC_AND<a class="headerlink" href="#ishmem-atomic-and" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_AND<a class="headerlink" href="#ishmem-atomic-and" title="Permalink to this heading">#</a></h3>
 <p>Atomically perform a non-fetching bitwise AND operation on a remote data
 object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
@@ -813,17 +841,20 @@ specified by the <a class="reference internal" href="#bitamotypes"><span class="
 <li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be updated.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_and</span></code> atomically performs a non-fetching bitwise AND on the
 remotely accessible data object pointed to by <strong>dest</strong> at PE <strong>pe</strong> with the
 operand <strong>value</strong>.</p>
 </section>
 <section id="ishmem-atomic-fetch-or">
-<h2>ISHMEM_ATOMIC_FETCH_OR<a class="headerlink" href="#ishmem-atomic-fetch-or" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_FETCH_OR<a class="headerlink" href="#ishmem-atomic-fetch-or" title="Permalink to this heading">#</a></h3>
 <p>Atomically perform a fetching bitwise OR operation on a remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
@@ -849,14 +880,14 @@ specified by the <a class="reference internal" href="#bitamotypes"><span class="
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_or</span></code> atomically performs a fetching bitwise OR on the
 remotely accessible data object pointed to by <strong>dest</strong> at PE <strong>pe</strong> with the
 operand <strong>value</strong>.</p>
 </section>
 <section id="ishmem-atomic-or">
-<h2>ISHMEM_ATOMIC_OR<a class="headerlink" href="#ishmem-atomic-or" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_OR<a class="headerlink" href="#ishmem-atomic-or" title="Permalink to this heading">#</a></h3>
 <p>Atomically perform a non-fetching bitwise OR operation on a remote data
 object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
@@ -877,17 +908,20 @@ specified by the <a class="reference internal" href="#bitamotypes"><span class="
 <li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be updated.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_or</span></code> atomically performs a non-fetching bitwise OR on the
 remotely accessible data object pointed to by <strong>dest</strong> at PE <strong>pe</strong> with the
 operand <strong>value</strong>.</p>
 </section>
 <section id="ishmem-atomic-fetch-xor">
-<h2>ISHMEM_ATOMIC_FETCH_XOR<a class="headerlink" href="#ishmem-atomic-fetch-xor" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_FETCH_XOR<a class="headerlink" href="#ishmem-atomic-fetch-xor" title="Permalink to this heading">#</a></h3>
 <p>Atomically perform a fetching bitwise exclusive OR (XOR) operation on a
 remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
@@ -914,16 +948,14 @@ specified by the <a class="reference internal" href="#bitamotypes"><span class="
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_xor</span></code> atomically performs a fetching bitwise XOR on the
 remotely accessible data object pointed to by <strong>dest</strong> at PE <strong>pe</strong> with the
 operand <strong>value</strong>.</p>
-<p>Callable from the <strong>device</strong>.</p>
-<p><strong>Description:</strong></p>
 </section>
 <section id="ishmem-atomic-xor">
-<h2>ISHMEM_ATOMIC_XOR<a class="headerlink" href="#ishmem-atomic-xor" title="Permalink to this heading">#</a></h2>
+<h3>ISHMEM_ATOMIC_XOR<a class="headerlink" href="#ishmem-atomic-xor" title="Permalink to this heading">#</a></h3>
 <p>Atomically perform a non-fetching bitwise exclusive OR (XOR) operation on a
 remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
@@ -944,14 +976,365 @@ specified by the <a class="reference internal" href="#bitamotypes"><span class="
 <li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be updated.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
-<p>Callable from the <strong>device</strong>.</p>
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
 <code class="docutils literal notranslate"><span class="pre">ishmem_atomic_XOR</span></code> atomically performs a non-fetching bitwise XOR on the
 remotely accessible data object pointed to by <strong>dest</strong> at PE <strong>pe</strong> with the
 operand <strong>value</strong>.</p>
+</section>
+</section>
+<section id="non-blocking-atomic-memory-operations">
+<h2>Non-blocking Atomic Memory Operations<a class="headerlink" href="#non-blocking-atomic-memory-operations" title="Permalink to this heading">#</a></h2>
+<section id="ishmem-atomic-fetch-nbi">
+<h3>ISHMEM_ATOMIC_FETCH_NBI<a class="headerlink" href="#ishmem-atomic-fetch-nbi" title="Permalink to this heading">#</a></h3>
+<p>The nonblocking atomic fetch routine provides a method for atomically fetching
+the value of a remote data object.</p>
+<p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
+specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi">
+<span id="_CPPv323ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="_CPPv223ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="ishmem_atomic_fetch_nbi__TYPEP.TYPECP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv432ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi">
+<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_nbi__TYPEP.TYPECP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetch</strong> – Local address of the data object to be updated. The type of <strong>fetch</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types</span></a>.</p></li>
+<li><p><strong>source</strong> – Symmetric address of the source data object. The type of <strong>source</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types</span></a>.</p></li>
+<li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>source</strong> is to be fetched.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_nbi</span></code> performs a nonblocking fetch of a value atomically
+from a remote data object.
+This routine returns after initiating the operation.
+The operation is considered complete after a subsequent call to
+<a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>.
+At the completion of <a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>, contents of the
+<strong>source</strong> data object from PE <strong>pe</strong> has been fetched into the <strong>fetch</strong> local
+data object.</p>
+</section>
+<section id="ishmem-atomic-compare-swap-nbi">
+<h3>ISHMEM_ATOMIC_COMPARE_SWAP_NBI<a class="headerlink" href="#ishmem-atomic-compare-swap-nbi" title="Permalink to this heading">#</a></h3>
+<p>The nonblocking atomic routine provides a method for performing an atomic
+conditional swap on a remote data object.</p>
+<p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv430ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi">
+<span id="_CPPv330ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="_CPPv230ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="ishmem_atomic_compare_swap_nbi__TYPEP.TYPEP.TYPE.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_compare_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv439ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi">
+<span id="_CPPv339ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="_CPPv239ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_compare_swap_nbi__TYPEP.TYPEP.TYPE.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_compare_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv439ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetch</strong> – Local address of the data object to be updated. The type of <strong>fetch</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types</span></a>.</p></li>
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types</span></a>.</p></li>
+<li><p><strong>cond</strong> – <strong>cond</strong> is compared to the remote <strong>dest</strong> value. If <strong>cond</strong> and the remote <strong>dest</strong> are equal, then <strong>value</strong> is swapped into the remote <strong>dest</strong>; otherwise, the remote <strong>dest</strong> is unchanged.  In either case, the old value of the remote <strong>dest</strong> is transferred to <strong>fetch</strong>. <strong>cond</strong> must be of the same data type as <strong>dest</strong>.</p></li>
+<li><p><strong>value</strong> – The value to be atomically written to the remote PE. The type of <strong>value</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types</span></a>.</p></li>
+<li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be fetched.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_compare_swap_nbi</span></code> conditionally updates <strong>dest</strong> data object
+on the specified PE as an atomic operation and fetches the prior contents of
+the <strong>dest</strong> data object into the <strong>fetch</strong> local data object.
+This routine returns after initiating the operation.
+The operation is considered complete after a subsequent call to
+<a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>.
+At the completion of <a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>, prior contents of
+the <strong>dest</strong> data object have been fetched into <strong>fetch</strong> local data object and
+the contents of value have been conditionally updated into <strong>dest</strong> on the
+remote PE <strong>pe</strong>.</p>
+</section>
+<section id="ishmem-atomic-swap-nbi">
+<h3>ISHMEM_ATOMIC_SWAP_NBI<a class="headerlink" href="#ishmem-atomic-swap-nbi" title="Permalink to this heading">#</a></h3>
+<p>This nonblocking atomic operation performs an atomic swap to a remote data
+object.</p>
+<p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
+specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv322ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv222ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_swap_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv431ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv331ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv231ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_swap_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetch</strong> – Local address of the data object to be updated. The type of <strong>fetch</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types</span></a>.</p></li>
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types</span></a>.</p></li>
+<li><p><strong>value</strong> – The value to be atomically written to the remote PE. The type of <strong>value</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types</span></a>.</p></li>
+<li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be fetched.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_swap_nbi</span></code> performs an atomic swap operation.
+This routine returns after initiating the operation.
+The operation is considered complete after a subsequent call to
+<a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>.
+At the completion of <a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>, it has written value
+into <strong>dest</strong> on PE <strong>pe</strong> and fetched the prior contents of <strong>dest</strong> into
+<strong>fetch</strong> local data object.</p>
+</section>
+<section id="ishmem-atomic-fetch-inc-nbi">
+<h3>ISHMEM_ATOMIC_FETCH_INC_NBI<a class="headerlink" href="#ishmem-atomic-fetch-inc-nbi" title="Permalink to this heading">#</a></h3>
+<p>This nonblocking atomic routine performs an atomic fetch-and-increment
+operation on a remote data object.</p>
+<p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi">
+<span id="_CPPv327ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="ishmem_atomic_fetch_inc_nbi__TYPEP.TYPEP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_inc_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv436ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi">
+<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_inc_nbi__TYPEP.TYPEP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_inc_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetch</strong> – Local address of the data object to be updated. The type of <strong>fetch</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types</span></a>.</p></li>
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types</span></a>.</p></li>
+<li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be fetched.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_inc_nbi</span></code> performs an atomic fetch-and-increment
+operation.
+This routine returns after initiating the operation.
+The operation is considered complete after a subsequent call to
+<a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>.
+At the completion of <a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>, <strong>dest</strong> on PE
+<strong>pe</strong> has been increased by one and the previous contents of <strong>dest</strong> fetched
+into the <strong>fetch</strong> local data object.</p>
+</section>
+<section id="ishmem-atomic-fetch-add-nbi">
+<h3>ISHMEM_ATOMIC_FETCH_ADD_NBI<a class="headerlink" href="#ishmem-atomic-fetch-add-nbi" title="Permalink to this heading">#</a></h3>
+<p>This nonblocking atomic routine performs an atomic fetch-and-add operation on a
+remote data object.</p>
+<p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv327ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_add_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_add_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv436ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_add_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_add_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetch</strong> – Local address of the data object to be updated. The type of <strong>fetch</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types</span></a>.</p></li>
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types</span></a>.</p></li>
+<li><p><strong>value</strong> – The operand to the atomic fetch-and-add operation. The type of <strong>value</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types</span></a>.</p></li>
+<li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be updated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_add_nbi</span></code> performs an atomic fetch-and-add operation.
+An atomic fetch-and-add operation fetches the old <strong>dest</strong> and adds <strong>value</strong>
+to <strong>dest</strong> without the possibility of another atomic operation on the <strong>dest</strong>
+between the time of the fetch and the update.
+This routine returns after initiating the operation.
+The operation is considered complete after a subsequent call to
+<a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>.
+At the completion of <a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>, <strong>value</strong> has been
+added to <strong>dest</strong> on PE <strong>pe</strong> and the prior contents of <strong>dest</strong> fetched into
+the <strong>fetch</strong> local data object.</p>
+</section>
+<section id="ishmem-atomic-fetch-and-nbi">
+<h3>ISHMEM_ATOMIC_FETCH_AND_NBI<a class="headerlink" href="#ishmem-atomic-fetch-and-nbi" title="Permalink to this heading">#</a></h3>
+<p>This nonblocking atomic operation performs an atomic fetching bitwise AND
+operation on a remote data object.</p>
+<p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
+specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv327ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_and_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_and_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv436ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_and_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_and_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetch</strong> – Local address of the data object to be updated. The type of <strong>fetch</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types</span></a>.</p></li>
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types</span></a>.</p></li>
+<li><p><strong>value</strong> – The operand to the atomic bitwise AND operation. The type of <strong>value</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types</span></a>.</p></li>
+<li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be updated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_and_nbi</span></code> performs an atomic fetching bitwise AND on the
+remotely accessible data object pointed by <strong>dest</strong> at PE <strong>pe</strong> with the
+operand <strong>value</strong>.
+This routine returns after initiating the operation.
+The operation is considered complete after a subsequent call to
+<a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>.
+At the completion of <a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>, these routines have
+performed a fetching bitwise AND on <strong>dest</strong> at PE <strong>pe</strong> with the operand
+<strong>value</strong> and fetched the prior contents of <strong>dest</strong> into the <strong>fetch</strong> local
+data object.</p>
+</section>
+<section id="ishmem-atomic-fetch-or-nbi">
+<h3>ISHMEM_ATOMIC_FETCH_OR_NBI<a class="headerlink" href="#ishmem-atomic-fetch-or-nbi" title="Permalink to this heading">#</a></h3>
+<p>This nonblocking atomic operation performs an atomic fetching bitwise OR
+operation on a remote data object.</p>
+<p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
+specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv326ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_or_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_or_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv435ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv335ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv235ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_or_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_or_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv435ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetch</strong> – Local address of the data object to be updated. The type of <strong>fetch</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types</span></a>.</p></li>
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types</span></a>.</p></li>
+<li><p><strong>value</strong> – The operand to the atomic bitwise OR operation. The type of <strong>value</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types</span></a>.</p></li>
+<li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be updated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_or_nbi</span></code> performs an atomic fetching bitwise OR on the
+remotely accessible data object pointed by <strong>dest</strong> at PE <strong>pe</strong> with the
+operand <strong>value</strong>.
+This routine returns after initiating the operation.
+The operation is considered complete after a subsequent call to
+<a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>.
+At the completion of <a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>, these routines have
+performed a fetching bitwise OR on <strong>dest</strong> at PE <strong>pe</strong> with the operand
+<strong>value</strong> and fetched the prior contents of <strong>dest</strong> into the <strong>fetch</strong> local
+data object.</p>
+</section>
+<section id="ishmem-atomic-fetch-xor-nbi">
+<h3>ISHMEM_ATOMIC_FETCH_XOR_NBI<a class="headerlink" href="#ishmem-atomic-fetch-xor-nbi" title="Permalink to this heading">#</a></h3>
+<p>This nonblocking atomic operation performs an atomic fetching bitwise XOR
+operation on a remote data object.</p>
+<p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
+specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv327ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_xor_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_xor_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv436ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi">
+<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_xor_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_xor_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetch</strong> – Local address of the data object to be updated. The type of <strong>fetch</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types</span></a>.</p></li>
+<li><p><strong>dest</strong> – Symmetric address of the destination data object. The type of <strong>dest</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types</span></a>.</p></li>
+<li><p><strong>value</strong> – The operand to the atomic bitwise XOR operation. The type of <strong>value</strong> should match the TYPE and TYPENAME according to the table of <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types</span></a>.</p></li>
+<li><p><strong>pe</strong> – An integer that indicates the PE number from which <strong>dest</strong> is to be updated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_xor_nbi</span></code> performs an atomic fetching bitwise XOR on the
+remotely accessible data object pointed by <strong>dest</strong> at PE <strong>pe</strong> with the
+operand <strong>value</strong>.
+This routine returns after initiating the operation.
+The operation is considered complete after a subsequent call to
+<a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>.
+At the completion of <a class="reference internal" href="memory_ordering.html#ishmem-quiet"><span class="std std-ref">ishmem_quiet</span></a> or
+<a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group"><span class="std std-ref">ishmemx_quiet_work_group</span></a>, these routines have
+performed a fetching bitwise XOR on <strong>dest</strong> at PE <strong>pe</strong> with the operand
+<strong>value</strong> and fetched the prior contents of <strong>dest</strong> into the <strong>fetch</strong> local
+data object.</p>
+</section>
 </section>
 </section>
 
@@ -999,20 +1382,34 @@ operand <strong>value</strong>.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#blocking-atomic-memory-operations">Blocking Atomic Memory Operations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-blocking-atomic-memory-operations">Non-blocking Atomic Memory Operations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-nbi">ISHMEM_ATOMIC_FETCH_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap-nbi">ISHMEM_ATOMIC_COMPARE_SWAP_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap-nbi">ISHMEM_ATOMIC_SWAP_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc-nbi">ISHMEM_ATOMIC_FETCH_INC_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add-nbi">ISHMEM_ATOMIC_FETCH_ADD_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and-nbi">ISHMEM_ATOMIC_FETCH_AND_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or-nbi">ISHMEM_ATOMIC_FETCH_OR_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor-nbi">ISHMEM_ATOMIC_FETCH_XOR_NBI</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -1036,7 +1433,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

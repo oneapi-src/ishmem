@@ -25,13 +25,13 @@ Intel® oneAPI DPC++/C++ Compiler with Level Zero support.
 To install Level Zero, refer to the instructions in [Intel® Graphics Compute Runtime for oneAPI Level Zero and OpenCL™ Driver repository](https://github.com/intel/compute-runtime/releases) or to the [installation guide](https://dgpu-docs.intel.com/installation-guides/index.html) for oneAPI users.
 
 ## Installation
-Intel® SHMEM requires a host SHMEM back-end to be used for host-sided operations support. In particular, it relies on an a collection of extension APIs (`shmemx_heap_create`, `shmemx_heap_preinit`, and `shmemx_heap_postinit`) to coordinate the Intel® SHMEM and OpenSHMEM heaps. We recommend [Sandia OpenSHMEM](https://github.com/Sandia-OpenSHMEM/SOS) for this purpose.
+Intel® SHMEM requires a host OpenSHMEM back-end to be used for host-sided operations support. In particular, it relies on a collection of extension APIs (`shmemx_heap_create`, `shmemx_heap_preinit`, and `shmemx_heap_postinit`) to coordinate the Intel® SHMEM and OpenSHMEM heaps. We recommend [Sandia OpenSHMEM v1.5.3rc1](https://github.com/Sandia-OpenSHMEM/SOS/releases/tag/v1.5.3rc1) or newer for this purpose.
 
 ### Building Sandia OpenSHMEM (SOS)
 Download the SOS repo to be configured as a back-end for Intel® SHMEM.
 
 ```
-git clone https://github.com/Sandia-OpenSHMEM/SOS.git SOS
+git clone --recurse-submodules https://github.com/Sandia-OpenSHMEM/SOS.git SOS
 ```
 
 Build SOS following instructions below. `FI_HMEM` support in the provider is required for use with Intel® SHMEM. To enable `FI_HMEM` with a supported provider, we recommend a specific set of config flags. Below are two examples for configuring and building SOS with two providers supporting `FI_HMEM`. To configure SOS with the `verbs;ofi_rxm` provider, use the following instructions:
@@ -47,10 +47,19 @@ To configure SOS with the HPE Slingshot provider `cxi`, please use the following
 ```
 cd SOS
 ./autogen.sh
-./configure --prefix=<sos_dir> --with-ofi=<ofi_installation> --enable-pmi-simple --enable-ofi-mr=basic --disable-ofi-inject --enable-ofi-hmem --disable-bounce-buffers --enable-ofi-manual-progress --enable-mr-endpoint
+./configure --prefix=<sos_dir> --with-ofi=<ofi_installation> --enable-pmi-simple --enable-ofi-mr=basic --disable-ofi-inject --enable-ofi-hmem --disable-bounce-buffers --enable-ofi-manual-progress --enable-mr-endpoint --disable-nonfetch-amo --enable-manual-progress
 make -j
 make install
-``` 
+```
+To configure SOS with the `psm3` provider, please use the following instructions:
+```
+cd SOS
+./autogen.sh
+./configure --prefix=<sos_dir> --with-ofi=<ofi_installation> --enable-pmi-simple --enable-manual-progress --enable-ofi-hmem --disable-bounce-buffers --enable-ofi-mr=basic --enable-mr-endpoint
+make -j
+make install
+```
+ 
 Please choose an appropriate PMI configure flag based on the available PMI client library in the system. Please check for further instructions on [SOS Wiki pages](https://github.com/Sandia-OpenSHMEM/SOS/wiki). Optionally, users may also choose to add `--disable-fortran` since fortran interfaces will not be used.
 
 

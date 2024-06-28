@@ -1,0 +1,987 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Team Management Routines &#8212; Documentation for Intel® SHMEM</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'teams';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/teams.html" />
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Remote Memory Access (RMA)" href="rma.html" />
+    <link rel="prev" title="Memory Management" href="memory_management.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo-classicblue-400px.png" class="logo__image only-light" alt="Documentation for Intel® SHMEM - Home"/>
+    <script>document.write(`<img src="_static/logo-classicblue-400px.png" class="logo__image only-dark" alt="Documentation for Intel® SHMEM - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming_model.html">Programming Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_model.html">Memory Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution_model.html">Execution Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_features.html">Supported/Unsupported Features</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Team Management Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/teams.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Team Management Routines</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#predefined-and-application-defined-teams">Predefined and Application-Defined Teams</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#team-handles">Team Handles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#collective-ordering">Collective Ordering</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#team-creation">Team Creation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-my-pe">ISHMEM_TEAM_MY_PE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-n-pes">ISHMEM_TEAM_N_PES</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-config-t">ISHMEM_TEAM_CONFIG_T</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-get-config">ISHMEM_TEAM_GET_CONFIG</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-translate-pe">ISHMEM_TEAM_TRANSLATE_PE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-strided">ISHMEM_TEAM_SPLIT_STRIDED</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-2d">ISHMEM_TEAM_SPLIT_2D</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-destroy">ISHMEM_TEAM_DESTROY</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="team-management-routines">
+<span id="team"></span><h1>Team Management Routines<a class="headerlink" href="#team-management-routines" title="Permalink to this heading">#</a></h1>
+<p>The PEs in an <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> program communicate using either point-to-point
+routines, such as RMA and AMO routines, that specify the PE number of the
+target PE, or collective routines that operate over a set of PEs.
+Intel® SHMEM teams allow programs to group a set of PEs for communication.
+Team-based collective operations include all PEs in a valid team.
+Point-to-point communication can make use of team-relative PE numbering via PE
+number translation.</p>
+<section id="predefined-and-application-defined-teams">
+<h2>Predefined and Application-Defined Teams<a class="headerlink" href="#predefined-and-application-defined-teams" title="Permalink to this heading">#</a></h2>
+<p>An Intel® SHMEM team may be predefined (i.e., provided by the Intel® SHMEM
+library) or defined by the Intel® SHMEM application.
+An application-defined team is created by <cite>splitting</cite> a parent team into one or
+more new teams—each with some subset of PEs of the parent team—via one of
+the <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_*</span></code> routines.</p>
+<p>All predefined teams are valid for the duration of the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> portion of an
+application.
+Any team successfully created by a <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_*</span></code> routine is valid
+until it is destroyed.
+All valid teams have at least one member.</p>
+</section>
+<section id="team-handles">
+<h2>Team Handles<a class="headerlink" href="#team-handles" title="Permalink to this heading">#</a></h2>
+<p>A <cite>team handle</cite> is an opaque object with type <strong>ishmem_team_t</strong> that is used to
+reference a team.
+Team handles are not remotely accessible objects.
+The predefined teams may be accessed via the team handles listed in
+Section <a class="reference internal" href="library_constants.html#library-handles"><span class="std std-ref">Library Handles</span></a>.</p>
+<p>Intel® SHMEM communication routines that do not accept a team handle argument
+operate on the world team, which may be accessed through the
+<code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_WORLD</span></code> handle.
+The world team encompasses the set of all PEs in the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> program, and a
+given PE’s number in the world team is equal to the value returned by
+<code class="docutils literal notranslate"><span class="pre">ishmem_my_pe</span></code>.</p>
+<p>A team handle may be initialized to or assigned the value
+<code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code> to indicate that handle does not reference a valid
+team.
+When managed in this way, applications can use an equality comparison to test
+whether a given team handle references a valid team.</p>
+</section>
+<section id="collective-ordering">
+<h2>Collective Ordering<a class="headerlink" href="#collective-ordering" title="Permalink to this heading">#</a></h2>
+<p>In Intel® SHMEM, a team object encapsulates resources used to communicate
+between PEs in collective operations.
+When calling multiple subsequent collective operations on a team, the
+collective operations—along with any relevant team based resources—are
+matched across the PEs in the team based on ordering of collective routine
+calls.
+It is the responsibility of the user to ensure that team-based collectives
+occur in the same program order across all PEs in a team.</p>
+<p>For a full discussion of collective semantics, see Section
+<a class="reference internal" href="collectives.html#collectives"><span class="std std-ref">Collectives</span></a>.</p>
+</section>
+<section id="team-creation">
+<h2>Team Creation<a class="headerlink" href="#team-creation" title="Permalink to this heading">#</a></h2>
+<p>Team creation is a collective operation on the parent team object that occurs
+on the host.
+New teams result from an <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_*</span></code> routine, which takes a parent
+team and other arguments and produces new teams that contain a subset of the
+PEs that are members of the parent team.
+All PEs in a parent team must participate in a split operation to create new
+teams.
+If a PE from the parent team is not a member of any resulting new teams, it
+will receive a value of <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code> as the value for the new team
+handle.</p>
+<p>Teams that are created by a <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_*</span></code> routine may be provided a
+configuration argument that specifies attributes of each new team.
+This configuration argument is of type <strong>ishmem_team_config_t</strong>, which is
+detailed further in Section <a class="reference internal" href="#ishmem-team-config-t"><span class="std std-ref">ishmem_team_config_t</span></a>.</p>
+<p>PEs in a newly created team are consecutively numbered starting with PE number
+0.
+PEs are ordered by their PE number in the parent team.
+Team-relative PE numbers can be used for point-to-point operations by using the
+translation routine <code class="docutils literal notranslate"><span class="pre">ishmem_team_translate_pe</span></code>.</p>
+<p>Split operations are collective and are subject to the constraints on
+team-based collectives specified in Section <a class="reference internal" href="collectives.html#collectives"><span class="std std-ref">Collectives</span></a>.
+In particular, in multithreaded executions, threads at a given PE must not
+perform simultaneous split operations on the same parent team.
+Team creation operations are matched across participating PEs based
+on the order in which they are performed.
+Thus, team creation events must also occur in the same order on all PEs in the
+parent team.</p>
+<p>Upon completion of a team creation operation, the parent and any resulting
+child teams will be immediately usable for any team-based operations, including
+creating new child teams, without any intervening synchronization.</p>
+</section>
+<section id="ishmem-team-my-pe">
+<h2>ISHMEM_TEAM_MY_PE<a class="headerlink" href="#ishmem-team-my-pe" title="Permalink to this heading">#</a></h2>
+<p>Returns the number of the calling PE within a specified team.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417ishmem_team_my_pe13ishmem_team_t">
+<span id="_CPPv317ishmem_team_my_pe13ishmem_team_t"></span><span id="_CPPv217ishmem_team_my_pe13ishmem_team_t"></span><span id="ishmem_team_my_pe__ishmem_team_t"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_my_pe</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417ishmem_team_my_pe13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of the calling PE within the specified team, or the value <code class="docutils literal notranslate"><span class="pre">-1</span></code> if the team handle compares equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+When <strong>team</strong> specifies a valid team, the <code class="docutils literal notranslate"><span class="pre">ishmem_team_my_pe</span></code> routine returns
+the number of the calling PE within the specified team.
+The number is an integer between <strong>0</strong> and <strong>N-1</strong> for a team containing <strong>N</strong>
+PEs.
+Each member of the team has a unique number.</p>
+<p>If <strong>team</strong> compares equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, then the value <strong>-1</strong> is
+returned.
+If <strong>team</strong> is otherwise invalid, the behavior is undefined.</p>
+<p><strong>Notes:</strong>
+For the world team, this routine will return the same value as
+<code class="docutils literal notranslate"><span class="pre">ishmem_my_pe</span></code>.</p>
+</section>
+<section id="ishmem-team-n-pes">
+<h2>ISHMEM_TEAM_N_PES<a class="headerlink" href="#ishmem-team-n-pes" title="Permalink to this heading">#</a></h2>
+<p>Returns the number of PEs in a specified team.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417ishmem_team_n_pes13ishmem_team_t">
+<span id="_CPPv317ishmem_team_n_pes13ishmem_team_t"></span><span id="_CPPv217ishmem_team_n_pes13ishmem_team_t"></span><span id="ishmem_team_n_pes__ishmem_team_t"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_n_pes</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417ishmem_team_n_pes13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of PEs in the specified team, or the value <strong>-1</strong> if the team handle compares equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+When <strong>team</strong> specifies a valid team, the <code class="docutils literal notranslate"><span class="pre">ishmem_team_n_pes</span></code> routine returns
+the number of PEs in the team.
+This will always be a value between <strong>1</strong> and <strong>N</strong>, where <strong>N</strong> is the total
+number of PEs running in the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> program.</p>
+<p>If <strong>team</strong> compares equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, then the value <strong>-1</strong> is
+returned.
+If <strong>team</strong> is otherwise invalid, the behavior is undefined.</p>
+<p><strong>Notes:</strong>
+For the world team, this routine will return the same value as
+<code class="docutils literal notranslate"><span class="pre">ishmem_n_pes</span></code>.</p>
+</section>
+<section id="ishmem-team-config-t">
+<span id="id1"></span><h2>ISHMEM_TEAM_CONFIG_T<a class="headerlink" href="#ishmem-team-config-t" title="Permalink to this heading">#</a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Intel® SHMEM 1.1.0 ignores <code class="docutils literal notranslate"><span class="pre">ishmem_team_config_t</span></code>, because
+communication contexts are not yet supported.</p>
+</div>
+<p>A structure type representing team configuration arguments.</p>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv420ishmem_team_config_t">
+<span id="_CPPv320ishmem_team_config_t"></span><span id="_CPPv220ishmem_team_config_t"></span><span id="ishmem_team_config_t"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_config_t</span></span></span><a class="headerlink" href="#_CPPv420ishmem_team_config_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="c var">
+<dt class="sig sig-object c" id="c.num_contexts">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">num_contexts</span></span></span><a class="headerlink" href="#c.num_contexts" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p><strong>Description:</strong>
+A team configuration object is provided as an argument to
+<code class="docutils literal notranslate"><span class="pre">ishmem_team_split_*</span></code> routines.
+It specifies the requested capabilities of the team to be created.</p>
+<p>The <strong>num_contexts</strong> member specifies the total number of simultaneously
+existing contexts that the program requests to create from this team.  These
+contexts may be created in any number of threads.
+Successful creation of a team configured with <strong>num_contexts</strong> of <strong>N</strong> means
+that the implementation will make a best effort to reserve enough resources to
+support <strong>N</strong> contexts created from the team in existence at any given time.</p>
+<p>When using the configuration structure to create teams, a mask parameter
+controls which fields may be accessed by the Intel® SHMEM library.
+Any configuration parameter value that is not indicated in the mask will be
+ignored, and the default value will be used instead.
+Therefore, a program must set only the fields for which it does not want the
+default value.</p>
+<p>A configuration mask is created through a bitwise OR operation of the following library constants.
+A configuration mask value of <strong>0</strong> indicates that the team should be created with the default values for all configuration parameters.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Constant Name:</p></th>
+<th class="head"><p>Constant Description:</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_NUM_CONTEXTS</span></code></p></td>
+<td><p>The team should be created using the value of the
+<strong>num_contexts</strong> member of the configuration parameter
+<strong>config</strong> as a requirement.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The default values for configuration parameters are:</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter Default Value:</p></th>
+<th class="head"><p>Parameter Value Description:</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>num_contexts = 0</strong></p></td>
+<td><p>By default, no contexts can be created on a new team</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ishmem-team-get-config">
+<h2>ISHMEM_TEAM_GET_CONFIG<a class="headerlink" href="#ishmem-team-get-config" title="Permalink to this heading">#</a></h2>
+<p>Return the configuration parameters of a given team.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t">
+<span id="_CPPv322ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t"></span><span id="_CPPv222ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t"></span><span id="ishmem_team_get_config__ishmem_team_t.l.ishmem_team_config_tP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_get_config</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">config_mask</span></span>, <a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">config</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p></li>
+<li><p><strong>config_mask</strong> – The bitwise mask representing the set of configuration parameters to fetch from the given team.</p></li>
+<li><p><strong>config</strong> – A pointer to the configuration parameters for the given team.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>If <strong>team</strong> does not compare equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, then <code class="docutils literal notranslate"><span class="pre">ishmem_team_get_config</span></code> returns <strong>0</strong>; otherwise, it returns nonzero.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Description:</strong>
+<code class="docutils literal notranslate"><span class="pre">ishmem_team_get_config</span></code> returns through the <strong>config</strong> argument the
+configuration parameters as described by the mask, which were assigned
+according to input configuration parameters when the team was created.</p>
+<p>If <strong>team</strong> compares equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, then no operation is
+performed.
+If <strong>team</strong> is otherwise invalid, the behavior is undefined.</p>
+</section>
+<section id="ishmem-team-translate-pe">
+<h2>ISHMEM_TEAM_TRANSLATE_PE<a class="headerlink" href="#ishmem-team-translate-pe" title="Permalink to this heading">#</a></h2>
+<p>Translate a given PE number from one team to the corresponding PE number in
+another team.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t">
+<span id="_CPPv324ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t"></span><span id="_CPPv224ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t"></span><span id="ishmem_team_translate_pe__ishmem_team_t.i.ishmem_team_t"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_translate_pe</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">src_team</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">src_pe</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dest_team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p></li>
+<li><p><strong>src_pe</strong> – A PE number in <strong>src_team</strong>.</p></li>
+<li><p><strong>dest_team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The specified PE’s number in the <strong>dest_team</strong>, or a value of <strong>-1</strong> if any team handle arguments are invalid or the <strong>src_pe</strong> is not in both the source and destination teams.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_team_translate_pe</span></code> routine will translate a given PE number in
+one team into the corresponding PE number in another team.
+Specifically, given the <strong>src_pe</strong> in <strong>src_team</strong>, this routine returns that
+PE’s number in <strong>dest_team</strong>.
+If <strong>src_pe</strong> is not a member of both <strong>src_team</strong> and <strong>dest_team</strong>, a value
+of <strong>-1</strong> is returned.</p>
+<p>If at least one of <strong>src_team</strong> and <strong>dest_team</strong> compares equal to
+<code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, then <strong>-1</strong> is returned.
+If either of the <strong>src_team</strong> or <strong>dest_team</strong> handles are otherwise invalid,
+the behavior is undefined.</p>
+<p><strong>Notes:</strong>
+If <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_WORLD</span></code> is provided as the <strong>dest_team</strong> parameter, this
+routine acts as a global PE number translator and will return the corresponding
+<code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_WORLD</span></code> number.</p>
+</section>
+<section id="ishmem-team-split-strided">
+<h2>ISHMEM_TEAM_SPLIT_STRIDED<a class="headerlink" href="#ishmem-team-split-strided" title="Permalink to this heading">#</a></h2>
+<p>Create a new Intel SHMEM team from a subset of the existing parent team PEs,
+where the subset is defined by the PE triplet (<strong>start</strong>, <strong>stride</strong>, and
+<strong>size</strong>) supplied to the routine.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t">
+<span id="_CPPv325ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="_CPPv225ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="ishmem_team_split_strided__ishmem_team_t.i.i.i.ishmem_team_config_tCP.l.ishmem_team_tP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_split_strided</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">parent_team</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">start</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">stride</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">config</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">config_mask</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">new_team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p></li>
+<li><p><strong>start</strong> – The lowest PE number of the subset of PEs from the parent team that will form the new team.</p></li>
+<li><p><strong>stride</strong> – The stride between team PE numbers in the parent team that comprise the subset of PEs that will form the new team.</p></li>
+<li><p><strong>size</strong> – The number of PEs from the parent team in the subset PEs that will form the new team. <strong>size</strong> must be a positive integer.</p></li>
+<li><p><strong>config</strong> – A pointer to the configuration parameters for the new team.</p></li>
+<li><p><strong>config_mask</strong> – The bitwise mask representing the set of configuration parameters to use <strong>config</strong>.</p></li>
+<li><p><strong>new_team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle. Upon successful creation, it references an <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team that contains the subset of all PEs in the parent team specified by the PE triplet provided.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Zero on successful creation of <strong>new_team</strong>; otherwise, nonzero.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_strided</span></code> routine is a collective routine.
+It creates a new <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team from an existing parent team,
+where the PE subset of the resulting team is defined by the triplet of arguments
+<span class="math notranslate nohighlight">\((start, stride, size)\)</span>.
+A valid triplet is one such that:</p>
+<div class="math notranslate nohighlight">
+\[start + stride \cdot i \in \mathbb{Z}_{N-1}
+\;
+\forall
+\;
+i \in \mathbb{Z}_{size-1}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbb{Z}\)</span> is the set of natural numbers (<span class="math notranslate nohighlight">\(0, 1, \dots\)</span>),
+<span class="math notranslate nohighlight">\(N\)</span> is the number of PEs in the parent team, <span class="math notranslate nohighlight">\(size\)</span> is a positive
+number indicating the number of PEs in the new team, and <span class="math notranslate nohighlight">\(stride\)</span> is an integer.
+The index <span class="math notranslate nohighlight">\(i\)</span> specifies the number of the given PE in the new team.
+When <span class="math notranslate nohighlight">\(stride\)</span> is greater than zero, PEs in the new team remain in the
+same relative order as in the parent team.
+When <span class="math notranslate nohighlight">\(stride\)</span> is less than zero, PEs in the new team are in <em>reverse</em>
+relative order with respect to the parent team.
+If a <span class="math notranslate nohighlight">\(stride\)</span> value equal to 0 is passed to
+<code class="docutils literal notranslate"><span class="pre">ishmem_team_split_strided</span></code>, then the <cite>size</cite> argument passed must be 1, or
+the behavior is undefined.</p>
+<p>This routine must be called by all PEs in the parent team.
+All PEs must provide the same values for the PE triplet.
+On successful creation of the new team:</p>
+<ol class="arabic simple">
+<li><p>The <strong>new_team</strong> handle will reference a valid team for the subset of PEs in
+the parent team that are members of the new team.</p></li>
+<li><p>Those PEs in the parent team that are not members of the new team will have
+<strong>new_team</strong> assigned to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ishmem_team_split_strided</span></code> will return zero to all PEs in the parent
+team.</p></li>
+</ol>
+<p>If the new team cannot be created or an invalid PE triplet is provided, then
+<strong>new_team</strong> will be assigned the value <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ishmem_team_split_strided</span></code> will return a nonzero value on all PEs in the
+parent team.</p>
+<p>The <strong>config</strong> argument specifies team configuration parameters, which are
+described in Section <a class="reference internal" href="#ishmem-team-config-t"><span class="std std-ref">ishmem_team_config_t</span></a>.</p>
+<p>The <strong>config_mask</strong> argument is a bitwise mask representing the set of
+configuration parameters to use from <strong>config</strong>.
+A <strong>config_mask</strong> value of <strong>0</strong> indicates that the team should be created with the default values for all configuration parameters.
+See Section <a class="reference internal" href="#ishmem-team-config-t"><span class="std std-ref">ishmem_team_config_t</span></a> for field mask
+names and default configuration parameters.</p>
+<p>If <strong>parent_team</strong> compares equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, then no new team
+will be created, <strong>new_team</strong> will be assigned the value
+<code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, and <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_strided</span></code> will return a
+nonzero value.
+If <strong>parent_team</strong> is otherwise invalid, the behavior is undefined.</p>
+<p><strong>Notes:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_strided</span></code> operation uses an arbitrary <strong>stride</strong>
+argument, whereas the deprecated OpenSHMEM <cite>logPE_stride</cite> argument to the
+active set collective operations only permits strides that are a power of two.
+Arbitrary strides allow a greater number of PE subsets to be expressed
+and can support a broader range of usage models.</p>
+<p>See the description of team handles and predefined teams in Section <a class="reference internal" href="#team"><span class="std std-ref">Teams
+Management Routines</span></a> for more information about team handle semantics and
+usage.</p>
+</section>
+<section id="ishmem-team-split-2d">
+<h2>ISHMEM_TEAM_SPLIT_2D<a class="headerlink" href="#ishmem-team-split-2d" title="Permalink to this heading">#</a></h2>
+<p>Create two new teams by splitting an existing parent team into two subsets
+based on a 2D Cartesian space defined by the <strong>xrange</strong> argument and a <cite>y</cite>
+dimension that is derived from <strong>xrange</strong> and the parent team size.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t">
+<span id="_CPPv320ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="_CPPv220ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="ishmem_team_split_2d__ishmem_team_t.i.ishmem_team_config_tCP.l.ishmem_team_tP.ishmem_team_config_tCP.l.ishmem_team_tP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_split_2d</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">parent_team</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xrange</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">xaxis_config</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xaxis_mask</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">xaxis_team</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">yaxis_config</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">yaxis_mask</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">yaxis_team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p></li>
+<li><p><strong>xrange</strong> – A positive integer representing the number of elements in the first dimension.</p></li>
+<li><p><strong>xaxis_config</strong> – A pointer to the configuration parameters for the new <strong>xaxis_team</strong> object.</p></li>
+<li><p><strong>xaxis_mask</strong> – The bitwise mask representing the set of configuration parameters to use from <strong>xaxis_config</strong>.</p></li>
+<li><p><strong>xaxis_team</strong> – A new team handle representing the subset of all PEs that share the same coordinate along the <cite>y</cite>-axis as the calling PE.</p></li>
+<li><p><strong>yaxis_config</strong> – A pointer to the configuration parameters for the new <strong>yaxis_team</strong>.</p></li>
+<li><p><strong>yaxis_mask</strong> – The bitwise mask representing the set of configuration parameters to use from <strong>yaxis_config</strong>.</p></li>
+<li><p><strong>yaxis_team</strong> – A new team handle representing the subset of all PEs that share the same coordinate along the <cite>x</cite>-axis as the calling PE.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Zero on successful creation of all <strong>xaxis_team</strong> and <strong>yaxis_team</strong> objects; otherwise, nonzero.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_2d</span></code> routine is a collective operation.
+It returns two new teams to the calling PE by splitting an existing parent team
+into subsets based on a 2D Cartesian space.
+The user provides the size of the <cite>x</cite> dimension, which is then used to derive
+the size of the <cite>y</cite> dimension based on the size of the parent team.
+The size of the <cite>y</cite> dimension will be equal to <span class="math notranslate nohighlight">\(\lceil N \div xrange
+\rceil\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the size of the parent team.
+In other words, <span class="math notranslate nohighlight">\(xrange \times yrange \geq N\)</span>, so that every PE in the
+parent team has a unique <span class="math notranslate nohighlight">\((x,y)\)</span> location in the 2D Cartesian space.
+The resulting <strong>xaxis_team</strong> and <strong>yaxis_team</strong> correspond to the calling PE’s
+row and column, respectively, in the 2D Cartesian space.</p>
+<p>The mapping of PE number to coordinates is <span class="math notranslate nohighlight">\((x, y) = ( pe \mod xrange,
+\lfloor pe \div xrange \rfloor )\)</span>, where <span class="math notranslate nohighlight">\(pe\)</span> is the PE number in the
+parent team.
+For example, if <span class="math notranslate nohighlight">\(xrange = 3\)</span>, then the first 3 PEs in the
+parent team will form the first <strong>xteam</strong>, the second three PEs in the
+parent team form the second <strong>xteam</strong>, and so on.</p>
+<p>Thus, after the split operation, each of the new <strong>xteam</strong>’s will contain all
+PEs that have the same coordinate along the <cite>y</cite>-axis as the calling PE.
+Each of the new <strong>yteam</strong>’s will contain all PEs with the same coordinate along
+the <cite>x</cite>-axis as the calling PE.</p>
+<p>The PEs are numbered in the new teams based on the coordinate of the PE along
+the given axis.
+As a result, the value returned by <code class="docutils literal notranslate"><span class="pre">ishmem_team_my_pe(xteam)</span></code> is the
+<cite>x</cite>-coordinate and the value returned by <code class="docutils literal notranslate"><span class="pre">ishmem_team_my_pe(yteam)</span></code> is the
+<cite>y</cite>-coordinate of the calling PE.</p>
+<p>Any valid Intel® SHMEM team can be used as the parent team.
+This routine must be called by all PEs in the parent team.
+The value of <strong>xrange</strong> must be positive and all PEs in the parent team must
+pass the same value for <strong>xrange</strong>.  When <strong>xrange</strong> is greater than the size
+of the parent team, <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_2d</span></code> behaves as though <strong>xrange</strong> were
+equal to the size of the parent team.</p>
+<p>The <strong>xaxis_config</strong> and <strong>yaxis_config</strong> arguments specify team configuration
+parameters for the <cite>x</cite>- and <cite>y</cite>-axis teams, respectively.
+These parameters are described in Section
+<a class="reference internal" href="#ishmem-team-config-t"><span class="std std-ref">ishmem_team_config_t</span></a>.
+All PEs that will be in the same resultant team must specify the same
+configuration parameters.
+The PEs in the parent team <cite>do not</cite> have to all provide the same parameters for
+new teams.</p>
+<p>The <strong>xaxis_mask</strong> and <strong>yaxis_mask</strong> arguments are a bitwise masks
+representing the set of configuration parameters to use from <strong>xaxis_config</strong>
+and <strong>yaxis_config</strong>, respectively.
+A mask value of <strong>0</strong> indicates that the team should be created with the
+default values for all configuration parameters.
+See Section <a class="reference internal" href="#ishmem-team-config-t"><span class="std std-ref">ishmem_team_config_t</span></a> for field mask
+names and default configuration parameters.</p>
+<p>If <strong>parent_team</strong> compares equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, then no new teams
+will be created, both <strong>xaxis_team</strong> and <strong>yaxis_team</strong> will be assigned the
+value <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, and <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_2d</span></code> will return a
+nonzero value.
+If <strong>parent_team</strong> is otherwise invalid, the behavior is undefined.</p>
+<p>If any <strong>xaxis_team</strong> or <strong>yaxis_team</strong> on any PE in <strong>parent_team</strong> cannot be
+created, then both team handles on all PEs in <strong>parent_team</strong> will be assigned
+the value <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code> and <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_2d</span></code> will return a
+nonzero value.</p>
+<p><strong>Notes:</strong>
+Since the split may result in a 2D space with more points than there are
+members of the parent team, there may be a final, incomplete row of the 2D
+mapping of the parent team.
+This means that the resultant <strong>yteam</strong>’s may vary in size by up to 1 PE, and
+that there may be one resultant <strong>xteam</strong> of smaller size than all of the other
+<strong>xteam</strong>’s.</p>
+<p>The following grid shows the 12 teams that would result from splitting a parent
+team of size 10 with <strong>xrange</strong> of 3.
+The numbers in the grid cells are the PE numbers in the parent team.
+The rows are the <strong>xteam</strong>’s. The columns are the <strong>yteam</strong>’s.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>yteam, x=0</p></th>
+<th class="head"><p>yteam, x=1</p></th>
+<th class="head"><p>yteam, x=2</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>xteam, y=0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>xteam, y=1</p></td>
+<td><p>3</p></td>
+<td><p>4</p></td>
+<td><p>5</p></td>
+</tr>
+<tr class="row-even"><td><p>xteam, y=2</p></td>
+<td><p>6</p></td>
+<td><p>7</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>xteam, y=3</p></td>
+<td><p>9</p></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>It would be legal, for example, if PEs 0, 3, 6, 9 specified a different value
+for <strong>yaxis_config</strong> than all of the other PEs, as long as the configuration
+parameters match for all PEs in each of the new teams.</p>
+<p>See the description of team handles and predefined teams in Section <a class="reference internal" href="#team"><span class="std std-ref">Team
+Management Routines</span></a> for more information about team handle semantics and
+usage.</p>
+</section>
+<section id="ishmem-team-destroy">
+<h2>ISHMEM_TEAM_DESTROY<a class="headerlink" href="#ishmem-team-destroy" title="Permalink to this heading">#</a></h2>
+<p>Destroy an existing team.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419ishmem_team_destroy13ishmem_team_t">
+<span id="_CPPv319ishmem_team_destroy13ishmem_team_t"></span><span id="_CPPv219ishmem_team_destroy13ishmem_team_t"></span><span id="ishmem_team_destroy__ishmem_team_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_destroy</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419ishmem_team_destroy13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_team_destroy</span></code> routine is a collective operation that destroys the
+team referenced by the team handle argument <strong>team</strong>.
+Upon return, the referenced team is invalid.</p>
+<p>If <strong>team</strong> compares equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_WORLD</span></code> or any other predefined
+team, the behavior is undefined.</p>
+<p>If <strong>team</strong> compares equal to <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_INVALID</span></code>, then no operation is
+performed.
+If <strong>team</strong> is otherwise invalid, the behavior is undefined.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="memory_management.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Memory Management</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="rma.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Remote Memory Access (RMA)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#predefined-and-application-defined-teams">Predefined and Application-Defined Teams</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#team-handles">Team Handles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#collective-ordering">Collective Ordering</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#team-creation">Team Creation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-my-pe">ISHMEM_TEAM_MY_PE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-n-pes">ISHMEM_TEAM_N_PES</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-config-t">ISHMEM_TEAM_CONFIG_T</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-get-config">ISHMEM_TEAM_GET_CONFIG</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-translate-pe">ISHMEM_TEAM_TRANSLATE_PE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-strided">ISHMEM_TEAM_SPLIT_STRIDED</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-2d">ISHMEM_TEAM_SPLIT_2D</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-destroy">ISHMEM_TEAM_DESTROY</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Intel Corporation
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -87,7 +87,17 @@ null character.
 .. detail about its use.
 
 .. ISHMEM_TEAM_NUM_CONTEXTS
-.. ISHMEM_TEAM_INVALID
+
+.. c:macro:: ISHMEM_TEAM_INVALID
+
+A value corresponding to an invalid team.
+This value can be used to initialize or update team handles to indicate that
+they do not reference a valid team.
+When managed in this way, applications can use an equality comparison to test
+whether a given team handle references a valid team.
+See Section :ref:`Team Management Routines<team>` for more detail about its
+use.
+
 .. ISHMEM_CTX_INVALID
 .. ISHMEM_CTX_SERIALIZED
 .. ISHMEM_CTX_PRIVATE
@@ -97,15 +107,36 @@ null character.
 .. ISHMEM_MALLOC_ATOMICS_REMOTE
 .. ISHMEM_MALLOC_SIGNAL_REMOTE
 
+.. _library_handles:
 
-.. ===============
-.. Library Handles
-.. ===============
-..
-.. .. c:macro:: ISHMEM_TEAM_WORLD
-..
-.. .. c:macro:: ISHMEM_TEAM_SHARED
-..
+===============
+Library Handles
+===============
+
+.. c:macro:: ISHMEM_TEAM_WORLD
+
+Handle of type **ishmem_team_t** that corresponds to the world team that
+contains all PEs in the ``ishmem`` program.
+All point-to-point communication operations occur on PE numbers relative to the
+world team, and all collective synchronizations that do not specify a team are
+performed on the world team.
+See Section :ref:`Team Management Routines<team>` for more detail about its
+use.
+
+.. c:macro:: ISHMEM_TEAM_SHARED
+
+Handle of type **ishmem_team_t** that corresponds to a team of PEs that share
+a memory domain.
+``ISHMEM_TEAM_SHARED`` refers to the team of all PEs that would mutually
+return a non-null address from a call to :ref:`ishmem_ptr<ishmem_ptr>` for
+all symmetric heap objects.
+That is, :ref:`ishmem_ptr<ishmem_ptr>` must return a non-null pointer to the
+local PE for all symmetric heap objects on all target PEs in the team.
+This means that symmetric heap objects on each PE are directly load/store
+accessible by all PEs in the team.
+See Section :ref:`Team Management Routines<team>` for more detail about its
+use.
+
 .. .. c:macro:: ISHMEM_CTX_DEFAULT
 
 .. _env_vars:
@@ -173,10 +204,15 @@ Link fabric is not available or does not connect all the GPUs.
 
 Enables the pidfd implementation of IPC.
 This is enabled by default, but will fail on older Linux kernels that do not
-support the necessary systiem calls.
+support the necessary system calls.
 In such cases, use ISHMEM_ENABLE_GPU_IPC_PIDFD=0
 
 .. c:macro:: ISHMEM_ENABLE_ACCESSIBLE_HOST_HEAP
 
-Place symmetric heap in `host` unified shared memory (allocated on the host and
+Places symmetric heap in `host` unified shared memory (allocated on the host and
 accessible by the host and device).
+
+.. c:macro:: ISHMEM_ENABLE_VERBOSE_PRINT
+
+Includes the file, line, and function along with messages printed by the utility
+routines and other output for debug, warning, or error reporting. 

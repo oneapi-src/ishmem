@@ -153,6 +153,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="nav bd-sidenav">
@@ -160,12 +161,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -345,7 +348,8 @@ Private data objects are stored in the local host memory of a given PE or in
 the device memory of the device local to the PE, and private objects cannot be
 accessed by other PEs via <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines.
 Private data objects on the host follow the memory model of C/C++ and private
-data objects on the device follow the SYCL device memory model (see <a class="reference external" href="https://www.khronos.org/registry/SYCL/specs/sycl-2020/html/sycl-2020.html#_sycl_device_memory_model">SYCL device memory model</a>).</p>
+data objects on the device follow the SYCL device memory model (see <a class="reference external" href="https://www.khronos.org/registry/SYCL/specs/sycl-2020/html/sycl-2020.html#_sycl_device_memory_model">SYCL
+device memory model</a>).</p>
 <p>Remotely accessible objects, however, can be accessed by remote PEs using
 <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines within SYCL device kernels.
 Remotely accessible data objects are called <cite>Symmetric Data Objects</cite>.
@@ -391,7 +395,7 @@ In that model, memory can be <cite>host</cite>, <cite>device</cite>, or <cite>sh
 In Intel® SHMEM, the symmetric heap is in <cite>device</cite> memory and is not accessible
 from the host by loads and stores, but SYCL routines such as
 <code class="docutils literal notranslate"><span class="pre">sycl::queue::memcpy()</span></code> may be used.
-SYCL <cite>host</cite> Memory may be allocated by <code class="docutils literal notranslate"><span class="pre">sycl::malloc_host()</span></code> and is accesible
+SYCL <cite>host</cite> Memory may be allocated by <code class="docutils literal notranslate"><span class="pre">sycl::malloc_host()</span></code> and is accessible
 using loads and stores in both host and device kernel code.
 SYCL kernels generally do not have access to host global and static objects.</p>
 <p>Intel® SHMEM augments the DPC++/SYCL memory model to some degree, in that
@@ -408,7 +412,8 @@ return a valid address for direct access to symmetric heap objects that are
 accessible via the <span class="math notranslate nohighlight">\(\text{X}^e\)</span> Link fabric.
 <code class="docutils literal notranslate"><span class="pre">ishmem_ptr</span></code> called on the host will generally not return a valid address
 for a symmetric heap object even on the same PE.
-A pointer returned by <code class="docutils literal notranslate"><span class="pre">ishmem_optr</span></code> is valid for direct memory access; however,
+A pointer returned by <code class="docutils literal notranslate"><span class="pre">ishmem_ptr</span></code> is valid for direct memory access;
+however,
 providing this address as an argument of an <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routine that requires a
 symmetric address results in undefined behavior.</p>
 </section>
@@ -426,11 +431,13 @@ operation on the same location and with the same datatype as one or more atomic
 operations.</p>
 <p>Intel® SHMEM atomic operations do not guarantee exclusivity in the
 following scenarios, all of which result in undefined behavior.</p>
-<ol class="arabic simple">
-<li><p>When concurrent accesses to the same location are performed using <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> atomic routines using different datatypes.</p></li>
-<li><p>When atomic and non-atomic <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines are used to access the same location concurrently.</p></li>
-<li><p>When <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> atomic routines and non-<code class="docutils literal notranslate"><span class="pre">ishmem</span></code> operations (e.g., load, store, or other atomic operations) are used to access the same location concurrently.</p></li>
-</ol>
+<p>#. When concurrent accesses to the same location are performed using <code class="docutils literal notranslate"><span class="pre">ishmem</span></code>
+atomic routines using different datatypes.
+#. When atomic and non-atomic <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> routines are used to access the same
+location concurrently.
+#. When <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> atomic routines and non-<code class="docutils literal notranslate"><span class="pre">ishmem</span></code> operations (e.g., load,
+store, or other atomic operations) are used to access the same location
+concurrently.</p>
 </section>
 </section>
 
@@ -503,7 +510,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

@@ -11,6 +11,8 @@ The ``ishmem_malloc``, ``ishmem_align``, and ``ishmem_free`` routines are
 provided  so that multiple PEs in a program can allocate symmetric, remotely
 accessible memory blocks.
 These memory blocks can then be used with ``ishmem`` communication routines.
+The symmetric memory allocation routines must be called by all PEs in the
+world team.
 When no action is performed, these routines return without performing a
 barrier.
 Otherwise, each of these routines includes at least one call to a procedure
@@ -29,9 +31,9 @@ undefined.
 .. involving the given memory block are pending on other contexts prior to calling
 .. the ``ishmem_free`` and ``ishmem_realloc`` routines.
 
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 ISHMEM_MALLOC
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 .. cpp:function:: void* ishmem_malloc(size_t size)
 
@@ -41,10 +43,12 @@ ISHMEM_MALLOC
 Callable from the **host**.
 
 **Description:**
-The ``ishmem_malloc`` routine returns the symmetric address of a block of at
-least **size** bytes, which shall be suitably aligned so that it may be
-assigned to a pointer to any type of object.  This space is allocated from the
-symmetric heap (in contrast to malloc, which allocates from the private heap).
+The ``ishmem_malloc`` routine is a collective operation on the world team that
+returns the symmetric address of a block of at least **size** bytes, which
+shall be suitably aligned so that it may be assigned to a pointer to any type
+of object.
+This space is allocated from the symmetric heap (in contrast to malloc, which
+allocates from the private heap).
 The memory space is uninitialized.
 When **size** is zero, the ``ishmem_malloc`` routine performs no action and
 returns a null pointer; otherwise, ``ishmem_malloc`` calls a barrier on exit.
@@ -52,30 +56,29 @@ returns a null pointer; otherwise, ``ishmem_malloc`` calls a barrier on exit.
 The value of the **size** argument must be identical on all PEs; otherwise, the
 behavior is undefined.
 
-^^^^^^^^^^^^^
+^^^^^^^^^^^
 ISHMEM_FREE
-^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 .. cpp:function:: void ishmem_free(void* ptr)
 
   :param ptr: Symmetric address of an object in the symmetric heap.
+  :returns: None.
 
 Callable from the **host**.
 
 **Description:**
-The ``ishmem_free`` routine causes the block to which **ptr** points to be
-deallocated, that is, made available for further allocation.  If **ptr** is a
-null pointer, no action is performed; otherwise, ``ishmem_free`` calls a
-barrier on entry.  It is the user's responsibility to ensure that no
-communication operations involving the given memory block are pending on other
-communication contexts prior to calling ``ishmem_free``.
+The ``ishmem_free`` routine is a collective operation on the world team that
+causes the block to which **ptr** points to be deallocated, that is, made
+available for further allocation.
+If **ptr** is a null pointer, no action is performed; otherwise,
+``ishmem_free`` calls a barrier on entry.
+It is the user's responsibility to ensure that no communication operations
+involving the given memory block are pending on other communication contexts
+prior to calling ``ishmem_free``.
 
 The value of the **ptr** argument must be identical on all PEs; otherwise, the
 behavior is undefined.
-
-.. note:: The |release| version of the ``ishmem_free`` routine does not
-   release memory for use in subsequent allocations.  This issue will be
-   fixed in a future version of Intel® SHMEM.
 
 .. ^^^^^^^^^^^^^^^^
 .. ISHMEM_REALLOC
@@ -86,9 +89,9 @@ behavior is undefined.
 ..   :param ptr:
 ..   :param size:
 
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^
 ISHMEM_ALIGN
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^
 
 .. cpp:function:: void ishmem_align(size_t alignment, size_t size)
 
@@ -99,12 +102,14 @@ ISHMEM_ALIGN
 Callable from the **host**.
 
 **Description**
-The ``ishmem_align`` routine allocates a block in the symmetric heap that has
-a byte alignment specified by the **alignment** argument. The value of
-**alignment** shall be a multiple of ``sizeof(void *)`` that is also a power of
-two.  Otherwise, the behavior is undefined. When size is zero, the
-``ishmem_align`` routine performs no action and returns a null pointer;
-otherwise, ``ishmem_align`` call a barrier on exit.
+The ``ishmem_align`` routine is a collective operation on the world team that
+allocates a block in the symmetric heap that has a byte alignment specified by
+the **alignment** argument.
+The value of **alignment** shall be a multiple of ``sizeof(void *)`` that is
+also a power of two.
+Otherwise, the behavior is undefined. When size is zero, the ``ishmem_align``
+routine performs no action and returns a null pointer; otherwise,
+``ishmem_align`` call a barrier on exit.
 The memory space is uninitialized.
 
 .. ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -116,9 +121,9 @@ The memory space is uninitialized.
 ..  :param size:
 ..  :param hints:
 
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 ISHMEM_CALLOC
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 .. cpp:function:: void* ishmem_calloc(size_t count, size_t size)
 
@@ -129,10 +134,11 @@ ISHMEM_CALLOC
 Callable from the **host**.
 
 **Description:**
-  The ``ishmem_calloc`` routine is a collective operation that allocates a
-  region of remotely-accessible memory for an array of **count** objects of
-  **size** bytes each and returns a pointer to the lowest byte address of the
-  allocated symmetric memory. The space is initialized to all bits zero.
+  The ``ishmem_calloc`` routine is a collective operation on the world team
+  that allocates a region of remotely-accessible memory for an array of
+  **count** objects of **size** bytes each and returns a pointer to the
+  lowest byte address of the allocated symmetric memory.
+  The space is initialized to all bits zero.
 
   If the allocation succeeds, the pointer returned shall be suitably aligned so
   that it may be assigned to a pointer to any type of object.  If the

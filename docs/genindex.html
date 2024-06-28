@@ -149,6 +149,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="nav bd-sidenav">
@@ -156,12 +157,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -279,6 +282,7 @@ document.write(`
 <div class="genindex-jumpbox">
  <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#R"><strong>R</strong></a>
  
 </div>
@@ -297,7 +301,7 @@ document.write(`
 </li>
       <li><a href="memory_management.html#_CPPv412ishmem_align6size_t6size_t">ishmem_align (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv418ishmem_alltoallmemPvPKv6size_t">ishmem_alltoallmem (C++ function)</a>
+      <li><a href="collectives.html#_CPPv418ishmem_alltoallmem13ishmem_team_tPvPKv6size_t">ishmem_alltoallmem (C++ function)</a>, <a href="collectives.html#_CPPv418ishmem_alltoallmemPvPKv6size_t">[1]</a>
 </li>
       <li><a href="atomics.html#_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi">ishmem_atomic_add (C++ function)</a>
 </li>
@@ -305,17 +309,31 @@ document.write(`
 </li>
       <li><a href="atomics.html#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi">ishmem_atomic_compare_swap (C++ function)</a>
 </li>
+      <li><a href="atomics.html#_CPPv430ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi">ishmem_atomic_compare_swap_nbi (C++ function)</a>
+</li>
       <li><a href="atomics.html#_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi">ishmem_atomic_fetch (C++ function)</a>
 </li>
       <li><a href="atomics.html#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi">ishmem_atomic_fetch_add (C++ function)</a>
 </li>
+      <li><a href="atomics.html#_CPPv427ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi">ishmem_atomic_fetch_add_nbi (C++ function)</a>
+</li>
       <li><a href="atomics.html#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi">ishmem_atomic_fetch_and (C++ function)</a>
+</li>
+      <li><a href="atomics.html#_CPPv427ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi">ishmem_atomic_fetch_and_nbi (C++ function)</a>
 </li>
       <li><a href="atomics.html#_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi">ishmem_atomic_fetch_inc (C++ function)</a>
 </li>
+      <li><a href="atomics.html#_CPPv427ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi">ishmem_atomic_fetch_inc_nbi (C++ function)</a>
+</li>
+      <li><a href="atomics.html#_CPPv423ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi">ishmem_atomic_fetch_nbi (C++ function)</a>
+</li>
       <li><a href="atomics.html#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi">ishmem_atomic_fetch_or (C++ function)</a>
 </li>
+      <li><a href="atomics.html#_CPPv426ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi">ishmem_atomic_fetch_or_nbi (C++ function)</a>
+</li>
       <li><a href="atomics.html#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi">ishmem_atomic_fetch_xor (C++ function)</a>
+</li>
+      <li><a href="atomics.html#_CPPv427ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi">ishmem_atomic_fetch_xor_nbi (C++ function)</a>
 </li>
       <li><a href="atomics.html#_CPPv4I0E17ishmem_atomic_incvP4TYPEi">ishmem_atomic_inc (C++ function)</a>
 </li>
@@ -325,15 +343,17 @@ document.write(`
 </li>
       <li><a href="atomics.html#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi">ishmem_atomic_swap (C++ function)</a>
 </li>
+      <li><a href="atomics.html#_CPPv422ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi">ishmem_atomic_swap_nbi (C++ function)</a>
+</li>
       <li><a href="atomics.html#_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi">ishmem_atomic_xor (C++ function)</a>
 </li>
       <li><a href="collectives.html#_CPPv418ishmem_barrier_allv">ishmem_barrier_all (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv419ishmem_broadcastmemPvPKv6size_ti">ishmem_broadcastmem (C++ function)</a>
+      <li><a href="collectives.html#_CPPv419ishmem_broadcastmem13ishmem_team_tPvPKv6size_ti">ishmem_broadcastmem (C++ function)</a>, <a href="collectives.html#_CPPv419ishmem_broadcastmemPvPKv6size_ti">[1]</a>
 </li>
       <li><a href="memory_management.html#_CPPv413ishmem_calloc6size_t6size_t">ishmem_calloc (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv417ishmem_collectmemPvPKv6size_t">ishmem_collectmem (C++ function)</a>
+      <li><a href="collectives.html#_CPPv417ishmem_collectmem13ishmem_team_tPvPKv6size_t">ishmem_collectmem (C++ function)</a>, <a href="collectives.html#_CPPv417ishmem_collectmemPvPKv6size_t">[1]</a>
 </li>
       <li><a href="library_constants.html#c.ISHMEM_DEBUG">ISHMEM_DEBUG (C macro)</a>
 </li>
@@ -343,7 +363,9 @@ document.write(`
 </li>
       <li><a href="library_constants.html#c.ISHMEM_ENABLE_GPU_IPC_PIDFD">ISHMEM_ENABLE_GPU_IPC_PIDFD (C macro)</a>
 </li>
-      <li><a href="collectives.html#_CPPv418ishmem_fcollectmemPvPKv6size_t">ishmem_fcollectmem (C++ function)</a>
+      <li><a href="library_constants.html#c.ISHMEM_ENABLE_VERBOSE_PRINT">ISHMEM_ENABLE_VERBOSE_PRINT (C macro)</a>
+</li>
+      <li><a href="collectives.html#_CPPv418ishmem_fcollectmem13ishmem_team_tPvPKv6size_t">ishmem_fcollectmem (C++ function)</a>, <a href="collectives.html#_CPPv418ishmem_fcollectmemPvPKv6size_t">[1]</a>
 </li>
       <li><a href="memory_ordering.html#_CPPv412ishmem_fencev">ishmem_fence (C++ function)</a>
 </li>
@@ -361,7 +383,13 @@ document.write(`
 </li>
       <li><a href="rma.html#_CPPv417ishmem_getmem_nbiPvPKv6size_ti">ishmem_getmem_nbi (C++ function)</a>
 </li>
+      <li><a href="rma.html#_CPPv414ishmem_getSIZEPvPKv6size_ti">ishmem_getSIZE (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv418ishmem_getSIZE_nbiPvPKv6size_ti">ishmem_getSIZE_nbi (C++ function)</a>
+</li>
       <li><a href="rma.html#_CPPv4I0E11ishmem_igetvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_ti">ishmem_iget (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv415ishmem_igetSIZEPvPKv9ptrdiff_t9ptrdiff_t6size_ti">ishmem_igetSIZE (C++ function)</a>
 </li>
       <li><a href="library_constants.html#c.ISHMEM_INFO">ISHMEM_INFO (C macro)</a>
 </li>
@@ -372,6 +400,8 @@ document.write(`
       <li><a href="library_setup_exit_query.html#_CPPv411ishmem_initv">ishmem_init (C++ function)</a>
 </li>
       <li><a href="rma.html#_CPPv4I0E11ishmem_iputvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_ti">ishmem_iput (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv415ishmem_iputSIZEPvPKv9ptrdiff_t9ptrdiff_t6size_ti">ishmem_iputSIZE (C++ function)</a>
 </li>
       <li><a href="library_constants.html#c.ISHMEM_MAJOR_VERSION">ISHMEM_MAJOR_VERSION (C macro)</a>
 </li>
@@ -401,6 +431,18 @@ document.write(`
 </li>
       <li><a href="rma.html#_CPPv417ishmem_putmem_nbiPvPKv6size_ti">ishmem_putmem_nbi (C++ function)</a>
 </li>
+      <li><a href="signaling.html#_CPPv420ishmem_putmem_signalPvPKv6size_tP8uint64_t8uint64_tii">ishmem_putmem_signal (C++ function)</a>
+</li>
+      <li><a href="signaling.html#_CPPv424ishmem_putmem_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii">ishmem_putmem_signal_nbi (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv414ishmem_putSIZEPvPKv6size_ti">ishmem_putSIZE (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv418ishmem_putSIZE_nbiPvPKv6size_ti">ishmem_putSIZE_nbi (C++ function)</a>
+</li>
+      <li><a href="signaling.html#_CPPv421ishmem_putSIZE_signalPvPKv6size_tP8uint64_t8uint64_tii">ishmem_putSIZE_signal (C++ function)</a>
+</li>
+      <li><a href="signaling.html#_CPPv425ishmem_putSIZE_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii">ishmem_putSIZE_signal_nbi (C++ function)</a>
+</li>
       <li><a href="memory_ordering.html#_CPPv412ishmem_quietv">ishmem_quiet (C++ function)</a>
 </li>
       <li><a href="library_setup_exit_query.html#c.ISHMEM_RUNTIME_MPI">ISHMEM_RUNTIME_MPI (C macro)</a>
@@ -413,13 +455,39 @@ document.write(`
 </li>
       <li><a href="signaling.html#_CPPv419ishmem_signal_fetchPK8uint64_t">ishmem_signal_fetch (C++ function)</a>
 </li>
+      <li><a href="pt2pt_sync.html#_CPPv424ishmem_signal_wait_untilP8uint64_ti8uint64_t">ishmem_signal_wait_until (C++ function)</a>
+</li>
       <li><a href="library_constants.html#c.ISHMEM_SYMMETRIC_SIZE">ISHMEM_SYMMETRIC_SIZE (C macro)</a>
 </li>
       <li><a href="collectives.html#_CPPv415ishmem_sync_allv">ishmem_sync_all (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv424ishmem_TYPENAME_alltoallP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_alltoall (C++ function)</a>
+      <li><a href="teams.html#_CPPv420ishmem_team_config_t">ishmem_team_config_t (C++ struct)</a>
 </li>
-      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_and_reduceP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_and_reduce (C++ function)</a>
+      <li><a href="teams.html#_CPPv419ishmem_team_destroy13ishmem_team_t">ishmem_team_destroy (C++ function)</a>
+</li>
+      <li><a href="teams.html#_CPPv422ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t">ishmem_team_get_config (C++ function)</a>
+</li>
+      <li><a href="library_constants.html#c.ISHMEM_TEAM_INVALID">ISHMEM_TEAM_INVALID (C macro)</a>
+</li>
+      <li><a href="teams.html#_CPPv417ishmem_team_my_pe13ishmem_team_t">ishmem_team_my_pe (C++ function)</a>
+</li>
+      <li><a href="teams.html#_CPPv417ishmem_team_n_pes13ishmem_team_t">ishmem_team_n_pes (C++ function)</a>
+</li>
+      <li><a href="library_constants.html#c.ISHMEM_TEAM_SHARED">ISHMEM_TEAM_SHARED (C macro)</a>
+</li>
+      <li><a href="teams.html#_CPPv420ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t">ishmem_team_split_2d (C++ function)</a>
+</li>
+      <li><a href="teams.html#_CPPv425ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t">ishmem_team_split_strided (C++ function)</a>
+</li>
+      <li><a href="collectives.html#_CPPv416ishmem_team_sync13ishmem_team_t">ishmem_team_sync (C++ function)</a>
+</li>
+      <li><a href="teams.html#_CPPv424ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t">ishmem_team_translate_pe (C++ function)</a>
+</li>
+      <li><a href="library_constants.html#c.ISHMEM_TEAM_WORLD">ISHMEM_TEAM_WORLD (C macro)</a>
+</li>
+      <li><a href="collectives.html#_CPPv424ishmem_TYPENAME_alltoall13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_alltoall (C++ function)</a>, <a href="collectives.html#_CPPv424ishmem_TYPENAME_alltoallP4TYPEPK4TYPE6size_t">[1]</a>
+</li>
+      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_and_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_and_reduce (C++ function)</a>, <a href="collectives.html#_CPPv426ishmem_TYPENAME_and_reduceP4TYPEPK4TYPE6size_t">[1]</a>
 </li>
       <li><a href="atomics.html#_CPPv426ishmem_TYPENAME_atomic_addP4TYPE4TYPEi">ishmem_TYPENAME_atomic_add (C++ function)</a>
 </li>
@@ -427,35 +495,51 @@ document.write(`
 </li>
       <li><a href="atomics.html#_CPPv435ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi">ishmem_TYPENAME_atomic_compare_swap (C++ function)</a>
 </li>
+      <li><a href="atomics.html#_CPPv439ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi">ishmem_TYPENAME_atomic_compare_swap_nbi (C++ function)</a>
+</li>
       <li><a href="atomics.html#_CPPv428ishmem_TYPENAME_atomic_fetchPK4TYPEi">ishmem_TYPENAME_atomic_fetch (C++ function)</a>
 </li>
       <li><a href="atomics.html#_CPPv432ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi">ishmem_TYPENAME_atomic_fetch_add (C++ function)</a>
 </li>
+      <li><a href="atomics.html#_CPPv436ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi">ishmem_TYPENAME_atomic_fetch_add_nbi (C++ function)</a>
+</li>
       <li><a href="atomics.html#_CPPv432ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi">ishmem_TYPENAME_atomic_fetch_and (C++ function)</a>
+</li>
+      <li><a href="atomics.html#_CPPv436ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi">ishmem_TYPENAME_atomic_fetch_and_nbi (C++ function)</a>
 </li>
       <li><a href="atomics.html#_CPPv432ishmem_TYPENAME_atomic_fetch_incP4TYPEi">ishmem_TYPENAME_atomic_fetch_inc (C++ function)</a>
 </li>
+      <li><a href="atomics.html#_CPPv436ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi">ishmem_TYPENAME_atomic_fetch_inc_nbi (C++ function)</a>
+</li>
+      <li><a href="atomics.html#_CPPv432ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi">ishmem_TYPENAME_atomic_fetch_nbi (C++ function)</a>
+</li>
       <li><a href="atomics.html#_CPPv431ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi">ishmem_TYPENAME_atomic_fetch_or (C++ function)</a>
+</li>
+      <li><a href="atomics.html#_CPPv435ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi">ishmem_TYPENAME_atomic_fetch_or_nbi (C++ function)</a>
 </li>
       <li><a href="atomics.html#_CPPv432ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi">ishmem_TYPENAME_atomic_fetch_xor (C++ function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="atomics.html#_CPPv436ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi">ishmem_TYPENAME_atomic_fetch_xor_nbi (C++ function)</a>
+</li>
       <li><a href="atomics.html#_CPPv426ishmem_TYPENAME_atomic_incP4TYPEi">ishmem_TYPENAME_atomic_inc (C++ function)</a>
 </li>
       <li><a href="atomics.html#_CPPv425ishmem_TYPENAME_atomic_orP4TYPE4TYPEi">ishmem_TYPENAME_atomic_or (C++ function)</a>
 </li>
       <li><a href="atomics.html#_CPPv426ishmem_TYPENAME_atomic_setP4TYPE4TYPEi">ishmem_TYPENAME_atomic_set (C++ function)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="atomics.html#_CPPv427ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi">ishmem_TYPENAME_atomic_swap (C++ function)</a>
+</li>
+      <li><a href="atomics.html#_CPPv431ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi">ishmem_TYPENAME_atomic_swap_nbi (C++ function)</a>
 </li>
       <li><a href="atomics.html#_CPPv426ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi">ishmem_TYPENAME_atomic_xor (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv425ishmem_TYPENAME_broadcastP4TYPEPK4TYPE6size_ti">ishmem_TYPENAME_broadcast (C++ function)</a>
+      <li><a href="collectives.html#_CPPv425ishmem_TYPENAME_broadcast13ishmem_team_tP4TYPEPK4TYPE6size_ti">ishmem_TYPENAME_broadcast (C++ function)</a>, <a href="collectives.html#_CPPv425ishmem_TYPENAME_broadcastP4TYPEPK4TYPE6size_ti">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv423ishmem_TYPENAME_collectP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_collect (C++ function)</a>
+      <li><a href="collectives.html#_CPPv423ishmem_TYPENAME_collect13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_collect (C++ function)</a>, <a href="collectives.html#_CPPv423ishmem_TYPENAME_collectP4TYPEPK4TYPE6size_t">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv424ishmem_TYPENAME_fcollectP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_fcollect (C++ function)</a>
+      <li><a href="collectives.html#_CPPv424ishmem_TYPENAME_fcollect13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_fcollect (C++ function)</a>, <a href="collectives.html#_CPPv424ishmem_TYPENAME_fcollectP4TYPEPK4TYPE6size_t">[1]</a>
 </li>
       <li><a href="rma.html#_CPPv417ishmem_TYPENAME_gPK4TYPEi">ishmem_TYPENAME_g (C++ function)</a>
 </li>
@@ -467,15 +551,15 @@ document.write(`
 </li>
       <li><a href="rma.html#_CPPv420ishmem_TYPENAME_iputP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_ti">ishmem_TYPENAME_iput (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_max_reduceP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_max_reduce (C++ function)</a>
+      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_max_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_max_reduce (C++ function)</a>, <a href="collectives.html#_CPPv426ishmem_TYPENAME_max_reduceP4TYPEPK4TYPE6size_t">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_min_reduceP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_min_reduce (C++ function)</a>
+      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_min_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_min_reduce (C++ function)</a>, <a href="collectives.html#_CPPv426ishmem_TYPENAME_min_reduceP4TYPEPK4TYPE6size_t">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv425ishmem_TYPENAME_or_reduceP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_or_reduce (C++ function)</a>
+      <li><a href="collectives.html#_CPPv425ishmem_TYPENAME_or_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_or_reduce (C++ function)</a>, <a href="collectives.html#_CPPv425ishmem_TYPENAME_or_reduceP4TYPEPK4TYPE6size_t">[1]</a>
 </li>
       <li><a href="rma.html#_CPPv417ishmem_TYPENAME_pP4TYPE4TYPEi">ishmem_TYPENAME_p (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv427ishmem_TYPENAME_prod_reduceP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_prod_reduce (C++ function)</a>
+      <li><a href="collectives.html#_CPPv427ishmem_TYPENAME_prod_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_prod_reduce (C++ function)</a>, <a href="collectives.html#_CPPv427ishmem_TYPENAME_prod_reduceP4TYPEPK4TYPE6size_t">[1]</a>
 </li>
       <li><a href="rma.html#_CPPv419ishmem_TYPENAME_putP4TYPEPK4TYPE6size_ti">ishmem_TYPENAME_put (C++ function)</a>
 </li>
@@ -485,31 +569,41 @@ document.write(`
 </li>
       <li><a href="signaling.html#_CPPv430ishmem_TYPENAME_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">ishmem_TYPENAME_put_signal_nbi (C++ function)</a>
 </li>
-      <li><a href="signaling.html#_CPPv429ishmem_TYPENAME_putmem_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">ishmem_TYPENAME_putmem_signal (C++ function)</a>
-</li>
-      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_sum_reduceP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_sum_reduce (C++ function)</a>
+      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_sum_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_sum_reduce (C++ function)</a>, <a href="collectives.html#_CPPv426ishmem_TYPENAME_sum_reduceP4TYPEPK4TYPE6size_t">[1]</a>
 </li>
       <li><a href="pt2pt_sync.html#_CPPv420ishmem_TYPENAME_testP4TYPEi4TYPE">ishmem_TYPENAME_test (C++ function)</a>
 </li>
+      <li><a href="pt2pt_sync.html#_CPPv424ishmem_TYPENAME_test_allP4TYPE6size_tPKii4TYPE">ishmem_TYPENAME_test_all (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv424ishmem_TYPENAME_test_anyP4TYPE6size_tPKii4TYPE">ishmem_TYPENAME_test_any (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv425ishmem_TYPENAME_test_someP4TYPE6size_tP6size_tPKii4TYPE">ishmem_TYPENAME_test_some (C++ function)</a>
+</li>
       <li><a href="pt2pt_sync.html#_CPPv426ishmem_TYPENAME_wait_untilP4TYPEi4TYPE">ishmem_TYPENAME_wait_until (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_xor_reduceP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_xor_reduce (C++ function)</a>
+      <li><a href="pt2pt_sync.html#_CPPv430ishmem_TYPENAME_wait_until_allP4TYPE6size_tPKii4TYPE">ishmem_TYPENAME_wait_until_all (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv430ishmem_TYPENAME_wait_until_anyP4TYPE6size_tPKii4TYPE">ishmem_TYPENAME_wait_until_any (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv431ishmem_TYPENAME_wait_until_someP4TYPE6size_tP6size_tPKii4TYPE">ishmem_TYPENAME_wait_until_some (C++ function)</a>
+</li>
+      <li><a href="collectives.html#_CPPv426ishmem_TYPENAME_xor_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t">ishmem_TYPENAME_xor_reduce (C++ function)</a>, <a href="collectives.html#_CPPv426ishmem_TYPENAME_xor_reduceP4TYPEPK4TYPE6size_t">[1]</a>
 </li>
       <li><a href="library_constants.html#c.ISHMEM_VENDOR_STRING">ISHMEM_VENDOR_STRING (C macro)</a>
 </li>
       <li><a href="library_constants.html#c.ISHMEM_VERSION">ISHMEM_VERSION (C macro)</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E30ishmemx_alltoallmem_work_groupiPvPKv6size_tRK5Group">ishmemx_alltoallmem_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E30ishmemx_alltoallmem_work_groupi13ishmem_team_tPvPKv6size_tRK5Group">ishmemx_alltoallmem_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E30ishmemx_alltoallmem_work_groupiPvPKv6size_tRK5Group">[1]</a>
 </li>
       <li><a href="library_setup_exit_query.html#_CPPv414ishmemx_attr_t">ishmemx_attr_t (C++ struct)</a>
 </li>
       <li><a href="collectives.html#_CPPv4I0E30ishmemx_barrier_all_work_groupvRK5Group">ishmemx_barrier_all_work_group (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E31ishmemx_broadcastmem_work_groupiPvPKv6size_tiRK5Group">ishmemx_broadcastmem_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E31ishmemx_broadcastmem_work_groupi13ishmem_team_tPvPKv6size_tiRK5Group">ishmemx_broadcastmem_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E31ishmemx_broadcastmem_work_groupiPvPKv6size_tiRK5Group">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E29ishmemx_collectmem_work_groupiPvPKv6size_tRK5Group">ishmemx_collectmem_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E29ishmemx_collectmem_work_groupi13ishmem_team_tPvPKv6size_tRK5Group">ishmemx_collectmem_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E29ishmemx_collectmem_work_groupiPvPKv6size_tRK5Group">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E30ishmemx_fcollectmem_work_groupiPvPKv6size_tRK5Group">ishmemx_fcollectmem_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E30ishmemx_fcollectmem_work_groupi13ishmem_team_tPvPKv6size_tRK5Group">ishmemx_fcollectmem_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E30ishmemx_fcollectmem_work_groupiPvPKv6size_tRK5Group">[1]</a>
 </li>
       <li><a href="memory_ordering.html#_CPPv424ishmemx_fence_work_groupRK5Group">ishmemx_fence_work_group (C++ function)</a>
 </li>
@@ -521,11 +615,49 @@ document.write(`
 </li>
       <li><a href="rma.html#_CPPv4I0E25ishmemx_getmem_work_groupvPvPKv6size_ti">ishmemx_getmem_work_group (C++ function)</a>
 </li>
+      <li><a href="rma.html#_CPPv4I0E30ishmemx_getSIZE_nbi_work_groupvPvPKv6size_ti">ishmemx_getSIZE_nbi_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv4I0E26ishmemx_getSIZE_work_groupvPvPKv6size_ti">ishmemx_getSIZE_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv4I0E13ishmemx_ibgetvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_t6size_ti">ishmemx_ibget (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv4I0E24ishmemx_ibget_work_groupvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_t6size_tiRK5Group">ishmemx_ibget_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv417ishmemx_ibgetSIZEPvPKv9ptrdiff_t9ptrdiff_t6size_t6size_ti">ishmemx_ibgetSIZE (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv428ishmemx_ibgetSIZE_work_groupPvPKv9ptrdiff_t9ptrdiff_t6size_t6size_tiRK5Group">ishmemx_ibgetSIZE_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv4I0E13ishmemx_ibputvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_t6size_ti">ishmemx_ibput (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv4I0E24ishmemx_ibput_work_groupvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_t6size_tiRK5Group">ishmemx_ibput_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv417ishmemx_ibputSIZEPvPKv9ptrdiff_t9ptrdiff_t6size_t6size_ti">ishmemx_ibputSIZE (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv428ishmemx_ibputSIZE_work_groupPvPKv9ptrdiff_t9ptrdiff_t6size_t6size_tiRK5Group">ishmemx_ibputSIZE_work_group (C++ function)</a>
+</li>
       <li><a href="rma.html#_CPPv4I00E23ishmemx_iget_work_groupvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_tiRK5Group">ishmemx_iget_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv4I0E27ishmemx_igetSIZE_work_groupvPvPKv9ptrdiff_t9ptrdiff_t6size_tiRK5Group">ishmemx_igetSIZE_work_group (C++ function)</a>
 </li>
       <li><a href="library_setup_exit_query.html#_CPPv417ishmemx_init_attrP14ishmemx_attr_t">ishmemx_init_attr (C++ function)</a>
 </li>
       <li><a href="rma.html#_CPPv4I00E23ishmemx_iput_work_groupvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_tiRK5Group">ishmemx_iput_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv4I0E27ishmemx_iputSIZE_work_groupvPvPKv9ptrdiff_t9ptrdiff_t6size_tiRK5Group">ishmemx_iputSIZE_work_group (C++ function)</a>
+</li>
+      <li><a href="utility.html#_CPPv413ishmemx_printPKc">ishmemx_print (C++ function)</a>, <a href="utility.html#_CPPv413ishmemx_printPKc24ishmemx_print_msg_type_t">[1]</a>, <a href="utility.html#_CPPv413ishmemx_printPKclPKcPKc24ishmemx_print_msg_type_t">[2]</a>
+</li>
+      <li><a href="utility.html#_CPPv424ishmemx_print_msg_type_t">ishmemx_print_msg_type_t (C++ enum)</a>
+</li>
+      <li><a href="utility.html#_CPPv4N24ishmemx_print_msg_type_t5DEBUGE">ishmemx_print_msg_type_t::DEBUG (C++ type)</a>
+</li>
+      <li><a href="utility.html#_CPPv4N24ishmemx_print_msg_type_t5ERRORE">ishmemx_print_msg_type_t::ERROR (C++ type)</a>
+</li>
+      <li><a href="utility.html#_CPPv4N24ishmemx_print_msg_type_t6STDERRE">ishmemx_print_msg_type_t::STDERR (C++ type)</a>
+</li>
+      <li><a href="utility.html#_CPPv4N24ishmemx_print_msg_type_t6STDOUTE">ishmemx_print_msg_type_t::STDOUT (C++ type)</a>
+</li>
+      <li><a href="utility.html#_CPPv4N24ishmemx_print_msg_type_t7WARNINGE">ishmemx_print_msg_type_t::WARNING (C++ type)</a>
 </li>
       <li><a href="rma.html#_CPPv4I00E26ishmemx_put_nbi_work_groupvP4TYPEPK4TYPE6size_tiRK5Group">ishmemx_put_nbi_work_group (C++ function)</a>
 </li>
@@ -537,41 +669,67 @@ document.write(`
 </li>
       <li><a href="rma.html#_CPPv4I0E29ishmemx_putmem_nbi_work_groupvPvPKv6size_ti">ishmemx_putmem_nbi_work_group (C++ function)</a>
 </li>
-      <li><a href="signaling.html#_CPPv4I0E32ishmemx_putmem_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">ishmemx_putmem_signal_work_group (C++ function)</a>
+      <li><a href="signaling.html#_CPPv4I0E36ishmemx_putmem_signal_nbi_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group">ishmemx_putmem_signal_nbi_work_group (C++ function)</a>
+</li>
+      <li><a href="signaling.html#_CPPv4I0E32ishmemx_putmem_signal_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group">ishmemx_putmem_signal_work_group (C++ function)</a>
 </li>
       <li><a href="rma.html#_CPPv4I0E25ishmemx_putmem_work_groupvPvPKv6size_tiRK5Group">ishmemx_putmem_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv4I0E30ishmemx_putSIZE_nbi_work_groupvPvPKv6size_ti">ishmemx_putSIZE_nbi_work_group (C++ function)</a>
+</li>
+      <li><a href="signaling.html#_CPPv4I0E37ishmemx_putSIZE_signal_nbi_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group">ishmemx_putSIZE_signal_nbi_work_group (C++ function)</a>
+</li>
+      <li><a href="signaling.html#_CPPv4I0E33ishmemx_putSIZE_signal_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group">ishmemx_putSIZE_signal_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv4I0E26ishmemx_putSIZE_work_groupvPvPKv6size_tiRK5Group">ishmemx_putSIZE_work_group (C++ function)</a>
 </li>
       <li><a href="memory_ordering.html#_CPPv424ishmemx_quiet_work_groupRK5Group">ishmemx_quiet_work_group (C++ function)</a>
 </li>
       <li><a href="library_setup_exit_query.html#_CPPv422ishmemx_runtime_type_t">ishmemx_runtime_type_t (C++ enum)</a>
 </li>
+      <li><a href="signaling.html#_CPPv418ishmemx_signal_addP8uint64_t8uint64_ti">ishmemx_signal_add (C++ function)</a>
+</li>
+      <li><a href="signaling.html#_CPPv418ishmemx_signal_setP8uint64_t8uint64_ti">ishmemx_signal_set (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv436ishmemx_signal_wait_until_work_groupP8uint64_ti8uint64_tRK5Group">ishmemx_signal_wait_until_work_group (C++ function)</a>
+</li>
       <li><a href="collectives.html#_CPPv4I0E27ishmemx_sync_all_work_groupvRK5Group">ishmemx_sync_all_work_group (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_alltoall_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_alltoall_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E28ishmemx_team_sync_work_groupv13ishmem_team_tRK5Group">ishmemx_team_sync_work_group (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_and_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_and_reduce_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_alltoall_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_alltoall_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_alltoall_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_broadcast_work_groupiP4TYPEPK4TYPE6size_tiRK5Group">ishmemx_TYPENAME_broadcast_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_and_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_and_reduce_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_and_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E35ishmemx_TYPENAME_collect_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_collect_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_broadcast_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tiRK5Group">ishmemx_TYPENAME_broadcast_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_broadcast_work_groupiP4TYPEPK4TYPE6size_tiRK5Group">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_fcollect_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_fcollect_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E35ishmemx_TYPENAME_collect_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_collect_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E35ishmemx_TYPENAME_collect_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
+</li>
+      <li><a href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_fcollect_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_fcollect_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_fcollect_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
 </li>
       <li><a href="rma.html#_CPPv4I0E35ishmemx_TYPENAME_get_nbi_work_groupvP4TYPEPK4TYPE6size_tiRK5Group">ishmemx_TYPENAME_get_nbi_work_group (C++ function)</a>
 </li>
       <li><a href="rma.html#_CPPv4I0E31ishmemx_TYPENAME_get_work_groupvP4TYPEPK4TYPE6size_tiRK5Group">ishmemx_TYPENAME_get_work_group (C++ function)</a>
 </li>
+      <li><a href="rma.html#_CPPv422ishmemx_TYPENAME_ibgetP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_t6size_ti">ishmemx_TYPENAME_ibget (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv433ishmemx_TYPENAME_ibget_work_groupP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_t6size_tiRK5Group">ishmemx_TYPENAME_ibget_work_group (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv422ishmemx_TYPENAME_ibputP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_t6size_ti">ishmemx_TYPENAME_ibput (C++ function)</a>
+</li>
+      <li><a href="rma.html#_CPPv433ishmemx_TYPENAME_ibput_work_groupP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_t6size_tiRK5Group">ishmemx_TYPENAME_ibput_work_group (C++ function)</a>
+</li>
       <li><a href="rma.html#_CPPv4I0E32ishmemx_TYPENAME_iget_work_groupvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_tiRK5Group">ishmemx_TYPENAME_iget_work_group (C++ function)</a>
 </li>
       <li><a href="rma.html#_CPPv4I0E32ishmemx_TYPENAME_iput_work_groupvP4TYPEPK4TYPE9ptrdiff_t9ptrdiff_t6size_tiRK5Group">ishmemx_TYPENAME_iput_work_group (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_max_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_max_reduce_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_max_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_max_reduce_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_max_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_min_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_min_reduce_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_min_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_min_reduce_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_min_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_or_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_or_reduce_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_or_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_or_reduce_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_or_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E39ishmemx_TYPENAME_prod_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_prod_reduce_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E39ishmemx_TYPENAME_prod_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_prod_reduce_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E39ishmemx_TYPENAME_prod_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
 </li>
       <li><a href="rma.html#_CPPv4I0E35ishmemx_TYPENAME_put_nbi_work_groupvP4TYPEPK4TYPE6size_tiRK5Group">ishmemx_TYPENAME_put_nbi_work_group (C++ function)</a>
 </li>
@@ -581,13 +739,33 @@ document.write(`
 </li>
       <li><a href="rma.html#_CPPv4I0E31ishmemx_TYPENAME_put_work_groupvP4TYPEPK4TYPE6size_tiRK5Group">ishmemx_TYPENAME_put_work_group (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_sum_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_sum_reduce_work_group (C++ function)</a>
+      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_sum_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_sum_reduce_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_sum_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
 </li>
-      <li><a href="pt2pt_sync.html#_CPPv432ishmemx_TYPENAME_test_work_groupP4TYPEi4TYPE">ishmemx_TYPENAME_test_work_group (C++ function)</a>
+      <li><a href="pt2pt_sync.html#_CPPv4I0E36ishmemx_TYPENAME_test_all_work_groupiP4TYPE6size_tPKii4TYPERK5Group">ishmemx_TYPENAME_test_all_work_group (C++ function)</a>
 </li>
-      <li><a href="pt2pt_sync.html#_CPPv4I0E38ishmemx_TYPENAME_wait_until_work_groupvP4TYPEi4TYPE">ishmemx_TYPENAME_wait_until_work_group (C++ function)</a>
+      <li><a href="pt2pt_sync.html#_CPPv4I0E36ishmemx_TYPENAME_test_any_work_group6size_tP4TYPE6size_tPKii4TYPERK5Group">ishmemx_TYPENAME_test_any_work_group (C++ function)</a>
 </li>
-      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_xor_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_xor_reduce_work_group (C++ function)</a>
+      <li><a href="pt2pt_sync.html#_CPPv4I0E37ishmemx_TYPENAME_test_some_work_group6size_tP4TYPE6size_tP6size_tPKii4TYPERK5Group">ishmemx_TYPENAME_test_some_work_group (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv4I0E32ishmemx_TYPENAME_test_work_groupiP4TYPEi4TYPERK5Group">ishmemx_TYPENAME_test_work_group (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv4I0E42ishmemx_TYPENAME_wait_until_all_work_groupvP4TYPE6size_tPKii4TYPERK5Group">ishmemx_TYPENAME_wait_until_all_work_group (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv4I0E42ishmemx_TYPENAME_wait_until_any_work_group6size_tP4TYPE6size_tPKii4TYPERK5Group">ishmemx_TYPENAME_wait_until_any_work_group (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv4I0E43ishmemx_TYPENAME_wait_until_some_work_group6size_tP4TYPE6size_tP6size_tPKii4TYPERK5Group">ishmemx_TYPENAME_wait_until_some_work_group (C++ function)</a>
+</li>
+      <li><a href="pt2pt_sync.html#_CPPv4I0E38ishmemx_TYPENAME_wait_until_work_groupvP4TYPEi4TYPERK5Group">ishmemx_TYPENAME_wait_until_work_group (C++ function)</a>
+</li>
+      <li><a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_xor_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group">ishmemx_TYPENAME_xor_reduce_work_group (C++ function)</a>, <a href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_xor_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="teams.html#c.num_contexts">num_contexts (C var)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -637,7 +815,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

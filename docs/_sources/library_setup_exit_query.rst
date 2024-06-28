@@ -17,7 +17,10 @@ parallel environment of the PEs.
 ISHMEM_INIT
 ^^^^^^^^^^^
 
-.. cpp:function:: void ishmem_init()
+.. cpp:function:: void ishmem_init(void)
+
+  :parameters: None.
+  :returns: None.
 
 Callable from the **host**.
 
@@ -74,6 +77,7 @@ heap (default is ``false``).
 .. cpp:function:: void ishmemx_init_attr(ishmemx_attr_t * attr)
 
   :param attr: a struct of type :ref:`ishmemx_attr_t<ishmemx_attr_t>` specifying initialization attributes
+  :returns: None.
 
 Callable from the **host**.
 
@@ -92,9 +96,10 @@ undefined behavior.
 ISHMEM_MY_PE
 ^^^^^^^^^^^^
 
-.. cpp:function:: int ishmem_my_pe()
+.. cpp:function:: int ishmem_my_pe(void)
 
-  :returns: the PE number
+  :parameters: None.
+  :returns: The PE number.
 
 Callable from the **host** and **device**.
 
@@ -107,9 +112,10 @@ executing the current program.
 ISHMEM_N_PES
 ^^^^^^^^^^^^
 
-.. cpp:function:: int ishmem_n_pes()
+.. cpp:function:: int ishmem_n_pes(void)
 
-   :returns: the number of total PEs running in the program
+  :parameters: None.
+  :returns: The number of total PEs running in the program.
 
 Callable from the **host** and **device**.
 
@@ -120,7 +126,10 @@ The routine returns the number of PEs running in the program.
 ISHMEM_FINALIZE
 ^^^^^^^^^^^^^^^
 
-.. cpp:function:: void ishmem_finalize()
+.. cpp:function:: void ishmem_finalize(void)
+
+  :parameters: None.
+  :returns: None.
 
 
 Callable from the **host**.
@@ -135,6 +144,7 @@ This collective operation requires all PEs to participate in the call.
 There is an implicit global barrier in ``ishmem_finalize`` to ensure that
 pending communications are completed and that no resources are released until
 all PEs have entered ``ishmem_finalize``.
+This routine destroys all teams created by the ``ishmem`` program.
 ``ishmem_finalize`` must be the last ``ishmem`` library call encountered in
 the ``ishmem`` portion of a program.
 A call to ``ishmem_finalize`` will release all resources initialized by a
@@ -142,6 +152,12 @@ corresponding call to ``ishmem_init`` or ``ishmemx_init_attr``. All
 processes that represent the PEs will still exist after the call to
 ``ishmem_finalize`` returns, but they will no longer have access to resources
 that have been released.
+
+.. FIXME after contexts added:
+.. As a result, all shareable contexts are destroyed.
+.. The user is responsible for destroying all contexts with the
+.. SHMEM_CTX_PRIVATE option enabled prior to calling this routine; otherwise,
+.. the behavior is undefined.
 
 .. note:: Because SYCL kernel execution is non-blocking on the host, all
    kernels performing ``ishmem`` calls must first `complete` (for example, by
@@ -160,6 +176,8 @@ that have been released.
 .. ISHMEM_ADDR_ACCESSIBLE
 .. ^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. _ishmem_ptr:
+
 ^^^^^^^^^^
 ISHMEM_PTR
 ^^^^^^^^^^
@@ -174,7 +192,7 @@ Callable from the **host** and **device**.
 
 **Description:**
 ``ishmem_ptr`` returns a **device** address that may be used to directly
-reference **dest** on the specified PE.
+reference **dest** on the specified PE in the world team.
 This address can be assigned to a pointer.
 After that, ordinary loads and stores to **dest** may be performed from
 within the device kernel.
@@ -201,6 +219,7 @@ ISHMEM_INFO_GET_VERSION
 
   :param major: The major version of the ``ishmem`` specification in use.
   :param minor: The minor version of the ``ishmem`` specification in use.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -217,6 +236,7 @@ ISHMEM_INFO_GET_NAME
 .. cpp:function:: void ishmem_info_get_name(char* name)
 
   :param name: The vendor defined string.
+  :returns: None.
 
 Callable from the **host** and **device**.
 

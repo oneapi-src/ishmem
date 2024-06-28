@@ -46,7 +46,7 @@
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Writing Intel® SHMEM Programs" href="writing_programs.html" />
+    <link rel="next" title="Utility Routines" href="utility.html" />
     <link rel="prev" title="Point-To-Point Synchronization" href="pt2pt_sync.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -152,6 +152,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="current nav bd-sidenav">
@@ -159,12 +160,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -339,13 +342,77 @@ document.write(`
                   
   <section id="memory-ordering">
 <span id="id1"></span><h1>Memory Ordering<a class="headerlink" href="#memory-ordering" title="Permalink to this heading">#</a></h1>
+<p id="mem-ordering-impact"><strong>List of Operations affected by Memory Ordering Routines:</strong></p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Operations</p></th>
+<th class="head"><p>Fence</p></th>
+<th class="head"><p>Quiet</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Memory Store</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-odd"><td><p>Blocking <cite>Put</cite></p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-even"><td><p>Blocking <cite>Get</cite></p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Blocking Fetching <cite>AMO</cite></p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Blocking Non-fetching <cite>AMO</cite></p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-odd"><td><p>Blocking <cite>put-with-signal</cite></p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-even"><td><p>Nonblocking <cite>Put</cite></p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-odd"><td><p>Nonblocking <cite>Get</cite></p></td>
+<td></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-even"><td><p>Nonblocking <cite>AMO</cite></p></td>
+<td><p>X <a class="footnote-reference brackets" href="#id5" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-odd"><td><p>Nonblocking <cite>put-with-signal</cite></p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+</tr>
+</tbody>
+</table>
+<p>This section introduces Intel® SHMEM interfaces that provide mechanisms to
+ensure ordering and/or delivery of completion on memory store, blocking,
+and nonblocking routines. Table <a class="reference internal" href="#mem-ordering-impact"><span class="std std-ref">List of Operations affected by
+Memory Ordering Routines</span></a> lists the operations
+affected by Intel® SHMEM memory ordering routines.</p>
 <section id="ishmem-fence">
 <h2>ISHMEM_FENCE<a class="headerlink" href="#ishmem-fence" title="Permalink to this heading">#</a></h2>
 <p>Ensures ordering of delivery of operations on symmetric data objects.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv412ishmem_fencev">
-<span id="_CPPv312ishmem_fencev"></span><span id="_CPPv212ishmem_fencev"></span><span id="ishmem_fence"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_fence</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_fencev" title="Permalink to this definition">#</a><br /></dt>
-<dd></dd></dl>
+<span id="_CPPv312ishmem_fencev"></span><span id="_CPPv212ishmem_fencev"></span><span id="ishmem_fence__void"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_fence</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_fencev" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
@@ -368,6 +435,9 @@ by nonblocking AMO routines.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the fence operation.</p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -383,13 +453,21 @@ It does not guarantee order of delivery of nonblocking <cite>Get</cite> or value
 by nonblocking AMO routines.</p>
 </section>
 <section id="ishmem-quiet">
-<h2>ISHMEM_QUIET<a class="headerlink" href="#ishmem-quiet" title="Permalink to this heading">#</a></h2>
+<span id="id3"></span><h2>ISHMEM_QUIET<a class="headerlink" href="#ishmem-quiet" title="Permalink to this heading">#</a></h2>
 <p>Waits for completion of outstanding operations on symmetric data objects
 issued by a PE.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv412ishmem_quietv">
-<span id="_CPPv312ishmem_quietv"></span><span id="_CPPv212ishmem_quietv"></span><span id="ishmem_quiet"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_quiet</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_quietv" title="Permalink to this definition">#</a><br /></dt>
-<dd></dd></dl>
+<span id="_CPPv312ishmem_quietv"></span><span id="_CPPv212ishmem_quietv"></span><span id="ishmem_quiet__void"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_quiet</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_quietv" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
 <p><strong>Description:</strong>
@@ -399,7 +477,7 @@ symmetric data objects issued by the calling PE.</p>
 visible to all PEs when <code class="docutils literal notranslate"><span class="pre">ishmem_quiet</span></code> returns.</p>
 </section>
 <section id="ishmemx-quiet-work-group">
-<h2>ISHMEMX_QUIET_WORK_GROUP<a class="headerlink" href="#ishmemx-quiet-work-group" title="Permalink to this heading">#</a></h2>
+<span id="id4"></span><h2>ISHMEMX_QUIET_WORK_GROUP<a class="headerlink" href="#ishmemx-quiet-work-group" title="Permalink to this heading">#</a></h2>
 <p>Waits for completion of outstanding operations on symmetric data objects
 issued by a PE.</p>
 <dl class="cpp function">
@@ -408,6 +486,9 @@ issued by a PE.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the quiet operation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -418,6 +499,13 @@ The <code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_w
 symmetric data objects issued by the calling PE.</p>
 <p>All operations on symmetric data objects are guaranteed to be complete and
 visible to all PEs when <code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_work_group</span></code> returns.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id5" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>Intel® SHMEM fence routines does not guarantee order of delivery of
+values fetched by nonblocking AMO routines.</p>
+</aside>
+</aside>
 </section>
 </section>
 
@@ -442,11 +530,11 @@ visible to all PEs when <code class="docutils literal notranslate"><span class="
       </div>
     </a>
     <a class="right-next"
-       href="writing_programs.html"
+       href="utility.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Writing Intel® SHMEM Programs</p>
+        <p class="prev-next-title">Utility Routines</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -492,7 +580,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

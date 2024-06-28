@@ -255,20 +255,27 @@ Operations<reducetypes>`:
   - ``ishmemx_put_work_group``
   - ``ishmemx_TYPENAME_put_work_group``
   - ``ishmemx_putmem_work_group``
+  - ``ishmemx_putSIZE_work_group``
   - ``ishmemx_get_work_group``
   - ``ishmemx_TYPENAME_get_work_group``
   - ``ishmemx_getmem_work_group``
+  - ``ishmemx_getSIZE_work_group``
   - ``ishmemx_put_nbi_work_group``
   - ``ishmemx_TYPENAME_put_nbi_work_group``
   - ``ishmemx_putmem_nbi_work_group``
+  - ``ishmemx_putSIZE_nbi_work_group``
   - ``ishmemx_get_nbi_work_group``
   - ``ishmemx_TYPENAME_get_nbi_work_group``
   - ``ishmemx_getmem_nbi_work_group``
+  - ``ishmemx_getSIZE_nbi_work_group``
   - ``ishmemx_put_signal_work_group``
   - ``ishmemx_TYPENAME_put_signal_work_group``
   - ``ishmemx_putmem_signal_work_group``
+  - ``ishmemx_putSIZE_signal_work_group``
   - ``ishmemx_put_signal_nbi_work_group``
   - ``ishmemx_TYPENAME_put_signal_nbi_work_group``
+  - ``ishmemx_putmem_signal_nbi_work_group``
+  - ``ishmemx_putSIZE_signal_nbi_work_group``
   - ``ishmemx_barrier_all_work_group``
   - ``ishmemx_sync_all_work_group``
   - ``ishmemx_broadcast_work_group``
@@ -278,5 +285,18 @@ Operations<reducetypes>`:
   - ``ishmemx_TYPENAME_OP_reduce_work_group``
   - ``ishmemx_wait_until_work_group``
   - ``ishmemx_TYPENAME_wait_until_work_group``
+  - ``ishmemx_wait_until_all_work_group``
+  - ``ishmemx_TYPENAME_wait_until_all_work_group``
+  - ``ishmemx_wait_until_any_work_group``
+  - ``ishmemx_TYPENAME_wait_until_any_work_group``
+  - ``ishmemx_wait_until_some_work_group``
+  - ``ishmemx_TYPENAME_wait_until_some_work_group``
   - ``ishmemx_test_work_group``
   - ``ishmemx_TYPENAME_test_work_group``
+  - ``ishmemx_test_all_work_group``
+  - ``ishmemx_TYPENAME_test_all_work_group``
+  - ``ishmemx_test_any_work_group``
+  - ``ishmemx_TYPENAME_test_any_work_group``
+  - ``ishmemx_test_some_work_group``
+  - ``ishmemx_TYPENAME_test_some_work_group``
+  - ``ishmemx_signal_wait_until_work_group``

@@ -4,19 +4,57 @@
 Remote Memory Access (RMA)
 --------------------------
 
-The RMA routines described in this section can be used to perform reads from and writes to symmetric data objects. These operations are one-sided, meaning that the PE invoking an operation provides all communication parameters and the targeted PE is passive. A characteristic of one-sided communication is that it decouples communication from synchronization. One-sided communication mechanisms transfer data; however, they do not synchronize the sender of the data with the receiver of the data.
+The RMA routines described in this section can be used to perform reads from 
+and writes to symmetric data objects. These operations are one-sided, meaning 
+that the PE invoking an operation provides all communication parameters and the 
+targeted PE is passive. A characteristic of one-sided communication is that it 
+decouples communication from synchronization. One-sided communication 
+mechanisms transfer data; however, they do not synchronize the sender of the 
+data with the receiver of the data.
 
-Intel® SHMEM RMA routines are performed on symmetric data objects. The initiator PE of a call is designated as the `origin` PE and the PE targeted by an operation is designated as the `destination` PE. The `source` and `dest` designators refer to the data objects that an operation reads from and writes to. In the case of the remote update routine, `Put`, the origin PE provides the `source` data object and the destination PE provides the `dest` data object. In the case of the remote read routine, `Get`, the origin PE provides the `dest` data object and the destination PE provides the `source` data object.
+Intel® SHMEM RMA routines are performed on symmetric data objects. The 
+initiator PE of a call is designated as the `origin` PE and the PE targeted by 
+an operation is designated as the `destination` PE. The `source` and `dest` 
+designators refer to the data objects that an operation reads from and writes 
+to. In the case of the remote update routine, `Put`, the origin PE provides the 
+`source` data object and the destination PE provides the `dest` data object. In 
+the case of the remote read routine, `Get`, the origin PE provides the `dest` 
+data object and the destination PE provides the `source` data object.
 
-The destination PE is specified as an integer representing the PE number. If the PE number passed to the routine is invalid, being negative or greater than or equal to the size of the launched job, then the behavior is undefined.
+.. FIXME: reword the following if/when contexts are supported (original text below):
 
-.. The destination PE is specified as an integer representing the PE number. This PE number is relative to the team associated with the communication context being using for the operation. If no context argument is passed to the routine, then the routine operates on the default context, which implies that the PE number is relative to the world team. If the PE number passed to the routine is invalid, being negative or greater than or equal to the size of the Intel® SHMEM team, then the behavior is undefined.
+The destination PE is specified as an integer representing the PE number.
+This PE number is relative to the world team.
+If the PE number passed to the routine is invalid, being negative or greater
+than or equal to the size of the world team, then the behavior is undefined.
 
-.. Intel® SHMEM RMA routines specified in this section have two variants. In one of the variants, the context handle, ctx, is explicitly passed as an argument. In this variant, the operation is performed on the specified context. If the context handle ctx does not correspond to a valid context, the behavior is undefined. In the other variant, the context handle is not explicitly passed and thus, the operations are performed on the default context.
+..
+ The destination PE is specified as an integer representing the PE number. 
+ This PE number is relative to the team associated with the communication 
+ context being using for the operation. If no context argument is passed to the 
+ routine, then the routine operates on the default context, which implies that 
+ the PE number is relative to the world team. If the PE number passed to the 
+ routine is invalid, being negative or greater than or equal to the size of the 
+ Intel® SHMEM team, then the behavior is undefined.
 
-Intel® SHMEM provides type-generic one-sided communication interfaces via C11 generic selection (C11 §6.5.1.1) for block, scalar, and block-strided put and get communication. Such type-generic routines are supported for the “standard RMA types” listed in Table :ref:`Standard RMA Types<stdrmatypes>`.
+..
+ Intel® SHMEM RMA routines specified in this section have two variants. In 
+ one of the variants, the context handle, ctx, is explicitly passed as an 
+ argument. In this variant, the operation is performed on the specified context. 
+ If the context handle ctx does not correspond to a valid context, the behavior 
+ is undefined. In the other variant, the context handle is not explicitly passed 
+ and thus, the operations are performed on the default context.
 
-The standard RMA types include the exact-width integer types defined in ``stdint.h`` by C996 §7.18.1.1 and C11 §7.20.1.1. When the C translation environment does not provide exact-width integer types with ``stdint.h``, an Intel® SHMEM implemementation is not required to provide support for these types.
+Intel® SHMEM provides type-generic one-sided communication interfaces via C11 
+generic selection (C11 §6.5.1.1) for block, scalar, and block-strided put and 
+get communication. Such type-generic routines are supported for the “standard 
+RMA types” listed in Table :ref:`Standard RMA Types<stdrmatypes>`.
+
+The standard RMA types include the exact-width integer types defined in 
+``stdint.h`` by C996 §7.18.1.1 and C11 §7.20.1.1. When the C translation 
+environment does not provide exact-width integer types with ``stdint.h``, an 
+Intel® SHMEM implementation is not required to provide support for these 
+types.
 
 .. _stdrmatypes:
 
@@ -64,11 +102,13 @@ data object to a data object on a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE> void ishmem_put(TYPE* dest, const TYPE* source, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_TYPENAME_put(TYPE* dest, const TYPE* source, size_t nelems, int pe)
+
+.. cpp:function:: void ishmem_putSIZE(void* dest, const void* source, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_putmem(void* dest, const void* source, size_t nelems, int pe)
 
@@ -76,6 +116,7 @@ Types<stdrmatypes>`.
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem`` and ``ishmemx_putmem_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -96,11 +137,13 @@ data object to a data object on a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE, typename Group> void ishmemx_put_work_group(TYPE* dest, const TYPE* source, size_t nelems, int pe, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_put_work_group(TYPE* dest, const TYPE* source, size_t nelems, int pe, const Group& group)
+
+.. cpp:function:: template<typename Group> void ishmemx_putSIZE_work_group(void* dest, const void* source, size_t nelems, int pe, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_putmem_work_group(void* dest, const void* source, size_t nelems, int pe, const Group& group)
 
@@ -109,6 +152,7 @@ Types<stdrmatypes>`.
   :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem`` and ``ishmemx_putmem_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
+  :returns: None.
 
 Callable from the **device**.
 
@@ -137,6 +181,7 @@ Types<stdrmatypes>`.
   :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param value: The value to be transferred to **dest** . The type of **value** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param pe: PE number of the remote PE.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -146,7 +191,8 @@ the standard RMA types.
 
 As with ``ishmem_put``, these routines start the remote transfer and may
 return before the data is delivered to the remote PE.
-Use ``ishmem_quiet`` or ``ishmemx_quiet_work_group`` to force completion of
+Use :ref:`ishmem_quiet<ishmem_quiet>` or 
+:ref:`ishmemx_quiet_work_group<ishmemx_quiet_work_group>` to force completion of
 all remote `Put` transfers.
 
 """""""""""
@@ -156,18 +202,21 @@ Copies strided data to a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE> void ishmem_iput(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_TYPENAME_iput(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe)
 
-    :param dest: Symmetric address of the destination array data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-    :param source: Local address of the array containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-    :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
-    :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
-    :param nelems: Number of elements in the **dest** and **source** arrays.
-    :param pe: PE number of the remote PE.
+.. cpp:function:: void ishmem_iputSIZE(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe)
+
+  :param dest: Symmetric address of the destination array data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Local address of the array containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
+  :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
+  :param nelems: Number of elements in the **dest** and **source** arrays.
+  :param pe: PE number of the remote PE.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -177,7 +226,9 @@ The `iput` routines provide a method for copying strided data elements
 locations specified by stride **dst** on a **dest** array on specified remote
 PE.
 Both strides, **dst** and **sst**, must be greater than or equal to 1.
-The routines return when the data has been copied out of the **source** array on the local PE but not necessarily before the data has been delivered to the remote data object.
+The routines return when the data has been copied out of the **source** array 
+on the local PE but not necessarily before the data has been delivered to the 
+remote data object.
 
 """""""""""""""""""""""
 ISHMEMX_IPUT_WORK_GROUP
@@ -186,19 +237,22 @@ Copies strided data to a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE, typename Group> void ishmemx_iput_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_iput_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group& group)
 
-    :param dest: Symmetric address of the destination array data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-    :param source: Local address of the array containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-    :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
-    :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
-    :param nelems: Number of elements in the **dest** and **source** arrays.
-    :param pe: PE number of the remote PE.
-    :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
+.. cpp:function:: template<typename Group> void ishmemx_iputSIZE_work_group(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group& group)
+
+  :param dest: Symmetric address of the destination array data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Local address of the array containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
+  :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
+  :param nelems: Number of elements in the **dest** and **source** arrays.
+  :param pe: PE number of the remote PE.
+  :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `strided Put` operation.
+  :returns: None.
 
 Callable from the **device**.
 
@@ -208,7 +262,78 @@ elements (specified by **sst**) of an array from a **source** array on the
 local PE to locations specified by stride **dst** on a **dest** array on
 specified remote PE.
 Both strides, **dst** and **sst**, must be greater than or equal to 1.
-The routines return when the data has been copied out of the **source** array on the local PE but not necessarily before the data has been delivered to the remote data object.
+The routines return when the data has been copied out of the **source** array 
+on the local PE but not necessarily before the data has been delivered to the 
+remote data object.
+
+"""""""""""""
+ISHMEMX_IBPUT
+"""""""""""""
+Copies strided data blocks to a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> void ishmemx_ibput(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe)
+
+.. cpp:function:: void ishmemx_TYPENAME_ibput(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe)
+
+.. cpp:function:: void ishmemx_ibputSIZE(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe)
+
+  :param dest: Symmetric address of the destination array data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Local address of the array containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive blocks of the **dest** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **dest** array. A value of **bsize** indicates contiguous data.
+  :param sst: The stride between consecutive blocks of the **source** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **source** array. A value of **bsize** indicates contiguous data.
+  :param bsize: Number of elements per block in the **dest** and **source** arrays.
+  :param nblocks: Number of blocks to be copied from the **source** array to the **dest** array.
+  :param pe: PE number of the remote PE.
+  :returns: None.
+
+Callable from the **host** and **device**.
+
+**Description:**
+The `ibput` routines provide a method for copying strided data blocks
+(specified by **sst**) of an array from a **source** array on the local PE to
+locations specified by stride **dst** on a **dest** array on specified remote
+PE. The routines return when the data has been copied out of the **source**
+array on the local PE but not necessarily before the data has been delivered
+to the remote data object.
+
+""""""""""""""""""""""""
+ISHMEMX_IBPUT_WORK_GROUP
+""""""""""""""""""""""""
+Copies strided data blocks to a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> void ishmemx_ibput_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+
+.. cpp:function:: void ishmemx_TYPENAME_ibput_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+
+.. cpp:function:: void ishmemx_ibputSIZE_work_group(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+
+  :param dest: Symmetric address of the destination array data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Local address of the array containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive blocks of the **dest** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **dest** array. A value of **bsize** indicates contiguous data.
+  :param sst: The stride between consecutive blocks of the **source** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **source** array. A value of **bsize** indicates contiguous data.
+  :param bsize: Number of elements per block in the **dest** and **source** arrays.
+  :param nblocks: Number of blocks to be copied from the **source** array to the **dest** array.
+  :param pe: PE number of the remote PE.
+  :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `strided Put` operation.
+  :returns: None.
+
+Callable from the **device**.
+
+**Description:**
+The `ibput` routines provide a method for copying strided data blocks
+(specified by **sst**) of an array from a **source** array on the local PE to
+locations specified by stride **dst** on a **dest** array on specified remote
+PE. The routines return when the data has been copied out of the **source**
+array on the local PE but not necessarily before the data has been delivered
+to the remote data object.
 
 """"""""""""
 ISHMEM_GET
@@ -217,11 +342,13 @@ Copies data from a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE> void ishmem_get(TYPE* dest, const TYPE* source, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_TYPENAME_get(TYPE* dest, const TYPE* source, size_t nelems, int pe)
+
+.. cpp:function:: void ishmem_getSIZE(void* dest, const void* source, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_getmem(void* dest, const void* source, size_t nelems, int pe)
 
@@ -229,6 +356,7 @@ Types<stdrmatypes>`.
   :param source: Symmetric address of the source data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`RMA types<stdrmatypes>`.
   :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem`` and ``ishmemx_getmem_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -245,11 +373,13 @@ Copies data from a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE, typename Group> void ishmemx_get_work_group(TYPE* dest, const TYPE* source, size_t nelems, int pe, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_get_work_group(TYPE* dest, const TYPE* source, size_t nelems, int pe, const Group& group)
+
+.. cpp:function:: template<typename Group> void ishmemx_getSIZE_work_group(void* dest, const void* source, size_t nelems, int pe)
 
 .. cpp:function:: template<typename Group> void ishmemx_getmem_work_group(void* dest, const void* source, size_t nelems, int pe)
 
@@ -258,6 +388,7 @@ Types<stdrmatypes>`.
   :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem`` and ``ishmemx_getmem_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
+  :returns: None.
 
 Callable from the **device**.
 
@@ -297,18 +428,21 @@ Copies strided data from a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE> void ishmem_iget(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_TYPENAME_iget(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe)
 
-    :param dest: Local address of the array to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-    :param source: Symmetric address of the source array data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-    :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
-    :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
-    :param nelems: Number of elements in the **dest** and **source** arrays.
-    :param pe: PE number of the remote PE.
+.. cpp:function:: void ishmem_igetSIZE(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe)
+
+  :param dest: Local address of the array to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Symmetric address of the source array data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
+  :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
+  :param nelems: Number of elements in the **dest** and **source** arrays.
+  :param pe: PE number of the remote PE.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -326,19 +460,22 @@ Copies strided data from a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE, typename Group> void ishmemx_iget_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_iget_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group& group)
 
-    :param dest: Local address of the array to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-    :param source: Symmetric address of the source array data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-    :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
-    :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
-    :param nelems: Number of elements in the **dest** and **source** arrays.
-    :param pe: PE number of the remote PE.
-    :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
+.. cpp:function:: template<typename Group> void ishmemx_igetSIZE_work_group(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group& group)
+
+  :param dest: Local address of the array to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Symmetric address of the source array data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
+  :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
+  :param nelems: Number of elements in the **dest** and **source** arrays.
+  :param pe: PE number of the remote PE.
+  :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `strided Get` operation.
+  :returns: None.
 
 Callable from the **device**.
 
@@ -348,6 +485,71 @@ elements from a symmetric array from a specified remote PE to strided
 locations on a local array.
 The routines return when the data has been copied into the local **dest**
 array.
+
+"""""""""""""
+ISHMEMX_IBGET
+"""""""""""""
+Copies strided data blocks to a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> void ishmemx_ibget(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe)
+
+.. cpp:function:: void ishmemx_TYPENAME_ibget(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe)
+
+.. cpp:function:: void ishmemx_ibgetSIZE(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe)
+
+  :param dest: Local address of the array to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Symmetric address of the source array data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive blocks of the **dest** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **dest** array. A value of **bsize** indicates contiguous data.
+  :param sst: The stride between consecutive blocks of the **source** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **source** array. A value of **bsize** indicates contiguous data.
+  :param bsize: Number of elements per block in the **dest** and **source** arrays.
+  :param nblocks: Number of blocks to be copied from the **source** array to the **dest** array.
+  :param pe: PE number of the remote PE.
+  :returns: None.
+
+Callable from the **host** and **device**.
+
+**Description:**
+The `ibget` routines provide a method for copying strided data blocks
+from a symmetric array from a specified remote PE to strided locations on a
+local array. The routines return when the data has been copied into the local
+**dest** array.
+
+""""""""""""""""""""""""
+ISHMEMX_IBGET_WORK_GROUP
+""""""""""""""""""""""""
+Copies strided data blocks to a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> void ishmemx_ibget_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+
+.. cpp:function:: void ishmemx_TYPENAME_ibget_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+
+.. cpp:function:: void ishmemx_ibgetSIZE_work_group(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+
+  :param dest: Local address of the array to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Symmetric address of the source array data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive blocks of the **dest** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **dest** array. A value of **bsize** indicates contiguous data.
+  :param sst: The stride between consecutive blocks of the **source** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **source** array. A value of **bsize** indicates contiguous data.
+  :param bsize: Number of elements per block in the **dest** and **source** arrays.
+  :param nblocks: Number of blocks to be copied from the **source** array to the **dest** array.
+  :param pe: PE number of the remote PE.
+  :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `strided Get` operation.
+  :returns: None.
+
+Callable from the **device**.
+
+**Description:**
+The `ibget` routines provide a method for copying strided data blocks
+from a symmetric array from a specified remote PE to strided locations on a
+local array. The routines return when the data has been copied into the local
+**dest** array.
 
 ^^^^^^^^^^^^^^^
 Nonblocking RMA
@@ -361,11 +563,13 @@ contiguous local data object to a data object on a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE> void ishmem_put_nbi(TYPE* dest, const TYPE* source, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_TYPENAME_put_nbi(TYPE* dest, const TYPE* source, size_t nelems, int pe)
+
+.. cpp:function:: void ishmem_putSIZE_nbi(void* dest, const void* source, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_putmem_nbi(void* dest, const void* source, size_t nelems, int pe)
 
@@ -373,13 +577,15 @@ Types<stdrmatypes>`.
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem_nbi`` and ``ishmemx_putmem_nbi_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
 **Description:**
 The `nonblocking put` routines return after initiating the operation.
 The operation is considered complete after a subsequent call to
-``ishmem_quiet`` or ``ishmemx_quiet_work_group``.
+:ref:`ishmem_quiet<ishmem_quiet>` or 
+:ref:`ishmemx_quiet_work_group<ishmemx_quiet_work_group>`.
 At the completion of the quiet operation, the data has been copied into the
 **dest** array on the destination PE.
 The delivery of data words into the data object on the destination PE may occur
@@ -396,11 +602,13 @@ from a contiguous local data object to a data object on a specified PE.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE, typename Group> void ishmemx_put_nbi_work_group(TYPE* dest, const TYPE* source, size_t nelems, int pe, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_put_nbi_work_group(TYPE* dest, const TYPE* source, size_t nelems, int pe, const Group& group)
+
+.. cpp:function:: template<typename Group> void ishmemx_putSIZE_nbi_work_group(void* dest, const void* source, size_t nelems, int pe)
 
 .. cpp:function:: template<typename Group> void ishmemx_putmem_nbi_work_group(void* dest, const void* source, size_t nelems, int pe)
 
@@ -409,6 +617,7 @@ Types<stdrmatypes>`.
   :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem_nbi`` and ``ishmemx_putmem_nbi_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
+  :returns: None.
 
 Callable from the **device**.
 
@@ -416,7 +625,8 @@ Callable from the **device**.
 The `nonblocking put` routines return after initiating the
 operation.
 The operation is considered complete after a subsequent call to
-``ishmem_quiet`` or ``ishmemx_quiet_work_group``.
+:ref:`ishmem_quiet<ishmem_quiet>` or 
+:ref:`ishmemx_quiet_work_group<ishmemx_quiet_work_group>`.
 At the completion of the quiet operation, the data has been copied into the
 **dest** array on the destination PE.
 The delivery of data words into the data object on the destination PE may occur
@@ -433,11 +643,13 @@ contiguous remote data object on the specified PE to the local data object.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE> void ishmem_get_nbi(TYPE* dest, const TYPE* source, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_TYPENAME_get_nbi(TYPE* dest, const TYPE* source, size_t nelems, int pe)
+
+.. cpp:function:: void ishmem_getSIZE_nbi(void* dest, const void* source, size_t nelems, int pe)
 
 .. cpp:function:: void ishmem_getmem_nbi(void* dest, const void* source, size_t nelems, int pe)
 
@@ -445,15 +657,18 @@ Types<stdrmatypes>`.
   :param source: Symmetric address of the source data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem_nbi`` and ``ishmemx_getmem_nbi_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
 **Description:**
-The `nonblocking get` routines provide a method for copying a contiguous symmetric data
+The `nonblocking get` routines provide a method for copying a contiguous 
+symmetric data
 object from a different PE to a contiguous data object on the local PE.
 The routines return after initiating the operation.
 The operation is considered complete after a subsequent call to
-``ishmem_quiet`` or ``ishmemx_quiet_work_group``.
+:ref:`ishmem_quiet<ishmem_quiet>` or 
+:ref:`ishmemx_quiet_work_group<ishmemx_quiet_work_group>`.
 At the completion of the quiet operation, the data has been delivered to the
 **dest** array on the local PE.
 
@@ -465,11 +680,13 @@ contiguous remote data object on the specified PE to the local data object.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE, typename Group> void ishmemx_get_nbi_work_group(TYPE* dest, const TYPE* source, size_t nelems, int pe, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_get_nbi_work_group(TYPE* dest, const TYPE* source, size_t nelems, int pe, const Group& group)
+
+.. cpp:function:: template<typename Group> void ishmemx_getSIZE_nbi_work_group(void* dest, const void* source, size_t nelems, int pe)
 
 .. cpp:function:: template<typename Group> void ishmemx_getmem_nbi_work_group(void* dest, const void* source, size_t nelems, int pe)
 
@@ -477,16 +694,19 @@ Types<stdrmatypes>`.
   :param source: Symmetric address of the source data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem_nbi`` and ``ishmemx_getmem_nbi_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
-  :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
+  :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Get` operation.
+  :returns: None.
 
 Callable from the **device**.
 
 **Description:**
-The `nonblocking get` routines provide a method for copying a contiguous symmetric data
+The `nonblocking get` routines provide a method for copying a contiguous 
+symmetric data
 object from a different PE to a contiguous data object on the local PE.
 The routines return after initiating the operation.
 The operation is considered complete after a subsequent call to
-``ishmem_quiet`` or ``ishmemx_quiet_work_group``.
+:ref:`ishmem_quiet<ishmem_quiet>` or 
+:ref:`ishmemx_quiet_work_group<ishmemx_quiet_work_group>`.
 At the completion of the quiet operation, the data has been delivered to the
 **dest** array on the local PE.
 

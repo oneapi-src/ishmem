@@ -4,13 +4,42 @@
 Memory Ordering
 ---------------
 
+.. _mem_ordering_impact:
+
+**List of Operations affected by Memory Ordering Routines:**
+
+==============================   ======   ======
+Operations                       Fence    Quiet
+==============================   ======   ======
+Memory Store                     X        X
+Blocking `Put`                   X        X
+Blocking `Get`
+Blocking Fetching `AMO`
+Blocking Non-fetching `AMO`      X        X
+Blocking `put-with-signal`       X        X
+Nonblocking `Put`                X        X
+Nonblocking `Get`                         X
+Nonblocking `AMO`                X [#]_   X
+Nonblocking `put-with-signal`    X        X 
+==============================   ======   ======
+
+This section introduces Intel® SHMEM interfaces that provide mechanisms to
+ensure ordering and/or delivery of completion on memory store, blocking,
+and nonblocking routines. Table :ref:`List of Operations affected by 
+Memory Ordering Routines<mem_ordering_impact>` lists the operations
+affected by Intel® SHMEM memory ordering routines.
+ 
+
 ^^^^^^^^^^^^^^
 ISHMEM_FENCE
 ^^^^^^^^^^^^^^
 
 Ensures ordering of delivery of operations on symmetric data objects.
 
-.. cpp:function:: void ishmem_fence()
+.. cpp:function:: void ishmem_fence(void)
+
+  :parameters: None.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -39,6 +68,7 @@ Ensures ordering of delivery of operations on symmetric data objects.
 .. cpp:function:: void ishmemx_fence_work_group(const Group& group)
 
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the fence operation.
+  :returns: None.
 
 Callable from the **device**.
 
@@ -58,6 +88,8 @@ operations on symmetric data objects to the same PE.
 It does not guarantee order of delivery of nonblocking `Get` or values fetched
 by nonblocking AMO routines.
 
+.. _ishmem_quiet:
+
 ^^^^^^^^^^^^
 ISHMEM_QUIET
 ^^^^^^^^^^^^
@@ -65,7 +97,10 @@ ISHMEM_QUIET
 Waits for completion of outstanding operations on symmetric data objects
 issued by a PE.
 
-.. cpp:function:: void ishmem_quiet()
+.. cpp:function:: void ishmem_quiet(void)
+
+  :parameters: None.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -81,6 +116,8 @@ symmetric data objects issued by the calling PE.
 All operations on symmetric data objects are guaranteed to be complete and
 visible to all PEs when ``ishmem_quiet`` returns.
 
+.. _ishmemx_quiet_work_group:
+
 ^^^^^^^^^^^^^^^^^^^^^^^^
 ISHMEMX_QUIET_WORK_GROUP
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -91,6 +128,7 @@ issued by a PE.
 .. cpp:function:: void ishmemx_quiet_work_group(const Group& group)
 
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the quiet operation.
+  :returns: None.
 
 Callable from the **device**.
 
@@ -105,3 +143,6 @@ symmetric data objects issued by the calling PE.
 
 All operations on symmetric data objects are guaranteed to be complete and
 visible to all PEs when ``ishmemx_quiet_work_group`` returns.
+
+.. [#] Intel® SHMEM fence routines does not guarantee order of delivery of
+   values fetched by nonblocking AMO routines.

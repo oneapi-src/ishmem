@@ -152,6 +152,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="nav bd-sidenav">
@@ -159,12 +160,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="current nav bd-sidenav">
@@ -326,7 +329,9 @@ document.write(`
                   
   <section id="compiling-and-running-programs">
 <span id="id1"></span><h1>Compiling and Running Programs<a class="headerlink" href="#compiling-and-running-programs" title="Permalink to this heading">#</a></h1>
-<p>Let’s consider the simple example program from Section <a class="reference internal" href="writing_programs.html#writing-programs"><span class="std std-ref">Writing Intel® SHMEM Programs</span></a> and assume the code is in a file called <code class="docutils literal notranslate"><span class="pre">ishmem_example.cpp</span></code>.</p>
+<p>Let’s consider the simple example program from Section <a class="reference internal" href="writing_programs.html#writing-programs"><span class="std std-ref">Writing Intel®
+SHMEM Programs</span></a> and assume the code is in a file called
+<code class="docutils literal notranslate"><span class="pre">ishmem_example.cpp</span></code>.</p>
 <p>To compile the program, we must pass the necessary flags to the Intel®
 oneAPI DPC++/C++ Compiler.
 For example:</p>
@@ -338,11 +343,11 @@ installation directory.</p>
 <p>Intel® SHMEM provides a launcher script, <code class="docutils literal notranslate"><span class="pre">ishmrun</span></code> that
 assigns the environment variable <strong>ZE_AFFINITY_MASK</strong> so that each PE is
 assigned a single SYCL device.
-To invoke the <code class="docutils literal notranslate"><span class="pre">ishmrum</span></code> script, pass it as the first argument to your
+To invoke the <code class="docutils literal notranslate"><span class="pre">ishmrun</span></code> script, pass it as the first argument to your
 process launcher.
 The following example assumes the <code class="docutils literal notranslate"><span class="pre">ISHMEM_INSTALL_DIR/bin</span></code> directory is
 on your user path and use of the Portable Batch System launcher:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ aprun -N 12 -n 6 ishmrum ishmem_example
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ aprun -N 12 -n 6 ishmrun ishmem_example
 </pre></div>
 </div>
 <p>This will launch the example program on 12 PEs with 6 PEs per compute node.</p>
@@ -402,7 +407,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

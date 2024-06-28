@@ -24,8 +24,8 @@ library<ishmemx_runtime_type_t>`.
    Programs<compiling_and_running_programs>`.
 
 .. note:: Intel® Data Center GPU Max Series devices utilize a multi-tile
-   architecture (as of Intel®  SHMEM |version| with 1 or 2 tiles).  By default,
-   the Intel® Intel® SHMEM runtime considers each individual `tile` to make up
+   architecture (as of Intel®  SHMEM v1.0.0 with 1 or 2 tiles).  By default,
+   the Intel® SHMEM runtime considers each individual `tile` to make up
    a single SYCL device.  However, setting the environment variable
    **enableImplicitScaling=1** enables implicit scaling mode, where each
    multi-tile `GPU` is considered to be a single SYCL device. When implicit

@@ -151,6 +151,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="nav bd-sidenav">
@@ -158,12 +159,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -354,6 +357,7 @@ document.write(`
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html#library-handles">Library Handles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html#environment-variables">Environment Variables</a></li>
 </ul>
 </div>
@@ -378,6 +382,21 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-calloc">ISHMEM_CALLOC</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#predefined-and-application-defined-teams">Predefined and Application-Defined Teams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#team-handles">Team Handles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#collective-ordering">Collective Ordering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#team-creation">Team Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-my-pe">ISHMEM_TEAM_MY_PE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-n-pes">ISHMEM_TEAM_N_PES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-config-t">ISHMEM_TEAM_CONFIG_T</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-get-config">ISHMEM_TEAM_GET_CONFIG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-translate-pe">ISHMEM_TEAM_TRANSLATE_PE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-split-strided">ISHMEM_TEAM_SPLIT_STRIDED</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-split-2d">ISHMEM_TEAM_SPLIT_2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-destroy">ISHMEM_TEAM_DESTROY</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="rma.html#blocking-rma">Blocking RMA</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-put">ISHMEM_PUT</a></li>
@@ -385,11 +404,15 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-p">ISHMEM_P</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-iput">ISHMEM_IPUT</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-iput-work-group">ISHMEMX_IPUT_WORK_GROUP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-ibput">ISHMEMX_IBPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-ibput-work-group">ISHMEMX_IBPUT_WORK_GROUP</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-get">ISHMEM_GET</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-get-work-group">ISHMEMX_GET_WORK_GROUP</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-g">ISHMEM_G</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rma.html#ishmem-iget">ISHMEM_IGET</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-iget-work-group">ISHMEMX_IGET_WORK_GROUP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-ibget">ISHMEMX_IBGET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rma.html#ishmemx-ibget-work-group">ISHMEMX_IBGET_WORK_GROUP</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rma.html#nonblocking-rma">Nonblocking RMA</a><ul>
@@ -402,20 +425,34 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="atomics.html#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#blocking-atomic-memory-operations">Blocking Atomic Memory Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="atomics.html#non-blocking-atomic-memory-operations">Non-blocking Atomic Memory Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-nbi">ISHMEM_ATOMIC_FETCH_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-compare-swap-nbi">ISHMEM_ATOMIC_COMPARE_SWAP_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-swap-nbi">ISHMEM_ATOMIC_SWAP_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-inc-nbi">ISHMEM_ATOMIC_FETCH_INC_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-add-nbi">ISHMEM_ATOMIC_FETCH_ADD_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-and-nbi">ISHMEM_ATOMIC_FETCH_AND_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-or-nbi">ISHMEM_ATOMIC_FETCH_OR_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atomics.html#ishmem-atomic-fetch-xor-nbi">ISHMEM_ATOMIC_FETCH_XOR_NBI</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a><ul>
@@ -427,11 +464,13 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="signaling.html#nonblocking-put-signal">Nonblocking Put-Signal</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="signaling.html#ishmem-put-nbi-signal">ISHMEM_PUT_NBI_SIGNAL</a></li>
-<li class="toctree-l3"><a class="reference internal" href="signaling.html#ishmemx-put-nbi-signal-work-group">ISHMEMX_PUT_NBI_SIGNAL_WORK_GROUP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="signaling.html#ishmem-put-signal-nbi">ISHMEM_PUT_SIGNAL_NBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="signaling.html#ishmemx-put-signal-nbi-work-group">ISHMEMX_PUT_SIGNAL_NBI_WORK_GROUP</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmemx-signal-add">ISHMEMX_SIGNAL_ADD</a></li>
 <li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmem-signal-fetch">ISHMEM_SIGNAL_FETCH</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmemx-signal-set">ISHMEMX_SIGNAL_SET</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a><ul>
@@ -439,12 +478,15 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-barrier-all-work-group">ISHMEMX_BARRIER_ALL_WORK_GROUP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-sync-all">ISHMEM_SYNC_ALL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-sync-all-work-group">ISHMEMX_SYNC_ALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-team-sync">ISHMEM_TEAM_SYNC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-team-sync-work-group">ISHMEMX_TEAM_SYNC_WORK_GROUP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-alltoall">ISHMEM_ALLTOALL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-alltoall-work-group">ISHMEMX_ALLTOALL_WORK_GROUP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-broadcast">ISHMEM_BROADCAST</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-broadcast-work-group">ISHMEMX_BROADCAST_WORK_GROUP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-collect-ishmem-fcollect">ISHMEM_COLLECT, ISHMEM_FCOLLECT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-f-collect-work-group">ISHMEMX_[F]COLLECT_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-collect-work-group">ISHMEMX_COLLECT_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-fcollect-work-group">ISHMEMX_FCOLLECT_WORK_GROUP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-reduce">ISHMEM_REDUCE</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-reduce-work-group">ISHMEMX_REDUCE_WORK_GROUP</a></li>
 </ul>
@@ -452,8 +494,22 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until">ISHMEM_WAIT_UNTIL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-work-group">ISHMEMX_WAIT_UNTIL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-all">ISHMEM_WAIT_UNTIL_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-all-work-group">ISHMEMX_WAIT_UNTIL_ALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-any">ISHMEM_WAIT_UNTIL_ANY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-any-work-group">ISHMEMX_WAIT_UNTIL_ANY_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-some">ISHMEM_WAIT_UNTIL_SOME</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-some-work-group">ISHMEMX_WAIT_UNTIL_SOME_WORK_GROUP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test">ISHMEM_TEST</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-work-group">ISHMEMX_TEST_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-all">ISHMEM_TEST_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-all-work-group">ISHMEMX_TEST_ALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-any">ISHMEM_TEST_ANY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-any-work-group">ISHMEMX_TEST_ANY_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-some">ISHMEM_TEST_SOME</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-some-work-group">ISHMEMX_TEST_SOME_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-signal-wait-until">ISHMEM_SIGNAL_WAIT_UNTIL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-signal-wait-until-work-group">ISHMEMX_SIGNAL_WAIT_UNTIL_WORK_GROUP</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a><ul>
@@ -461,6 +517,11 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-fence-work-group">ISHMEMX_FENCE_WORK_GROUP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmem-quiet">ISHMEM_QUIET</a></li>
 <li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group">ISHMEMX_QUIET_WORK_GROUP</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utility.html#ishmemx-print-msg-type-t">ISHMEMX_PRINT_MSG_TYPE_T</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utility.html#ishmemx-print">ISHMEMX_PRINT</a></li>
 </ul>
 </li>
 </ul>
@@ -527,7 +588,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

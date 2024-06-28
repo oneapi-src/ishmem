@@ -152,6 +152,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="current nav bd-sidenav">
@@ -159,12 +160,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -330,11 +333,13 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nonblocking-put-signal">Nonblocking Put-Signal</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-put-nbi-signal">ISHMEM_PUT_NBI_SIGNAL</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-put-nbi-signal-work-group">ISHMEMX_PUT_NBI_SIGNAL_WORK_GROUP</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-put-signal-nbi">ISHMEM_PUT_SIGNAL_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-put-signal-nbi-work-group">ISHMEMX_PUT_SIGNAL_NBI_WORK_GROUP</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-signal-add">ISHMEMX_SIGNAL_ADD</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-signal-fetch">ISHMEM_SIGNAL_FETCH</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-signal-set">ISHMEMX_SIGNAL_SET</a></li>
 </ul>
             </nav>
         </div>
@@ -396,7 +401,7 @@ contiguous local data object to a data object on a specified PE and
 subsequently updating a remote flag to signal completion.</p>
 <p>In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
-Types</span></a>.</p>
+Types</span></a>, and SIZE is one of 8, 16, 32, 64, 128.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E17ishmem_put_signalvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">
 <span id="_CPPv3I0E17ishmem_put_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv2I0E17ishmem_put_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_put_signal</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_put_signalvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="ishmem_put_signal::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E17ishmem_put_signalvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="ishmem_put_signal::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_put_signalvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
@@ -408,8 +413,13 @@ Types</span></a>.</p>
 <dd></dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv429ishmem_TYPENAME_putmem_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">
-<span id="_CPPv329ishmem_TYPENAME_putmem_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv229ishmem_TYPENAME_putmem_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="ishmem_TYPENAME_putmem_signal__TYPEP.TYPECP.s.uint64_tP.uint64_t.i.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_putmem_signal</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv429ishmem_TYPENAME_putmem_signalP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv421ishmem_putSIZE_signalPvPKv6size_tP8uint64_t8uint64_tii">
+<span id="_CPPv321ishmem_putSIZE_signalPvPKv6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv221ishmem_putSIZE_signalPvPKv6size_tP8uint64_t8uint64_tii"></span><span id="ishmem_putSIZE_signal__voidP.voidCP.s.uint64_tP.uint64_t.i.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_putSIZE_signal</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421ishmem_putSIZE_signalPvPKv6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420ishmem_putmem_signalPvPKv6size_tP8uint64_t8uint64_tii">
+<span id="_CPPv320ishmem_putmem_signalPvPKv6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv220ishmem_putmem_signalPvPKv6size_tP8uint64_t8uint64_tii"></span><span id="ishmem_putmem_signal__voidP.voidCP.s.uint64_tP.uint64_t.i.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_putmem_signal</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420ishmem_putmem_signalPvPKv6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -421,6 +431,9 @@ Types</span></a>.</p>
 <li><p><strong>sig_op</strong> – Signal operator that represents the type of update to be performed on the remote <strong>sig_addr</strong> signal data object.</p></li>
 <li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -460,7 +473,7 @@ contiguous local data object to a data object on a specified PE and
 subsequently updating a remote flag to signal completion.</p>
 <p>In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
-Types</span></a>.</p>
+Types</span></a>, and SIZE is one of 8, 16, 32, 64, 128.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">
 <span id="_CPPv3I00E29ishmemx_put_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I00E29ishmemx_put_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_put_signal_work_group</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_work_group::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_work_group::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00E29ishmemx_put_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
@@ -472,8 +485,13 @@ Types</span></a>.</p>
 <dd></dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4I0E32ishmemx_putmem_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">
-<span id="_CPPv3I0E32ishmemx_putmem_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I0E32ishmemx_putmem_signal_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_putmem_signal_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E32ishmemx_putmem_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_putmem_signal_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E32ishmemx_putmem_signal_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0E33ishmemx_putSIZE_signal_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group">
+<span id="_CPPv3I0E33ishmemx_putSIZE_signal_work_groupPvPKv6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I0E33ishmemx_putSIZE_signal_work_groupPvPKv6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_putSIZE_signal_work_group</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E33ishmemx_putSIZE_signal_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_putSIZE_signal_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E33ishmemx_putSIZE_signal_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E32ishmemx_putmem_signal_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group">
+<span id="_CPPv3I0E32ishmemx_putmem_signal_work_groupPvPKv6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I0E32ishmemx_putmem_signal_work_groupPvPKv6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_putmem_signal_work_group</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E32ishmemx_putmem_signal_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_putmem_signal_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E32ishmemx_putmem_signal_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -486,6 +504,9 @@ Types</span></a>.</p>
 <li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
 <li><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the <cite>Put</cite> operation.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -521,14 +542,14 @@ the <cite>put</cite> routine’s data.</p>
 </section>
 <section id="nonblocking-put-signal">
 <h2>Nonblocking Put-Signal<a class="headerlink" href="#nonblocking-put-signal" title="Permalink to this heading">#</a></h2>
-<section id="ishmem-put-nbi-signal">
-<h3>ISHMEM_PUT_NBI_SIGNAL<a class="headerlink" href="#ishmem-put-nbi-signal" title="Permalink to this heading">#</a></h3>
+<section id="ishmem-put-signal-nbi">
+<h3>ISHMEM_PUT_SIGNAL_NBI<a class="headerlink" href="#ishmem-put-signal-nbi" title="Permalink to this heading">#</a></h3>
 <p>The <cite>nonblocking put-with-signal</cite> routines provide a method for copying data from a
 contiguous local data object to a data object on a specified PE and
 subsequently updating a remote flag to signal completion.</p>
 <p>In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
-Types</span></a>.</p>
+Types</span></a>, and SIZE is one of 8, 16, 32, 64, 128.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E21ishmem_put_signal_nbivP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">
 <span id="_CPPv3I0E21ishmem_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv2I0E21ishmem_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_put_signal_nbi</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E21ishmem_put_signal_nbivP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="ishmem_put_signal_nbi::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E21ishmem_put_signal_nbivP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="ishmem_put_signal_nbi::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E21ishmem_put_signal_nbivP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
@@ -537,6 +558,16 @@ Types</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv430ishmem_TYPENAME_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii">
 <span id="_CPPv330ishmem_TYPENAME_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv230ishmem_TYPENAME_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii"></span><span id="ishmem_TYPENAME_put_signal_nbi__TYPEP.TYPECP.s.uint64_tP.uint64_t.i.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_put_signal_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430ishmem_TYPENAME_put_signal_nbiP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425ishmem_putSIZE_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii">
+<span id="_CPPv325ishmem_putSIZE_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv225ishmem_putSIZE_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii"></span><span id="ishmem_putSIZE_signal_nbi__voidP.voidCP.s.uint64_tP.uint64_t.i.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_putSIZE_signal_nbi</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425ishmem_putSIZE_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424ishmem_putmem_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii">
+<span id="_CPPv324ishmem_putmem_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii"></span><span id="_CPPv224ishmem_putmem_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii"></span><span id="ishmem_putmem_signal_nbi__voidP.voidCP.s.uint64_tP.uint64_t.i.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_putmem_signal_nbi</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmem_putmem_signal_nbiPvPKv6size_tP8uint64_t8uint64_tii" title="Permalink to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -548,6 +579,9 @@ Types</span></a>.</p>
 <li><p><strong>sig_op</strong> – Signal operator that represents the type of update to be performed on the remote <strong>sig_addr</strong> signal data object.</p></li>
 <li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -580,14 +614,14 @@ Operators</span></a> can be used as the <strong>sig_op</strong> signal operator.
 <p>The <strong>dest</strong> and <strong>sig_addr</strong> data objects must both be remotely accessible and
 may not be overlapping in memory.</p>
 </section>
-<section id="ishmemx-put-nbi-signal-work-group">
-<h3>ISHMEMX_PUT_NBI_SIGNAL_WORK_GROUP<a class="headerlink" href="#ishmemx-put-nbi-signal-work-group" title="Permalink to this heading">#</a></h3>
+<section id="ishmemx-put-signal-nbi-work-group">
+<h3>ISHMEMX_PUT_SIGNAL_NBI_WORK_GROUP<a class="headerlink" href="#ishmemx-put-signal-nbi-work-group" title="Permalink to this heading">#</a></h3>
 <p>The <cite>nonblocking put-with-signal</cite> routines provide a method for copying data
 from a contiguous local data object to a data object on a specified PE and
 subsequently updating a remote flag to signal completion.</p>
 <p>In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table <a class="reference internal" href="rma.html#stdrmatypes"><span class="std std-ref">Standard RMA
-Types</span></a>.</p>
+Types</span></a>, and SIZE is one of 8, 16, 32, 64, 128.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">
 <span id="_CPPv3I00E33ishmemx_put_signal_nbi_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I00E33ishmemx_put_signal_nbi_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_put_signal_nbi_work_group</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_nbi_work_group::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_nbi_work_group::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_put_signal_nbi_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00E33ishmemx_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
@@ -596,6 +630,16 @@ Types</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group">
 <span id="_CPPv3I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_TYPENAME_put_signal_nbi_work_group</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_TYPENAME_put_signal_nbi_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E42ishmemx_TYPENAME_put_signal_nbi_work_groupvP4TYPEPK4TYPE6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E37ishmemx_putSIZE_signal_nbi_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group">
+<span id="_CPPv3I0E37ishmemx_putSIZE_signal_nbi_work_groupPvPKv6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I0E37ishmemx_putSIZE_signal_nbi_work_groupPvPKv6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_putSIZE_signal_nbi_work_group</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E37ishmemx_putSIZE_signal_nbi_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_putSIZE_signal_nbi_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E37ishmemx_putSIZE_signal_nbi_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E36ishmemx_putmem_signal_nbi_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group">
+<span id="_CPPv3I0E36ishmemx_putmem_signal_nbi_work_groupPvPKv6size_tP8uint64_t8uint64_tiiRK5Group"></span><span id="_CPPv2I0E36ishmemx_putmem_signal_nbi_work_groupPvPKv6size_tP8uint64_t8uint64_tiiRK5Group"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Group</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_putmem_signal_nbi_work_group</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nelems</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sig_op</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E36ishmemx_putmem_signal_nbi_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group" title="ishmemx_putmem_signal_nbi_work_group::Group"><span class="n"><span class="pre">Group</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E36ishmemx_putmem_signal_nbi_work_groupvPvPKv6size_tP8uint64_t8uint64_tiiRK5Group" title="Permalink to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -608,6 +652,9 @@ Types</span></a>.</p>
 <li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
 <li><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the <cite>Put</cite> operation.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -641,6 +688,35 @@ Operators</span></a> can be used as the <strong>sig_op</strong> signal operator.
 may not be overlapping in memory.</p>
 </section>
 </section>
+<section id="ishmemx-signal-add">
+<h2>ISHMEMX_SIGNAL_ADD<a class="headerlink" href="#ishmemx-signal-add" title="Permalink to this heading">#</a></h2>
+<p>Adds to a signal value of a remote date object.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418ishmemx_signal_addP8uint64_t8uint64_ti">
+<span id="_CPPv318ishmemx_signal_addP8uint64_t8uint64_ti"></span><span id="_CPPv218ishmemx_signal_addP8uint64_t8uint64_ti"></span><span id="ishmemx_signal_add__uint64_tP.uint64_t.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_signal_add</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418ishmemx_signal_addP8uint64_t8uint64_ti" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sig_addr</strong> – Symmetric address of the signal data object to be updated on the remote PE.</p></li>
+<li><p><strong>signal</strong> – Unsigned 64-bit value that is used for updating the remote <strong>sig_addr</strong>
+signal data object.</p></li>
+<li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+<code class="docutils literal notranslate"><span class="pre">ishmemx_signal_add</span></code> adds <strong>value</strong> to the signal data object pointed to by <strong>sig_addr</strong>
+on PE <strong>pe</strong>.
+The update to <strong>sig_addr</strong> signal object at the calling PE is expected to satisfy
+the atomicity guarantees as described in Section <a class="reference internal" href="#signal-atomicity"><span class="std std-ref">Atomicity Guarantees for
+Signaling Operations</span></a>.</p>
+</section>
 <section id="ishmem-signal-fetch">
 <h2>ISHMEM_SIGNAL_FETCH<a class="headerlink" href="#ishmem-signal-fetch" title="Permalink to this heading">#</a></h2>
 <p>Fetches the signal update on a local data object.</p>
@@ -662,6 +738,35 @@ may not be overlapping in memory.</p>
 <code class="docutils literal notranslate"><span class="pre">ishmem_signal_fetch</span></code> performs a fetch operation and returns the contents of
 the <strong>sig_addr</strong> signal data object.
 Access to <strong>sig_addr</strong> signal object at the calling PE is expected to satisfy
+the atomicity guarantees as described in Section <a class="reference internal" href="#signal-atomicity"><span class="std std-ref">Atomicity Guarantees for
+Signaling Operations</span></a>.</p>
+</section>
+<section id="ishmemx-signal-set">
+<h2>ISHMEMX_SIGNAL_SET<a class="headerlink" href="#ishmemx-signal-set" title="Permalink to this heading">#</a></h2>
+<p>Sets the signal value of a remote date object.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418ishmemx_signal_setP8uint64_t8uint64_ti">
+<span id="_CPPv318ishmemx_signal_setP8uint64_t8uint64_ti"></span><span id="_CPPv218ishmemx_signal_setP8uint64_t8uint64_ti"></span><span id="ishmemx_signal_set__uint64_tP.uint64_t.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_signal_set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">sig_addr</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">signal</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418ishmemx_signal_setP8uint64_t8uint64_ti" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sig_addr</strong> – Symmetric address of the signal data object to be updated on the remote PE.</p></li>
+<li><p><strong>signal</strong> – Unsigned 64-bit value that is used for updating the remote <strong>sig_addr</strong>
+signal data object.</p></li>
+<li><p><strong>pe</strong> – PE number of the remote PE.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+<code class="docutils literal notranslate"><span class="pre">ishmemx_signal_set</span></code> writes <strong>value</strong> into the signal data object pointed to by <strong>sig_addr</strong>
+on PE <strong>pe</strong>.
+The update to <strong>sig_addr</strong> signal object at the calling PE is expected to satisfy
 the atomicity guarantees as described in Section <a class="reference internal" href="#signal-atomicity"><span class="std std-ref">Atomicity Guarantees for
 Signaling Operations</span></a>.</p>
 </section>
@@ -719,11 +824,13 @@ Signaling Operations</span></a>.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nonblocking-put-signal">Nonblocking Put-Signal</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-put-nbi-signal">ISHMEM_PUT_NBI_SIGNAL</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-put-nbi-signal-work-group">ISHMEMX_PUT_NBI_SIGNAL_WORK_GROUP</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-put-signal-nbi">ISHMEM_PUT_SIGNAL_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-put-signal-nbi-work-group">ISHMEMX_PUT_SIGNAL_NBI_WORK_GROUP</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-signal-add">ISHMEMX_SIGNAL_ADD</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-signal-fetch">ISHMEM_SIGNAL_FETCH</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-signal-set">ISHMEMX_SIGNAL_SET</a></li>
 </ul>
   </nav></div>
 
@@ -747,7 +854,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

@@ -46,7 +46,7 @@
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Remote Memory Access (RMA)" href="rma.html" />
+    <link rel="next" title="Team Management Routines" href="teams.html" />
     <link rel="prev" title="Library Setup, Exit, and Query Routines" href="library_setup_exit_query.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -152,6 +152,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
 
+
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="current nav bd-sidenav">
@@ -159,12 +160,14 @@
 </ul>
 </li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -346,6 +349,8 @@ data objects in the symmetric heap.</p>
 provided  so that multiple PEs in a program can allocate symmetric, remotely
 accessible memory blocks.
 These memory blocks can then be used with <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> communication routines.
+The symmetric memory allocation routines must be called by all PEs in the
+world team.
 When no action is performed, these routines return without performing a
 barrier.
 Otherwise, each of these routines includes at least one call to a procedure
@@ -375,10 +380,12 @@ undefined.</p>
 
 <p>Callable from the <strong>host</strong>.</p>
 <p><strong>Description:</strong>
-The <code class="docutils literal notranslate"><span class="pre">ishmem_malloc</span></code> routine returns the symmetric address of a block of at
-least <strong>size</strong> bytes, which shall be suitably aligned so that it may be
-assigned to a pointer to any type of object.  This space is allocated from the
-symmetric heap (in contrast to malloc, which allocates from the private heap).
+The <code class="docutils literal notranslate"><span class="pre">ishmem_malloc</span></code> routine is a collective operation on the world team that
+returns the symmetric address of a block of at least <strong>size</strong> bytes, which
+shall be suitably aligned so that it may be assigned to a pointer to any type
+of object.
+This space is allocated from the symmetric heap (in contrast to malloc, which
+allocates from the private heap).
 The memory space is uninitialized.
 When <strong>size</strong> is zero, the <code class="docutils literal notranslate"><span class="pre">ishmem_malloc</span></code> routine performs no action and
 returns a null pointer; otherwise, <code class="docutils literal notranslate"><span class="pre">ishmem_malloc</span></code> calls a barrier on exit.</p>
@@ -394,25 +401,24 @@ behavior is undefined.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ptr</strong> – Symmetric address of an object in the symmetric heap.</p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
 </dl>
 </dd></dl>
 
 <p>Callable from the <strong>host</strong>.</p>
 <p><strong>Description:</strong>
-The <code class="docutils literal notranslate"><span class="pre">ishmem_free</span></code> routine causes the block to which <strong>ptr</strong> points to be
-deallocated, that is, made available for further allocation.  If <strong>ptr</strong> is a
-null pointer, no action is performed; otherwise, <code class="docutils literal notranslate"><span class="pre">ishmem_free</span></code> calls a
-barrier on entry.  It is the user’s responsibility to ensure that no
-communication operations involving the given memory block are pending on other
-communication contexts prior to calling <code class="docutils literal notranslate"><span class="pre">ishmem_free</span></code>.</p>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_free</span></code> routine is a collective operation on the world team that
+causes the block to which <strong>ptr</strong> points to be deallocated, that is, made
+available for further allocation.
+If <strong>ptr</strong> is a null pointer, no action is performed; otherwise,
+<code class="docutils literal notranslate"><span class="pre">ishmem_free</span></code> calls a barrier on entry.
+It is the user’s responsibility to ensure that no communication operations
+involving the given memory block are pending on other communication contexts
+prior to calling <code class="docutils literal notranslate"><span class="pre">ishmem_free</span></code>.</p>
 <p>The value of the <strong>ptr</strong> argument must be identical on all PEs; otherwise, the
 behavior is undefined.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The 1.0.0 version of the <code class="docutils literal notranslate"><span class="pre">ishmem_free</span></code> routine does not
-release memory for use in subsequent allocations.  This issue will be
-fixed in a future version of Intel® SHMEM.</p>
-</div>
 </section>
 <section id="ishmem-align">
 <h2>ISHMEM_ALIGN<a class="headerlink" href="#ishmem-align" title="Permalink to this heading">#</a></h2>
@@ -434,12 +440,14 @@ fixed in a future version of Intel® SHMEM.</p>
 
 <p>Callable from the <strong>host</strong>.</p>
 <p><strong>Description</strong>
-The <code class="docutils literal notranslate"><span class="pre">ishmem_align</span></code> routine allocates a block in the symmetric heap that has
-a byte alignment specified by the <strong>alignment</strong> argument. The value of
-<strong>alignment</strong> shall be a multiple of <code class="docutils literal notranslate"><span class="pre">sizeof(void</span> <span class="pre">*)</span></code> that is also a power of
-two.  Otherwise, the behavior is undefined. When size is zero, the
-<code class="docutils literal notranslate"><span class="pre">ishmem_align</span></code> routine performs no action and returns a null pointer;
-otherwise, <code class="docutils literal notranslate"><span class="pre">ishmem_align</span></code> call a barrier on exit.
+The <code class="docutils literal notranslate"><span class="pre">ishmem_align</span></code> routine is a collective operation on the world team that
+allocates a block in the symmetric heap that has a byte alignment specified by
+the <strong>alignment</strong> argument.
+The value of <strong>alignment</strong> shall be a multiple of <code class="docutils literal notranslate"><span class="pre">sizeof(void</span> <span class="pre">*)</span></code> that is
+also a power of two.
+Otherwise, the behavior is undefined. When size is zero, the <code class="docutils literal notranslate"><span class="pre">ishmem_align</span></code>
+routine performs no action and returns a null pointer; otherwise,
+<code class="docutils literal notranslate"><span class="pre">ishmem_align</span></code> call a barrier on exit.
 The memory space is uninitialized.</p>
 </section>
 <section id="ishmem-calloc">
@@ -462,10 +470,11 @@ The memory space is uninitialized.</p>
 
 <p>Callable from the <strong>host</strong>.</p>
 <dl>
-<dt><strong>Description:</strong></dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">ishmem_calloc</span></code> routine is a collective operation that allocates a
-region of remotely-accessible memory for an array of <strong>count</strong> objects of
-<strong>size</strong> bytes each and returns a pointer to the lowest byte address of the
-allocated symmetric memory. The space is initialized to all bits zero.</p>
+<dt><strong>Description:</strong></dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">ishmem_calloc</span></code> routine is a collective operation on the world team
+that allocates a region of remotely-accessible memory for an array of
+<strong>count</strong> objects of <strong>size</strong> bytes each and returns a pointer to the
+lowest byte address of the allocated symmetric memory.
+The space is initialized to all bits zero.</p>
 <p>If the allocation succeeds, the pointer returned shall be suitably aligned so
 that it may be assigned to a pointer to any type of object.  If the
 allocation does not succeed, or either <strong>count</strong> or <strong>size</strong> is 0, the return
@@ -501,11 +510,11 @@ is semantically equivalent to a barrier on exit.</p>
       </div>
     </a>
     <a class="right-next"
-       href="rma.html"
+       href="teams.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Remote Memory Access (RMA)</p>
+        <p class="prev-next-title">Team Management Routines</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -551,7 +560,7 @@ By Intel Corporation
     
   <p class="copyright">
     
-      © Copyright 2023 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>

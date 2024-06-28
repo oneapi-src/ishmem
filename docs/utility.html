@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Acknowledgements &#8212; Documentation for Intel® SHMEM</title>
+    <title>Utility Routines &#8212; Documentation for Intel® SHMEM</title>
   
   
   
@@ -41,12 +41,13 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'acknowledgements';</script>
-    <link rel="canonical" href="oneapi-src.github.io/ishmem/acknowledgements.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'utility';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/utility.html" />
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Compiling and Running Programs" href="compiling_and_running_programs.html" />
+    <link rel="next" title="Writing Intel® SHMEM Programs" href="writing_programs.html" />
+    <link rel="prev" title="Memory Ordering" href="memory_ordering.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -154,7 +155,7 @@
 
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
 </ul>
 </li>
@@ -166,7 +167,7 @@
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Utility Routines</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
 <ul class="nav bd-sidenav">
@@ -174,8 +175,8 @@
 <li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Acknowledgements</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
 
 
 </ul>
@@ -232,7 +233,7 @@
       
       
       
-      <li><a href="_sources/acknowledgements.rst" target="_blank"
+      <li><a href="_sources/utility.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -314,7 +315,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Acknowledgements</h1>
+    <h1>Utility Routines</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -324,11 +325,9 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Acknowledgements</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#notices-disclaimers">Notices &amp; Disclaimers</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#copyright">Copyright</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-print-msg-type-t">ISHMEMX_PRINT_MSG_TYPE_T</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-print">ISHMEMX_PRINT</a></li>
 </ul>
-
             </nav>
         </div>
     </div>
@@ -339,69 +338,88 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="acknowledgements">
-<span id="id1"></span><h1>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this heading">#</a></h1>
-<p>Intel acknowledges the OpenSHMEM specification and its many contributors. For
-more details on OpenSHMEM, visit <a class="reference external" href="http://openshmem.org">http://openshmem.org</a>.</p>
-<p>Some of the Intel® SHMEM documentation and library routines are
-derived from the OpenSHMEM specification.
-The OpenSHMEM specification belongs to Open Source Software Solutions, Inc.
-(OSSS), a nonprofit organization, under an agreement with HPE.
-Permission to copy without fee all or part of this material is granted,
-provided the OSSS notice and the title of this document appear, and notice is
-given that copying is by permission of OSSS.</p>
-<p>All software downloads produced by the OpenSHMEM project on the OpenSHMEM
-website are provided under the following BSD 3-clause license.</p>
-<p>Copyright (c) 2016 - 2020
-Stony Brook University</p>
-<p>Copyright (c) 2015 - 2020
-Los Alamos National Security, LLC.</p>
-<p>Copyright (c) 2011 - 2016
-University of Houston System and UT-Battelle, LLC.</p>
-<p>Copyright (c) 2009 - 2016
-Silicon Graphics International Corp. SHMEM is copyrighted by Silicon Graphics International Corp. (SGI) The OpenSHMEM API (shmem) is released by Open Source Software Solutions, Inc., under an agreement with Silicon Graphics International Corp. (SGI).</p>
-<p>Copyright (c) 2016-2020
-Open Source Software Solutions (OSSS), Inc.</p>
-<p>Copyright (c) 2016-2017
-Hewlett Packard Enterprise Development LP.</p>
-<p>Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:</p>
-<ul class="simple">
-<li><p>Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimers.</p></li>
-<li><p>Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.</p></li>
-<li><p>Neither the name of the University of Houston System, UT-Battelle, LLC. nor
-the names of its contributors may be used to endorse or promote products
-derived from this software without specific prior written permission.</p></li>
-<li><p>Neither the name of Los Alamos National Security, LLC, Los Alamos National
-Laboratory, LANL, the U.S. Government, nor the names of its contributors may
-be used to endorse or promote products derived from this software without
-specific prior written permission.</p></li>
+  <section id="utility-routines">
+<span id="utility"></span><h1>Utility Routines<a class="headerlink" href="#utility-routines" title="Permalink to this heading">#</a></h1>
+<section id="ishmemx-print-msg-type-t">
+<h2>ISHMEMX_PRINT_MSG_TYPE_T<a class="headerlink" href="#ishmemx-print-msg-type-t" title="Permalink to this heading">#</a></h2>
+<p>An enumeration of different message types.</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv424ishmemx_print_msg_type_t">
+<span id="_CPPv324ishmemx_print_msg_type_t"></span><span id="_CPPv224ishmemx_print_msg_type_t"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_print_msg_type_t</span></span></span><a class="headerlink" href="#_CPPv424ishmemx_print_msg_type_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N24ishmemx_print_msg_type_t5DEBUGE">
+<span id="_CPPv3N24ishmemx_print_msg_type_t5DEBUGE"></span><span id="_CPPv2N24ishmemx_print_msg_type_t5DEBUGE"></span><span id="ishmemx_print_msg_type_t::DEBUG"></span><span class="k"><span class="pre">type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DEBUG</span></span></span><a class="headerlink" href="#_CPPv4N24ishmemx_print_msg_type_t5DEBUGE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Debug message type</p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N24ishmemx_print_msg_type_t7WARNINGE">
+<span id="_CPPv3N24ishmemx_print_msg_type_t7WARNINGE"></span><span id="_CPPv2N24ishmemx_print_msg_type_t7WARNINGE"></span><span id="ishmemx_print_msg_type_t::WARNING"></span><span class="k"><span class="pre">type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WARNING</span></span></span><a class="headerlink" href="#_CPPv4N24ishmemx_print_msg_type_t7WARNINGE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Warning message type</p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N24ishmemx_print_msg_type_t5ERRORE">
+<span id="_CPPv3N24ishmemx_print_msg_type_t5ERRORE"></span><span id="_CPPv2N24ishmemx_print_msg_type_t5ERRORE"></span><span id="ishmemx_print_msg_type_t::ERROR"></span><span class="k"><span class="pre">type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ERROR</span></span></span><a class="headerlink" href="#_CPPv4N24ishmemx_print_msg_type_t5ERRORE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Error message type</p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N24ishmemx_print_msg_type_t6STDOUTE">
+<span id="_CPPv3N24ishmemx_print_msg_type_t6STDOUTE"></span><span id="_CPPv2N24ishmemx_print_msg_type_t6STDOUTE"></span><span id="ishmemx_print_msg_type_t::STDOUT"></span><span class="k"><span class="pre">type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">STDOUT</span></span></span><a class="headerlink" href="#_CPPv4N24ishmemx_print_msg_type_t6STDOUTE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Any standard output message type</p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N24ishmemx_print_msg_type_t6STDERRE">
+<span id="_CPPv3N24ishmemx_print_msg_type_t6STDERRE"></span><span id="_CPPv2N24ishmemx_print_msg_type_t6STDERRE"></span><span id="ishmemx_print_msg_type_t::STDERR"></span><span class="k"><span class="pre">type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">STDERR</span></span></span><a class="headerlink" href="#_CPPv4N24ishmemx_print_msg_type_t6STDERRE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Any standard error message type</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="ishmemx-print">
+<h2>ISHMEMX_PRINT<a class="headerlink" href="#ishmemx-print" title="Permalink to this heading">#</a></h2>
+<p>Writes the C string pointed by <cite>out</cite> to the standard error.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413ishmemx_printPKc">
+<span id="_CPPv313ishmemx_printPKc"></span><span id="_CPPv213ishmemx_printPKc"></span><span id="ishmemx_print__cCP"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_print</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413ishmemx_printPKc" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413ishmemx_printPKc24ishmemx_print_msg_type_t">
+<span id="_CPPv313ishmemx_printPKc24ishmemx_print_msg_type_t"></span><span id="_CPPv213ishmemx_printPKc24ishmemx_print_msg_type_t"></span><span id="ishmemx_print__cCP.ishmemx_print_msg_type_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_print</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span>, <a class="reference internal" href="#_CPPv424ishmemx_print_msg_type_t" title="ishmemx_print_msg_type_t"><span class="n"><span class="pre">ishmemx_print_msg_type_t</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">msg_type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413ishmemx_printPKc24ishmemx_print_msg_type_t" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413ishmemx_printPKclPKcPKc24ishmemx_print_msg_type_t">
+<span id="_CPPv313ishmemx_printPKclPKcPKc24ishmemx_print_msg_type_t"></span><span id="_CPPv213ishmemx_printPKclPKcPKc24ishmemx_print_msg_type_t"></span><span id="ishmemx_print__cCP.l-i.cCP.cCP.ishmemx_print_msg_type_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_print</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">file</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">line</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">func</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span>, <a class="reference internal" href="#_CPPv424ishmemx_print_msg_type_t" title="ishmemx_print_msg_type_t"><span class="n"><span class="pre">ishmemx_print_msg_type_t</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">msg_type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413ishmemx_printPKclPKcPKc24ishmemx_print_msg_type_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>out</strong> – C string that contains the text to be written.</p></li>
+<li><p><strong>msg_type</strong> – A message type of type ishmemx_print_msg_type_t.</p></li>
+<li><p><strong>file</strong> – C string that can take __FILE__ as input, representing the full path to the current file.</p></li>
+<li><p><strong>line</strong> – A long int that can take __LINE__ as input for the current line number.</p></li>
+<li><p><strong>func</strong> – C string that can take __FUNC__ as input, representing the current function name.</p></li>
 </ul>
-<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong> and <strong>device</strong>.</p>
+<p><strong>Description:</strong>
+This routine prints the C string to the standard error (stderr), unless
+<strong>STDOUT</strong> message type is passed as <cite>msg_type</cite>. For user convenience, all
+prints include the file, line number, function name, PE ID, and message type,
+when <code class="docutils literal notranslate"><span class="pre">ISHMEM_ENABLE_VERBOSE_PRINT</span></code> environment variable is used. For
+<strong>DEBUG</strong> messages, in addition to the <cite>msg_type</cite>, user should also enable
+<code class="docutils literal notranslate"><span class="pre">ISHMEM_DEBUG</span></code>.</p>
 </section>
-<section id="notices-disclaimers">
-<h1>Notices &amp; Disclaimers<a class="headerlink" href="#notices-disclaimers" title="Permalink to this heading">#</a></h1>
-<p><a href="https://www.intel.com/LegalNoticesAndDisclaimers" target="_blank">Legal Notices and Disclaimers</a></p>
-<p>Intel technologies may require enabled hardware, software or service activation.</p>
-<p>No product or component can be absolutely secure.</p>
-<p>Your costs and results may vary.</p>
-<p>© Intel Corporation.  Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries.  Other names and brands may be claimed as the property of others.</p>
-</section>
-<section id="copyright">
-<h1>Copyright<a class="headerlink" href="#copyright" title="Permalink to this heading">#</a></h1>
-<p><p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">The <a property="dct:title" rel="cc:attributionURL" href="https://oneapi-src.github.io/ishmem">Intel® SHMEM specification</a> © 2023 is licensed under <a href="http://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"></a></p></p>
 </section>
 
 
@@ -416,13 +434,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
                   <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="compiling_and_running_programs.html"
+       href="memory_ordering.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Compiling and Running Programs</p>
+        <p class="prev-next-title">Memory Ordering</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="writing_programs.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Writing Intel® SHMEM Programs</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -439,11 +466,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Acknowledgements</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#notices-disclaimers">Notices &amp; Disclaimers</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#copyright">Copyright</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-print-msg-type-t">ISHMEMX_PRINT_MSG_TYPE_T</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-print">ISHMEMX_PRINT</a></li>
 </ul>
-
   </nav></div>
 
 </div></div>
