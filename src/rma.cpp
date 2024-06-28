@@ -2,11 +2,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "internal.h"
-#include "impl_proxy.h"
+#include "ishmem/err.h"
+#include "proxy_impl.h"
 #include "runtime.h"
 #include "runtime_ipc.h"
 #include "rma_impl.h"
+#include "memory.h"
 
 /* Put */
 template <typename T>
@@ -48,6 +49,14 @@ void ishmemx_putmem_work_group(void *dest, const void *src, size_t nelems, int p
     template void ishmemx_##TYPENAME##_put_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, size_t nelems, int pe, const sycl::group<3> &grp);    \
     template void ishmemx_##TYPENAME##_put_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nelems, int pe, const sycl::sub_group &grp);  \
     template <typename Group> void ishmemx_##TYPENAME##_put_work_group(TYPE *dest, const TYPE *src, size_t nelems, int pe, const Group &grp) { ishmemx_put_work_group(dest, src, nelems, pe, grp); }
+
+#define ISHMEMI_API_IMPL_PUTSIZE(SIZE, ELEMSIZE)                                                                                                                                        \
+    void ishmem_put##SIZE(void *dest, const void *src, size_t nelems, int pe) { ishmem_put((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe); }  \
+    template void ishmemx_put##SIZE##_work_group<sycl::group<1>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<1> &grp);                                        \
+    template void ishmemx_put##SIZE##_work_group<sycl::group<2>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<2> &grp);                                        \
+    template void ishmemx_put##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<3> &grp);                                        \
+    template void ishmemx_put##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, size_t nelems, int pe, const sycl::sub_group &grp);                                      \
+    template <typename Group> void ishmemx_put##SIZE##_work_group(void *dest, const void *src, size_t nelems, int pe, const Group &grp) { ishmemx_put_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe, grp); }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_PUT(float, float)
@@ -73,6 +82,11 @@ ISHMEMI_API_IMPL_PUT(uint32, uint32_t)
 ISHMEMI_API_IMPL_PUT(uint64, uint64_t)
 ISHMEMI_API_IMPL_PUT(size, size_t)
 ISHMEMI_API_IMPL_PUT(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_PUTSIZE(8, 8)
+ISHMEMI_API_IMPL_PUTSIZE(16, 16)
+ISHMEMI_API_IMPL_PUTSIZE(32, 32)
+ISHMEMI_API_IMPL_PUTSIZE(64, 64)
+ISHMEMI_API_IMPL_PUTSIZE(128, 64)
 
 /* IPut */
 template <typename T>
@@ -88,26 +102,25 @@ void ishmem_iput(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst, size_t nel
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
+        if ((local_index != 0) && !ISHMEM_STRIDED_RMA_CUTOVER) {
             stride_copy(ISHMEMI_ADJUST_PTR(T, local_index, dest), src, dst, sst, nelems);
             return;
         }
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = IPUT,
-        .type = UINT8,
-        .dest_pe = pe,
-        .src = src,
-        .dst = dest,
-        .nelems = nbytes,
-        .dst_stride = dst,
-        .src_stride = sst,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.src = src;
+    req.dst = dest;
+    req.nelems = nelems;
+    req.dst_stride = dst;
+    req.src_stride = sst;
+    req.op = IPUT;
+    req.type = ishmemi_proxy_get_base_type<T>();
 
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
 #else
     ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
@@ -126,23 +139,22 @@ void ishmemx_iput_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst
                 validate_parameters(pe, (void *) dest, (void *) src, nbytes, dst, sst);
         }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+        if ((local_index != 0) && !ISHMEM_STRIDED_RMA_GROUP_CUTOVER) {
             stride_copy_work_group(ISHMEMI_ADJUST_PTR(T, local_index, dest), src, dst, sst, nelems,
                                    grp);
         } else {
             if (grp.leader()) {
-                ishmemi_request_t req = {
-                    .op = IPUT,
-                    .type = UINT8,
-                    .dest_pe = pe,
-                    .src = src,
-                    .dst = dest,
-                    .nelems = nbytes,
-                    .dst_stride = dst,
-                    .src_stride = sst,
-                };
+                ishmemi_request_t req;
+                req.dest_pe = pe;
+                req.src = src;
+                req.dst = dest;
+                req.nelems = nelems;
+                req.dst_stride = dst;
+                req.src_stride = sst;
+                req.op = IPUT;
+                req.type = ishmemi_proxy_get_base_type<T>();
 
-                ishmemi_proxy_blocking_request(&req);
+                ishmemi_proxy_blocking_request(req);
             }
         }
         sycl::group_barrier(grp);
@@ -159,6 +171,14 @@ void ishmemx_iput_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst
     template void ishmemx_##TYPENAME##_iput_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<3> &grp);    \
     template void ishmemx_##TYPENAME##_iput_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::sub_group &grp);  \
     template <typename Group> void ishmemx_##TYPENAME##_iput_work_group(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group &grp) { ishmemx_iput_work_group(dest, src, dst, sst, nelems, pe, grp); }
+
+#define ISHMEMI_API_IMPL_IPUTSIZE(SIZE, ELEMSIZE)                                                                                                                                                                                 \
+    void ishmem_iput##SIZE(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe) { ishmem_iput((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst, sst, nelems * (SIZE / ELEMSIZE), pe); }  \
+    template void ishmemx_iput##SIZE##_work_group<sycl::group<1>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<1> &grp);                                                   \
+    template void ishmemx_iput##SIZE##_work_group<sycl::group<2>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<2> &grp);                                                   \
+    template void ishmemx_iput##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<3> &grp);                                                   \
+    template void ishmemx_iput##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::sub_group &grp);                                                 \
+    template <typename Group> void ishmemx_iput##SIZE##_work_group(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group &grp) { ishmemx_iput_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst, sst, nelems * (SIZE / ELEMSIZE), pe, grp); }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_IPUT(float, float)
@@ -184,6 +204,136 @@ ISHMEMI_API_IMPL_IPUT(uint32, uint32_t)
 ISHMEMI_API_IMPL_IPUT(uint64, uint64_t)
 ISHMEMI_API_IMPL_IPUT(size, size_t)
 ISHMEMI_API_IMPL_IPUT(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_IPUTSIZE(8, 8)
+ISHMEMI_API_IMPL_IPUTSIZE(16, 16)
+ISHMEMI_API_IMPL_IPUTSIZE(32, 32)
+ISHMEMI_API_IMPL_IPUTSIZE(64, 64)
+ISHMEMI_API_IMPL_IPUTSIZE(128, 64)
+
+/* IBPut */
+template <typename T>
+void ishmemx_ibput(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize,
+                   size_t nblocks, int pe)
+{
+    size_t nbytes = nblocks * bsize * sizeof(T);
+
+    if constexpr (enable_error_checking) {
+        validate_parameters(pe, (void *) dest, (void *) src, nbytes, dst, sst, bsize);
+    }
+
+    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+
+    /* Node-local, on-device implementation */
+    if constexpr (ishmemi_is_device) {
+        if ((local_index != 0) && !ISHMEM_STRIDED_RMA_CUTOVER) {
+            stride_bcopy_push(ISHMEMI_ADJUST_PTR(T, local_index, dest), src, dst, sst, bsize,
+                              nblocks);
+            return;
+        }
+    }
+
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.src = src;
+    req.dst = dest;
+    req.nelems = nblocks;
+    req.dst_stride = dst;
+    req.src_stride = sst;
+    req.bsize = bsize;
+    req.op = IBPUT;
+    req.type = ishmemi_proxy_get_base_type<T>();
+
+#if __SYCL_DEVICE_ONLY__
+    ishmemi_proxy_blocking_request(req);
+#else
+    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+#endif
+}
+
+/* IBPut (work-group) */
+template <typename T, typename Group>
+void ishmemx_ibput_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize,
+                              size_t nblocks, int pe, const Group &grp)
+{
+    if constexpr (ishmemi_is_device) {
+        size_t nbytes = nblocks * bsize * sizeof(T);
+        sycl::group_barrier(grp);
+        if constexpr (enable_error_checking) {
+            if (grp.leader())
+                validate_parameters(pe, (void *) dest, (void *) src, nbytes, dst, sst, bsize);
+        }
+        uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+        if ((local_index != 0) && !ISHMEM_STRIDED_RMA_GROUP_CUTOVER) {
+            stride_bcopy_work_group_push(ISHMEMI_ADJUST_PTR(T, local_index, dest), src, dst, sst,
+                                         bsize, nblocks, grp);
+        } else {
+            if (grp.leader()) {
+                ishmemi_request_t req;
+                req.dest_pe = pe;
+                req.src = src;
+                req.dst = dest;
+                req.nelems = nblocks;
+                req.dst_stride = dst;
+                req.src_stride = sst;
+                req.bsize = bsize;
+                req.op = IBPUT;
+                req.type = ishmemi_proxy_get_base_type<T>();
+
+                ishmemi_proxy_blocking_request(req);
+            }
+        }
+        sycl::group_barrier(grp);
+    } else {
+        RAISE_ERROR_MSG("ishmemx_ibput_work_group not callable from host\n");
+    }
+}
+
+/* clang-format off */
+#define ISHMEMI_API_IMPL_IBPUT(TYPENAME, TYPE)                                                                                                                                                          \
+    void ishmemx_##TYPENAME##_ibput(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe) { ishmemx_ibput(dest, src, dst, sst, bsize, nblocks, pe); }        \
+    template void ishmemx_##TYPENAME##_ibput_work_group<sycl::group<1>>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<1> &grp);    \
+    template void ishmemx_##TYPENAME##_ibput_work_group<sycl::group<2>>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<2> &grp);    \
+    template void ishmemx_##TYPENAME##_ibput_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<3> &grp);    \
+    template void ishmemx_##TYPENAME##_ibput_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::sub_group &grp);  \
+    template <typename Group> void ishmemx_##TYPENAME##_ibput_work_group(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group &grp) { ishmemx_ibput_work_group(dest, src, dst, sst, bsize, nblocks, pe, grp); }
+
+#define ISHMEMI_API_IMPL_IBPUTSIZE(SIZE, ELEMSIZE)                                                                                                                                                                                                                                                   \
+    void ishmemx_ibput##SIZE(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe) { ishmemx_ibput((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst * (SIZE / ELEMSIZE), sst * (SIZE / ELEMSIZE), bsize * (SIZE / ELEMSIZE), nblocks, pe); }  \
+    template void ishmemx_ibput##SIZE##_work_group<sycl::group<1>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<1> &grp);                                                                                                      \
+    template void ishmemx_ibput##SIZE##_work_group<sycl::group<2>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<2> &grp);                                                                                                      \
+    template void ishmemx_ibput##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<3> &grp);                                                                                                      \
+    template void ishmemx_ibput##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::sub_group &grp);                                                                                                    \
+    template <typename Group> void ishmemx_ibput##SIZE##_work_group(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group &grp) { ishmemx_ibput_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst * (SIZE / ELEMSIZE), sst * (SIZE / ELEMSIZE), bsize * (SIZE / ELEMSIZE), nblocks, pe, grp); }
+/* clang-format on */
+
+ISHMEMI_API_IMPL_IBPUT(float, float)
+ISHMEMI_API_IMPL_IBPUT(double, double)
+ISHMEMI_API_IMPL_IBPUT(char, char)
+ISHMEMI_API_IMPL_IBPUT(schar, signed char)
+ISHMEMI_API_IMPL_IBPUT(short, short)
+ISHMEMI_API_IMPL_IBPUT(int, int)
+ISHMEMI_API_IMPL_IBPUT(long, long)
+ISHMEMI_API_IMPL_IBPUT(longlong, long long)
+ISHMEMI_API_IMPL_IBPUT(uchar, unsigned char)
+ISHMEMI_API_IMPL_IBPUT(ushort, unsigned short)
+ISHMEMI_API_IMPL_IBPUT(uint, unsigned int)
+ISHMEMI_API_IMPL_IBPUT(ulong, unsigned long)
+ISHMEMI_API_IMPL_IBPUT(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_IBPUT(int8, int8_t)
+ISHMEMI_API_IMPL_IBPUT(int16, int16_t)
+ISHMEMI_API_IMPL_IBPUT(int32, int32_t)
+ISHMEMI_API_IMPL_IBPUT(int64, int64_t)
+ISHMEMI_API_IMPL_IBPUT(uint8, uint8_t)
+ISHMEMI_API_IMPL_IBPUT(uint16, uint16_t)
+ISHMEMI_API_IMPL_IBPUT(uint32, uint32_t)
+ISHMEMI_API_IMPL_IBPUT(uint64, uint64_t)
+ISHMEMI_API_IMPL_IBPUT(size, size_t)
+ISHMEMI_API_IMPL_IBPUT(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_IBPUTSIZE(8, 8)
+ISHMEMI_API_IMPL_IBPUTSIZE(16, 16)
+ISHMEMI_API_IMPL_IBPUTSIZE(32, 32)
+ISHMEMI_API_IMPL_IBPUTSIZE(64, 64)
+ISHMEMI_API_IMPL_IBPUTSIZE(128, 64)
 
 /* P */
 template <typename T>
@@ -205,17 +355,16 @@ void ishmem_p(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = P,
-        .type = ishmemi_proxy_get_base_type<T>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = P;
+    req.type = ishmemi_proxy_get_base_type<T>();
 
     ishmemi_proxy_set_field_value<T, true, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
 #else
     int ret = 1;
     if (local_index != 0) ret = ishmemi_ipc_put(dest, &val, 1, pe);
@@ -292,6 +441,14 @@ void ishmemx_getmem_work_group(void *dest, const void *src, size_t nelems, int p
     template void ishmemx_##TYPENAME##_get_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, size_t nelems, int pe, const sycl::group<3> &grp);    \
     template void ishmemx_##TYPENAME##_get_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nelems, int pe, const sycl::sub_group &grp);  \
     template <typename Group> void ishmemx_##TYPENAME##_get_work_group(TYPE *dest, const TYPE *src, size_t nelems, int pe, const Group &grp) { ishmemx_get_work_group(dest, src, nelems, pe, grp); }
+
+#define ISHMEMI_API_IMPL_GETSIZE(SIZE, ELEMSIZE)                                                                                                                                    \
+    void ishmem_get##SIZE(void *dest, const void *src, size_t nelems, int pe) { ishmem_get((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe); }  \
+    template void ishmemx_get##SIZE##_work_group<sycl::group<1>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<1> &grp);                                    \
+    template void ishmemx_get##SIZE##_work_group<sycl::group<2>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<2> &grp);                                    \
+    template void ishmemx_get##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<3> &grp);                                    \
+    template void ishmemx_get##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, size_t nelems, int pe, const sycl::sub_group &grp);                                  \
+    template <typename Group> void ishmemx_get##SIZE##_work_group(void *dest, const void *src, size_t nelems, int pe, const Group &grp) { ishmemx_get_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe, grp); }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_GET(float, float)
@@ -317,6 +474,11 @@ ISHMEMI_API_IMPL_GET(uint32, uint32_t)
 ISHMEMI_API_IMPL_GET(uint64, uint64_t)
 ISHMEMI_API_IMPL_GET(size, size_t)
 ISHMEMI_API_IMPL_GET(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_GETSIZE(8, 8)
+ISHMEMI_API_IMPL_GETSIZE(16, 16)
+ISHMEMI_API_IMPL_GETSIZE(32, 32)
+ISHMEMI_API_IMPL_GETSIZE(64, 64)
+ISHMEMI_API_IMPL_GETSIZE(128, 64)
 
 /* IGet */
 template <typename T>
@@ -332,26 +494,25 @@ void ishmem_iget(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst, size_t nel
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
+        if ((local_index != 0) && !ISHMEM_STRIDED_RMA_CUTOVER) {
             stride_copy(dest, ISHMEMI_ADJUST_PTR(T, local_index, src), dst, sst, nelems);
             return;
         }
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = IGET,
-        .type = UINT8,
-        .dest_pe = pe,
-        .src = src,
-        .dst = dest,
-        .nelems = nbytes,
-        .dst_stride = dst,
-        .src_stride = sst,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.src = src;
+    req.dst = dest;
+    req.nelems = nelems;
+    req.dst_stride = dst;
+    req.src_stride = sst;
+    req.op = IGET;
+    req.type = ishmemi_proxy_get_base_type<T>();
 
 #ifdef __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
 #else
     ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
@@ -370,23 +531,22 @@ void ishmemx_iget_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst
                 validate_parameters(pe, (void *) src, (void *) dest, nbytes, dst, sst);
         }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+        if ((local_index != 0) && !ISHMEM_STRIDED_RMA_GROUP_CUTOVER) {
             stride_copy_work_group(dest, ISHMEMI_ADJUST_PTR(T, local_index, src), dst, sst, nelems,
                                    grp);
         } else {
             if (grp.leader()) {
-                ishmemi_request_t req = {
-                    .op = IGET,
-                    .type = UINT8,
-                    .dest_pe = pe,
-                    .src = src,
-                    .dst = dest,
-                    .nelems = nbytes,
-                    .dst_stride = dst,
-                    .src_stride = sst,
-                };
+                ishmemi_request_t req;
+                req.dest_pe = pe;
+                req.src = src;
+                req.dst = dest;
+                req.nelems = nelems;
+                req.dst_stride = dst;
+                req.src_stride = sst;
+                req.op = IGET;
+                req.type = ishmemi_proxy_get_base_type<T>();
 
-                ishmemi_proxy_blocking_request(&req);
+                ishmemi_proxy_blocking_request(req);
             }
         }
         sycl::group_barrier(grp);
@@ -403,6 +563,14 @@ void ishmemx_iget_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst
     template void ishmemx_##TYPENAME##_iget_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<3> &grp);    \
     template void ishmemx_##TYPENAME##_iget_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::sub_group &grp);  \
     template <typename Group> void ishmemx_##TYPENAME##_iget_work_group(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group &grp) { ishmemx_iget_work_group(dest, src, dst, sst, nelems, pe, grp); }
+
+#define ISHMEMI_API_IMPL_IGETSIZE(SIZE, ELEMSIZE)                                                                                                                                                                                 \
+    void ishmem_iget##SIZE(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe) { ishmem_iget((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst, sst, nelems * (SIZE / ELEMSIZE), pe); }  \
+    template void ishmemx_iget##SIZE##_work_group<sycl::group<1>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<1> &grp);                                                   \
+    template void ishmemx_iget##SIZE##_work_group<sycl::group<2>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<2> &grp);                                                   \
+    template void ishmemx_iget##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<3> &grp);                                                   \
+    template void ishmemx_iget##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::sub_group &grp);                                                 \
+    template <typename Group> void ishmemx_iget##SIZE##_work_group(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group &grp) { ishmemx_iget_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst, sst, nelems * (SIZE / ELEMSIZE), pe, grp); }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_IGET(float, float)
@@ -428,6 +596,136 @@ ISHMEMI_API_IMPL_IGET(uint32, uint32_t)
 ISHMEMI_API_IMPL_IGET(uint64, uint64_t)
 ISHMEMI_API_IMPL_IGET(size, size_t)
 ISHMEMI_API_IMPL_IGET(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_IGETSIZE(8, 8)
+ISHMEMI_API_IMPL_IGETSIZE(16, 16)
+ISHMEMI_API_IMPL_IGETSIZE(32, 32)
+ISHMEMI_API_IMPL_IGETSIZE(64, 64)
+ISHMEMI_API_IMPL_IGETSIZE(128, 64)
+
+/* IBGet */
+template <typename T>
+void ishmemx_ibget(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize,
+                   size_t nblocks, int pe)
+{
+    size_t nbytes = nblocks * bsize * sizeof(T);
+
+    if constexpr (enable_error_checking) {
+        validate_parameters(pe, (void *) src, (void *) dest, nbytes, dst, sst, bsize);
+    }
+
+    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+
+    /* Node-local, on-device implementation */
+    if constexpr (ishmemi_is_device) {
+        if ((local_index != 0) && !ISHMEM_STRIDED_RMA_CUTOVER) {
+            stride_bcopy_pull(dest, ISHMEMI_ADJUST_PTR(T, local_index, src), dst, sst, bsize,
+                              nblocks);
+            return;
+        }
+    }
+
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.src = src;
+    req.dst = dest;
+    req.nelems = nblocks;
+    req.dst_stride = dst;
+    req.src_stride = sst;
+    req.bsize = bsize;
+    req.op = IBGET;
+    req.type = ishmemi_proxy_get_base_type<T>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ishmemi_proxy_blocking_request(req);
+#else
+    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+#endif
+}
+
+/* IBGet (work-group) */
+template <typename T, typename Group>
+void ishmemx_ibget_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize,
+                              size_t nblocks, int pe, const Group &grp)
+{
+    if constexpr (ishmemi_is_device) {
+        size_t nbytes = nblocks * bsize * sizeof(T);
+        sycl::group_barrier(grp);
+        if constexpr (enable_error_checking) {
+            if (grp.leader())
+                validate_parameters(pe, (void *) src, (void *) dest, nbytes, dst, sst, bsize);
+        }
+        uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+        if ((local_index != 0) && !ISHMEM_STRIDED_RMA_GROUP_CUTOVER) {
+            stride_bcopy_work_group_pull(dest, ISHMEMI_ADJUST_PTR(T, local_index, src), dst, sst,
+                                         bsize, nblocks, grp);
+        } else {
+            if (grp.leader()) {
+                ishmemi_request_t req;
+                req.dest_pe = pe;
+                req.src = src;
+                req.dst = dest;
+                req.nelems = nblocks;
+                req.dst_stride = dst;
+                req.src_stride = sst;
+                req.bsize = bsize;
+                req.op = IBGET;
+                req.type = ishmemi_proxy_get_base_type<T>();
+
+                ishmemi_proxy_blocking_request(req);
+            }
+        }
+        sycl::group_barrier(grp);
+    } else {
+        RAISE_ERROR_MSG("ishmemx_ibget_work_group not callable from host\n");
+    }
+}
+
+/* clang-format off */
+#define ISHMEMI_API_IMPL_IBGET(TYPENAME, TYPE)                                                                                                                                                          \
+    void ishmemx_##TYPENAME##_ibget(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe) { ishmemx_ibget(dest, src, dst, sst, bsize, nblocks, pe); }        \
+    template void ishmemx_##TYPENAME##_ibget_work_group<sycl::group<1>>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<1> &grp);    \
+    template void ishmemx_##TYPENAME##_ibget_work_group<sycl::group<2>>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<2> &grp);    \
+    template void ishmemx_##TYPENAME##_ibget_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<3> &grp);    \
+    template void ishmemx_##TYPENAME##_ibget_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::sub_group &grp);  \
+    template <typename Group> void ishmemx_##TYPENAME##_ibget_work_group(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group &grp) { ishmemx_ibget_work_group(dest, src, dst, sst, bsize, nblocks, pe, grp); }
+
+#define ISHMEMI_API_IMPL_IBGETSIZE(SIZE, ELEMSIZE)                                                                                                                                                                                                                                                   \
+    void ishmemx_ibget##SIZE(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe) { ishmemx_ibget((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst * (SIZE / ELEMSIZE), sst * (SIZE / ELEMSIZE), bsize * (SIZE / ELEMSIZE), nblocks, pe); }  \
+    template void ishmemx_ibget##SIZE##_work_group<sycl::group<1>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<1> &grp);                                                                                                      \
+    template void ishmemx_ibget##SIZE##_work_group<sycl::group<2>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<2> &grp);                                                                                                      \
+    template void ishmemx_ibget##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<3> &grp);                                                                                                      \
+    template void ishmemx_ibget##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::sub_group &grp);                                                                                                    \
+    template <typename Group> void ishmemx_ibget##SIZE##_work_group(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group &grp) { ishmemx_ibget_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst * (SIZE / ELEMSIZE), sst * (SIZE / ELEMSIZE), bsize * (SIZE / ELEMSIZE), nblocks, pe, grp); }
+/* clang-format on */
+
+ISHMEMI_API_IMPL_IBGET(float, float)
+ISHMEMI_API_IMPL_IBGET(double, double)
+ISHMEMI_API_IMPL_IBGET(char, char)
+ISHMEMI_API_IMPL_IBGET(schar, signed char)
+ISHMEMI_API_IMPL_IBGET(short, short)
+ISHMEMI_API_IMPL_IBGET(int, int)
+ISHMEMI_API_IMPL_IBGET(long, long)
+ISHMEMI_API_IMPL_IBGET(longlong, long long)
+ISHMEMI_API_IMPL_IBGET(uchar, unsigned char)
+ISHMEMI_API_IMPL_IBGET(ushort, unsigned short)
+ISHMEMI_API_IMPL_IBGET(uint, unsigned int)
+ISHMEMI_API_IMPL_IBGET(ulong, unsigned long)
+ISHMEMI_API_IMPL_IBGET(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_IBGET(int8, int8_t)
+ISHMEMI_API_IMPL_IBGET(int16, int16_t)
+ISHMEMI_API_IMPL_IBGET(int32, int32_t)
+ISHMEMI_API_IMPL_IBGET(int64, int64_t)
+ISHMEMI_API_IMPL_IBGET(uint8, uint8_t)
+ISHMEMI_API_IMPL_IBGET(uint16, uint16_t)
+ISHMEMI_API_IMPL_IBGET(uint32, uint32_t)
+ISHMEMI_API_IMPL_IBGET(uint64, uint64_t)
+ISHMEMI_API_IMPL_IBGET(size, size_t)
+ISHMEMI_API_IMPL_IBGET(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_IBGETSIZE(8, 8)
+ISHMEMI_API_IMPL_IBGETSIZE(16, 16)
+ISHMEMI_API_IMPL_IBGETSIZE(32, 32)
+ISHMEMI_API_IMPL_IBGETSIZE(64, 64)
+ISHMEMI_API_IMPL_IBGETSIZE(128, 64)
 
 /* G */
 template <typename T>
@@ -450,15 +748,14 @@ T ishmem_g(T *src, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = G,
-        .type = ishmemi_proxy_get_base_type<T>(),
-        .dest_pe = pe,
-        .src = src,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.src = src;
+    req.op = G;
+    req.type = ishmemi_proxy_get_base_type<T>();
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(&req);
+    ret = ishmemi_proxy_blocking_request_return<T>(req);
 #else
     int retval = 1;
     if (local_index != 0) retval = ishmemi_ipc_get(src, &ret, 1, pe);

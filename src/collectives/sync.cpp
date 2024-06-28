@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "sync_impl.h"
+#include "collectives/sync_impl.h"
 
 void ishmem_sync_all()
 {
@@ -34,6 +34,32 @@ void ishmemx_sync_all_work_group(const Group &grp)
         sycl::group_barrier(grp);
     } else {
         RAISE_ERROR_MSG("ishmemx_sync_all_work_group not callable from host\n");
+    }
+}
+
+ISHMEM_DEVICE_ATTRIBUTES int ishmemi_team_sync(ishmemi_team_t *team)
+{
+    ishmemi_team_sync_atomic_exchange(team);
+    return 0;
+}
+
+template void ishmemx_team_sync_work_group<sycl::group<1>>(ishmem_team_t team,
+                                                           const sycl::group<1> &grp);
+template void ishmemx_team_sync_work_group<sycl::group<2>>(ishmem_team_t team,
+                                                           const sycl::group<2> &grp);
+template void ishmemx_team_sync_work_group<sycl::group<3>>(ishmem_team_t team,
+                                                           const sycl::group<3> &grp);
+template void ishmemx_team_sync_work_group<sycl::sub_group>(ishmem_team_t team,
+                                                            const sycl::sub_group &grp);
+template <typename Group>
+void ishmemx_team_sync_work_group(ishmem_team_t team, const Group &grp)
+{
+    if constexpr (ishmemi_is_device) {
+        sycl::group_barrier(grp);
+        if (grp.leader()) ishmemi_team_sync(global_info->team_pool[team]);
+        sycl::group_barrier(grp);
+    } else {
+        RAISE_ERROR_MSG("ishmemx_team_sync_work_group not callable from host\n");
     }
 }
 

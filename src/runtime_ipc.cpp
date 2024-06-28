@@ -1,9 +1,10 @@
 /* Copyright (C) 2023 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include "internal.h"
+#include "ishmem/err.h"
 #include "accelerator.h"
 #include "runtime_ipc.h"
+#include "memory.h"
 
 int ishmemi_ipc_put_v(int nitems, struct put_item *items)
 {
@@ -22,7 +23,7 @@ int ishmemi_ipc_put_v(int nitems, struct put_item *items)
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
     for (size_t i = 0; i < nitems; i += 1) {
-        void *ipc_dst = get_ipc_buffer((int) items[i].pe, (void *) items[i].dst);
+        void *ipc_dst = get_ipc_buffer(items[i].pe, (void *) items[i].dst);
         if (ipc_dst == nullptr) return (1); /* dest is not ipc-able */
 
         ZE_CHECK(zeCommandListAppendMemoryCopy(cmd_list, ipc_dst, items[i].src, items[i].size,

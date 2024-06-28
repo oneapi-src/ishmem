@@ -27,7 +27,9 @@ static int test_ishmem_align(size_t alignment)
 
 int main()
 {
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     // Test ishmem_align for different values of alignment
     for (size_t alignment = ALIGNMENT_TEST_START; alignment <= ALIGNMENT_TEST_END; alignment *= 2) {

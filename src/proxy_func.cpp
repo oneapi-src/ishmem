@@ -4,7 +4,8 @@
 
 #include "proxy_func.h"
 #include "ishmem.h"
-#include "impl_proxy.h"  // ISHMEMI_RUNTIME_REQUEST_HELPER
+#include "proxy_impl.h"
+#include "timestamp.h"
 
 ishmemi_runtime_proxy_func_t **ishmemi_upcall_funcs;
 
@@ -27,476 +28,476 @@ void ishmemi_proxy_uint8_get_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t
 void ishmemi_proxy_uint8_alltoall_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_alltoall(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_alltoall(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint8_broadcast_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_broadcast(dest, src, nelems, root);
+    comp->completion.ret.i = ishmem_uint8_broadcast(team->psync_idx, dest, src, nelems, root);
 }
 
 void ishmemi_proxy_uint8_collect_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_collect(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_collect(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint8_fcollect_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_fcollect(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_fcollect(team->psync_idx, dest, src, nelems);
 }
 
 /* Reductions */
 void ishmemi_proxy_uint8_and_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_and_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_and_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint8_or_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_or_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_or_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint8_xor_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_xor_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_xor_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint8_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint8_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint8_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint8_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint8_t, ui8);
-    comp->completion.ret.i = ishmem_uint8_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint8_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint16_and_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint16_t, ui16);
-    comp->completion.ret.i = ishmem_uint16_and_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint16_and_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint16_or_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint16_t, ui16);
-    comp->completion.ret.i = ishmem_uint16_or_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint16_or_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint16_xor_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint16_t, ui16);
-    comp->completion.ret.i = ishmem_uint16_xor_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint16_xor_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint16_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint16_t, ui16);
-    comp->completion.ret.i = ishmem_uint16_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint16_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint16_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint16_t, ui16);
-    comp->completion.ret.i = ishmem_uint16_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint16_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint16_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint16_t, ui16);
-    comp->completion.ret.i = ishmem_uint16_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint16_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint16_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint16_t, ui16);
-    comp->completion.ret.i = ishmem_uint16_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint16_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint32_and_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint32_t, ui32);
-    comp->completion.ret.i = ishmem_uint32_and_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint32_and_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint32_or_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint32_t, ui32);
-    comp->completion.ret.i = ishmem_uint32_or_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint32_or_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint32_xor_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint32_t, ui32);
-    comp->completion.ret.i = ishmem_uint32_xor_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint32_xor_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint32_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint32_t, ui32);
-    comp->completion.ret.i = ishmem_uint32_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint32_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint32_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint32_t, ui32);
-    comp->completion.ret.i = ishmem_uint32_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint32_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint32_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint32_t, ui32);
-    comp->completion.ret.i = ishmem_uint32_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint32_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint32_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint32_t, ui32);
-    comp->completion.ret.i = ishmem_uint32_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint32_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint64_and_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint64_t, ui64);
-    comp->completion.ret.i = ishmem_uint64_and_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint64_and_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint64_or_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint64_t, ui64);
-    comp->completion.ret.i = ishmem_uint64_or_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint64_or_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint64_xor_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint64_t, ui64);
-    comp->completion.ret.i = ishmem_uint64_xor_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint64_xor_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint64_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint64_t, ui64);
-    comp->completion.ret.i = ishmem_uint64_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint64_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint64_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint64_t, ui64);
-    comp->completion.ret.i = ishmem_uint64_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint64_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint64_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint64_t, ui64);
-    comp->completion.ret.i = ishmem_uint64_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint64_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_uint64_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(uint64_t, ui64);
-    comp->completion.ret.i = ishmem_uint64_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_uint64_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_ulonglong_and_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(unsigned long long, ull);
-    comp->completion.ret.i = ishmem_ulonglong_and_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_ulonglong_and_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_ulonglong_or_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(unsigned long long, ull);
-    comp->completion.ret.i = ishmem_ulonglong_or_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_ulonglong_or_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_ulonglong_xor_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(unsigned long long, ull);
-    comp->completion.ret.i = ishmem_ulonglong_xor_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_ulonglong_xor_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_ulonglong_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(unsigned long long, ull);
-    comp->completion.ret.i = ishmem_ulonglong_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_ulonglong_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_ulonglong_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(unsigned long long, ull);
-    comp->completion.ret.i = ishmem_ulonglong_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_ulonglong_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_ulonglong_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(unsigned long long, ull);
-    comp->completion.ret.i = ishmem_ulonglong_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_ulonglong_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_ulonglong_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(unsigned long long, ull);
-    comp->completion.ret.i = ishmem_ulonglong_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_ulonglong_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int8_and_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int8_t, i8);
-    comp->completion.ret.i = ishmem_int8_and_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int8_and_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int8_or_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int8_t, i8);
-    comp->completion.ret.i = ishmem_int8_or_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int8_or_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int8_xor_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int8_t, i8);
-    comp->completion.ret.i = ishmem_int8_xor_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int8_xor_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int8_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int8_t, i8);
-    comp->completion.ret.i = ishmem_int8_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int8_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int8_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int8_t, i8);
-    comp->completion.ret.i = ishmem_int8_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int8_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int8_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int8_t, i8);
-    comp->completion.ret.i = ishmem_int8_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int8_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int8_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int8_t, i8);
-    comp->completion.ret.i = ishmem_int8_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int8_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int16_and_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int16_t, i16);
-    comp->completion.ret.i = ishmem_int16_and_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int16_and_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int16_or_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int16_t, i16);
-    comp->completion.ret.i = ishmem_int16_or_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int16_or_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int16_xor_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int16_t, i16);
-    comp->completion.ret.i = ishmem_int16_xor_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int16_xor_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int16_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int16_t, i16);
-    comp->completion.ret.i = ishmem_int16_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int16_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int16_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int16_t, i16);
-    comp->completion.ret.i = ishmem_int16_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int16_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int16_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int16_t, i16);
-    comp->completion.ret.i = ishmem_int16_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int16_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int16_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int16_t, i16);
-    comp->completion.ret.i = ishmem_int16_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int16_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int32_and_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int32_t, i32);
-    comp->completion.ret.i = ishmem_int32_and_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int32_and_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int32_or_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int32_t, i32);
-    comp->completion.ret.i = ishmem_int32_or_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int32_or_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int32_xor_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int32_t, i32);
-    comp->completion.ret.i = ishmem_int32_xor_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int32_xor_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int32_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int32_t, i32);
-    comp->completion.ret.i = ishmem_int32_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int32_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int32_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int32_t, i32);
-    comp->completion.ret.i = ishmem_int32_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int32_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int32_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int32_t, i32);
-    comp->completion.ret.i = ishmem_int32_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int32_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int32_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int32_t, i32);
-    comp->completion.ret.i = ishmem_int32_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int32_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int64_and_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int64_t, i64);
-    comp->completion.ret.i = ishmem_int64_and_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int64_and_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int64_or_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int64_t, i64);
-    comp->completion.ret.i = ishmem_int64_or_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int64_or_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int64_xor_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int64_t, i64);
-    comp->completion.ret.i = ishmem_int64_xor_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int64_xor_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int64_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int64_t, i64);
-    comp->completion.ret.i = ishmem_int64_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int64_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int64_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int64_t, i64);
-    comp->completion.ret.i = ishmem_int64_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int64_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int64_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int64_t, i64);
-    comp->completion.ret.i = ishmem_int64_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int64_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_int64_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(int64_t, i64);
-    comp->completion.ret.i = ishmem_int64_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_int64_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_longlong_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(long long, ll);
-    comp->completion.ret.i = shmem_longlong_max_reduce(team, dest, src, nelems);
+    comp->completion.ret.i = ishmem_longlong_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_longlong_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(long long, ll);
-    comp->completion.ret.i = shmem_longlong_min_reduce(team, dest, src, nelems);
+    comp->completion.ret.i = ishmem_longlong_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_longlong_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(long long, ll);
-    comp->completion.ret.i = shmem_longlong_sum_reduce(team, dest, src, nelems);
+    comp->completion.ret.i = ishmem_longlong_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_longlong_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(long long, ll);
-    comp->completion.ret.i = shmem_longlong_prod_reduce(team, dest, src, nelems);
+    comp->completion.ret.i = ishmem_longlong_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_float_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(float, f);
-    comp->completion.ret.i = ishmem_float_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_float_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_float_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(float, f);
-    comp->completion.ret.i = ishmem_float_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_float_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_float_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(float, f);
-    comp->completion.ret.i = ishmem_float_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_float_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_float_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(float, f);
-    comp->completion.ret.i = ishmem_float_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_float_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_double_max_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(double, ld);
-    comp->completion.ret.i = ishmem_double_max_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_double_max_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_double_min_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(double, ld);
-    comp->completion.ret.i = ishmem_double_min_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_double_min_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_double_sum_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(double, ld);
-    comp->completion.ret.i = ishmem_double_sum_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_double_sum_reduce(team->psync_idx, dest, src, nelems);
 }
 
 void ishmemi_proxy_double_prod_reduce_up(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
     ISHMEMI_RUNTIME_REQUEST_HELPER(double, ld);
-    comp->completion.ret.i = ishmem_double_prod_reduce(dest, src, nelems);
+    comp->completion.ret.i = ishmem_double_prod_reduce(team->psync_idx, dest, src, nelems);
 }
 
 /* misc functions */
@@ -517,37 +518,21 @@ void ishmemi_runtime_proxy_timestamp(ishmemi_request_t *msg, ishmemi_ringcomplet
 
 void ishmemi_runtime_print(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
 {
-    switch (msg->dest_pe) {
-        case ishmemx_print_msg_type_t::DEBUG:
-            ISHMEM_DEBUG_MSG("%s", (char *) msg->src);
-            break;
-        case ishmemx_print_msg_type_t::WARNING:
-            ISHMEM_WARN_MSG("%s", (char *) msg->src);
-            break;
-        case ishmemx_print_msg_type_t::ERROR:
-            RAISE_ERROR_MSG("%s", (char *) msg->src);
-            break;
-        case ishmemx_print_msg_type_t::STDOUT:
-            printf("%s", (char *) msg->src);
-            fflush(stdout);
-            break;
-        case ishmemx_print_msg_type_t::STDERR:
-            fprintf(stderr, "%s", (char *) msg->src);
-            fflush(stderr);
-            break;
-    }
+    ishmemi_message_t *printmsg = (ishmemi_message_t *) msg->src;
+    ishmemx_print(printmsg->file, printmsg->line, printmsg->func, printmsg->message,
+                  (ishmemx_print_msg_type_t) msg->dest_pe);
 }
 
 int ishmemi_proxy_func_init()
 {
     ishmemi_upcall_funcs = (ishmemi_runtime_proxy_func_t **) malloc(
         sizeof(ishmemi_runtime_proxy_func_t *) * ISHMEMI_OP_END);
-    ISHMEM_CHECK_GOTO_MSG(ishmemi_proxy_funcs == nullptr, fn_exit,
+    ISHMEM_CHECK_GOTO_MSG(ishmemi_upcall_funcs == nullptr, fn_exit,
                           "Allocation of ishmemi_upcall_funcs failed\n");
     for (int i = 0; i < ISHMEMI_OP_END; ++i) {
         ishmemi_upcall_funcs[i] = (ishmemi_runtime_proxy_func_t *) malloc(
             sizeof(ishmemi_runtime_proxy_func_t) * ishmemi_runtime_proxy_func_num_types);
-        ISHMEM_CHECK_GOTO_MSG(ishmemi_proxy_funcs == nullptr, fn_exit,
+        ISHMEM_CHECK_GOTO_MSG(ishmemi_upcall_funcs[i] == nullptr, fn_exit,
                               "Allocation of ishmemi_upcall_funcs row failed\n");
         for (int j = 0; j < ishmemi_runtime_proxy_func_num_types; ++j) {
             ishmemi_upcall_funcs[i][j] = ishmemi_proxy_funcs[i][j];

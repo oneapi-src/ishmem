@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "ishmem/err.h"
 #include "wrapper.h"
 #include "wrapper_openshmem.h"
 #include "env_utils.h"
-#include "internal.h"
 #include <shmem.h>
 #include <dlfcn.h>
 
@@ -21,7 +21,14 @@ void (*shmem_WRAPPER_finalize)(void);
 void (*shmem_WRAPPER_global_exit)(int);
 int (*shmem_WRAPPER_team_translate_pe)(shmem_team_t, int, shmem_team_t);
 int (*shmem_WRAPPER_team_n_pes)(shmem_team_t);
-void (*shmem_WRAPPER_team_sync)(shmem_team_t);
+int (*shmem_WRAPPER_team_my_pe)(shmem_team_t);
+int (*shmem_WRAPPER_team_split_strided)(shmem_team_t, int, int, int, const shmem_team_config_t *,
+                                        long, shmem_team_t *);
+int (*shmem_WRAPPER_team_split_2d)(shmem_team_t, int, const shmem_team_config_t *, long,
+                                   shmem_team_t *, const shmem_team_config_t *, long,
+                                   shmem_team_t *);
+void (*shmem_WRAPPER_team_destroy)(shmem_team_t);
+int (*shmem_WRAPPER_team_sync)(shmem_team_t);
 int (*shmem_WRAPPER_my_pe)(void);
 int (*shmem_WRAPPER_n_pes)(void);
 void *(*shmem_WRAPPER_malloc)(size_t);
@@ -32,6 +39,19 @@ int (*shmem_WRAPPER_runtime_get)(int pe, char *key, void *value, size_t valuelen
 /* RMA */
 void (*shmem_WRAPPER_uint8_put)(uint8_t *, const uint8_t *, size_t, int);
 void (*shmem_WRAPPER_uint8_iput)(uint8_t *, const uint8_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+void (*shmem_WRAPPER_uint16_iput)(uint16_t *, const uint16_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+void (*shmem_WRAPPER_uint32_iput)(uint32_t *, const uint32_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+void (*shmem_WRAPPER_uint64_iput)(uint64_t *, const uint64_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+void (*shmem_WRAPPER_ulonglong_iput)(unsigned long long *, const unsigned long long *, ptrdiff_t,
+                                     ptrdiff_t, size_t, int);
+void (*shmemx_WRAPPER_uint8_ibput)(uint8_t *, const uint8_t *, ptrdiff_t, ptrdiff_t, size_t, size_t,
+                                   int);
+void (*shmemx_WRAPPER_uint16_ibput)(uint16_t *, const uint16_t *, ptrdiff_t, ptrdiff_t, size_t,
+                                    size_t, int);
+void (*shmemx_WRAPPER_uint32_ibput)(uint32_t *, const uint32_t *, ptrdiff_t, ptrdiff_t, size_t,
+                                    size_t, int);
+void (*shmemx_WRAPPER_uint64_ibput)(uint64_t *, const uint64_t *, ptrdiff_t, ptrdiff_t, size_t,
+                                    size_t, int);
 void (*shmem_WRAPPER_uint8_p)(uint8_t *, uint8_t, int);
 void (*shmem_WRAPPER_uint16_p)(uint16_t *, uint16_t, int);
 void (*shmem_WRAPPER_uint32_p)(uint32_t *, uint32_t, int);
@@ -41,6 +61,19 @@ void (*shmem_WRAPPER_uint8_put_nbi)(uint8_t *, const uint8_t *, size_t, int);
 
 void (*shmem_WRAPPER_uint8_get)(uint8_t *, const uint8_t *, size_t, int);
 void (*shmem_WRAPPER_uint8_iget)(uint8_t *, const uint8_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+void (*shmem_WRAPPER_uint16_iget)(uint16_t *, const uint16_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+void (*shmem_WRAPPER_uint32_iget)(uint32_t *, const uint32_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+void (*shmem_WRAPPER_uint64_iget)(uint64_t *, const uint64_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+void (*shmem_WRAPPER_ulonglong_iget)(unsigned long long *, const unsigned long long *, ptrdiff_t,
+                                     ptrdiff_t, size_t, int);
+void (*shmemx_WRAPPER_uint8_ibget)(uint8_t *, const uint8_t *, ptrdiff_t, ptrdiff_t, size_t, size_t,
+                                   int);
+void (*shmemx_WRAPPER_uint16_ibget)(uint16_t *, const uint16_t *, ptrdiff_t, ptrdiff_t, size_t,
+                                    size_t, int);
+void (*shmemx_WRAPPER_uint32_ibget)(uint32_t *, const uint32_t *, ptrdiff_t, ptrdiff_t, size_t,
+                                    size_t, int);
+void (*shmemx_WRAPPER_uint64_ibget)(uint64_t *, const uint64_t *, ptrdiff_t, ptrdiff_t, size_t,
+                                    size_t, int);
 uint8_t (*shmem_WRAPPER_uint8_g)(const uint8_t *, int);
 uint16_t (*shmem_WRAPPER_uint16_g)(const uint16_t *, int);
 uint32_t (*shmem_WRAPPER_uint32_g)(const uint32_t *, int);
@@ -154,6 +187,76 @@ double (*shmem_WRAPPER_double_atomic_fetch)(const double *, int);
 void (*shmem_WRAPPER_double_atomic_set)(double *, double, int);
 double (*shmem_WRAPPER_double_atomic_swap)(double *, double, int);
 
+/* Non-blocking AMOs */
+void (*shmem_WRAPPER_uint32_atomic_fetch_nbi)(uint32_t *, const uint32_t *, int);
+void (*shmem_WRAPPER_int32_atomic_fetch_nbi)(int32_t *, const int32_t *, int);
+void (*shmem_WRAPPER_uint64_atomic_fetch_nbi)(uint64_t *, const uint64_t *, int);
+void (*shmem_WRAPPER_int64_atomic_fetch_nbi)(int64_t *, const int64_t *, int);
+void (*shmem_WRAPPER_ulonglong_atomic_fetch_nbi)(unsigned long long *, const unsigned long long *,
+                                                 int);
+void (*shmem_WRAPPER_longlong_atomic_fetch_nbi)(long long *, const long long *, int);
+void (*shmem_WRAPPER_float_atomic_fetch_nbi)(float *, const float *, int);
+void (*shmem_WRAPPER_double_atomic_fetch_nbi)(double *, const double *, int);
+
+void (*shmem_WRAPPER_uint32_atomic_compare_swap_nbi)(uint32_t *, uint32_t *, uint32_t, uint32_t,
+                                                     int);
+void (*shmem_WRAPPER_int32_atomic_compare_swap_nbi)(int32_t *, int32_t *, int32_t, int32_t, int);
+void (*shmem_WRAPPER_uint64_atomic_compare_swap_nbi)(uint64_t *, uint64_t *, uint64_t, uint64_t,
+                                                     int);
+void (*shmem_WRAPPER_int64_atomic_compare_swap_nbi)(int64_t *, int64_t *, int64_t, int64_t, int);
+void (*shmem_WRAPPER_ulonglong_atomic_compare_swap_nbi)(unsigned long long *, unsigned long long *,
+                                                        unsigned long long, unsigned long long,
+                                                        int);
+void (*shmem_WRAPPER_longlong_atomic_compare_swap_nbi)(long long *, long long *, long long,
+                                                       long long, int);
+
+void (*shmem_WRAPPER_uint32_atomic_swap_nbi)(uint32_t *, uint32_t *, uint32_t, int);
+void (*shmem_WRAPPER_int32_atomic_swap_nbi)(int32_t *, int32_t *, int32_t, int);
+void (*shmem_WRAPPER_uint64_atomic_swap_nbi)(uint64_t *, uint64_t *, uint64_t, int);
+void (*shmem_WRAPPER_int64_atomic_swap_nbi)(int64_t *, int64_t *, int64_t, int);
+void (*shmem_WRAPPER_ulonglong_atomic_swap_nbi)(unsigned long long *, unsigned long long *,
+                                                unsigned long long, int);
+void (*shmem_WRAPPER_longlong_atomic_swap_nbi)(long long *, long long *, long long, int);
+void (*shmem_WRAPPER_float_atomic_swap_nbi)(float *, float *, float, int);
+void (*shmem_WRAPPER_double_atomic_swap_nbi)(double *, double *, double, int);
+
+void (*shmem_WRAPPER_uint32_atomic_fetch_inc_nbi)(uint32_t *, uint32_t *, int);
+void (*shmem_WRAPPER_int32_atomic_fetch_inc_nbi)(int32_t *, int32_t *, int);
+void (*shmem_WRAPPER_uint64_atomic_fetch_inc_nbi)(uint64_t *, uint64_t *, int);
+void (*shmem_WRAPPER_int64_atomic_fetch_inc_nbi)(int64_t *, int64_t *, int);
+void (*shmem_WRAPPER_ulonglong_atomic_fetch_inc_nbi)(unsigned long long *, unsigned long long *,
+                                                     int);
+void (*shmem_WRAPPER_longlong_atomic_fetch_inc_nbi)(long long *, long long *, int);
+
+void (*shmem_WRAPPER_uint32_atomic_fetch_add_nbi)(uint32_t *, uint32_t *, uint32_t, int);
+void (*shmem_WRAPPER_int32_atomic_fetch_add_nbi)(int32_t *, int32_t *, int32_t, int);
+void (*shmem_WRAPPER_uint64_atomic_fetch_add_nbi)(uint64_t *, uint64_t *, uint64_t, int);
+void (*shmem_WRAPPER_int64_atomic_fetch_add_nbi)(int64_t *, int64_t *, int64_t, int);
+void (*shmem_WRAPPER_ulonglong_atomic_fetch_add_nbi)(unsigned long long *, unsigned long long *,
+                                                     unsigned long long, int);
+void (*shmem_WRAPPER_longlong_atomic_fetch_add_nbi)(long long *, long long *, long long, int);
+
+void (*shmem_WRAPPER_uint32_atomic_fetch_and_nbi)(uint32_t *, uint32_t *, uint32_t, int);
+void (*shmem_WRAPPER_int32_atomic_fetch_and_nbi)(int32_t *, int32_t *, int32_t, int);
+void (*shmem_WRAPPER_uint64_atomic_fetch_and_nbi)(uint64_t *, uint64_t *, uint64_t, int);
+void (*shmem_WRAPPER_int64_atomic_fetch_and_nbi)(int64_t *, int64_t *, int64_t, int);
+void (*shmem_WRAPPER_ulonglong_atomic_fetch_and_nbi)(unsigned long long *, unsigned long long *,
+                                                     unsigned long long, int);
+
+void (*shmem_WRAPPER_uint32_atomic_fetch_or_nbi)(uint32_t *, uint32_t *, uint32_t, int);
+void (*shmem_WRAPPER_int32_atomic_fetch_or_nbi)(int32_t *, int32_t *, int32_t, int);
+void (*shmem_WRAPPER_uint64_atomic_fetch_or_nbi)(uint64_t *, uint64_t *, uint64_t, int);
+void (*shmem_WRAPPER_int64_atomic_fetch_or_nbi)(int64_t *, int64_t *, int64_t, int);
+void (*shmem_WRAPPER_ulonglong_atomic_fetch_or_nbi)(unsigned long long *, unsigned long long *,
+                                                    unsigned long long, int);
+
+void (*shmem_WRAPPER_uint32_atomic_fetch_xor_nbi)(uint32_t *, uint32_t *, uint32_t, int);
+void (*shmem_WRAPPER_int32_atomic_fetch_xor_nbi)(int32_t *, int32_t *, int32_t, int);
+void (*shmem_WRAPPER_uint64_atomic_fetch_xor_nbi)(uint64_t *, uint64_t *, uint64_t, int);
+void (*shmem_WRAPPER_int64_atomic_fetch_xor_nbi)(int64_t *, int64_t *, int64_t, int);
+void (*shmem_WRAPPER_ulonglong_atomic_fetch_xor_nbi)(unsigned long long *, unsigned long long *,
+                                                     unsigned long long, int);
+
 /* Signaling */
 void (*shmem_WRAPPER_uint8_put_signal)(uint8_t *, const uint8_t *, size_t, uint64_t *, uint64_t,
                                        int, int);
@@ -170,6 +273,8 @@ int (*shmem_WRAPPER_uint8_collect)(shmem_team_t, uint8_t *, const uint8_t *, siz
 int (*shmem_WRAPPER_uint8_fcollect)(shmem_team_t, uint8_t *, const uint8_t *, size_t);
 
 /* Reductions */
+int (*shmem_WRAPPER_uchar_and_reduce)(shmem_team_t, unsigned char *, const unsigned char *, size_t);
+int (*shmem_WRAPPER_int_max_reduce)(shmem_team_t, int *, const int *, size_t);
 int (*shmem_WRAPPER_uint8_and_reduce)(shmem_team_t, uint8_t *, const uint8_t *, size_t);
 int (*shmem_WRAPPER_uint8_or_reduce)(shmem_team_t, uint8_t *, const uint8_t *, size_t);
 int (*shmem_WRAPPER_uint8_xor_reduce)(shmem_team_t, uint8_t *, const uint8_t *, size_t);
@@ -249,9 +354,6 @@ int (*shmem_WRAPPER_int64_min_reduce)(shmem_team_t, int64_t *, const int64_t *, 
 int (*shmem_WRAPPER_int64_sum_reduce)(shmem_team_t, int64_t *, const int64_t *, size_t);
 int (*shmem_WRAPPER_int64_prod_reduce)(shmem_team_t, int64_t *, const int64_t *, size_t);
 
-int (*shmem_WRAPPER_longlong_and_reduce)(shmem_team_t, long long *, const long long *, size_t);
-int (*shmem_WRAPPER_longlong_or_reduce)(shmem_team_t, long long *, const long long *, size_t);
-int (*shmem_WRAPPER_longlong_xor_reduce)(shmem_team_t, long long *, const long long *, size_t);
 int (*shmem_WRAPPER_longlong_max_reduce)(shmem_team_t, long long *, const long long *, size_t);
 int (*shmem_WRAPPER_longlong_min_reduce)(shmem_team_t, long long *, const long long *, size_t);
 int (*shmem_WRAPPER_longlong_sum_reduce)(shmem_team_t, long long *, const long long *, size_t);
@@ -268,14 +370,73 @@ int (*shmem_WRAPPER_double_sum_reduce)(shmem_team_t, double *, const double *, s
 int (*shmem_WRAPPER_double_prod_reduce)(shmem_team_t, double *, const double *, size_t);
 
 /* Point-to-Point Synchronization */
+int (*shmem_WRAPPER_int32_test)(int32_t *, int, int32_t);
+int (*shmem_WRAPPER_int32_test_all)(int32_t *, size_t, const int *, int, int32_t);
+size_t (*shmem_WRAPPER_int32_test_any)(int32_t *, size_t, const int *, int, int32_t);
+size_t (*shmem_WRAPPER_int32_test_some)(int32_t *, size_t, size_t *, const int *, int, int32_t);
+void (*shmem_WRAPPER_int32_wait_until)(int32_t *, int, int32_t);
+void (*shmem_WRAPPER_int32_wait_until_all)(int32_t *, size_t, const int *, int, int32_t);
+size_t (*shmem_WRAPPER_int32_wait_until_any)(int32_t *, size_t, const int *, int, int32_t);
+size_t (*shmem_WRAPPER_int32_wait_until_some)(int32_t *, size_t, size_t *, const int *, int,
+                                              int32_t);
+
+int (*shmem_WRAPPER_int64_test)(int64_t *, int, int64_t);
+int (*shmem_WRAPPER_int64_test_all)(int64_t *, size_t, const int *, int, int64_t);
+size_t (*shmem_WRAPPER_int64_test_any)(int64_t *, size_t, const int *, int, int64_t);
+size_t (*shmem_WRAPPER_int64_test_some)(int64_t *, size_t, size_t *, const int *, int, int64_t);
+void (*shmem_WRAPPER_int64_wait_until)(int64_t *, int, int64_t);
+void (*shmem_WRAPPER_int64_wait_until_all)(int64_t *, size_t, const int *, int, int64_t);
+size_t (*shmem_WRAPPER_int64_wait_until_any)(int64_t *, size_t, const int *, int, int64_t);
+size_t (*shmem_WRAPPER_int64_wait_until_some)(int64_t *, size_t, size_t *, const int *, int,
+                                              int64_t);
+
+int (*shmem_WRAPPER_longlong_test)(long long *, int, long long);
+int (*shmem_WRAPPER_longlong_test_all)(long long *, size_t, const int *, int, long long);
+size_t (*shmem_WRAPPER_longlong_test_any)(long long *, size_t, const int *, int, long long);
+size_t (*shmem_WRAPPER_longlong_test_some)(long long *, size_t, size_t *, const int *, int,
+                                           long long);
+void (*shmem_WRAPPER_longlong_wait_until)(long long *, int, long long);
+void (*shmem_WRAPPER_longlong_wait_until_all)(long long *, size_t, const int *, int, long long);
+size_t (*shmem_WRAPPER_longlong_wait_until_any)(long long *, size_t, const int *, int, long long);
+size_t (*shmem_WRAPPER_longlong_wait_until_some)(long long *, size_t, size_t *, const int *, int,
+                                                 long long);
+
 int (*shmem_WRAPPER_uint32_test)(uint32_t *, int, uint32_t);
+int (*shmem_WRAPPER_uint32_test_all)(uint32_t *, size_t, const int *, int, uint32_t);
+size_t (*shmem_WRAPPER_uint32_test_any)(uint32_t *, size_t, const int *, int, uint32_t);
+size_t (*shmem_WRAPPER_uint32_test_some)(uint32_t *, size_t, size_t *, const int *, int, uint32_t);
 void (*shmem_WRAPPER_uint32_wait_until)(uint32_t *, int, uint32_t);
+void (*shmem_WRAPPER_uint32_wait_until_all)(uint32_t *, size_t, const int *, int, uint32_t);
+size_t (*shmem_WRAPPER_uint32_wait_until_any)(uint32_t *, size_t, const int *, int, uint32_t);
+size_t (*shmem_WRAPPER_uint32_wait_until_some)(uint32_t *, size_t, size_t *, const int *, int,
+                                               uint32_t);
 
 int (*shmem_WRAPPER_uint64_test)(uint64_t *, int, uint64_t);
+int (*shmem_WRAPPER_uint64_test_all)(uint64_t *, size_t, const int *, int, uint64_t);
+size_t (*shmem_WRAPPER_uint64_test_any)(uint64_t *, size_t, const int *, int, uint64_t);
+size_t (*shmem_WRAPPER_uint64_test_some)(uint64_t *, size_t, size_t *, const int *, int, uint64_t);
 void (*shmem_WRAPPER_uint64_wait_until)(uint64_t *, int, uint64_t);
+void (*shmem_WRAPPER_uint64_wait_until_all)(uint64_t *, size_t, const int *, int, uint64_t);
+size_t (*shmem_WRAPPER_uint64_wait_until_any)(uint64_t *, size_t, const int *, int, uint64_t);
+size_t (*shmem_WRAPPER_uint64_wait_until_some)(uint64_t *, size_t, size_t *, const int *, int,
+                                               uint64_t);
 
 int (*shmem_WRAPPER_ulonglong_test)(unsigned long long *, int, unsigned long long);
+int (*shmem_WRAPPER_ulonglong_test_all)(unsigned long long *, size_t, const int *, int,
+                                        unsigned long long);
+size_t (*shmem_WRAPPER_ulonglong_test_any)(unsigned long long *, size_t, const int *, int,
+                                           unsigned long long);
+size_t (*shmem_WRAPPER_ulonglong_test_some)(unsigned long long *, size_t, size_t *, const int *,
+                                            int, unsigned long long);
 void (*shmem_WRAPPER_ulonglong_wait_until)(unsigned long long *, int, unsigned long long);
+void (*shmem_WRAPPER_ulonglong_wait_until_all)(unsigned long long *, size_t, const int *, int,
+                                               unsigned long long);
+size_t (*shmem_WRAPPER_ulonglong_wait_until_any)(unsigned long long *, size_t, const int *, int,
+                                                 unsigned long long);
+size_t (*shmem_WRAPPER_ulonglong_wait_until_some)(unsigned long long *, size_t, size_t *,
+                                                  const int *, int, unsigned long long);
+
+uint64_t (*shmem_WRAPPER_signal_wait_until)(uint64_t *, int, uint64_t);
 
 /* Memory Ordering */
 void (*shmem_WRAPPER_fence)(void);
@@ -283,12 +444,12 @@ void (*shmem_WRAPPER_quiet)(void);
 
 /* dl handle */
 void *shmem_handle = nullptr;
-std::vector<void **> ishmemi_wrapper_list;
+std::vector<void **> ishmemi_shmem_handle_wrapper_list;
 
 int ishmemi_openshmem_wrapper_fini()
 {
     int ret = 0;
-    for (auto p : ishmemi_wrapper_list)
+    for (auto p : ishmemi_shmem_handle_wrapper_list)
         *p = nullptr;
     if (shmem_handle != nullptr) {
         ret = dlclose(shmem_handle);
@@ -327,7 +488,11 @@ int ishmemi_openshmem_wrapper_init()
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, global_exit);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, team_translate_pe);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, team_n_pes);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, team_my_pe);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, team_sync);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, team_split_strided);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, team_split_2d);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, team_destroy);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, my_pe);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, n_pes);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, malloc);
@@ -337,6 +502,14 @@ int ishmemi_openshmem_wrapper_init()
     /* RMA */
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_put);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_iput);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint16_iput);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_iput);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_iput);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_iput);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmemx, uint8_ibput);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmemx, uint16_ibput);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmemx, uint32_ibput);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmemx, uint64_ibput);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_p);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint16_p);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_p);
@@ -346,12 +519,78 @@ int ishmemi_openshmem_wrapper_init()
 
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_get);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_iget);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint16_iget);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_iget);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_iget);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_iget);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmemx, uint8_ibget);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmemx, uint16_ibget);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmemx, uint32_ibget);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmemx, uint64_ibget);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_g);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint16_g);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_g);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_g);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_g);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_get_nbi);
+
+    /* AMO NBI */
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_atomic_fetch_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_atomic_fetch_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_atomic_fetch_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_atomic_fetch_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_atomic_fetch_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_atomic_fetch_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, float_atomic_fetch_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, double_atomic_fetch_nbi);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_atomic_compare_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_atomic_compare_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_atomic_compare_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_atomic_compare_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_atomic_compare_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_atomic_compare_swap_nbi);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_atomic_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_atomic_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_atomic_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_atomic_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_atomic_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_atomic_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, float_atomic_swap_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, double_atomic_swap_nbi);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_atomic_fetch_inc_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_atomic_fetch_inc_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_atomic_fetch_inc_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_atomic_fetch_inc_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_atomic_fetch_inc_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_atomic_fetch_inc_nbi);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_atomic_fetch_add_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_atomic_fetch_add_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_atomic_fetch_add_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_atomic_fetch_add_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_atomic_fetch_add_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_atomic_fetch_add_nbi);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_atomic_fetch_and_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_atomic_fetch_and_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_atomic_fetch_and_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_atomic_fetch_and_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_atomic_fetch_and_nbi);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_atomic_fetch_or_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_atomic_fetch_or_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_atomic_fetch_or_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_atomic_fetch_or_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_atomic_fetch_or_nbi);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_atomic_fetch_xor_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_atomic_fetch_xor_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_atomic_fetch_xor_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_atomic_fetch_xor_nbi);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_atomic_fetch_xor_nbi);
 
     /* AMO */
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_atomic_fetch);
@@ -460,6 +699,8 @@ int ishmemi_openshmem_wrapper_init()
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_fcollect);
 
     /* Reductions */
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uchar_and_reduce);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int_max_reduce);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_and_reduce);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_or_reduce);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint8_xor_reduce);
@@ -532,9 +773,6 @@ int ishmemi_openshmem_wrapper_init()
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_sum_reduce);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_prod_reduce);
 
-    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_and_reduce);
-    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_or_reduce);
-    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_xor_reduce);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_max_reduce);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_min_reduce);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_sum_reduce);
@@ -551,14 +789,61 @@ int ishmemi_openshmem_wrapper_init()
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, double_prod_reduce);
 
     /* Point-to-Point Synchronization */
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_test);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_test_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_test_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_test_some);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_wait_until);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_wait_until_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_wait_until_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_wait_until_some);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_test);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_test_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_test_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_test_some);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_wait_until);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_wait_until_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_wait_until_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int64_wait_until_some);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_test);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_test_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_test_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_test_some);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_wait_until);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_wait_until_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_wait_until_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, longlong_wait_until_some);
+
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_test);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_test_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_test_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_test_some);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_wait_until);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_wait_until_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_wait_until_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint32_wait_until_some);
 
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_test);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_test_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_test_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_test_some);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_wait_until);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_wait_until_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_wait_until_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, uint64_wait_until_some);
 
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_test);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_test_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_test_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_test_some);
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_wait_until);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_wait_until_all);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_wait_until_any);
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, ulonglong_wait_until_some);
+
+    ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, signal_wait_until);
 
     /* Memory Ordering */
     ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, fence);

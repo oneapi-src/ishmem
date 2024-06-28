@@ -14,9 +14,10 @@ import datetime
 # -- Project information -----------------------------------------------------
 
 project = u'Intel® SHMEM'
-copyright = u'2023 Intel Corporation licensed under Creative Commons BY 4.0'
+copyright = u'2024 Intel Corporation licensed under Creative Commons BY 4.0'
 author = u'Intel Corporation'
-release = u'1.0.0'
+release = u'1.1.0'
+version = release
 
 # -- General configuration ---------------------------------------------------
 
@@ -58,8 +59,6 @@ pygments_style = 'sphinx'
 html_theme = 'sphinx_book_theme'
 
 html_baseurl = 'oneapi-src.github.io/ishmem'
-
-version = current_version = "version 1.0.0"
 
 html_theme_options = {
     'navigation_depth': 3,

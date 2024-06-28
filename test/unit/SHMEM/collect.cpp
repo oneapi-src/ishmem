@@ -2,31 +2,28 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <ishmem_tester.h>
 #include <time.h>
+#include <ishmem_tester.h>
+#include "rma_test.h"
 
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
+#define TEST_BRANCH_SINGLE(testname, typeenum, typename, type, op, opname)                         \
+    *res = ishmem_##typename##_##testname((type *) dest, (type *) src, nelems);
 
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmem_##name##_collect((type *) dest, (type *) src, nelems);                            \
-    break;
+#define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
+    *res = ishmemx_##typename##_##testname##_work_group((type *) dest, (type *) src, nelems, grp);
 
-ISHMEM_GEN_TEST_FUNCTION_SINGLE(int res = 0;, res = ishmem_collectmem(dest COMMA src COMMA nelems);
-                                break;)
+GEN_FNS(collect, NOP, nop)
 
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
+#undef TEST_BRANCH_SINGLE
+#undef TEST_BRANCH_WORK_GROUP
 
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmemx_##name##_collect_work_group((type *) dest, (type *) src, nelems, grp);           \
-    break;
+#define TEST_BRANCH_SINGLE(testname, typeenum, typename, type, op, opname)                         \
+    *res = ishmem_##testname((type *) dest, (type *) src, nelems);
 
-ISHMEM_GEN_TEST_FUNCTION_WORK_GROUP(
-    int res = 0;, res = ishmemx_collectmem_work_group(dest COMMA src COMMA nelems COMMA grp);
-    break;)
+#define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
+    *res = ishmemx_##testname##_work_group((type *) dest, (type *) src, nelems, grp);
+
+GEN_MEM_FNS(collectmem, NOP, nop)
 
 class collect_tester : public ishmem_tester {
   public:
@@ -35,13 +32,13 @@ class collect_tester : public ishmem_tester {
 
     collect_tester(int argc, char *argv[]) : ishmem_tester(argc, argv)
     {
-        collect_nelems_source = (size_t *) shmem_malloc((size_t) n_pes * sizeof(long));
-        collect_nelems_dest = (size_t *) shmem_malloc((size_t) n_pes * sizeof(long));
+        collect_nelems_source = (size_t *) runtime_malloc((size_t) n_pes * sizeof(long));
+        collect_nelems_dest = (size_t *) runtime_malloc((size_t) n_pes * sizeof(long));
     }
     ~collect_tester()
     {
-        shmem_free(collect_nelems_source);
-        shmem_free(collect_nelems_dest);
+        runtime_free(collect_nelems_source);
+        runtime_free(collect_nelems_dest);
     }
     virtual size_t create_source_pattern(ishmemi_type_t t, ishmemi_op_t op, testmode_t mode,
                                          size_t nelems);
@@ -100,22 +97,23 @@ size_t collect_tester::run_offset_tests(ishmemi_op_t op)
     printf("[%d] Run Offset Tests op %s\n", my_pe, ishmemi_op_str[op]);
     for (int i = 0; i < num_test_modes; i += 1) {
         testmode_t mode = test_modes[i];
-        printf("[%d] Testing %s\n", my_pe, modestr(mode));
+        printf("[%d] Testing %s\n", my_pe, mode_to_str(mode));
         for (ishmemi_type_t t : ishmemi_type_t_Iterator()) {
             if (my_pe == 0) {
                 for (size_t i = 0; i < n_pes; ++i) {
                     collect_nelems_source[i] = (size_t) rand() % max_nelems + 1;
                 }
             }
-            shmem_size_broadcast(SHMEM_TEAM_WORLD, collect_nelems_dest, collect_nelems_source,
-                                 (size_t) n_pes, 0);
+            runtime_broadcast(collect_nelems_dest, collect_nelems_source,
+                              (size_t) n_pes * sizeof(size_t), 0);
             /* offsets run from 0 to 15 in units of the datatype size */
             for (unsigned long source_offset = 0; source_offset < 15;
                  source_offset += typesize(t)) {
                 for (unsigned long dest_offset = 0; dest_offset < 15; dest_offset += typesize(t)) {
                     if (verboseflag) {
-                        printf("[%d] Test %s %s nelems %ld os %ld od %ld\n", my_pe, modestr(mode),
-                               typestr(t), collect_nelems_dest[my_pe], source_offset, dest_offset);
+                        printf("[%d] Test %s %s nelems %ld os %ld od %ld\n", my_pe,
+                               mode_to_str(mode), type_to_str(t), collect_nelems_dest[my_pe],
+                               source_offset, dest_offset);
                     }
                     errors += do_test(t, op, mode, collect_nelems_dest[my_pe], source_offset,
                                       dest_offset);
@@ -134,7 +132,11 @@ int main(int argc, char **argv)
     t.alloc_memory(bufsize);
     size_t errors = 0;
 
+    GEN_TABLES(collect, NOP, nop)
+    GEN_MEM_TABLES(collectmem, NOP, nop)
+
     /* Only running offset test since aligned test is the same as zero offset */
+    if (!t.test_types_set) t.add_test_type_list(collectives_copy_types);
     errors += t.run_offset_tests(NOP);
 
     return (t.finalize_and_report(errors));

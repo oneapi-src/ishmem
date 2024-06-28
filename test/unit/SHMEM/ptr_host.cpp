@@ -8,15 +8,11 @@
 int main(int argc, char **argv)
 {
     int exit_code = 0;
-
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     sycl::queue q;
-
-    std::cout << "Selected device: " << q.get_device().get_info<sycl::info::device::name>()
-              << std::endl;
-    std::cout << "Selected vendor: " << q.get_device().get_info<sycl::info::device::vendor>()
-              << std::endl;
 
     int my_pe = ishmem_my_pe();
     int npes = ishmem_n_pes();
@@ -35,28 +31,27 @@ int main(int argc, char **argv)
 
     ishmem_barrier_all();
 
-    /* Perform ishmem_ptr operation */
+    *errors = 0;
     int *source_next_pe = (int *) ishmem_ptr(source, (my_pe + 1) % npes);
+    int *source_prev_pe = (int *) ishmem_ptr(source, (my_pe - 1 + npes) % npes);
     auto e1 = q.submit([&](sycl::handler &h) {
         h.single_task([=]() {
             int my_dev_pe = ishmem_my_pe();
+            /* Perform ishmem_ptr operation */
+            if (source_next_pe) *source_next_pe = (*source_next_pe) + my_dev_pe;
 
-            *source_next_pe = (*source_next_pe) + my_dev_pe;
-        });
-    });
-    e1.wait_and_throw();
+            ishmem_barrier_all();
 
-    ishmem_barrier_all();
-    *errors = 0;
-    /* Verify data */
-    auto e_verify = q.submit([&](sycl::handler &h) {
-        h.single_task([=]() {
-            if ((*source) != expected_value) {
-                *errors = *errors + 1;
+            /* Verify */
+            /* Can the previous pe access me using ishmem_ptr? */
+            if (source_prev_pe) {
+                if ((*source) != expected_value) {
+                    *errors = *errors + 1;
+                }
             }
         });
     });
-    e_verify.wait_and_throw();
+    e1.wait_and_throw();
 
     if (*errors > 0) {
         std::cerr << "[ERROR] Validation check(s) failed: " << *errors << std::endl;
@@ -69,6 +64,10 @@ int main(int argc, char **argv)
     } else {
         std::cout << "No errors" << std::endl;
     }
+
+    if (!source_next_pe)
+        std::cout << "PE: " << (my_pe + 1) % npes
+                  << " inaccessible through ishmem_ptr from PE: " << my_pe << std::endl;
 
     fflush(stdout);
     ishmem_free(source);

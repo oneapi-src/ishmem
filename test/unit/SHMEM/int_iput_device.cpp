@@ -16,7 +16,10 @@ int main(int argc, char **argv)
 {
     int exit_code = 0;
 
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
+
     int my_pe = ishmem_my_pe();
     int npes = ishmem_n_pes();
 

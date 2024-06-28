@@ -3,29 +3,26 @@
  */
 
 #include <ishmem_tester.h>
+#include "rma_test.h"
 
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
+#define TEST_BRANCH_SINGLE(testname, typeenum, typename, type, op, opname)                         \
+    *res = ishmem_##typename##_##testname((type *) dest, (type *) src, nelems);
 
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmem_##name##_fcollect((type *) dest, (type *) src, nelems);                           \
-    break;
+#define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
+    *res = ishmemx_##typename##_##testname##_work_group((type *) dest, (type *) src, nelems, grp);
 
-ISHMEM_GEN_TEST_FUNCTION_SINGLE(int res = 0;, res = ishmem_fcollectmem(dest COMMA src COMMA nelems);
-                                break;)
+GEN_FNS(fcollect, NOP, nop)
 
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
+#undef TEST_BRANCH_SINGLE
+#undef TEST_BRANCH_WORK_GROUP
 
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmemx_##name##_fcollect_work_group((type *) dest, (type *) src, nelems, grp);          \
-    break;
+#define TEST_BRANCH_SINGLE(testname, typeenum, typename, type, op, opname)                         \
+    *res = ishmem_##testname((type *) dest, (type *) src, nelems);
 
-ISHMEM_GEN_TEST_FUNCTION_WORK_GROUP(
-    int res = 0;, res = ishmemx_fcollectmem_work_group(dest COMMA src COMMA nelems COMMA grp);
-    break;)
+#define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
+    *res = ishmemx_##testname##_work_group((type *) dest, (type *) src, nelems, grp);
+
+GEN_MEM_FNS(fcollectmem, NOP, nop)
 
 class fcollect_tester : public ishmem_tester {
   public:
@@ -83,6 +80,10 @@ int main(int argc, char **argv)
     t.alloc_memory(bufsize);
     size_t errors = 0;
 
+    GEN_TABLES(fcollect, NOP, nop)
+    GEN_MEM_TABLES(fcollectmem, NOP, nop)
+
+    if (!t.test_types_set) t.add_test_type_list(collectives_copy_types);
     errors += t.run_aligned_tests(NOP);
     errors += t.run_offset_tests(NOP);
 

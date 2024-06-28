@@ -4,70 +4,9 @@
 
 #include <CL/sycl.hpp>
 #include "ishmem_tester.h"
+#include "reduce_test.h"
 
-#ifdef ISHMEM_GEN_TYPE_FUNCTION
-#undef ISHMEM_GEN_TYPE_FUNCTION
-#endif
-#define ISHMEM_GEN_TYPE_FUNCTION(function, returnvar, memcase)                                     \
-    function                                                                                       \
-    {                                                                                              \
-        *test_run = true;                                                                          \
-        returnvar switch (t)                                                                       \
-        {                                                                                          \
-            case UCHAR:                                                                            \
-                ISHMEM_TYPE_BRANCH(UCHAR, uchar, unsigned char)                                    \
-            case USHORT:                                                                           \
-                ISHMEM_TYPE_BRANCH(USHORT, ushort, unsigned short)                                 \
-            case UINT:                                                                             \
-                ISHMEM_TYPE_BRANCH(UINT, uint, unsigned int)                                       \
-            case ULONG:                                                                            \
-                ISHMEM_TYPE_BRANCH(ULONG, ulong, unsigned long)                                    \
-            case ULONGLONG:                                                                        \
-                ISHMEM_TYPE_BRANCH(ULONGLONG, ulonglong, unsigned long long)                       \
-            case INT8:                                                                             \
-                ISHMEM_TYPE_BRANCH(INT8, int8, int8_t)                                             \
-            case INT16:                                                                            \
-                ISHMEM_TYPE_BRANCH(INT16, int16, int16_t)                                          \
-            case INT32:                                                                            \
-                ISHMEM_TYPE_BRANCH(INT32, int32, int32_t)                                          \
-            case INT64:                                                                            \
-                ISHMEM_TYPE_BRANCH(INT64, int64, int64_t)                                          \
-            case UINT8:                                                                            \
-                ISHMEM_TYPE_BRANCH(UINT8, uint8, uint8_t)                                          \
-            case UINT16:                                                                           \
-                ISHMEM_TYPE_BRANCH(UINT16, uint16, uint16_t)                                       \
-            case UINT32:                                                                           \
-                ISHMEM_TYPE_BRANCH(UINT32, uint32, uint32_t)                                       \
-            case UINT64:                                                                           \
-                ISHMEM_TYPE_BRANCH(UINT64, uint64, uint64_t)                                       \
-            case SIZE:                                                                             \
-                ISHMEM_TYPE_BRANCH(SIZE, size, size_t)                                             \
-            default:                                                                               \
-                *test_run = false;                                                                 \
-                return (res);                                                                      \
-        }                                                                                          \
-        return (res);                                                                              \
-    }
-
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
-
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmem_##name##_and_reduce((type *) dest, (type *) src, nelems);                         \
-    break;
-
-ISHMEM_GEN_TEST_FUNCTION_SINGLE(int res = 0;, break;)
-
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
-
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmemx_##name##_and_reduce_work_group((type *) dest, (type *) src, nelems, grp);        \
-    break;
-
-ISHMEM_GEN_TEST_FUNCTION_WORK_GROUP(int res = 0;, break;)
+GEN_BITWISE_FNS(reduce, AND_REDUCE, and)
 
 class reduce_and_tester : public ishmem_tester {
   public:
@@ -138,8 +77,11 @@ int main(int argc, char **argv)
     t.alloc_memory(bufsize);
     size_t errors = 0;
 
-    errors += t.run_aligned_tests(NOP);
-    errors += t.run_offset_tests(NOP);
+    GEN_BITWISE_TABLES(reduce, AND_REDUCE, and)
+
+    if (!t.test_types_set) t.add_test_type_list(bitwise_reduction_types);
+    errors += t.run_aligned_tests(AND_REDUCE);
+    errors += t.run_offset_tests(AND_REDUCE);
 
     return (t.finalize_and_report(errors));
 }

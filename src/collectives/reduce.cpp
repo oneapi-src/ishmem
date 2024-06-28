@@ -4,7 +4,6 @@
 
 #include "collectives/reduce_impl.h"
 
-#if __SYCL_DEVICE_ONLY__
 /* clang-format off */
 #define ISHMEMI_API_IMPL_AND_REDUCE(TYPENAME, TYPE) \
     int ishmem_##TYPENAME##_and_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_and_reduce(dest, src, nreduce); }
@@ -20,34 +19,23 @@
     int ishmem_##TYPENAME##_sum_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_sum_reduce(dest, src, nreduce); }
 #define ISHMEMI_API_IMPL_PROD_REDUCE(TYPENAME, TYPE)  \
     int ishmem_##TYPENAME##_prod_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_prod_reduce(dest, src, nreduce); }
-/* clang-format on */
 
-#else  //! __SYCL_DEVICE_ONLY__
-/* clang-format off */
-#define ISHMEMI_API_IMPL_AND_REDUCE(TYPENAME, TYPE) \
-  int ishmem_##TYPENAME##_and_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { \
-    return ishmemi_host_reduce<TYPE>(dest, src, nreduce, AND_REDUCE); }
-#define ISHMEMI_API_IMPL_OR_REDUCE(TYPENAME, TYPE)  \
-  int ishmem_##TYPENAME##_or_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { \
-    return ishmemi_host_reduce<TYPE>(dest, src, nreduce, OR_REDUCE); }
-#define ISHMEMI_API_IMPL_XOR_REDUCE(TYPENAME, TYPE) \
-  int ishmem_##TYPENAME##_xor_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { \
-    return ishmemi_host_reduce<TYPE>(dest, src, nreduce, XOR_REDUCE); }
-#define ISHMEMI_API_IMPL_MAX_REDUCE(TYPENAME, TYPE) \
-  int ishmem_##TYPENAME##_max_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { \
-    return ishmemi_host_reduce<TYPE>(dest, src, nreduce, MAX_REDUCE); }
-#define ISHMEMI_API_IMPL_MIN_REDUCE(TYPENAME, TYPE) \
-  int ishmem_##TYPENAME##_min_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { \
-    return ishmemi_host_reduce<TYPE>(dest, src, nreduce, MIN_REDUCE); }
-#define ISHMEMI_API_IMPL_SUM_REDUCE(TYPENAME, TYPE) \
-  int ishmem_##TYPENAME##_sum_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { \
-    return ishmemi_host_reduce<TYPE>(dest, src, nreduce, SUM_REDUCE); }
-#define ISHMEMI_API_IMPL_PROD_REDUCE(TYPENAME, TYPE)  \
-  int ishmem_##TYPENAME##_prod_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { \
-    return ishmemi_host_reduce<TYPE>(dest, src, nreduce, PROD_REDUCE); }
+/* Teams variants */
+#define ISHMEMI_API_IMPL_AND_TEAM_REDUCE(TYPENAME, TYPE) \
+    int ishmem_##TYPENAME##_and_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_and_reduce(team, dest, src, nreduce); }
+#define ISHMEMI_API_IMPL_OR_TEAM_REDUCE(TYPENAME, TYPE)  \
+    int ishmem_##TYPENAME##_or_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_or_reduce(team, dest, src, nreduce); }
+#define ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(TYPENAME, TYPE) \
+    int ishmem_##TYPENAME##_xor_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_xor_reduce(team, dest, src, nreduce); }
+#define ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(TYPENAME, TYPE) \
+    int ishmem_##TYPENAME##_max_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_max_reduce(team, dest, src, nreduce); }
+#define ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(TYPENAME, TYPE) \
+    int ishmem_##TYPENAME##_min_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_min_reduce(team, dest, src, nreduce); }
+#define ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(TYPENAME, TYPE) \
+    int ishmem_##TYPENAME##_sum_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_sum_reduce(team, dest, src, nreduce); }
+#define ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(TYPENAME, TYPE)  \
+    int ishmem_##TYPENAME##_prod_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_prod_reduce(team, dest, src, nreduce); }
 /* clang-format on */
-
-#endif
 
 /* And Reduce */
 ISHMEMI_API_IMPL_AND_REDUCE(uchar, unsigned char)
@@ -196,3 +184,151 @@ ISHMEMI_API_IMPL_PROD_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_PROD_REDUCE(size, size_t)
 ISHMEMI_API_IMPL_PROD_REDUCE(float, float)
 ISHMEMI_API_IMPL_PROD_REDUCE(double, double)
+
+/* Team And Reduce */
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uchar, unsigned char)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(ushort, unsigned short)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uint, unsigned int)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(ulong, unsigned long)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(int8, int8_t)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(int16, int16_t)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(int32, int32_t)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(int64, int64_t)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uint8, uint8_t)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uint16, uint16_t)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uint32, uint32_t)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uint64, uint64_t)
+ISHMEMI_API_IMPL_AND_TEAM_REDUCE(size, size_t)
+
+/* Team Or Reduce */
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uchar, unsigned char)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(ushort, unsigned short)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uint, unsigned int)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(ulong, unsigned long)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(int8, int8_t)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(int16, int16_t)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(int32, int32_t)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(int64, int64_t)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uint8, uint8_t)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uint16, uint16_t)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uint32, uint32_t)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uint64, uint64_t)
+ISHMEMI_API_IMPL_OR_TEAM_REDUCE(size, size_t)
+
+/* Team Xor Reduce */
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uchar, unsigned char)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(ushort, unsigned short)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uint, unsigned int)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(ulong, unsigned long)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(int8, int8_t)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(int16, int16_t)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(int32, int32_t)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(int64, int64_t)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uint8, uint8_t)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uint16, uint16_t)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uint32, uint32_t)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uint64, uint64_t)
+ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(size, size_t)
+
+/* Team Max Reduce */
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(char, char)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(schar, signed char)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(short, short)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(int, int)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(long, long)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(longlong, long long)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(uchar, unsigned char)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(ushort, unsigned short)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(uint, unsigned int)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(ulong, unsigned long)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(int8, int8_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(int16, int16_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(int32, int32_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(int64, int64_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(uint8, uint8_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(uint16, uint16_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(uint32, uint32_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(uint64, uint64_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(size, size_t)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(float, float)
+ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(double, double)
+
+/* Team Min Reduce */
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(char, char)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(schar, signed char)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(short, short)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(int, int)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(long, long)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(longlong, long long)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(uchar, unsigned char)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(ushort, unsigned short)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(uint, unsigned int)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(ulong, unsigned long)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(int8, int8_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(int16, int16_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(int32, int32_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(int64, int64_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(uint8, uint8_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(uint16, uint16_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(uint32, uint32_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(uint64, uint64_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(size, size_t)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(float, float)
+ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(double, double)
+
+/* Team Sum Reduce */
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(char, char)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(schar, signed char)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(short, short)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(int, int)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(long, long)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(longlong, long long)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(uchar, unsigned char)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(ushort, unsigned short)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(uint, unsigned int)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(ulong, unsigned long)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(int8, int8_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(int16, int16_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(int32, int32_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(int64, int64_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(uint8, uint8_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(uint16, uint16_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(uint32, uint32_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(uint64, uint64_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(size, size_t)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(float, float)
+ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(double, double)
+
+/* Team Prod Reduce */
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(char, char)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(schar, signed char)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(short, short)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(int, int)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(long, long)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(longlong, long long)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(uchar, unsigned char)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(ushort, unsigned short)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(uint, unsigned int)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(ulong, unsigned long)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(int8, int8_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(int16, int16_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(int32, int32_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(int64, int64_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(uint8, uint8_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(uint16, uint16_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(uint32, uint32_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(uint64, uint64_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(size, size_t)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(float, float)
+ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(double, double)

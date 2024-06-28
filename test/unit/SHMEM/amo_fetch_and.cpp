@@ -52,7 +52,7 @@ constexpr int N = 5;
                 size_t i = idx.get_global_id()[0];                                                 \
                 remote[i] = ~(TYPE) 0;                                                             \
                 for (size_t j = 0; j < npes; j++)                                                  \
-                    val[j + i] = (TYPE) 0;                                                         \
+                    val[j + i * (size_t) npes] = (TYPE) 0;                                         \
             });                                                                                    \
         });                                                                                        \
         e_init.wait_and_throw();                                                                   \
@@ -60,7 +60,7 @@ constexpr int N = 5;
         auto e_run = q.parallel_for(sycl::nd_range<1>{N, N}, [=](sycl::nd_item<1> idx) {           \
             size_t i = idx.get_global_id(0);                                                       \
             for (size_t j = 0; j < npes; j++)                                                      \
-                val[j + i] = ishmem_##TYPENAME##_atomic_fetch_and(                                 \
+                val[j + i * (size_t) npes] = ishmem_##TYPENAME##_atomic_fetch_and(                 \
                     &remote[i], ~(TYPE) (1LLU << mype), static_cast<int>(j));                      \
         });                                                                                        \
         e_run.wait_and_throw();                                                                    \
@@ -85,7 +85,9 @@ constexpr int N = 5;
 
 int main(int argc, char *argv[])
 {
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     sycl::queue q;
 
@@ -118,9 +120,7 @@ int main(int argc, char *argv[])
     TEST_SHMEM_FETCH_AND_PARALLEL_FOR(uint64_t, uint64);
 
     ishmem_finalize();
-    if (rc)
-        std::cout << mype << ": Test Failed" << std::endl;
-    else
-        std::cout << mype << ": Test Passed" << std::endl;
+    if (rc) std::cout << mype << ": Test Failed" << std::endl;
+    else std::cout << mype << ": Test Passed" << std::endl;
     return rc;
 }

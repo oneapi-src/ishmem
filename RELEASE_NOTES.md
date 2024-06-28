@@ -1,10 +1,33 @@
 # Release Notes <!-- omit in toc -->
-This document contains a list of new features and known limitations of Intel® SHMEM in the most recent release.
+This document contains a list of new features and known limitations of Intel® SHMEM releases.
+
+## Release 1.1.0
+
+### New Features and Enhancements
+- Support for OpenSHMEM 1.5 teams and team-based collective operations.
+- Device and host API support for strided RMA operations - ibput and ibget, from OpenSHMEM 1.6.
+- Device and host API support for non-blocking atomic operations.
+- Device and host API support for size-based RMA and signaling operations.
+- Device and host API support for all/any/some versions of point-to-point synchronization operations.
+- Device and host API support for signal set, add, and wait-until operations.
+- Fixed implementation of `ishmem_free`.
+- Compatible with [Sandia OpenSHMEM (SOS)](https://github.com/Sandia-OpenSHMEM/SOS) v1.5.3rc1 and newer releases.
+- Support for [OFI](https://github.com/ofiwg/libfabric) PSM3 provider enabled networks via SOS. 
+- Updated [specification](https://oneapi-src.github.io/ishmem/intro.html) with the teams API, size-based RMA, non-blocking AMO, team-based collectives, all/any/some flavors of synchronization operations, utility extensions for print messages, etc.
+- An improved and additional set of [unit tests](test/unit/SHMEM) covering functionality of the new APIs.
+- New [examples](examples/SHMEM) illustrating use cases of Intel® SHMEM functionalities including the Teams APIs.
+- Updated [launcher script](scripts/ishmrun) to launch Intel® SHMEM applications on the available SYCL devices in the system.
+
+### Known Limitations
+- Only [Sandia OpenSHMEM](https://github.com/Sandia-OpenSHMEM/SOS) is currently supported as the host back-end.
+- Not all APIs from OpenSHMEM standard are supported. Please refer to [Supported/Unsupported Features](https://oneapi-src.github.io/ishmem/supported_features.html) to get a complete view.
+- Intel® SHMEM requires a one-to-one mapping of PEs to SYCL devices. This implies that Intel® SHMEM executions must launch with a number of processes on each compute node that is no more than the number of available SYCL devices on each one of those nodes. By default, the Intel® SHMEM runtime considers each individual device tile to make up a single SYCL device and assigns a tile per PE.
+- All collective operations within a kernel must complete before invoking subsequent kernel-initiated collective operation.
+- To run Intel® SHMEM with SOS enabling the Slingshot provider in OFI, environment variable `FI_CXI_OPTIMIZED_MRS=0` must be used. It is also recommended to use `FI_CXI_DEFAULT_CQ_SIZE=131072`.
+- To run Intel® SHMEM with SOS enabling the verbs provider, environment variable `MLX5_SCATTER_TO_CQE=0` must be used.
+- Inter-node communication in Intel® SHMEM requires [dma-buf](https://www.kernel.org/doc/html/latest/driver-api/dma-buf.html) support in the Linux kernel. Inter-node functionality in Intel® SHMEM Release 1.1.0 is tested with SUSE Linux Enterprise Server 15 SP4.
 
 ## Release 1.0.0
-### Table of Contents <!-- omit in toc -->
-- [New Features](#new-features)
-- [Known Limitations](#known-limitations)
 
 ### New Features
 - OpenSHMEM programming on Intel® GPUs.

@@ -52,7 +52,10 @@ double runkernel_reduce_work_group(sycl::queue q, size_t threads, long *dest, lo
 
 int main(int argc, char **argv)
 {
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
+
     sycl::property_list prop_list{sycl::property::queue::enable_profiling()};
 
     my_pe = ishmem_my_pe();
@@ -100,9 +103,9 @@ int main(int argc, char **argv)
     please_return = false;
     printf("csv,pe,npes,mode,threads,nreduce,count,calls/second,bwMB\n");
     //    timeout_thread = std::thread(barrier_timeout<, (void *) NULL);
-    double *duration = (double *) shmem_calloc(1, sizeof(double));
+    double *duration = (double *) runtime_calloc(1, sizeof(double));
     CHECK_ALLOC(duration);
-    double *d0 = (double *) shmem_calloc(1, sizeof(double));
+    double *d0 = (double *) runtime_calloc(1, sizeof(double));
     CHECK_ALLOC(d0);
     for (size_t nreduce = 1; nreduce <= (BUFSIZE / sizeof(long)); nreduce <<= 1) {
         for (size_t threads = 1; threads <= 256; threads <<= 1) {
@@ -127,7 +130,7 @@ int main(int argc, char **argv)
                         }
                     }
                 }
-                shmem_double_broadcast(SHMEM_TEAM_WORLD, d0, duration, 1, 0);
+                runtime_broadcast(d0, duration, sizeof(double), 0);
                 if (*d0 > 0.01) break;
                 count <<= 1;
             }
@@ -170,7 +173,7 @@ int main(int argc, char **argv)
                         }
                     }
                 }
-                shmem_double_broadcast(SHMEM_TEAM_WORLD, d0, duration, 1, 0);
+                runtime_broadcast(d0, duration, sizeof(double), 0);
                 if (*d0 > 0.01) break;
                 count <<= 1;
             }
@@ -186,8 +189,8 @@ int main(int argc, char **argv)
     }
     please_return = true;
     // timeout_thread.join();
-    shmem_free(duration);
-    shmem_free(d0);
+    runtime_free(duration);
+    runtime_free(d0);
     ishmem_barrier_all();
     printf("[%d] Calling finalize\n", my_pe);
     fflush(stdout);

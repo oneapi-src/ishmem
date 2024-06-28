@@ -3,7 +3,7 @@
  */
 
 #include "proxy.h"
-#include "internal.h"
+#include "ishmem/err.h"
 #include "runtime.h"
 #include <thread>
 #include <immintrin.h>
@@ -15,7 +15,7 @@
 
 static std::thread proxy_thread;
 
-ishmem_cpu_info_t *ishmemi_cpu_info;
+ishmemi_cpu_info_t *ishmemi_cpu_info;
 
 /*  the host has to be able to write the completion array and the peer_receive cell
  *  so those things must be 64 byte aligned and mapped to host memory
@@ -25,31 +25,39 @@ ishmem_cpu_info_t *ishmemi_cpu_info;
  *      allocation of completion array
  *      zeroing it
  *      copying pointer to ishmemi_mmap_gpu_info->ring.completions
- *      mmap the device pointer and store in global here ishmemi_completions;
+ *      mmap the device pointer and store in global here ishmemi_ring_host_completions;
  *
  */
-ishmemi_request_t *ishmemi_sendbuf;            /* host address */
-ishmemi_ringcompletion_t *ishmemi_completions; /* host map to device */
-ishmemi_message_t *ishmemi_msg_queue;
+ishmemi_request_t *ishmemi_ring_host_sendbuf;            /* host map of send buffer */
+ishmemi_ringcompletion_t *ishmemi_ring_host_completions; /* host map of completions */
+ishmemi_message_t *ishmemi_msg_queue;                    /* messages to print from gpu */
 
-void ishmemi_cpu_ring::Poll()
+#define USE_POLL_AVX 0
+
+void ishmemi_cpu_ring::poll(size_t mwait_burst)
 {
     int lockwasbusy = atomic_lock.exchange(1);
 
     ishmemi_ringcompletion_t comp;
-    ishmemi_ringcompletion_t device_peer;
+    unsigned completion_index;
     if (lockwasbusy == 0) {
-        ishmemi_request_t *mp = &recvbuf[next_receive % RingN];  // msg
-        if ((mp->sequence & 0xffff) == (next_receive & 0xffff)) {
-            ishmemi_request_t msg = *mp;
+        ishmemi_request_t *mp = &recvbuf[next_receive % RING_SIZE];  // msg
+        ishmemi_request_t msg __attribute__((aligned(64)));
+        uint16_t matchvalue = (uint16_t) next_receive;
+#if USE_POLL_AVX == 1
+        __m512i req = _mm512_load_epi64((uint64_t *) mp);
+        _mm512_store_epi64((uint64_t *) &msg, req);
+        if ((uin16_t) msg.sequence == matchvalue) {
+#else
+        if ((uint16_t) mp->sequence == matchvalue) {
+            _mm_mfence();
+            msg = *mp;
+#endif
+            completion_index = next_receive & (RING_SIZE - 1);
+            comp.completion.sequence = next_receive & 0xffff;
             next_receive = next_receive + 1;
-            if ((next_receive & UPDATE_RECEIVE_INTERVAL_MASK) == 0) {
-                device_peer.completion.sequence = next_receive;
-                _movdir64b((void *) &ishmemi_completions[RingN], &device_peer);
-            }
             atomic_lock.store(0);      // release lock
             comp.completion.lock = 1;  // it should stay locked until freed at the device
-            comp.completion.sequence = 1;
             if (msg.op > DEBUG_TEST) msg.op = DEBUG_TEST;
             if (msg.type == ISHMEMI_TYPE_END) msg.type = MEM;
             // TODO - Enable this with a build flag
@@ -66,18 +74,23 @@ void ishmemi_cpu_ring::Poll()
                 fflush(stderr);
             }
             ishmemi_upcall_funcs[msg.op][msg.type](&msg, &comp);
-            if (msg.completion != 0)
-                _movdir64b((void *) &ishmemi_completions[msg.completion], &comp);
+            _movdir64b((void *) &ishmemi_ring_host_completions[completion_index], &comp);
         } else {
             atomic_lock.store(0);  // release lock
+            if (mwait_burst) {
+                _umonitor(mp);
+                long unsigned when = _rdtsc() + 10000L;
+                _umwait(1, when);
+            }
         }
     }
 }
 
 void host_proxy_thread(void *arg)
 {
+    size_t mwait_burst = ishmemi_params.MWAIT_BURST;
     while (ishmemi_cpu_info->proxy_state != EXIT) {
-        ishmemi_cpu_info->ring.Poll();
+        ishmemi_cpu_info->ring.poll(mwait_burst);
     }
 
     ISHMEM_DEBUG_MSG("[proxy_thread] exiting\n");
@@ -95,14 +108,15 @@ int ishmemi_proxy_init()
      *      allocation of sendbuf array
      *      zeroing them
      *      copying pointer to ishmemi_mmap_gpu_info->completions
-     *      mmap the device pointer and store in global here ishmemi_completions;
+     *      mmap the device pointer and store in global here ishmemi_ring_host_completions;
      */
     constexpr int CPU_STR_LEN = 4096;
     char str[CPU_STR_LEN];
     int off;
 
     int ret;
-    ret = ishmemi_usm_alloc_host((void **) &ishmemi_sendbuf, RingN * sizeof(ishmemi_request_t));
+    ret = ishmemi_usm_alloc_host((void **) &ishmemi_ring_host_sendbuf,
+                                 RING_SIZE * sizeof(ishmemi_request_t));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
 
     ret = ishmemi_usm_alloc_host((void **) &ishmemi_msg_queue,
@@ -111,38 +125,41 @@ int ishmemi_proxy_init()
 
     ishmemi_mmap_gpu_info->messages = ishmemi_msg_queue;
 
-    memset(ishmemi_sendbuf, 0, RingN * sizeof(ishmemi_request_t));
-    ishmemi_completions = &ishmemi_mmap_gpu_info->completions[0];
-    memset(ishmemi_completions, 0, (RingN + 1) * sizeof(ishmemi_ringcompletion_t));
+    memset(ishmemi_ring_host_sendbuf, 0, RING_SIZE * sizeof(ishmemi_request_t));
+    for (int i = 0; i < RING_SIZE; i += 1) {
+        ishmemi_ring_host_sendbuf[i].op = G;
+    }
+    ishmemi_ring_host_completions = &ishmemi_mmap_gpu_info->completions[0];
+    memset(ishmemi_ring_host_completions, 0, (RING_SIZE * 2) * sizeof(ishmemi_ringcompletion_t));
 
-    /*
-     * Initialization of ring and completion for device info; done via mmap copy
+    /* Initialize the gpu ring object.  This is a weird operation, calling the ring constructor on
+     * the host with a host mmapped pointer, for an object in device memory that will be used only
+     * in SYCL code.
      */
-    ishmemi_mmap_gpu_info->ring.sendbuf = ishmemi_sendbuf;
-    ishmemi_mmap_gpu_info->ring.next_send = RingN;
-    ishmemi_mmap_gpu_info->ring.peer_receive =
-        &ishmemi_gpu_info->completions[RingN].completion.sequence;
+    ishmemi_mmap_gpu_info->ring.init(ishmemi_ring_host_sendbuf, RING_SIZE,
+                                     &ishmemi_gpu_info->completions[0].completion);
+
+    /* Initialize the gpu completion object */
     ishmemi_mmap_gpu_info->completion.completions = &ishmemi_gpu_info->completions[0];
     ishmemi_mmap_gpu_info->completion.next_completion = 0;
 
-    /* initialize peer_receive in device memory */
-    device_peer.completion.sequence = RingN;
-    _movdir64b((void *) &ishmemi_completions[RingN], &device_peer);
+    /* Initialize built-in completions in device memory */
+    for (unsigned completion_index = 0; completion_index < RING_SIZE; completion_index += 1) {
+        device_peer.completion.sequence = completion_index;
+        _movdir64b((void *) &ishmemi_ring_host_completions[completion_index], &device_peer);
+    }
+    /* Initialize allocated completions in device memory */
+    for (unsigned completion_index = 0; completion_index < RING_SIZE; completion_index += 1) {
+        device_peer.completion.sequence = 0x10000;
+        device_peer.completion.lock = 0;
+        _movdir64b((void *) &ishmemi_ring_host_completions[RING_SIZE + completion_index],
+                   &device_peer);
+    }
 
-    /* initialize the first completion entry to 0 in device memory */
-    device_peer.completion.sequence = 0xffffffff;
-    device_peer.completion.lock = 1;
-    _movdir64b((void *) &ishmemi_completions[0], &device_peer);
+    /* Initialized the cpu ring object */
+    ishmemi_cpu_info->ring.init(ishmemi_ring_host_sendbuf, RING_SIZE);
 
-    /* This is the constructor for omeshmemi_cpu_info-> ring
-     * should be done as a real object constructor
-     * TODO
-     */
-    ishmemi_cpu_info->ring.recvbuf = ishmemi_sendbuf;
-    ishmemi_cpu_info->ring.next_receive = RingN;
-    ishmemi_cpu_info->ring.atomic_lock = 0;
-
-    /* initialize the upcall table.  This is a version of ishmemi_proxy_funcs
+    /* Initialize the upcall table.  This is a version of ishmemi_proxy_funcs
      * that has cutover functions replaced by new implementations
      * and also upcall functions that are not implemented by the runtime at all
      */
@@ -153,6 +170,7 @@ int ishmemi_proxy_init()
     /* TODO figure out what the proxy_thread affinity should be according to topology
      * the thread should be on the same socket as the PCIe to the device
      */
+    /* If we want multiple proxy threads, create them here */
     proxy_thread = std::thread(host_proxy_thread, (void *) NULL);
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
@@ -183,8 +201,8 @@ int ishmemi_proxy_fini()
      * any kernels are still running
      */
     if (ishmemi_mmap_gpu_info != nullptr) {
-        ishmemi_mmap_gpu_info->ring.sendbuf = nullptr;
-        ISHMEMI_FREE(ishmemi_usm_free, ishmemi_sendbuf);
+        ishmemi_mmap_gpu_info->ring.cleanup();
+        ISHMEMI_FREE(ishmemi_usm_free, ishmemi_ring_host_sendbuf);
 
         if (ishmemi_mmap_gpu_info->messages != nullptr) {
             ISHMEMI_FREE(ishmemi_usm_free, ishmemi_msg_queue);

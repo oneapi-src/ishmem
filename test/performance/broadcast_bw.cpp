@@ -24,7 +24,9 @@ int main(int argc, char **argv)
     size_t bufsize = (t.max_nelems * sizeof(uint64_t)) + 4096;
     t.alloc_memory(bufsize);
     size_t errors = 0;
-    t.run_bw_tests(LONG, NOP, t.n_pes, true);
+    if (!t.test_types_set) t.add_test_type(LONG);
+    if (!t.test_ops_set) t.add_test_op(NOP);
+    t.run_bw_tests(t.n_pes, true);
     ishmem_sync_all();
     return (t.finalize_and_report(errors));
 }

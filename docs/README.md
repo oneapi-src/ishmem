@@ -18,6 +18,7 @@ To get started with Sphinx, Read the Docs, and rST syntax please refer to:
 ```
     pip install sphinx
     pip install sphinx_rtd_theme
+    pip install sphinx_book_theme
 ```
 4.  Generate documentation using the steps below.
 
@@ -27,3 +28,8 @@ To get started with Sphinx, Read the Docs, and rST syntax please refer to:
 2.  Optionally run `make clean` to remove any pre-existing files.
 3.  Run `make html`.
 4.  Open the `build/html/index.html` file with your favorite browser.
+
+### Style and text editor guidlines:
+
+1.  Whenever possible, please maintain only a single sentence per line.
+2.  Please set your text editor to enforce no more than 80 characters per line.

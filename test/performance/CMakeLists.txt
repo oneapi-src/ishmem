@@ -13,17 +13,27 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCE_FILES})
     target_link_libraries(${TEST_EXE_FILE} ${EXTRA_LIBS} ishmem-static)
 endforeach()
 
-add_test(NAME ishmem_get_bw-3-gpu COMMAND ${CTEST_WRAPPER} 3 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/ishmem_get_bw COMMAND_EXPAND_LISTS)
-set_tests_properties(ishmem_get_bw-3-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+set(BWARGS "--csv -m 512 --test_modes device ")
+add_test(NAME alltoall_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/alltoall_bw ${BWARGS} COMMAND_EXPAND_LISTS)
+set_tests_properties(alltoall_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
 
-add_test(NAME ishmem_get_work_group_bw-3-gpu COMMAND ${CTEST_WRAPPER} 3 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/ishmem_get_work_group_bw COMMAND_EXPAND_LISTS)
-set_tests_properties(ishmem_get_work_group_bw-3-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+add_test(NAME amo_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/amo_bw ${BWARGS} COMMAND_EXPAND_LISTS)
+set_tests_properties(amo_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
 
-add_test(NAME ishmem_put_bw_ts-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/ishmem_put_bw_ts COMMAND_EXPAND_LISTS)
-set_tests_properties(ishmem_put_bw_ts-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+add_test(NAME broadcast_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/broadcast_bw ${BWARGS} COMMAND_EXPAND_LISTS)
+set_tests_properties(broadcast_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
 
-add_test(NAME ishmem_put_bw-3-gpu COMMAND ${CTEST_WRAPPER} 3 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/ishmem_put_bw COMMAND_EXPAND_LISTS)
-set_tests_properties(ishmem_put_bw-3-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+add_test(NAME collect_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/collect_bw ${BWARGS} COMMAND_EXPAND_LISTS)
+set_tests_properties(collect_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
 
-add_test(NAME ishmem_put_work_group_bw-3-gpu COMMAND ${CTEST_WRAPPER} 3 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/ishmem_put_work_group_bw COMMAND_EXPAND_LISTS)
-set_tests_properties(ishmem_put_work_group_bw-3-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+add_test(NAME fcollect_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/fcollect_bw ${BWARGS} COMMAND_EXPAND_LISTS)
+set_tests_properties(fcollect_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+
+add_test(NAME get_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/get_bw ${BWARGS} COMMAND_EXPAND_LISTS)
+set_tests_properties(get_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+
+add_test(NAME put_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/put_bw ${BWARGS} COMMAND_EXPAND_LISTS)
+set_tests_properties(put_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+
+add_test(NAME reduce_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/reduce_bw ${BWARGS} COMMAND_EXPAND_LISTS)
+set_tests_properties(reduce_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)

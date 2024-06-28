@@ -101,7 +101,9 @@ constexpr int N = 5;
 
 int main(int argc, char *argv[])
 {
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     sycl::queue q;
 
@@ -166,9 +168,7 @@ int main(int argc, char *argv[])
     TEST_SHMEM_G_PARALLEL_FOR(ptrdiff_t, ptrdiff);
 
     ishmem_finalize();
-    if (rc)
-        std::cout << mype << ": Test Failed" << std::endl;
-    else
-        std::cout << mype << ": Test Passed" << std::endl;
+    if (rc) std::cout << mype << ": Test Failed" << std::endl;
+    else std::cout << mype << ": Test Passed" << std::endl;
     return rc;
 }

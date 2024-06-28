@@ -6,6 +6,7 @@
 #define I_SHMEM_H
 
 #include <CL/sycl.hpp>
+
 #define ISHMEM_DEVICE_ATTRIBUTES SYCL_EXTERNAL
 
 #define ISHMEM_MAJOR_VERSION 1
@@ -45,6 +46,34 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_info_get_name(char *name);
 int ishmem_init_thread(int requested, int *provided);
 void ishmem_query_thread(int *provided);
 
+/* Team management routines */
+typedef int ishmem_team_t;
+
+typedef struct {
+    int num_contexts;
+} ishmem_team_config_t;
+
+#define ISHMEM_TEAM_NUM_CONTEXTS 1L
+
+#define ISHMEM_TEAM_INVALID -1
+#define ISHMEM_TEAM_WORLD   0
+#define ISHMEM_TEAM_SHARED  1
+/* ISHMEMX_TEAM_NODE defined (2) in ishmemx.h */
+
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_team_my_pe(ishmem_team_t team);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_team_n_pes(ishmem_team_t team);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_team_translate_pe(ishmem_team_t src_team, int src_pe,
+                                                      ishmem_team_t dest_team);
+int ishmem_team_get_config(ishmem_team_t team, long config_mask, ishmem_team_config_t *config);
+int ishmem_team_split_strided(ishmem_team_t parent_team, int start, int stride, int size,
+                              const ishmem_team_config_t *config, long config_mask,
+                              ishmem_team_t *new_team);
+int ishmem_team_split_2d(ishmem_team_t parent_team, int xrange,
+                         const ishmem_team_config_t *xaxis_config, long xaxis_mask,
+                         ishmem_team_t *xaxis_team, const ishmem_team_config_t *yaxis_config,
+                         long yaxis_mask, ishmem_team_t *yaxis_team);
+void ishmem_team_destroy(ishmem_team_t team);
+
 /* clang-format off */
 /* put */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_put(T *, const T *, size_t, int);
@@ -71,6 +100,11 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_put(uint32_t *, const uint32_t *, si
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_put(uint64_t *, const uint64_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_put(size_t *, const size_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_put(ptrdiff_t *, const ptrdiff_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put8(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put16(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put32(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put64(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put128(void *, const void *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_putmem(void *, const void *, size_t, int);
 
 /* iput */
@@ -98,6 +132,11 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_iput(uint32_t *, const uint32_t *, p
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_iput(uint64_t *, const uint64_t *, ptrdiff_t, ptrdiff_t, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_iput(size_t *, const size_t *, ptrdiff_t, ptrdiff_t, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_iput(ptrdiff_t *, const ptrdiff_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iput8(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iput16(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iput32(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iput64(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iput128(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_iputmem(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
 
 /* p */
@@ -151,6 +190,11 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_get(uint32_t *, const uint32_t *, si
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_get(uint64_t *, const uint64_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_get(size_t *, const size_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_get(ptrdiff_t *, const ptrdiff_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get8(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get16(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get32(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get64(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get128(void *, const void *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_getmem(void *, const void *, size_t, int);
 
 /* iget */
@@ -178,6 +222,11 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_iget(uint32_t *, const uint32_t *, p
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_iget(uint64_t *, const uint64_t *, ptrdiff_t, ptrdiff_t, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_iget(size_t *, const size_t *, ptrdiff_t, ptrdiff_t, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_iget(ptrdiff_t *, const ptrdiff_t *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iget8(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iget16(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iget32(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iget64(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_iget128(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_igetmem(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
 
 /* g */
@@ -231,6 +280,11 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_put_nbi(uint32_t *, const uint32_t *
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_put_nbi(uint64_t *, const uint64_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_put_nbi(size_t *, const size_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_put_nbi(ptrdiff_t *, const ptrdiff_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put8_nbi(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put16_nbi(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put32_nbi(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put64_nbi(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put128_nbi(void *, const void *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_putmem_nbi(void *, const void *, size_t, int);
 
 /* get_nbi */
@@ -258,6 +312,11 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_get_nbi(uint32_t *, const uint32_t *
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_get_nbi(uint64_t *, const uint64_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_get_nbi(size_t *, const size_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_get_nbi(ptrdiff_t *, const ptrdiff_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get8_nbi(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get16_nbi(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get32_nbi(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get64_nbi(void *, const void *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_get128_nbi(void *, const void *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_getmem_nbi(void *, const void *, size_t, int);
 
 /* atomic_fetch */
@@ -460,6 +519,115 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_atomic_xor(int64_t *, int64_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_atomic_xor(uint32_t *, uint32_t, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_atomic_xor(uint64_t *, uint64_t, int);
 
+/* atomic_fetch_nbi */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_atomic_fetch_nbi(T *, T *,  int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_float_atomic_fetch_nbi(float *,float *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_double_atomic_fetch_nbi(double *,double *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int_atomic_fetch_nbi(int *, int *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_long_atomic_fetch_nbi(long *,long * , int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_longlong_atomic_fetch_nbi(long long *,long long *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint_atomic_fetch_nbi(unsigned int *, unsigned int *,int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulong_atomic_fetch_nbi(unsigned long *, unsigned long *,  int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulonglong_atomic_fetch_nbi(unsigned long long *, unsigned long long *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int32_atomic_fetch_nbi(int32_t *, int32_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_atomic_fetch_nbi(int64_t *, int64_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_atomic_fetch_nbi(uint32_t *, uint32_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_atomic_fetch_nbi(uint64_t *, uint64_t *,int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_atomic_fetch_nbi(size_t *, size_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_atomic_fetch_nbi(ptrdiff_t *, ptrdiff_t *, int);
+
+/* atomic_compare_swap_nbi */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES T ishmem_atomic_compare_swap_nbi(T *, T, T, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int_atomic_compare_swap_nbi(int*, int *, int, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_long_atomic_compare_swap_nbi(long *, long *, long, long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_longlong_atomic_compare_swap_nbi(long long *,long long *, long long, long long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint_atomic_compare_swap_nbi(unsigned int *,unsigned int *, unsigned int, unsigned int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulong_atomic_compare_swap_nbi(unsigned long *,unsigned long *, unsigned long, unsigned long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulonglong_atomic_compare_swap_nbi(unsigned long long *,unsigned long long *, unsigned long long, unsigned long long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int32_atomic_compare_swap_nbi(int32_t *,int32_t *, int32_t, int32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_atomic_compare_swap_nbi(int64_t *,int64_t *, int64_t, int64_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_atomic_compare_swap_nbi(uint32_t *,uint32_t *, uint32_t, uint32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_atomic_compare_swap_nbi(uint64_t *,uint64_t *, uint64_t, uint64_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_atomic_compare_swap_nbi(size_t *,size_t *, size_t, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_atomic_compare_swap_nbi(ptrdiff_t *,ptrdiff_t *, ptrdiff_t, ptrdiff_t, int);
+
+/* atomic_swap_nbi */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_atomic_swap_nbi(T *, T *, T, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_float_atomic_swap_nbi(float *, float *, float, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_double_atomic_swap_nbi(double *, double *, double, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int_atomic_swap_nbi(int *, int *, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_long_atomic_swap_nbi(long *, long *, long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_longlong_atomic_swap_nbi(long long *, long long *, long long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint_atomic_swap_nbi(unsigned int *, unsigned int *, unsigned int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulong_atomic_swap_nbi(unsigned long *, unsigned long *, unsigned long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulonglong_atomic_swap_nbi(unsigned long long *, unsigned long long *, unsigned long long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int32_atomic_swap_nbi(int32_t *, int32_t *, int32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_atomic_swap_nbi(int64_t *, int64_t *, int64_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_atomic_swap_nbi(uint32_t *, uint32_t *, uint32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_atomic_swap_nbi(uint64_t *, uint64_t *, uint64_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_atomic_swap_nbi(size_t *, size_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_atomic_swap_nbi(ptrdiff_t *, ptrdiff_t *, ptrdiff_t, int);
+
+/* atomic_fetch_inc_nbi */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_atomic_fetch_inc(T *, T *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int_atomic_fetch_inc_nbi(int *, int *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_long_atomic_fetch_inc_nbi(long *, long *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_longlong_atomic_fetch_inc_nbi(long long *, long long *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint_atomic_fetch_inc_nbi(unsigned int *, unsigned int *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulong_atomic_fetch_inc_nbi(unsigned long *, unsigned long *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulonglong_atomic_fetch_inc_nbi(unsigned long long *, unsigned long long *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int32_atomic_fetch_inc_nbi(int32_t *, int32_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_atomic_fetch_inc_nbi(int64_t *, int64_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_atomic_fetch_inc_nbi(uint32_t *, uint32_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_atomic_fetch_inc_nbi(uint64_t *, uint64_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_atomic_fetch_inc_nbi(size_t *, size_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_atomic_fetch_inc_nbi(ptrdiff_t *, ptrdiff_t *, int);
+
+/* atomic_fetch_add_nbi */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_atomic_fetch_add_nbi(T *, T *, T, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int_atomic_fetch_add_nbi(int *, int *, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_long_atomic_fetch_add_nbi(long *, long *, long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_longlong_atomic_fetch_add_nbi(long long *, long long *, long long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint_atomic_fetch_add_nbi(unsigned int *, unsigned int *, unsigned int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulong_atomic_fetch_add_nbi(unsigned long *, unsigned long *, unsigned long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulonglong_atomic_fetch_add_nbi(unsigned long long *, unsigned long long *, unsigned long long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int32_atomic_fetch_add_nbi(int32_t *, int32_t *, int32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_atomic_fetch_add_nbi(int64_t *, int64_t *, int64_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_atomic_fetch_add_nbi(uint32_t *, uint32_t *, uint32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_atomic_fetch_add_nbi(uint64_t *, uint64_t *, uint64_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_atomic_fetch_add_nbi(size_t *, size_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_atomic_fetch_add_nbi(ptrdiff_t *, ptrdiff_t *, ptrdiff_t, int);
+
+/* atomic_fetch_and_nbi */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_atomic_fetch_and_nbi(T *, T *, T, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint_atomic_fetch_and_nbi(unsigned int *, unsigned int *, unsigned int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulong_atomic_fetch_and_nbi(unsigned long *, unsigned long *, unsigned long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulonglong_atomic_fetch_and_nbi(unsigned long long *, unsigned long long *, unsigned long long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int32_atomic_fetch_and_nbi(int32_t *, int32_t *, int32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_atomic_fetch_and_nbi(int64_t *, int64_t *, int64_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_atomic_fetch_and_nbi(uint32_t *, uint32_t *, uint32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_atomic_fetch_and_nbi(uint64_t *, uint64_t *, uint64_t, int);
+
+/* atomic_fetch_or_nbi */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_atomic_fetch_or_nbi(T *, T *, T, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint_atomic_fetch_or_nbi(unsigned int *, unsigned int *, unsigned int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulong_atomic_fetch_or_nbi(unsigned long *, unsigned long *, unsigned long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulonglong_atomic_fetch_or_nbi(unsigned long long *, unsigned long long *, unsigned long long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int32_atomic_fetch_or_nbi(int32_t *, int32_t *, int32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_atomic_fetch_or_nbi(int64_t *, int64_t *, int64_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_atomic_fetch_or_nbi(uint32_t *, uint32_t *, uint32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_atomic_fetch_or_nbi(uint64_t *, uint64_t *, uint64_t, int);
+
+/* atomic_fetch_xor_nbi */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_atomic_fetch_xor_nbi(T *, T *, T, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint_atomic_fetch_xor_nbi(unsigned int *, unsigned int *, unsigned int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulong_atomic_fetch_xor_nbi(unsigned long *, unsigned long *, unsigned long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulonglong_atomic_fetch_xor_nbi(unsigned long long *, unsigned long long *, unsigned long long, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int32_atomic_fetch_xor_nbi(int32_t *, int32_t *, int32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_atomic_fetch_xor_nbi(int64_t *, int64_t *, int64_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_atomic_fetch_xor_nbi(uint32_t *, uint32_t *, uint32_t, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_atomic_fetch_xor_nbi(uint64_t *, uint64_t *, uint64_t, int);
+
 /* put_signal */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_put_signal(T *, const T *, size_t, uint64_t *, uint64_t, int, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_float_put_signal(float *, const float *, size_t, uint64_t *, uint64_t, int, int);
@@ -485,6 +653,11 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_put_signal(uint32_t *, const uint32_
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_put_signal(uint64_t *, const uint64_t *, size_t, uint64_t *, uint64_t, int, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_put_signal(size_t *, const size_t *, size_t, uint64_t *, uint64_t, int, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_put_signal(ptrdiff_t *, const ptrdiff_t *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put8_signal(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put16_signal(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put32_signal(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put64_signal(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put128_signal(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_putmem_signal(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
 
 /* put_signal_nbi */
@@ -512,6 +685,11 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_put_signal_nbi(uint32_t *, const uin
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_put_signal_nbi(uint64_t *, const uint64_t *, size_t, uint64_t *, uint64_t, int, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_put_signal_nbi(size_t *, const size_t *, size_t, uint64_t *, uint64_t, int, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_put_signal_nbi(ptrdiff_t *, const ptrdiff_t *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put8_signal_nbi(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put16_signal_nbi(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put32_signal_nbi(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put64_signal_nbi(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_put128_signal_nbi(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_putmem_signal_nbi(void *, const void *, size_t, uint64_t *, uint64_t, int, int);
 
 /* signal_fetch */
@@ -544,6 +722,33 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_alltoall(size_t *, const size_t *, size
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_alltoall(ptrdiff_t *, const ptrdiff_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_alltoallmem(void *, const void *, size_t);
 
+/* alltoall on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_alltoall(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_alltoall(ishmem_team_t, float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_alltoall(ishmem_team_t, double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_alltoall(ishmem_team_t, char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_alltoall(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_alltoall(ishmem_team_t, short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_alltoall(ishmem_team_t, int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_alltoall(ishmem_team_t, long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_alltoall(ishmem_team_t, long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_alltoall(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_alltoall(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_alltoall(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_alltoall(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_alltoall(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_alltoall(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_alltoall(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_alltoall(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_alltoall(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_alltoall(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_alltoall(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_alltoall(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_alltoall(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_alltoall(ishmem_team_t, size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_alltoall(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_alltoallmem(ishmem_team_t, void *, const void *, size_t);
+
 /* broadcast */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_broadcast(T *, const T *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_broadcast(float *, const float *, size_t, int);
@@ -570,6 +775,33 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_broadcast(uint64_t *, const uint64_t 
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_broadcast(size_t *, const size_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_broadcast(ptrdiff_t *, const ptrdiff_t *, size_t, int);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_broadcastmem(void *, const void *, size_t, int);
+
+/* broadcast on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_broadcast(ishmem_team_t, T *, const T *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_broadcast(ishmem_team_t, float *, const float *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_broadcast(ishmem_team_t, double *, const double *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_broadcast(ishmem_team_t, char *, const char *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_broadcast(ishmem_team_t, signed char *, const signed char *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_broadcast(ishmem_team_t, short *, const short *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_broadcast(ishmem_team_t, int *, const int *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_broadcast(ishmem_team_t, long *, const long *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_broadcast(ishmem_team_t, long long *, const long long *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_broadcast(ishmem_team_t, unsigned char *, const unsigned char *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_broadcast(ishmem_team_t, unsigned short *, const unsigned short *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_broadcast(ishmem_team_t, unsigned int *, const unsigned int *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_broadcast(ishmem_team_t, unsigned long *, const unsigned long *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_broadcast(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_broadcast(ishmem_team_t, int8_t *, const int8_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_broadcast(ishmem_team_t, int16_t *, const int16_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_broadcast(ishmem_team_t, int32_t *, const int32_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_broadcast(ishmem_team_t, int64_t *, const int64_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_broadcast(ishmem_team_t, uint8_t *, const uint8_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_broadcast(ishmem_team_t, uint16_t *, const uint16_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_broadcast(ishmem_team_t, uint32_t *, const uint32_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_broadcast(ishmem_team_t, uint64_t *, const uint64_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_broadcast(ishmem_team_t, size_t *, const size_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_broadcast(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_broadcastmem(ishmem_team_t, void *, const void *, size_t, int);
 
 /* collect */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_collect(T *, const T *, size_t);
@@ -598,6 +830,33 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_collect(size_t *, const size_t *, size_
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_collect(ptrdiff_t *, const ptrdiff_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_collectmem(void *, const void *, size_t);
 
+/* collect on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_collect(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_collect(ishmem_team_t, float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_collect(ishmem_team_t, double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_collect(ishmem_team_t, char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_collect(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_collect(ishmem_team_t, short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_collect(ishmem_team_t, int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_collect(ishmem_team_t, long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_collect(ishmem_team_t, long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_collect(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_collect(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_collect(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_collect(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_collect(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_collect(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_collect(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_collect(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_collect(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_collect(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_collect(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_collect(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_collect(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_collect(ishmem_team_t, size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_collect(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_collectmem(ishmem_team_t, void *, const void *, size_t);
+
 /* fcollect */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_fcollect(T *, const T *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_fcollect(float *, const float *, size_t);
@@ -625,6 +884,33 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_fcollect(size_t *, const size_t *, size
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_fcollect(ptrdiff_t *, const ptrdiff_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_fcollectmem(void *, const void *, size_t);
 
+/* fcollect on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_fcollect(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_fcollect(ishmem_team_t, float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_fcollect(ishmem_team_t, double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_fcollect(ishmem_team_t, char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_fcollect(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_fcollect(ishmem_team_t, short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_fcollect(ishmem_team_t, int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_fcollect(ishmem_team_t, long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_fcollect(ishmem_team_t, long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_fcollect(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_fcollect(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_fcollect(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_fcollect(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_fcollect(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_fcollect(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_fcollect(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_fcollect(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_fcollect(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_fcollect(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_fcollect(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_fcollect(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_fcollect(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_fcollect(ishmem_team_t, size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_fcollect(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_fcollectmem(ishmem_team_t, void *, const void *, size_t);
+
 /* and_reduce */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_and_reduce(T *, const T *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_and_reduce(signed char *, const signed char *, size_t);
@@ -642,6 +928,24 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_and_reduce(uint16_t *, const uint16_t
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_and_reduce(uint32_t *, const uint32_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_and_reduce(uint64_t *, const uint64_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_and_reduce(size_t *, const size_t *, size_t);
+
+/* and_reduce on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_and_reduce(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_and_reduce(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_and_reduce(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_and_reduce(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_and_reduce(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_and_reduce(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_and_reduce(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_and_reduce(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_and_reduce(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_and_reduce(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_and_reduce(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_and_reduce(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_and_reduce(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_and_reduce(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_and_reduce(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_and_reduce(ishmem_team_t, size_t *, const size_t *, size_t);
 
 /* or_reduce */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_or_reduce(T *, const T *, size_t);
@@ -661,6 +965,24 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_or_reduce(uint32_t *, const uint32_t 
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_or_reduce(uint64_t *, const uint64_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_or_reduce(size_t *, const size_t *, size_t);
 
+/* or_reduce on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_or_reduce(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_or_reduce(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_or_reduce(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_or_reduce(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_or_reduce(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_or_reduce(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_or_reduce(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_or_reduce(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_or_reduce(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_or_reduce(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_or_reduce(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_or_reduce(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_or_reduce(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_or_reduce(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_or_reduce(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_or_reduce(ishmem_team_t, size_t *, const size_t *, size_t);
+
 /* xor_reduce */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_xor_reduce(T *, const T *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_xor_reduce(signed char *, const signed char *, size_t);
@@ -678,6 +1000,24 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_xor_reduce(uint16_t *, const uint16_t
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_xor_reduce(uint32_t *, const uint32_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_xor_reduce(uint64_t *, const uint64_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_xor_reduce(size_t *, const size_t *, size_t);
+
+/* xor_reduce on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_xor_reduce(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_xor_reduce(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_xor_reduce(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_xor_reduce(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_xor_reduce(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_xor_reduce(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_xor_reduce(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_xor_reduce(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_xor_reduce(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_xor_reduce(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_xor_reduce(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_xor_reduce(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_xor_reduce(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_xor_reduce(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_xor_reduce(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_xor_reduce(ishmem_team_t, size_t *, const size_t *, size_t);
 
 /* max_reduce */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_max_reduce(T *, const T *, size_t);
@@ -705,6 +1045,32 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_max_reduce(uint64_t *, const uint64_t
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_max_reduce(size_t *, const size_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_max_reduce(ptrdiff_t *, const ptrdiff_t *, size_t);
 
+/* max_reduce on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_max_reduce(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_max_reduce(ishmem_team_t, float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_max_reduce(ishmem_team_t, double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_max_reduce(ishmem_team_t, char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_max_reduce(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_max_reduce(ishmem_team_t, short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_max_reduce(ishmem_team_t, int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_max_reduce(ishmem_team_t, long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_max_reduce(ishmem_team_t, long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_max_reduce(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_max_reduce(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_max_reduce(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_max_reduce(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_max_reduce(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_max_reduce(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_max_reduce(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_max_reduce(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_max_reduce(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_max_reduce(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_max_reduce(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_max_reduce(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_max_reduce(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_max_reduce(ishmem_team_t, size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_max_reduce(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
+
 /* min_reduce */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_min_reduce(T *, const T *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_min_reduce(float *, const float *, size_t);
@@ -730,6 +1096,32 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_min_reduce(uint32_t *, const uint32_t
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_min_reduce(uint64_t *, const uint64_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_min_reduce(size_t *, const size_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_min_reduce(ptrdiff_t *, const ptrdiff_t *, size_t);
+
+/* min_reduce on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_min_reduce(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_min_reduce(ishmem_team_t, float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_min_reduce(ishmem_team_t, double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_min_reduce(ishmem_team_t, char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_min_reduce(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_min_reduce(ishmem_team_t, short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_min_reduce(ishmem_team_t, int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_min_reduce(ishmem_team_t, long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_min_reduce(ishmem_team_t, long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_min_reduce(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_min_reduce(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_min_reduce(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_min_reduce(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_min_reduce(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_min_reduce(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_min_reduce(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_min_reduce(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_min_reduce(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_min_reduce(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_min_reduce(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_min_reduce(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_min_reduce(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_min_reduce(ishmem_team_t, size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_min_reduce(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
 
 /* sum_reduce */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_sum_reduce(T *, const T *, size_t);
@@ -757,6 +1149,32 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_sum_reduce(uint64_t *, const uint64_t
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_sum_reduce(size_t *, const size_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_sum_reduce(ptrdiff_t *, const ptrdiff_t *, size_t);
 
+/* sum_reduce on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_sum_reduce(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_sum_reduce(ishmem_team_t, float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_sum_reduce(ishmem_team_t, double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_sum_reduce(ishmem_team_t, char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_sum_reduce(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_sum_reduce(ishmem_team_t, short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_sum_reduce(ishmem_team_t, int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_sum_reduce(ishmem_team_t, long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_sum_reduce(ishmem_team_t, long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_sum_reduce(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_sum_reduce(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_sum_reduce(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_sum_reduce(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_sum_reduce(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_sum_reduce(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_sum_reduce(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_sum_reduce(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_sum_reduce(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_sum_reduce(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_sum_reduce(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_sum_reduce(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_sum_reduce(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_sum_reduce(ishmem_team_t, size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_sum_reduce(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
+
 /* prod_reduce */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_prod_reduce(T *, const T *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_prod_reduce(float *, const float *, size_t);
@@ -783,9 +1201,34 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_prod_reduce(uint64_t *, const uint64_
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_prod_reduce(size_t *, const size_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_prod_reduce(ptrdiff_t *, const ptrdiff_t *, size_t);
 
+/* prod_reduce on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_prod_reduce(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_prod_reduce(ishmem_team_t, float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_prod_reduce(ishmem_team_t, double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_prod_reduce(ishmem_team_t, char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_prod_reduce(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_prod_reduce(ishmem_team_t, short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_prod_reduce(ishmem_team_t, int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_prod_reduce(ishmem_team_t, long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_prod_reduce(ishmem_team_t, long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_prod_reduce(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_prod_reduce(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_prod_reduce(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_prod_reduce(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_prod_reduce(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_prod_reduce(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_prod_reduce(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_prod_reduce(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_prod_reduce(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_prod_reduce(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_prod_reduce(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_prod_reduce(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_prod_reduce(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_prod_reduce(ishmem_team_t, size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_prod_reduce(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
+
 /* test */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_test(T *, int, T);
-ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_test(signed char *, int, signed char);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_test(int *, int, int);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_test(long *, int, long);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_test(long long *, int, long long);
@@ -799,9 +1242,53 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_test(uint64_t *, int, uint64_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_test(size_t *, int, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_test(ptrdiff_t *, int, ptrdiff_t);
 
+/* test_all */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_test_all(T *, size_t, const int*, int, T);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_test_all(int *, size_t, const int*, int, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_test_all(long *, size_t, const int*, int, long);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_test_all(long long *, size_t, const int*, int, long long);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_test_all(unsigned int *, size_t, const int*, int, unsigned int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_test_all(unsigned long *, size_t, const int*, int, unsigned long);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_test_all(unsigned long long *, size_t, const int*, int, unsigned long long);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_test_all(int32_t *, size_t, const int*, int, int32_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_test_all(int64_t *, size_t, const int*, int, int64_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_test_all(uint32_t *, size_t, const int*, int, uint32_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_test_all(uint64_t *, size_t, const int*, int, uint64_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_test_all(size_t *, size_t, const int*, int, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_test_all(ptrdiff_t *, size_t, const int*, int, ptrdiff_t);
+
+/* test_any */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_test_any(T *, size_t, const int*, int, T);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int_test_any(int *, size_t, const int*, int, int);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_long_test_any(long *, size_t, const int*, int, long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_longlong_test_any(long long *, size_t, const int*, int, long long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint_test_any(unsigned int *, size_t, const int*, int, unsigned int);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ulong_test_any(unsigned long *, size_t, const int*, int, unsigned long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ulonglong_test_any(unsigned long long *, size_t, const int*, int, unsigned long long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int32_test_any(int32_t *, size_t, const int*, int, int32_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int64_test_any(int64_t *, size_t, const int*, int, int64_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint32_test_any(uint32_t *, size_t, const int*, int, uint32_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint64_test_any(uint64_t *, size_t, const int*, int, uint64_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_size_test_any(size_t *, size_t, const int*, int, size_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ptrdiff_test_any(ptrdiff_t *, size_t, const int*, int, ptrdiff_t);
+
+/* test_some */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_test_some(T *, size_t, size_t *, const int*, int, T);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int_test_some(int *, size_t, size_t *, const int*, int, int);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_long_test_some(long *, size_t, size_t *, const int*, int, long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_longlong_test_some(long long *, size_t, size_t *, const int*, int, long long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint_test_some(unsigned int *, size_t, size_t *, const int*, int, unsigned int);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ulong_test_some(unsigned long *, size_t, size_t *, const int*, int, unsigned long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ulonglong_test_some(unsigned long long *, size_t, size_t *, const int*, int, unsigned long long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int32_test_some(int32_t *, size_t, size_t *, const int*, int, int32_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int64_test_some(int64_t *, size_t, size_t *, const int*, int, int64_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint32_test_some(uint32_t *, size_t, size_t *, const int*, int, uint32_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint64_test_some(uint64_t *, size_t, size_t *, const int*, int, uint64_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_size_test_some(size_t *, size_t, size_t *, const int*, int, size_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ptrdiff_test_some(ptrdiff_t *, size_t, size_t *, const int*, int, ptrdiff_t);
+
 /* wait_until */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_wait_until(T *, int, T);
-ISHMEM_DEVICE_ATTRIBUTES void ishmem_schar_wait_until(signed char *, int, signed char);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_int_wait_until(int *, int, int);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_long_wait_until(long *, int, long);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_longlong_wait_until(long long *, int, long long);
@@ -815,11 +1302,60 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_wait_until(uint64_t *, int, uint64_t
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_wait_until(size_t *, int, size_t);
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_wait_until(ptrdiff_t *, int, ptrdiff_t);
 
+/* wait_until_all */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_wait_until_all(T *, size_t, const int*, int, T);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int_wait_until_all(int *, size_t, const int*, int, int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_long_wait_until_all(long *, size_t, const int*, int, long);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_longlong_wait_until_all(long long *, size_t, const int*, int, long long);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint_wait_until_all(unsigned int *, size_t, const int*, int, unsigned int);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulong_wait_until_all(unsigned long *, size_t, const int*, int, unsigned long);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ulonglong_wait_until_all(unsigned long long *, size_t, const int*, int, unsigned long long);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int32_wait_until_all(int32_t *, size_t, const int*, int, int32_t);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_int64_wait_until_all(int64_t *, size_t, const int*, int, int64_t);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint32_wait_until_all(uint32_t *, size_t, const int*, int, uint32_t);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_uint64_wait_until_all(uint64_t *, size_t, const int*, int, uint64_t);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_size_wait_until_all(size_t *, size_t, const int*, int, size_t);
+ISHMEM_DEVICE_ATTRIBUTES void ishmem_ptrdiff_wait_until_all(ptrdiff_t *, size_t, const int*, int, ptrdiff_t);
+
+/* wait_until_any */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_wait_until_any(T *, size_t, const int*, int, T);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int_wait_until_any(int *, size_t, const int*, int, int);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_long_wait_until_any(long *, size_t, const int*, int, long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_longlong_wait_until_any(long long *, size_t, const int*, int, long long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint_wait_until_any(unsigned int *, size_t, const int*, int, unsigned int);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ulong_wait_until_any(unsigned long *, size_t, const int*, int, unsigned long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ulonglong_wait_until_any(unsigned long long *, size_t, const int*, int, unsigned long long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int32_wait_until_any(int32_t *, size_t, const int*, int, int32_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int64_wait_until_any(int64_t *, size_t, const int*, int, int64_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint32_wait_until_any(uint32_t *, size_t, const int*, int, uint32_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint64_wait_until_any(uint64_t *, size_t, const int*, int, uint64_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_size_wait_until_any(size_t *, size_t, const int*, int, size_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ptrdiff_wait_until_any(ptrdiff_t *, size_t, const int*, int, ptrdiff_t);
+
+/* wait_until_some */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_wait_until_some(T *, size_t, size_t *, const int*, int, T);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int_wait_until_some(int *, size_t, size_t *, const int*, int, int);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_long_wait_until_some(long *, size_t, size_t *, const int*, int, long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_longlong_wait_until_some(long long *, size_t, size_t *, const int*, int, long long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint_wait_until_some(unsigned int *, size_t, size_t *, const int*, int, unsigned int);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ulong_wait_until_some(unsigned long *, size_t, size_t *, const int*, int, unsigned long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ulonglong_wait_until_some(unsigned long long *, size_t, size_t *, const int*, int, unsigned long long);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int32_wait_until_some(int32_t *, size_t, size_t *, const int*, int, int32_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_int64_wait_until_some(int64_t *, size_t, size_t *, const int*, int, int64_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint32_wait_until_some(uint32_t *, size_t, size_t *, const int*, int, uint32_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_uint64_wait_until_some(uint64_t *, size_t, size_t *, const int*, int, uint64_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_size_wait_until_some(size_t *, size_t, size_t *, const int*, int, size_t);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_ptrdiff_wait_until_some(ptrdiff_t *, size_t, size_t *, const int*, int, ptrdiff_t);
+
+/* signal_wait_until */
+ISHMEM_DEVICE_ATTRIBUTES uint64_t ishmem_signal_wait_until(uint64_t *, int, uint64_t);
+
 /* barrier_all */
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_barrier_all(void);
 
-/* sync_all */
+/* sync */
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_sync_all(void);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_team_sync(ishmem_team_t team);
 
 /* fence */
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_fence(void);

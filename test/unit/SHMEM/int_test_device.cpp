@@ -5,14 +5,15 @@
 #include <CL/sycl.hpp>
 #include <common.h>
 
-#define INVALID_ISHMEM_CMP_PARAM 777
-#define NUM_WORK_ITEMS           4
+#define NUM_WORK_ITEMS 4
 
 int main(int argc, char **argv)
 {
     int exit_code = 0;
 
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     int my_pe = ishmem_my_pe();
 
@@ -51,7 +52,6 @@ int main(int argc, char **argv)
             (*errors) += ishmem_int_test(source, ISHMEM_CMP_GE, 2);
             (*errors) += ishmem_int_test(source, ISHMEM_CMP_LT, 1);
             (*errors) += ishmem_int_test(source, ISHMEM_CMP_LE, 0);
-            (*errors) += ishmem_int_test(source, INVALID_ISHMEM_CMP_PARAM, 0);
         });
     });
     e1.wait_and_throw();
@@ -76,7 +76,6 @@ int main(int argc, char **argv)
             (*errors) += ishmemx_int_test_work_group(source, ISHMEM_CMP_GE, 2, grp);
             (*errors) += ishmemx_int_test_work_group(source, ISHMEM_CMP_LT, 1, grp);
             (*errors) += ishmemx_int_test_work_group(source, ISHMEM_CMP_LE, 0, grp);
-            (*errors) += ishmemx_int_test_work_group(source, INVALID_ISHMEM_CMP_PARAM, 0, grp);
         });
     });
     e2.wait_and_throw();

@@ -10,7 +10,9 @@ using std::cerr, std::endl;
 
 int main()
 {
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     // get version from host
     int maj, min;

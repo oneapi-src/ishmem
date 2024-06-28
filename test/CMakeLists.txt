@@ -3,8 +3,11 @@
 
 include_directories("include")
 
-add_subdirectory(unit)
-add_subdirectory(apps)
+if (BUILD_TEST)
+  add_subdirectory(unit)
+  add_subdirectory(apps)
+endif ()
+
 if (BUILD_PERF_TEST)
   add_subdirectory(performance)
 endif ()

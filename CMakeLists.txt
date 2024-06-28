@@ -17,7 +17,7 @@ option(BUILD_SHARED_LIBS ON)
 
 # Build flags for choosing back-ends
 option(ENABLE_OPENSHMEM "Enable OpenSHMEM runtime support" ON)
-#option(ENABLE_MPI "Enable MPI runtime support" OFF)
+option(ENABLE_MPI "Enable MPI runtime support" OFF)
 #option(ENABLE_PMI "Enable PMI runtime support" OFF)
 #option(ENABLE_OSHMPI "Enable OSHMPI support for MPI runtimes" OFF)
 #option(ENABLE_ONECCL "Enable ONECCL support for collectives" OFF)
@@ -28,10 +28,11 @@ option(BUILD_TEST "Build Test" ON)
 option(BUILD_PERF_TEST "Build Performance Test" ON)
 
 # Build flags for choosing different configurations
-option(ENABLE_GPU_RDMA "Enable GPU RDMA support" ON)
+#option(ENABLE_GPU_RDMA "Enable GPU RDMA support" ON)
 
 # Other build flags
 option(USE_REDUCED_LINK_ENGINE_SET "Reduced link engines for single tile device" OFF)
+option(USE_DLMALLOC "DLMALLOC library for allocation and free" ON)
 
 option(CTEST_SCHEDULER "Job scheduler used for ctest" OFF)
 if(NOT CTEST_SCHEDULER)
@@ -57,13 +58,26 @@ configure_file(ishmem_config.h.in ishmem_config.h)
 set(CMAKE_CXX_COMPILER icpx)
 add_compile_options(-fsycl)
 add_link_options(-fsycl)
-add_compile_options(-Werror -Wuninitialized)
+
+if (ISHMEM_USE_OFFLINE_COMPILER)
+        message("will build using ahead of time compiler")
+        add_compile_options(-fsycl-targets=spir64_gen)
+        set(devtype "-device pvc")
+        add_compile_options(--start-no-unused-arguments -Xs ${devtype} --end-no-unused-arguments)
+        add_link_options(-fsycl-targets=spir64_gen)
+        add_link_options(--start-no-unused-arguments -Xs ${devtype} --end-no-unused-arguments)
+else()
+        message("will build using incremental compiler")
+endif()
+
+add_compile_options(-Werror -Wuninitialized -Wunused-variable)
+
 add_compile_options(-Rno-debug-disables-optimization)
 add_link_options(-Rno-debug-disables-optimization)
 
 # Make sure at least one of the backends is enabled
 if (ENABLE_MPI STREQUAL "OFF" AND ENABLE_OPENSHMEM STREQUAL "OFF" AND ENABLE_PMI STREQUAL "OFF")
-    message(FATAL ERROR "At least one of 'ENABLE_MPI', 'ENABLE_OPENSHMEM' or 'ENABLE_PMI' must be on")
+    message(FATAL_ERROR "At least one of 'ENABLE_MPI', 'ENABLE_OPENSHMEM' or 'ENABLE_PMI' must be on")
 endif()
 
 # Check for valid L0 path
@@ -83,6 +97,8 @@ if (EXISTS "${L0_INSTALL_PREFIX}/lib64/libze_loader.so")
     list(APPEND EXTRA_LIBS "-L${L0_INSTALL_PREFIX}/lib64 -lze_loader")
 elseif (EXISTS "${L0_INSTALL_PREFIX}/lib/libze_loader.so")
     list(APPEND EXTRA_LIBS "-L${L0_INSTALL_PREFIX}/lib -lze_loader")
+elseif (EXISTS "${L0_INSTALL_PREFIX}/lib/x86_64-linux-gnu/libze_loader.so")
+    list(APPEND EXTRA_LIBS "-L${L0_INSTALL_PREFIX}/lib/x86_64-linux-gnu -lze_loader")
 else()
     message(FATAL_ERROR
             "Cannot find level zero library!\n"
@@ -127,7 +143,7 @@ endif()
 add_subdirectory(pmi-simple)
 add_subdirectory(src)
 add_subdirectory(examples)
-if (BUILD_TEST)
+if (BUILD_TEST OR BUILD_PERF_TEST)
     add_subdirectory(test)
 endif()
 

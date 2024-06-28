@@ -1,9 +1,9 @@
-/* -*- C -*-
+/* Copyright (C) 2024 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  *
- * This file is part of the Sandia OpenSHMEM software package. For license
- * information, see the LICENSE file in the top level directory of the
- * distribution.
- *
+ * Portions derived from Sandia OpenSHMEM (https://github.com/Sandia-OpenSHMEM/SOS)
+ * For license and copyright information, see the LICENSE and third-party-programs.txt
+ * files in the top level directory of this distribution.
  */
 
 /*
@@ -536,12 +536,8 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #include <inttypes.h>
 #include "memory.h"
 
-#define USE_DL_PREFIX 1
-#define HAVE_MORECORE 1
-#define MORECORE ishmemi_get_next
-#define MORECORE_CONTIGUOUS 1
-#define HAVE_MMAP 0
 #define ONLY_MSPACES 1
+#define HAVE_MMAP 0
 #define HAVE_MREMAP 0
 #define USAGE_ERROR_ACTION(m, p)                                        \
     do {                                                                \

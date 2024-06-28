@@ -11,7 +11,10 @@ int main(int argc, char **argv)
 {
     int exit_code = 0;
     sycl::queue q;
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
+
     setbuf(stdout, NULL);
 
     long *source = (long *) ishmem_malloc(array_size * sizeof(long));

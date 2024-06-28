@@ -1,15 +1,9 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
- */
-
-/* Copyright 2011 Sandia Corporation. Under the terms of Contract
- * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
- * retains certain rights in this software.
  *
- * This file is part of the Sandia OpenSHMEM software package. For license
- * information, see the LICENSE file in the top level directory of the
- * distribution.
- *
+ * Portions derived from Sandia OpenSHMEM (https://github.com/Sandia-OpenSHMEM/SOS)
+ * For license and copyright information, see the LICENSE and third-party-programs.txt
+ * files in the top level directory of this distribution.
  */
 
 /* Wrappers to interface with PMI runtime */
@@ -110,6 +104,20 @@ void ishmemi_runtime_pmi_barrier(void)
     PMI_Barrier();
 }
 
+int ishmemi_runtime_pmi_team_sync(ishmemi_runtime_team_t team)
+{
+    /* TODO: Implement */
+    return -1;
+}
+
+int ishmemi_runtime_pmi_team_predefined_set(ishmemi_runtime_team_t *team,
+                                            ishmemi_runtime_team_predefined_t predefined_team_name,
+                                            int expected_team_size, int expected_world_pe,
+                                            int expected_team_pe)
+{
+    return -1;
+}
+
 void ishmemi_runtime_pmi_node_barrier(void)
 {
     // FIXME: No node barrier supported
@@ -126,7 +134,7 @@ void ishmemi_runtime_pmi_node_bcast(void *buf, size_t count, int root)
     // FIXME: No node bcast supported
 }
 
-void ishmemi_runtime_pmi_unsupported(ishmem_info_t *info)
+void ishmemi_runtime_pmi_unsupported(ishmemi_info_t *info)
 {
     ISHMEM_ERROR_MSG("Encountered type '%s' unsupported for operation '%s'\n",
                      ishmemi_type_str[info->req.type], ishmemi_op_str[info->req.op]);
@@ -137,6 +145,34 @@ bool ishmemi_runtime_pmi_is_local(int pe)
 {
     /* TODO: Implement */
     return false;
+}
+
+void ishmemi_runtime_pmi_heap_create(void *base, size_t size)
+{
+    /* TODO: Implement */
+}
+
+int ishmemi_runtime_pmi_team_split_strided(ishmemi_runtime_team_t parent_team, int PE_start,
+                                           int PE_stride, int PE_size,
+                                           const ishmemi_runtime_team_config_t *config,
+                                           long config_mask, ishmemi_runtime_team_t *new_team)
+{
+    /* TODO: Implement */
+    return -1;
+}
+
+int ishmemi_runtime_pmi_uchar_and_reduce(ishmemi_runtime_team_t team, unsigned char *dest,
+                                         const unsigned char *source, size_t nreduce)
+{
+    /* TODO: Implement */
+    return -1;
+}
+
+int ishmemi_runtime_pmi_int_max_reduce(ishmemi_runtime_team_t team, int *dest, const int *source,
+                                       size_t nreduce)
+{
+    /* TODO: Implement */
+    return -1;
 }
 
 void ishmemi_runtime_pmi_funcptr_init()
@@ -229,7 +265,7 @@ int ishmemi_runtime_pmi_init(bool initialize_runtime)  // TODO: Fix later for XP
     ishmemi_runtime_get_size = ishmemi_runtime_pmi_get_size;
     ishmemi_runtime_get_node_rank = ishmemi_runtime_pmi_get_node_rank;
     ishmemi_runtime_get_node_size = ishmemi_runtime_pmi_get_node_size;
-    ishmemi_runtime_barrier = ishmemi_runtime_pmi_barrier;
+    ishmemi_runtime_barrier_all = ishmemi_runtime_pmi_barrier;
     ishmemi_runtime_node_barrier = ishmemi_runtime_pmi_node_barrier;
     ishmemi_runtime_bcast = ishmemi_runtime_pmi_bcast;
     ishmemi_runtime_node_bcast = ishmemi_runtime_pmi_node_bcast;
@@ -237,6 +273,11 @@ int ishmemi_runtime_pmi_init(bool initialize_runtime)  // TODO: Fix later for XP
     ishmemi_runtime_malloc = malloc;
     ishmemi_runtime_calloc = calloc;
     ishmemi_runtime_free = free;
+    ishmemi_runtime_team_split_strided = ishmemi_runtime_pmi_team_split_strided;
+    ishmemi_runtime_team_sync = ishmemi_runtime_pmi_team_sync;
+    ishmemi_runtime_team_predefined_set = ishmemi_runtime_pmi_team_predefined_set;
+    ishmemi_runtime_uchar_and_reduce = ishmemi_runtime_pmi_uchar_and_reduce;
+    ishmemi_runtime_int_max_reduce = ishmemi_runtime_pmi_int_max_reduce;
 
     ishmemi_runtime_pmi_funcptr_init();
 

@@ -21,5 +21,6 @@ extern int (*MPI_WRAPPER_Group_translate_ranks)(MPI_Group, int, const int[], MPI
 extern int (*MPI_WRAPPER_Group_free)(MPI_Group *);
 
 int ishmemi_mpi_wrapper_init();
+int ishmemi_mpi_wrapper_fini();
 
 #endif

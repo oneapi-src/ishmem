@@ -35,12 +35,14 @@ Intel® SHMEM
 
    library_setup_exit_query
    memory_management
+   teams
    rma
    atomics
    signaling
    collectives
    pt2pt_sync
    memory_ordering
+   utility
 
 .. ---------------
 .. Team Management

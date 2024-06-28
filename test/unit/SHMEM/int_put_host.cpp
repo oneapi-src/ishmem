@@ -18,7 +18,9 @@ int main(int argc, char **argv)
     std::cout << "Selected vendor: " << q.get_device().get_info<sycl::info::device::vendor>()
               << std::endl;
 
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     int my_pe = ishmem_my_pe();
     int npes = ishmem_n_pes();

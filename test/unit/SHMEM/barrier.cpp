@@ -7,7 +7,6 @@
 #include <ctime>
 #include <stdio.h>
 #include <common.h>
-#include <shmem.h>
 
 double tsc_frequency;
 int my_pe;
@@ -80,7 +79,10 @@ struct CMD {
 
 int main(int argc, char **argv)
 {
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
+
     sycl::property_list prop_list{sycl::property::queue::enable_profiling()};
     my_pe = ishmem_my_pe();
     int npes = ishmem_n_pes();
@@ -97,7 +99,7 @@ int main(int argc, char **argv)
     please_return = false;
     timeout_thread = std::thread(barrier_timeout, (void *) NULL);
     fflush(stdout);
-    struct CMD *cmd = (struct CMD *) shmem_calloc(2, sizeof(struct CMD));
+    struct CMD *cmd = (struct CMD *) runtime_calloc(2, sizeof(struct CMD));
     double duration = 0;
 
     if (my_pe == 0) {
@@ -108,8 +110,7 @@ int main(int argc, char **argv)
                 cmd[0].cmd = cmd_run;
                 cmd[0].iter = count;
                 cmd[0].threads = threads;
-                shmem_long_broadcast(SHMEM_TEAM_WORLD, (long *) &cmd[1], (long *) &cmd[0],
-                                     sizeof(struct CMD) / sizeof(long), 0);
+                runtime_broadcast(&cmd[1], &cmd[0], sizeof(struct CMD), 0);
                 duration = runkernel_barrier(q, (size_t) threads, (size_t) count);
                 if (duration > 0.01) break;
                 count <<= 1;
@@ -125,12 +126,10 @@ int main(int argc, char **argv)
             threads = (threads == 0) ? 1 : threads << 1;
         }
         cmd[0].cmd = cmd_exit;
-        shmem_long_broadcast(SHMEM_TEAM_WORLD, (long *) &cmd[1], (long *) &cmd[0],
-                             sizeof(struct CMD) / sizeof(long), 0);
+        runtime_broadcast(&cmd[1], &cmd[0], sizeof(struct CMD), 0);
     } else {
         while (1) {
-            shmem_long_broadcast(SHMEM_TEAM_WORLD, (long *) &cmd[1], (long *) &cmd[0],
-                                 sizeof(struct CMD) / sizeof(long), 0);
+            runtime_broadcast(&cmd[1], &cmd[0], sizeof(struct CMD), 0);
             if (cmd[1].cmd == cmd_run) {
                 duration = runkernel_barrier(q, (size_t) cmd[1].threads, (size_t) cmd[1].iter);
             } else if (cmd[1].cmd == cmd_print) {
@@ -144,7 +143,7 @@ int main(int argc, char **argv)
     }
     printf("[%d] barrier returned\n", my_pe);
     fflush(stdout);
-    shmem_free(cmd);
+    runtime_free(cmd);
     please_return = true;
     timeout_thread.join();
     ishmem_finalize();

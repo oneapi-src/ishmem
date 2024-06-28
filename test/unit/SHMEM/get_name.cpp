@@ -11,7 +11,9 @@ using std::cerr, std::endl;
 
 int main()
 {
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     // Ensure length of name is less than ISHMEM_MAX_NAME_LEN
     std::string vendor_string(ISHMEM_VENDOR_STRING);

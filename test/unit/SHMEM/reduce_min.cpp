@@ -3,94 +3,13 @@
  */
 
 #include <CL/sycl.hpp>
-#include "ishmem_tester.h"
 #include <bitset>
+#include "ishmem_tester.h"
+#include "reduce_test.h"
 
 #define BITS_PER_BYTE 8
 
-#ifdef ISHMEM_GEN_TYPE_FUNCTION
-#undef ISHMEM_GEN_TYPE_FUNCTION
-#endif
-#define ISHMEM_GEN_TYPE_FUNCTION(function, returnvar, memcase)                                     \
-    function                                                                                       \
-    {                                                                                              \
-        *test_run = true;                                                                          \
-        returnvar switch (t)                                                                       \
-        {                                                                                          \
-            case FLOAT:                                                                            \
-                ISHMEM_TYPE_BRANCH(FLOAT, float, float)                                            \
-            case DOUBLE:                                                                           \
-                ISHMEM_TYPE_BRANCH(DOUBLE, double, double)                                         \
-            case LONGDOUBLE:                                                                       \
-                ISHMEM_TYPE_BRANCH(LONG, long, long)                                               \
-            case CHAR:                                                                             \
-                ISHMEM_TYPE_BRANCH(CHAR, char, char)                                               \
-            case SCHAR:                                                                            \
-                ISHMEM_TYPE_BRANCH(SCHAR, schar, signed char)                                      \
-            case SHORT:                                                                            \
-                ISHMEM_TYPE_BRANCH(SHORT, short, short)                                            \
-            case INT:                                                                              \
-                ISHMEM_TYPE_BRANCH(INT, int, int)                                                  \
-            case LONG:                                                                             \
-                ISHMEM_TYPE_BRANCH(LONG, long, long)                                               \
-            case LONGLONG:                                                                         \
-                ISHMEM_TYPE_BRANCH(LONGLONG, longlong, long long)                                  \
-            case UCHAR:                                                                            \
-                ISHMEM_TYPE_BRANCH(UCHAR, uchar, unsigned char)                                    \
-            case USHORT:                                                                           \
-                ISHMEM_TYPE_BRANCH(USHORT, ushort, unsigned short)                                 \
-            case UINT:                                                                             \
-                ISHMEM_TYPE_BRANCH(UINT, uint, unsigned int)                                       \
-            case ULONG:                                                                            \
-                ISHMEM_TYPE_BRANCH(ULONG, ulong, unsigned long)                                    \
-            case ULONGLONG:                                                                        \
-                ISHMEM_TYPE_BRANCH(ULONGLONG, ulonglong, unsigned long long)                       \
-            case INT8:                                                                             \
-                ISHMEM_TYPE_BRANCH(INT8, int8, int8_t)                                             \
-            case INT16:                                                                            \
-                ISHMEM_TYPE_BRANCH(INT16, int16, int16_t)                                          \
-            case INT32:                                                                            \
-                ISHMEM_TYPE_BRANCH(INT32, int32, int32_t)                                          \
-            case INT64:                                                                            \
-                ISHMEM_TYPE_BRANCH(INT64, int64, int64_t)                                          \
-            case UINT8:                                                                            \
-                ISHMEM_TYPE_BRANCH(UINT8, uint8, uint8_t)                                          \
-            case UINT16:                                                                           \
-                ISHMEM_TYPE_BRANCH(UINT16, uint16, uint16_t)                                       \
-            case UINT32:                                                                           \
-                ISHMEM_TYPE_BRANCH(UINT32, uint32, uint32_t)                                       \
-            case UINT64:                                                                           \
-                ISHMEM_TYPE_BRANCH(UINT64, uint64, uint64_t)                                       \
-            case SIZE:                                                                             \
-                ISHMEM_TYPE_BRANCH(SIZE, size, size_t)                                             \
-            case PTRDIFF:                                                                          \
-                ISHMEM_TYPE_BRANCH(PTRDIFF, ptrdiff, ptrdiff_t);                                   \
-            default:                                                                               \
-                *test_run = false;                                                                 \
-                return (res);                                                                      \
-        }                                                                                          \
-        return (res);                                                                              \
-    }
-
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
-
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmem_##name##_min_reduce((type *) dest, (type *) src, nelems);                         \
-    break;
-
-ISHMEM_GEN_TEST_FUNCTION_SINGLE(int res = 0;, break;)
-
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
-
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmemx_##name##_min_reduce_work_group((type *) dest, (type *) src, nelems, grp);        \
-    break;
-
-ISHMEM_GEN_TEST_FUNCTION_WORK_GROUP(int res = 0;, break;)
+GEN_COMPARISON_FNS(reduce, MIN_REDUCE, min)
 
 unsigned long tmin(void *a, void *b, ishmemi_type_t t, size_t index)
 {
@@ -247,14 +166,32 @@ size_t reduce_min_tester::create_source_pattern(ishmemi_type_t t, ishmemi_op_t o
     size_t test_size = nelems * typesize(t);
     /* test pattern includes nelems, source pe, and index so you can tell apart values from other
      * tests or other PEs */
-    for (size_t idx = 0; idx < ((test_size / sizeof(long)) + 1); idx += 1) {
-        aligned_source[idx] =
-            static_cast<long>(((idx % static_cast<size_t>((my_pe + 2))) << 48) +
-                              (((idx + 1) % static_cast<size_t>((my_pe + 2))) << 40) +
-                              (((idx + 2) % static_cast<size_t>((my_pe + 2))) << 32) +
-                              ((idx + 3) % static_cast<size_t>((my_pe + 2))));
-        if (patterndebugflag && (idx < 16)) {
-            printf("[%d] source pattern idx %lu val %016lx\n", my_pe, idx, aligned_source[idx]);
+    if (t == FLOAT) {
+        float *asrc = (float *) &aligned_source[0];
+        for (size_t idx = 0; idx < ((test_size / sizeof(float)) + 1); idx += 1) {
+            asrc[idx] = (float) ((((double) my_pe) * 100.0) + ((double) idx / 128.0));
+            if (patterndebugflag && (idx < 16)) {
+                printf("[%d] source pattern idx %lu val %f\n", my_pe, idx, asrc[idx]);
+            }
+        }
+    } else if (t == DOUBLE) {
+        double *asrc = (double *) &aligned_source[0];
+        for (size_t idx = 0; idx < ((test_size / sizeof(double)) + 1); idx += 1) {
+            asrc[idx] = (double) ((((double) my_pe) * 100.0) + ((double) idx / 128.0));
+            if (patterndebugflag && (idx < 16)) {
+                printf("[%d] source pattern idx %lu val %f\n", my_pe, idx, asrc[idx]);
+            }
+        }
+    } else {
+        for (size_t idx = 0; idx < ((test_size / sizeof(long)) + 1); idx += 1) {
+            aligned_source[idx] =
+                static_cast<long>(((idx % static_cast<size_t>((my_pe + 2))) << 48) +
+                                  (((idx + 1) % static_cast<size_t>((my_pe + 2))) << 40) +
+                                  (((idx + 2) % static_cast<size_t>((my_pe + 2))) << 32) +
+                                  ((idx + 3) % static_cast<size_t>((my_pe + 2))));
+            if (patterndebugflag && (idx < 16)) {
+                printf("[%d] source pattern idx %lu val %016lx\n", my_pe, idx, aligned_source[idx]);
+            }
         }
     }
 
@@ -269,35 +206,61 @@ size_t reduce_min_tester::create_check_pattern(ishmemi_type_t t, ishmemi_op_t op
     /* all to all concatenates the source buffers from all PEs, so the check buffer does the same */
     /* this is not offset, because the copy from test_dest to host_result does the alignment */
     size_t test_size = nelems * typesize(t);
-    for (size_t idx = 0; idx < ((test_size / sizeof(long)) + 1); idx += 1) {
-        long expected = 0L;
-        for (size_t j = 0; j < sizeof(long) / typesize(t); j++) {
-            // Construct mask for divinding long type into smaller chunks
-            long mask = 0L;
-            for (size_t k = 0; k < (typesize(t) * BITS_PER_BYTE); k++) {
-                mask |= 1;
-                if (k != (typesize(t) * BITS_PER_BYTE) - 1) mask <<= 1;
-            }
-            mask <<= ((sizeof(long) / typesize(t)) - (j + 1)) * (typesize(t) * BITS_PER_BYTE);
-
-            long cur_min = static_cast<long>(((idx % 2) << 48) + (((idx + 1) % 2) << 40) +
-                                             (((idx + 2) % 2) << 32) + ((idx + 3) % 2));
+    if (t == FLOAT) {
+        float *asrc = (float *) &host_check[0];
+        for (size_t idx = 0; idx < ((test_size / sizeof(float)) + 1); idx += 1) {
+            asrc[idx] = (float) ((0.0 * 100.0) + ((double) idx / 128.0));
             for (int i = 1; i < n_pes; i++) {
-                long cmp = static_cast<long>(((idx % static_cast<size_t>((i + 2))) << 48) +
-                                             (((idx + 1) % static_cast<size_t>((i + 2))) << 40) +
-                                             (((idx + 2) % static_cast<size_t>((i + 2))) << 32) +
-                                             ((idx + 3) % static_cast<size_t>((i + 2))));
-
-                cur_min = static_cast<long>(
-                    tmin(&cur_min, &cmp, t, ((sizeof(long) / typesize(t)) - (j + 1))));
-                cur_min <<=
-                    ((sizeof(long) / typesize(t)) - (j + 1)) * ((typesize(t)) * BITS_PER_BYTE);
+                asrc[idx] =
+                    std::min(asrc[idx], (float) (((double) i * 100.0) + ((double) idx / 128.0)));
             }
-            expected |= (cur_min & mask);
+            if (patterndebugflag && (idx < 16)) {
+                printf("[%d] source pattern idx %lu val %f\n", my_pe, idx, asrc[idx]);
+            }
         }
-        host_check[idx] = expected;
-        if (patterndebugflag && (idx < 16)) {
-            printf("[%d] check pattern idx %lu val %016lx\n", my_pe, idx, host_check[idx]);
+    } else if (t == DOUBLE) {
+        double *asrc = (double *) &host_check[0];
+        for (size_t idx = 0; idx < ((test_size / sizeof(double)) + 1); idx += 1) {
+            asrc[idx] = (double) ((0.0 * 100.0) + ((double) idx / 128.0));
+            for (int i = 1; i < n_pes; i++) {
+                asrc[idx] = std::min(asrc[idx], ((double) i * 100.0) + ((double) idx / 128.0));
+            }
+            if (patterndebugflag && (idx < 16)) {
+                printf("[%d] source pattern idx %lu val %f\n", my_pe, idx, asrc[idx]);
+            }
+        }
+    } else {
+        for (size_t idx = 0; idx < ((test_size / sizeof(long)) + 1); idx += 1) {
+            long expected = 0L;
+            for (size_t j = 0; j < sizeof(long) / typesize(t); j++) {
+                // Construct mask for divinding long type into smaller chunks
+                long mask = 0L;
+                for (size_t k = 0; k < (typesize(t) * BITS_PER_BYTE); k++) {
+                    mask |= 1;
+                    if (k != (typesize(t) * BITS_PER_BYTE) - 1) mask <<= 1;
+                }
+                mask <<= ((sizeof(long) / typesize(t)) - (j + 1)) * (typesize(t) * BITS_PER_BYTE);
+
+                long cur_min = static_cast<long>(((idx % 2) << 48) + (((idx + 1) % 2) << 40) +
+                                                 (((idx + 2) % 2) << 32) + ((idx + 3) % 2));
+                for (int i = 1; i < n_pes; i++) {
+                    long cmp =
+                        static_cast<long>(((idx % static_cast<size_t>((i + 2))) << 48) +
+                                          (((idx + 1) % static_cast<size_t>((i + 2))) << 40) +
+                                          (((idx + 2) % static_cast<size_t>((i + 2))) << 32) +
+                                          ((idx + 3) % static_cast<size_t>((i + 2))));
+
+                    cur_min = static_cast<long>(
+                        tmin(&cur_min, &cmp, t, ((sizeof(long) / typesize(t)) - (j + 1))));
+                    cur_min <<=
+                        ((sizeof(long) / typesize(t)) - (j + 1)) * ((typesize(t)) * BITS_PER_BYTE);
+                }
+                expected |= (cur_min & mask);
+            }
+            host_check[idx] = expected;
+            if (patterndebugflag && (idx < 16)) {
+                printf("[%d] check pattern idx %lu val %016lx\n", my_pe, idx, host_check[idx]);
+            }
         }
     }
 
@@ -313,8 +276,11 @@ int main(int argc, char **argv)
     t.alloc_memory(bufsize);
     size_t errors = 0;
 
-    errors += t.run_aligned_tests(NOP);
-    errors += t.run_offset_tests(NOP);
+    GEN_COMPARISON_TABLES(reduce, MIN_REDUCE, min)
+
+    if (!t.test_types_set) t.add_test_type_list(compare_reduction_types);
+    errors += t.run_aligned_tests(MIN_REDUCE);
+    errors += t.run_offset_tests(MIN_REDUCE);
 
     return (t.finalize_and_report(errors));
 }

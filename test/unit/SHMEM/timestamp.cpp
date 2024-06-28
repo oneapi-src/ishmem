@@ -9,12 +9,14 @@
 /* unit and performance test for timestamp function
  */
 
-constexpr int array_size = 10;
+constexpr int array_size = 2048;
 constexpr long CPU_FREQ = 2100000000;
 
 int main(int argc, char **argv)
 {
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     int my_pe = ishmem_my_pe();
     sycl::queue q;
@@ -26,35 +28,45 @@ int main(int argc, char **argv)
 
     auto e1 = q.submit([&](sycl::handler &h) {
         h.single_task([=]() {
-            ishmemx_timestamp((uintptr_t) &hostbuf[0]);
-            ishmemx_timestamp((uintptr_t) &hostbuf[1]);
-            ishmemx_timestamp((uintptr_t) &hostbuf[2]);
-            ishmemx_timestamp((uintptr_t) &hostbuf[3]);
-            ishmemx_timestamp((uintptr_t) &hostbuf[4]);
+            for (int i = 0; i < array_size; i += 1) {
+                ishmemx_timestamp((uintptr_t) &hostbuf[i]);
+            }
         });
     });
     e1.wait_and_throw();
-    for (int i = 0; i < 4; i += 1) {
+    unsigned long total = 0;
+    unsigned long min = 1000000000;
+    for (int i = 0; i < array_size - 1; i += 1) {
         unsigned long delta = hostbuf[i + 1] - hostbuf[i];
-        double ns = 1000000000.0 * ((double) delta) / ((double) CPU_FREQ);
-        printf("with completion delta[%d] = %ld, ns = %f\n", i, delta, ns);
+        if (delta < min) min = delta;
+        total += delta;
     }
+    double ns = 1000000000.0 * ((double) min) / ((double) CPU_FREQ);
+    printf("  with completion minimum delta = %lu, ns = %f\n", min, ns);
+    double avg = (double) total / (double) (array_size - 1);
+    ns = 1000000000.0 * ((double) avg) / ((double) CPU_FREQ);
+    printf("  with completion average delta = %f, ns = %f\n", avg, ns);
     e1 = q.submit([&](sycl::handler &h) {
         h.single_task([=]() {
-            ishmemx_timestamp_nbi((uintptr_t) &hostbuf[0]);
-            ishmemx_timestamp_nbi((uintptr_t) &hostbuf[1]);
-            ishmemx_timestamp_nbi((uintptr_t) &hostbuf[2]);
-            ishmemx_timestamp_nbi((uintptr_t) &hostbuf[3]);
-            ishmemx_timestamp_nbi((uintptr_t) &hostbuf[4]);
-            ishmemx_nop();
+            for (int i = 0; i < array_size; i += 1) {
+                ishmemx_timestamp_nbi((uintptr_t) &hostbuf[i]);
+            }
         });
     });
     e1.wait_and_throw();
-    for (int i = 0; i < 4; i += 1) {
+    total = 0;
+    min = 1000000000;
+    for (int i = 0; i < array_size - 1; i += 1) {
         unsigned long delta = hostbuf[i + 1] - hostbuf[i];
-        double ns = 1000000000.0 * ((double) delta) / ((double) CPU_FREQ);
-        printf("  no completion delta[%d] = %ld, ns = %f\n", i, delta, ns);
+        if (delta < min) min = delta;
+        total += delta;
     }
+    ns = 1000000000.0 * ((double) min) / ((double) CPU_FREQ);
+    printf("  without completion minimum delta = %lu, ns = %f\n", min, ns);
+    avg = (double) total / (double) (array_size - 1);
+    ns = 1000000000.0 * ((double) avg) / ((double) CPU_FREQ);
+    printf("  without completion average delta = %f, ns = %f\n", avg, ns);
+
     unsigned long start, stop;
     /* it is possible to use local variables that remain in-scope but you have to work to convice
      * SYCL not to translate the pointers */

@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-    shmem_init();
+    runtime_init();
 
     ishmemx_attr_t attr;
     attr.initialize_runtime = false;
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     sycl::free(errors, q);
 
     ishmem_finalize();
-    shmem_finalize();
+    runtime_finalize();
 
     return *errors;
 }

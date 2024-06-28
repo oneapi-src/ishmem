@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "internal.h"
-#include "impl_proxy.h"
+#include "ishmem/err.h"
+#include "proxy_impl.h"
 #include "runtime.h"
 #include "runtime_ipc.h"
 #include "nbi_impl.h"
@@ -49,6 +49,14 @@ void ishmemx_putmem_nbi_work_group(void *dest, const void *src, size_t nelems, i
     template void ishmemx_##TYPENAME##_put_nbi_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, size_t nelems, int pe, const sycl::group<3> &grp);    \
     template void ishmemx_##TYPENAME##_put_nbi_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nelems, int pe, const sycl::sub_group &grp);  \
     template <typename Group> void ishmemx_##TYPENAME##_put_nbi_work_group(TYPE *dest, const TYPE *src, size_t nelems, int pe, const Group &grp) { ishmemx_put_nbi_work_group(dest, src, nelems, pe, grp); }
+
+#define ISHMEMI_API_IMPL_PUTSIZE_NBI(SIZE, ELEMSIZE)                                                                                                                                              \
+    void ishmem_put##SIZE##_nbi(void *dest, const void *src, size_t nelems, int pe) { ishmem_put_nbi((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe); }  \
+    template void ishmemx_put##SIZE##_nbi_work_group<sycl::group<1>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<1> &grp);                                              \
+    template void ishmemx_put##SIZE##_nbi_work_group<sycl::group<2>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<2> &grp);                                              \
+    template void ishmemx_put##SIZE##_nbi_work_group<sycl::group<3>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<3> &grp);                                              \
+    template void ishmemx_put##SIZE##_nbi_work_group<sycl::sub_group>(void *dest, const void *src, size_t nelems, int pe, const sycl::sub_group &grp);                                            \
+    template <typename Group> void ishmemx_put##SIZE##_nbi_work_group(void *dest, const void *src, size_t nelems, int pe, const Group &grp) { ishmemx_put_nbi_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe, grp); }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_PUT_NBI(float, float)
@@ -74,6 +82,11 @@ ISHMEMI_API_IMPL_PUT_NBI(uint32, uint32_t)
 ISHMEMI_API_IMPL_PUT_NBI(uint64, uint64_t)
 ISHMEMI_API_IMPL_PUT_NBI(size, size_t)
 ISHMEMI_API_IMPL_PUT_NBI(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_PUTSIZE_NBI(8, 8)
+ISHMEMI_API_IMPL_PUTSIZE_NBI(16, 16)
+ISHMEMI_API_IMPL_PUTSIZE_NBI(32, 32)
+ISHMEMI_API_IMPL_PUTSIZE_NBI(64, 64)
+ISHMEMI_API_IMPL_PUTSIZE_NBI(128, 64)
 
 /* Non-blocking Get */
 template <typename T>
@@ -116,6 +129,14 @@ void ishmemx_getmem_nbi_work_group(void *dest, const void *src, size_t nelems, i
     template void ishmemx_##TYPENAME##_get_nbi_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, size_t nelems, int pe, const sycl::group<3> &grp);    \
     template void ishmemx_##TYPENAME##_get_nbi_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nelems, int pe, const sycl::sub_group &grp);  \
     template <typename Group> void ishmemx_##TYPENAME##_get_nbi_work_group(TYPE *dest, const TYPE *src, size_t nelems, int pe, const Group &grp) { ishmemx_get_nbi_work_group(dest, src, nelems, pe, grp); }
+
+#define ISHMEMI_API_IMPL_GETSIZE_NBI(SIZE, ELEMSIZE)                                                                                                                                              \
+    void ishmem_get##SIZE##_nbi(void *dest, const void *src, size_t nelems, int pe) { ishmem_get_nbi((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe); }  \
+    template void ishmemx_get##SIZE##_nbi_work_group<sycl::group<1>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<1> &grp);                                              \
+    template void ishmemx_get##SIZE##_nbi_work_group<sycl::group<2>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<2> &grp);                                              \
+    template void ishmemx_get##SIZE##_nbi_work_group<sycl::group<3>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<3> &grp);                                              \
+    template void ishmemx_get##SIZE##_nbi_work_group<sycl::sub_group>(void *dest, const void *src, size_t nelems, int pe, const sycl::sub_group &grp);                                            \
+    template <typename Group> void ishmemx_get##SIZE##_nbi_work_group(void *dest, const void *src, size_t nelems, int pe, const Group &grp) { ishmemx_get_nbi_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe, grp); }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_GET_NBI(float, float)
@@ -141,3 +162,8 @@ ISHMEMI_API_IMPL_GET_NBI(uint32, uint32_t)
 ISHMEMI_API_IMPL_GET_NBI(uint64, uint64_t)
 ISHMEMI_API_IMPL_GET_NBI(size, size_t)
 ISHMEMI_API_IMPL_GET_NBI(ptrdiff, ptrdiff_t)
+ISHMEMI_API_IMPL_GETSIZE_NBI(8, 8)
+ISHMEMI_API_IMPL_GETSIZE_NBI(16, 16)
+ISHMEMI_API_IMPL_GETSIZE_NBI(32, 32)
+ISHMEMI_API_IMPL_GETSIZE_NBI(64, 64)
+ISHMEMI_API_IMPL_GETSIZE_NBI(128, 64)

@@ -8,8 +8,9 @@
 #include <stdlib.h>
 #include <level_zero/ze_api.h>
 
-#include "internal.h"
+#include "ishmem/err.h"
 #include "accelerator.h"
+#include "memory.h"
 
 typedef enum {
     IPC_ALGORITHM_IMMEDIATE_CL,
@@ -406,7 +407,7 @@ struct put_item {
     void *dst;
     const void *src;
     size_t size;
-    size_t pe;
+    int pe;
 };
 
 int ishmemi_ipc_put_v(int nitems, struct put_item *items);

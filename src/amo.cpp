@@ -2,9 +2,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "internal.h"
-#include "impl_proxy.h"
+#include "ishmem/err.h"
+#include "proxy_impl.h"
 #include "runtime.h"
+#include "memory.h"
 
 /* Atomic fetch */
 template <typename T>
@@ -19,7 +20,7 @@ T ishmem_atomic_fetch(T *src, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, src);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -31,15 +32,14 @@ T ishmem_atomic_fetch(T *src, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_FETCH,
-        .type = ishmemi_proxy_get_base_type<T, true, true>(),
-        .dest_pe = pe,
-        .src = src,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.src = src;
+    req.op = AMO_FETCH;
+    req.type = ishmemi_proxy_get_base_type<T, true, true>();
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(&req);
+    ret = ishmemi_proxy_blocking_request_return<T>(req);
 #else
     ishmemi_ringcompletion_t comp;
     ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
@@ -80,7 +80,7 @@ void ishmem_atomic_set(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
@@ -92,17 +92,16 @@ void ishmem_atomic_set(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_SET,
-        .type = ishmemi_proxy_get_base_type<T, true, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_SET;
+    req.type = ishmemi_proxy_get_base_type<T, true, true>();
 
     ishmemi_proxy_set_field_value<T, true, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
 #else
     ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
@@ -141,7 +140,7 @@ T ishmem_atomic_compare_swap(T *dest, T cond, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -154,18 +153,17 @@ T ishmem_atomic_compare_swap(T *dest, T cond, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_COMPARE_SWAP,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_COMPARE_SWAP;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
     ishmemi_proxy_set_field_value<T, true>(req.value, val);
     ishmemi_proxy_set_field_value<T, true>(req.cond, cond);
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(&req);
+    ret = ishmemi_proxy_blocking_request_return<T>(req);
 #else
     ishmemi_ringcompletion_t comp;
     ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
@@ -206,7 +204,7 @@ T ishmem_atomic_swap(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -218,17 +216,16 @@ T ishmem_atomic_swap(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_SWAP,
-        .type = ishmemi_proxy_get_base_type<T, true, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_SWAP;
+    req.type = ishmemi_proxy_get_base_type<T, true, true>();
 
     ishmemi_proxy_set_field_value<T, true, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(&req);
+    ret = ishmemi_proxy_blocking_request_return<T>(req);
 #else
     ishmemi_ringcompletion_t comp;
     ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
@@ -270,7 +267,7 @@ T ishmem_atomic_fetch_inc(T *dest, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -282,15 +279,14 @@ T ishmem_atomic_fetch_inc(T *dest, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_FETCH_INC,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_FETCH_INC;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(&req);
+    ret = ishmemi_proxy_blocking_request_return<T>(req);
 #else
     ishmemi_ringcompletion_t comp;
     ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
@@ -329,7 +325,7 @@ void ishmem_atomic_inc(T *dest, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
@@ -341,15 +337,14 @@ void ishmem_atomic_inc(T *dest, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_INC,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_INC;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
 #else
     ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
@@ -386,7 +381,7 @@ T ishmem_atomic_fetch_add(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -398,17 +393,16 @@ T ishmem_atomic_fetch_add(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_FETCH_ADD,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_FETCH_ADD;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
     ishmemi_proxy_set_field_value<T, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(&req);
+    ret = ishmemi_proxy_blocking_request_return<T>(req);
 #else
     ishmemi_ringcompletion_t comp;
     ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
@@ -447,7 +441,7 @@ void ishmem_atomic_add(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
@@ -459,17 +453,16 @@ void ishmem_atomic_add(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_ADD,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_ADD;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
     ishmemi_proxy_set_field_value<T, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
 #else
     ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
@@ -506,7 +499,7 @@ T ishmem_atomic_fetch_and(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -518,17 +511,16 @@ T ishmem_atomic_fetch_and(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_FETCH_AND,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_FETCH_AND;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
     ishmemi_proxy_set_field_value<T, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(&req);
+    ret = ishmemi_proxy_blocking_request_return<T>(req);
 #else
     ishmemi_ringcompletion_t comp;
     ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
@@ -562,7 +554,7 @@ void ishmem_atomic_and(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
@@ -574,17 +566,16 @@ void ishmem_atomic_and(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_AND,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_AND;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
     ishmemi_proxy_set_field_value<T, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
 #else
     ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
@@ -616,7 +607,7 @@ T ishmem_atomic_fetch_or(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -628,17 +619,16 @@ T ishmem_atomic_fetch_or(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_FETCH_OR,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_FETCH_OR;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
     ishmemi_proxy_set_field_value<T, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(&req);
+    ret = ishmemi_proxy_blocking_request_return<T>(req);
 #else
     ishmemi_ringcompletion_t comp;
     ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
@@ -672,7 +662,7 @@ void ishmem_atomic_or(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
@@ -684,17 +674,16 @@ void ishmem_atomic_or(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_OR,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_OR;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
     ishmemi_proxy_set_field_value<T, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
 #else
     ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
@@ -726,7 +715,7 @@ T ishmem_atomic_fetch_xor(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -738,17 +727,16 @@ T ishmem_atomic_fetch_xor(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_FETCH_XOR,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_FETCH_XOR;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
     ishmemi_proxy_set_field_value<T, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(&req);
+    ret = ishmemi_proxy_blocking_request_return<T>(req);
 #else
     ishmemi_ringcompletion_t comp;
     ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
@@ -782,7 +770,7 @@ void ishmem_atomic_xor(T *dest, T val, int pe)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        ishmem_info_t *info = global_info;
+        ishmemi_info_t *info = global_info;
         if (local_index != 0 && info->only_intra_node) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
@@ -794,17 +782,16 @@ void ishmem_atomic_xor(T *dest, T val, int pe)
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = AMO_XOR,
-        .type = ishmemi_proxy_get_base_type<T, true>(),
-        .dest_pe = pe,
-        .dst = dest,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.dst = dest;
+    req.op = AMO_XOR;
+    req.type = ishmemi_proxy_get_base_type<T, true>();
 
     ishmemi_proxy_set_field_value<T, true>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
 #else
     ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
 #endif

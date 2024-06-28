@@ -17,8 +17,10 @@ Private data objects are stored in the local host memory of a given PE or in
 the device memory of the device local to the PE, and private objects cannot be
 accessed by other PEs via ``ishmem`` routines.
 Private data objects on the host follow the memory model of C/C++ and private
-data objects on the device follow the SYCL device memory model (see `SYCL device memory model
-<https://www.khronos.org/registry/SYCL/specs/sycl-2020/html/sycl-2020.html#_sycl_device_memory_model>`_).
+data objects on the device follow the SYCL device memory model (see `SYCL 
+device memory model
+<https://www.khronos.org/registry/SYCL/specs/sycl-2020/html/sycl-2020.html#_sycl
+_device_memory_model>`_).
 
 Remotely accessible objects, however, can be accessed by remote PEs using
 ``ishmem`` routines within SYCL device kernels.
@@ -38,7 +40,8 @@ accessible by using ``ishmem`` APIs that are callable from `either` the
 .. TODO:
 
 .. \footnote{For efficiency reasons, the same offset (from an
-.. arbitrary memory address) for symmetric data objects might be used on all PEs.
+.. arbitrary memory address) for symmetric data objects might be used on all 
+.. PEs.
 .. Further discussion about symmetric heap
 .. layout and implementation efficiency can be found in Section ishmem_free}.
 .. (For the definition of what is accessible, see the
@@ -85,7 +88,8 @@ architecture.
 .. (e.g., ``ishmem_put32``) must also be aligned to the given size.
 .. Symmetric objects provided to fixed-size Intel® SHMEM interfaces
 .. must have storage size equal to the bit-width of the given
-.. operation\footnote{The bit-width of a byte is implementation-defined in \Cstd.
+.. operation\footnote{The bit-width of a byte is implementation-defined in 
+.. \Cstd.
 .. The \CONST{CHAR\_BIT} constant in \HEADER{limits.h} can be used to portably
 .. calculate the bit-width of a \Cstd object.}.
 .. Because \CorCpp{} structures may contain implementation-defined padding, the
@@ -99,7 +103,7 @@ In that model, memory can be `host`, `device`, or `shared`.
 In Intel® SHMEM, the symmetric heap is in `device` memory and is not accessible
 from the host by loads and stores, but SYCL routines such as
 ``sycl::queue::memcpy()`` may be used.
-SYCL `host` Memory may be allocated by ``sycl::malloc_host()`` and is accesible
+SYCL `host` Memory may be allocated by ``sycl::malloc_host()`` and is accessible
 using loads and stores in both host and device kernel code.
 SYCL kernels generally do not have access to host global and static objects.
 
@@ -118,7 +122,8 @@ return a valid address for direct access to symmetric heap objects that are
 accessible via the :math:`\text{X}^e` Link fabric.
 ``ishmem_ptr`` called on the host will generally not return a valid address
 for a symmetric heap object even on the same PE.
-A pointer returned by ``ishmem_optr`` is valid for direct memory access; however,
+A pointer returned by ``ishmem_ptr`` is valid for direct memory access; 
+however,
 providing this address as an argument of an ``ishmem`` routine that requires a
 symmetric address results in undefined behavior.
 
@@ -163,7 +168,11 @@ operations.
 Intel® SHMEM atomic operations do not guarantee exclusivity in the
 following scenarios, all of which result in undefined behavior.
 
-#. When concurrent accesses to the same location are performed using ``ishmem`` atomic routines using different datatypes.
-#. When atomic and non-atomic ``ishmem`` routines are used to access the same location concurrently.
-#. When ``ishmem`` atomic routines and non-``ishmem`` operations (e.g., load, store, or other atomic operations) are used to access the same location concurrently.
+#. When concurrent accesses to the same location are performed using ``ishmem`` 
+atomic routines using different datatypes.
+#. When atomic and non-atomic ``ishmem`` routines are used to access the same 
+location concurrently.
+#. When ``ishmem`` atomic routines and non-``ishmem`` operations (e.g., load, 
+store, or other atomic operations) are used to access the same location 
+concurrently.
 

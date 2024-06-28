@@ -3,30 +3,27 @@
  */
 
 #include <ishmem_tester.h>
+#include "rma_test.h"
 
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
+#define TEST_BRANCH_SINGLE(testname, typeenum, typename, type, op, opname)                         \
+    *res = ishmem_##typename##_##testname((type *) dest, (type *) src, nelems, 0);
 
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmem_##name##_broadcast((type *) dest, (type *) src, nelems, 0);                       \
-    break;
+#define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
+    *res =                                                                                         \
+        ishmemx_##typename##_##testname##_work_group((type *) dest, (type *) src, nelems, 0, grp);
 
-ISHMEM_GEN_TEST_FUNCTION_SINGLE(int res = 0;
-                                , res = ishmem_broadcastmem(dest COMMA src COMMA nelems COMMA 0);
-                                break;)
+GEN_FNS(broadcast, NOP, nop)
 
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
+#undef TEST_BRANCH_SINGLE
+#undef TEST_BRANCH_WORK_GROUP
 
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    res = ishmemx_##name##_broadcast_work_group((type *) dest, (type *) src, nelems, 0, grp);      \
-    break;
+#define TEST_BRANCH_SINGLE(testname, typeenum, typename, type, op, opname)                         \
+    *res = ishmem_##testname((type *) dest, (type *) src, nelems, 0);
 
-ISHMEM_GEN_TEST_FUNCTION_WORK_GROUP(
-    int res = 0;
-    , res = ishmemx_broadcastmem_work_group(dest COMMA src COMMA nelems COMMA 0 COMMA grp); break;)
+#define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
+    *res = ishmemx_##testname##_work_group((type *) dest, (type *) src, nelems, 0, grp);
+
+GEN_MEM_FNS(broadcastmem, NOP, nop)
 
 class broadcast_tester : public ishmem_tester {
   public:
@@ -78,6 +75,10 @@ int main(int argc, char **argv)
     t.alloc_memory(bufsize);
     size_t errors = 0;
 
+    GEN_TABLES(broadcast, NOP, nop)
+    GEN_MEM_TABLES(broadcastmem, NOP, nop)
+
+    if (!t.test_types_set) t.add_test_type_list(collectives_copy_types);
     errors += t.run_aligned_tests(NOP);
     errors += t.run_offset_tests(NOP);
 

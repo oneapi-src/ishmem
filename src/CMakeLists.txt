@@ -5,6 +5,9 @@ include_directories("${L0_INSTALL_PREFIX}/include")
 
 #needed for _movdir64b
 add_compile_options(-mmovdir64b)
+#needed for avx512 for ring use
+add_compile_options(-mavx512f)
+add_compile_options(-mwaitpkg)
 
 if (ENABLE_OPENSHMEM)
     include_directories("${SHMEM_INSTALL_PREFIX}/include")
@@ -21,6 +24,7 @@ set(ISHMEM_SOURCES ishmem.cpp
                    env_utils.cpp
                    accelerator.cpp
                    amo.cpp
+		   amo_nbi.cpp
                    malloc.cpp
                    memory.cpp
                    proxy.cpp
@@ -30,13 +34,14 @@ set(ISHMEM_SOURCES ishmem.cpp
                    nbi.cpp
                    signaling.cpp
                    synchronization.cpp
+                   teams.cpp
                    collectives/alltoall.cpp
                    collectives/barrier.cpp
                    collectives/broadcast.cpp
                    collectives/collect.cpp
                    collectives/reduce.cpp
                    collectives/sync.cpp
-                   internal.cpp
+                   err.cpp
                    timestamp.cpp
                    gpuprint.cpp)
 

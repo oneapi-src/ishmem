@@ -25,17 +25,16 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_internal_put_nbi(T *dest, const T *src, siz
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = PUT_NBI,
-        .type = UINT8,
-        .dest_pe = pe,
-        .src = src,
-        .dst = dest,
-        .nelems = nbytes,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.src = src;
+    req.dst = dest;
+    req.nelems = nbytes;
+    req.op = PUT_NBI;
+    req.type = UINT8;
 
 #ifdef __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_nonblocking_request(&req);
+    ishmemi_proxy_nonblocking_request(req);
 #else
     int ret = 1;
     if (local_index != 0) ret = ishmemi_ipc_put_nbi(dest, src, nelems, pe);
@@ -59,20 +58,19 @@ void ishmemx_internal_put_nbi_work_group(T *dest, const T *src, size_t nelems, i
             vec_copy_work_group_push(ISHMEMI_ADJUST_PTR(T, local_index, dest), src, nelems, grp);
         } else {
             if (grp.leader()) {
-                ishmemi_request_t req = {
-                    .op = PUT_NBI,
-                    .type = UINT8,
-                    .dest_pe = pe,
-                    .src = src,
-                    .dst = dest,
-                    .nelems = nbytes,
-                };
+                ishmemi_request_t req;
+                req.dest_pe = pe;
+                req.src = src;
+                req.dst = dest;
+                req.nelems = nbytes;
+                req.op = PUT_NBI;
+                req.type = UINT8;
 
-                ishmemi_proxy_nonblocking_request(&req);
+                ishmemi_proxy_nonblocking_request(req);
             }
         }
     } else {
-        RAISE_ERROR_MSG("ishmemx_put_work_group not callable from host\n");
+        RAISE_ERROR_MSG("ISHMEMX_PUT_NBI_WORK_GROUP routines are not callable from host\n");
     }
 }
 
@@ -97,17 +95,16 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_internal_get_nbi(T *dest, const T *src, siz
     }
 
     /* Otherwise */
-    ishmemi_request_t req = {
-        .op = GET_NBI,
-        .type = UINT8,
-        .dest_pe = pe,
-        .src = src,
-        .dst = dest,
-        .nelems = nbytes,
-    };
+    ishmemi_request_t req;
+    req.dest_pe = pe;
+    req.src = src;
+    req.dst = dest;
+    req.nelems = nbytes;
+    req.op = GET_NBI;
+    req.type = UINT8;
 
 #ifdef __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_nonblocking_request(&req);
+    ishmemi_proxy_nonblocking_request(req);
 #else
     int ret = 1;
     if (local_index != 0) ret = ishmemi_ipc_get_nbi(dest, src, nelems, pe);
@@ -131,20 +128,19 @@ void ishmemx_internal_get_nbi_work_group(T *dest, const T *src, size_t nelems, i
             vec_copy_work_group_pull(dest, ISHMEMI_ADJUST_PTR(T, local_index, src), nelems, grp);
         } else {
             if (grp.leader()) {
-                ishmemi_request_t req = {
-                    .op = GET_NBI,
-                    .type = UINT8,
-                    .dest_pe = pe,
-                    .src = src,
-                    .dst = dest,
-                    .nelems = nbytes,
-                };
+                ishmemi_request_t req;
+                req.dest_pe = pe;
+                req.src = src;
+                req.dst = dest;
+                req.nelems = nbytes;
+                req.op = GET_NBI;
+                req.type = UINT8;
 
-                ishmemi_proxy_nonblocking_request(&req);
+                ishmemi_proxy_nonblocking_request(req);
             }
         }
     } else {
-        RAISE_ERROR_MSG("ishmemx_put_work_group not callable from host\n");
+        RAISE_ERROR_MSG("ISHMEMX_GET_NBI_WORK_GROUP routines are not callable from host\n");
     }
 }
 

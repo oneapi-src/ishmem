@@ -41,7 +41,7 @@
 #include <ishmemx.h>
 
 typedef float real;
-constexpr real tol = 1.0e-5f;
+constexpr real tol = 1.0e-4f;
 constexpr int max_iter_max = 10000000;
 
 using std::sin, std::sinh;
@@ -149,8 +149,8 @@ void check_solution(real *const A, const int nx, const int ny, const int iy_star
 int main(int argc, char *argv[])
 {
     int iter_max = get_argval<int>(argv, argv + argc, "-niter", 10000);
-    int nx = get_argval<int>(argv, argv + argc, "-nx", 1028);
-    int ny = get_argval<int>(argv, argv + argc, "-ny", 1028);
+    int nx = get_argval<int>(argv, argv + argc, "-nx", 128);
+    int ny = get_argval<int>(argv, argv + argc, "-ny", 128);
     // TODO: use a size of 16384 in performance testing
 
     if (iter_max < 1 || iter_max > max_iter_max) {

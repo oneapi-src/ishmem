@@ -3,7 +3,8 @@
  */
 
 #include <cstddef>
-#include "internal.h"  // globals and macros
+#include "ishmem/util.h"
+#include "ishmem/err.h"
 #include "memory.h"
 #include "runtime.h"
 #include "collectives.h"
@@ -192,9 +193,9 @@ int ishmemi_collectives_init()
 
     // init reduce for TEAM_WORLD also team
     ishmemi_mmap_gpu_info->reduce.my_pe = ishmemi_runtime_get_node_rank(ishmemi_my_pe);
-    ishmemi_mmap_gpu_info->reduce.PE_Start = 0;
-    ishmemi_mmap_gpu_info->reduce.PE_Stride = 1;
-    ishmemi_mmap_gpu_info->reduce.PE_Size = ishmemi_n_pes;
+    ishmemi_mmap_gpu_info->reduce.start = 0;
+    ishmemi_mmap_gpu_info->reduce.stride = 1;
+    ishmemi_mmap_gpu_info->reduce.size = ishmemi_n_pes;
     ishmemi_mmap_gpu_info->reduce.n_local_pes = n_local_pes;
     ishmemi_mmap_gpu_info->reduce.buffer =
         ishmem_malloc(ISHMEM_REDUCE_BUFFER_SIZE);  // allocated in device symmetric heap

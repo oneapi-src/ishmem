@@ -10,9 +10,16 @@ int ishmem_alltoallmem(void *dest, const void *src, size_t nelems)
     return ishmem_alltoall((uint8_t *) dest, (uint8_t *) src, nelems);
 }
 
+int ishmem_alltoallmem(ishmem_team_t team, void *dest, const void *src, size_t nelems)
+{
+    return ishmem_alltoall(team, (uint8_t *) dest, (uint8_t *) src, nelems);
+}
+
 /* clang-format off */
 #define ISHMEMI_API_IMPL_ALLTOALL(TYPENAME, TYPE) \
     int ishmem_##TYPENAME##_alltoall(TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_alltoall(dest, src, nelems); }
+#define ISHMEMI_API_IMPL_TEAM_ALLTOALL(TYPENAME, TYPE) \
+    int ishmem_##TYPENAME##_alltoall(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_alltoall(team, dest, src, nelems); }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_ALLTOALL(float, float)
@@ -38,3 +45,27 @@ ISHMEMI_API_IMPL_ALLTOALL(uint32, uint32_t)
 ISHMEMI_API_IMPL_ALLTOALL(uint64, uint64_t)
 ISHMEMI_API_IMPL_ALLTOALL(size, size_t)
 ISHMEMI_API_IMPL_ALLTOALL(ptrdiff, ptrdiff_t)
+
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(float, float)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(double, double)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(char, char)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(schar, signed char)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(short, short)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(int, int)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(long, long)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(longlong, long long)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(uchar, unsigned char)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(ushort, unsigned short)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(uint, unsigned int)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(ulong, unsigned long)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(ulonglong, unsigned long long)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(int8, int8_t)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(int16, int16_t)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(int32, int32_t)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(int64, int64_t)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(uint8, uint8_t)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(uint16, uint16_t)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(uint32, uint32_t)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(uint64, uint64_t)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(size, size_t)
+ISHMEMI_API_IMPL_TEAM_ALLTOALL(ptrdiff, ptrdiff_t)

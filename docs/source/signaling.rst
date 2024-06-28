@@ -76,13 +76,15 @@ subsequently updating a remote flag to signal completion.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE> void ishmem_put_signal(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe)
 
 .. cpp:function:: void ishmem_TYPENAME_put_signal(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe)
 
-.. cpp:function:: void ishmem_TYPENAME_putmem_signal(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe)
+.. cpp:function:: void ishmem_putSIZE_signal(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe)
+
+.. cpp:function:: void ishmem_putmem_signal(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe)
 
   :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
@@ -91,6 +93,7 @@ Types<stdrmatypes>`.
   :param signal: Unsigned 64-bit value that is used for updating the remote **sig_addr** signal data object.
   :param sig_op: Signal operator that represents the type of update to be performed on the remote **sig_addr** signal data object.
   :param pe: PE number of the remote PE.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -134,13 +137,15 @@ subsequently updating a remote flag to signal completion.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE, typename Group> void ishmemx_put_signal_work_group(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_put_signal_work_group(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, const Group& group)
 
-.. cpp:function:: template<typename Group> void ishmemx_putmem_signal_work_group(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, const Group& group)
+.. cpp:function:: template<typename Group> void ishmemx_putSIZE_signal_work_group(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, const Group& group)
+
+.. cpp:function:: template<typename Group> void ishmemx_putmem_signal_work_group(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, const Group& group)
 
   :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
@@ -150,6 +155,7 @@ Types<stdrmatypes>`.
   :param sig_op: Signal operator that represents the type of update to be performed on the remote **sig_addr** signal data object.
   :param pe: PE number of the remote PE.
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
+  :returns: None.
 
 Callable from the **device**.
 
@@ -190,7 +196,7 @@ Nonblocking Put-Signal
 ^^^^^^^^^^^^^^^^^^^^^^
 
 """""""""""""""""""""
-ISHMEM_PUT_NBI_SIGNAL
+ISHMEM_PUT_SIGNAL_NBI
 """""""""""""""""""""
 The `nonblocking put-with-signal` routines provide a method for copying data from a
 contiguous local data object to a data object on a specified PE and
@@ -198,11 +204,15 @@ subsequently updating a remote flag to signal completion.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE> void ishmem_put_signal_nbi(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe)
 
 .. cpp:function:: void ishmem_TYPENAME_put_signal_nbi(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe)
+
+.. cpp:function:: void ishmem_putSIZE_signal_nbi(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe)
+
+.. cpp:function:: void ishmem_putmem_signal_nbi(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe)
 
   :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE of TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
@@ -211,6 +221,7 @@ Types<stdrmatypes>`.
   :param signal: Unsigned 64-bit value that is used for updating the remote **sig_addr** signal data object.
   :param sig_op: Signal operator that represents the type of update to be performed on the remote **sig_addr** signal data object.
   :param pe: PE number of the remote PE.
+  :returns: None.
 
 Callable from the **host** and **device**.
 
@@ -247,7 +258,7 @@ The **dest** and **sig_addr** data objects must both be remotely accessible and
 may not be overlapping in memory.
 
 """""""""""""""""""""""""""""""""
-ISHMEMX_PUT_NBI_SIGNAL_WORK_GROUP
+ISHMEMX_PUT_SIGNAL_NBI_WORK_GROUP
 """""""""""""""""""""""""""""""""
 The `nonblocking put-with-signal` routines provide a method for copying data
 from a contiguous local data object to a data object on a specified PE and
@@ -255,11 +266,15 @@ subsequently updating a remote flag to signal completion.
 
 In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
-Types<stdrmatypes>`.
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
 .. cpp:function:: template<typename TYPE, typename Group> void ishmemx_put_signal_nbi_work_group(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_put_signal_nbi_work_group(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, const Group& group)
+
+.. cpp:function:: template<typename Group> void ishmemx_putSIZE_signal_nbi_work_group(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, const Group& group)
+
+.. cpp:function:: template<typename Group> void ishmemx_putmem_signal_nbi_work_group(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, const Group& group)
 
   :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE of TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`. 
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
@@ -269,6 +284,7 @@ Types<stdrmatypes>`.
   :param sig_op: Signal operator that represents the type of update to be performed on the remote **sig_addr** signal data object.
   :param pe: PE number of the remote PE.
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
+  :returns: None.
 
 Callable from the **device**.
 
@@ -307,6 +323,30 @@ may not be overlapping in memory.
 
 
 ^^^^^^^^^^^^^^^^^^^
+ISHMEMX_SIGNAL_ADD
+^^^^^^^^^^^^^^^^^^^
+
+Adds to a signal value of a remote date object.
+
+.. cpp:function:: void ishmemx_signal_add(uint64_t * sig_addr, uint64_t signal, int pe)
+
+  :param sig_addr: Symmetric address of the signal data object to be updated on the remote PE. 
+  :param signal: Unsigned 64-bit value that is used for updating the remote **sig_addr**
+		 signal data object.
+  :param pe: PE number of the remote PE.
+  :returns: None.
+
+Callable from the **host** and **device**.
+
+**Description:**
+``ishmemx_signal_add`` adds **value** to the signal data object pointed to by **sig_addr**
+on PE **pe**.
+The update to **sig_addr** signal object at the calling PE is expected to satisfy
+the atomicity guarantees as described in Section :ref:`Atomicity Guarantees for
+Signaling Operations<signal_atomicity>`.
+
+
+^^^^^^^^^^^^^^^^^^^
 ISHMEM_SIGNAL_FETCH
 ^^^^^^^^^^^^^^^^^^^
 
@@ -323,5 +363,29 @@ Callable from the **host** and **device**.
 ``ishmem_signal_fetch`` performs a fetch operation and returns the contents of
 the **sig_addr** signal data object.
 Access to **sig_addr** signal object at the calling PE is expected to satisfy
+the atomicity guarantees as described in Section :ref:`Atomicity Guarantees for
+Signaling Operations<signal_atomicity>`.
+
+
+^^^^^^^^^^^^^^^^^^^
+ISHMEMX_SIGNAL_SET
+^^^^^^^^^^^^^^^^^^^
+
+Sets the signal value of a remote date object.
+
+.. cpp:function:: void ishmemx_signal_set(uint64_t * sig_addr, uint64_t signal, int pe)
+
+  :param sig_addr: Symmetric address of the signal data object to be updated on the remote PE.
+  :param signal: Unsigned 64-bit value that is used for updating the remote **sig_addr**
+		 signal data object.
+  :param pe: PE number of the remote PE. 
+  :returns: None.
+
+Callable from the **host** and **device**.
+
+**Description:**
+``ishmemx_signal_set`` writes **value** into the signal data object pointed to by **sig_addr**
+on PE **pe**.
+The update to **sig_addr** signal object at the calling PE is expected to satisfy
 the atomicity guarantees as described in Section :ref:`Atomicity Guarantees for
 Signaling Operations<signal_atomicity>`.

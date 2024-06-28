@@ -10,6 +10,126 @@
 #include <type_traits>
 #include <ishmem.h>
 #include <ishmemx.h>
+#include "ishmem_config.h"
+
+#include "shmem_helper.h"
+#include "mpi_helper.h"
+
+static std::once_flag validate_once;
+static bool check_runtime = true;
+static bool use_shmem_runtime = false;
+static bool use_mpi_runtime = false;
+
+static inline void validate_runtime()
+{
+    std::call_once(validate_once, []() {
+        if (check_runtime) {
+            check_runtime = false;
+            const char *env_val = getenv("ISHMEM_TEST_RUNTIME");
+            if (env_val && strcasecmp(env_val, "OPENSHMEM") == 0) {
+#if defined(ENABLE_OPENSHMEM)
+                use_shmem_runtime = true;
+#else
+                fprintf(stderr, "ERROR: Runtime OpenSHMEM selected but it is not configured\n");
+#endif
+            } else if (env_val && strcasecmp(env_val, "MPI") == 0) {
+#if defined(ENABLE_MPI)
+                use_mpi_runtime = true;
+#else
+                fprintf(stderr, "ERROR: Runtime MPI selected but it is not configured\n");
+#endif
+            } else if (env_val && strcasecmp(env_val, "PMI") == 0) {
+#if defined(ENABLE_PMI)
+                fprintf(stderr, "ERROR: Runtime PMI selected but is not yet supported\n");
+#else
+                fprintf(stderr, "ERROR: Runtime PMI selected but it is not configured\n");
+#endif
+            } else {
+                /* Default value */
+#if defined(ENABLE_OPENSHMEM)
+                use_shmem_runtime = true;
+                return;
+#endif
+#if defined(ENABLE_MPI)
+                use_mpi_runtime = true;
+                return;
+#endif
+#if defined(ENABLE_PMI)
+                fprintf(stderr, "ERROR: Runtime PMI selected but is not yet supported\n");
+                return;
+#endif
+            }
+        }
+    });
+}
+
+inline void runtime_init()
+{
+    validate_runtime();
+    if (use_shmem_runtime) runtime_shmem_init();
+    else if (use_mpi_runtime) runtime_mpi_init();
+}
+
+inline void runtime_finalize()
+{
+    validate_runtime();
+    if (use_shmem_runtime) runtime_shmem_finalize();
+    else if (use_mpi_runtime) runtime_mpi_finalize();
+}
+
+inline void *runtime_calloc(size_t num, size_t size)
+{
+    validate_runtime();
+    if (use_shmem_runtime) return runtime_shmem_calloc(num, size);
+    else if (use_mpi_runtime) return runtime_mpi_calloc(num, size);
+    else return nullptr;
+}
+
+inline void *runtime_malloc(size_t size)
+{
+    validate_runtime();
+    if (use_shmem_runtime) return runtime_shmem_malloc(size);
+    else if (use_mpi_runtime) return runtime_mpi_malloc(size);
+    else return nullptr;
+}
+
+inline void runtime_free(void *ptr)
+{
+    validate_runtime();
+    if (use_shmem_runtime) runtime_shmem_free(ptr);
+    else if (use_mpi_runtime) runtime_mpi_free(ptr);
+}
+
+inline void runtime_sync_all()
+{
+    validate_runtime();
+    if (use_shmem_runtime) runtime_shmem_sync_all();
+    else if (use_mpi_runtime) runtime_mpi_sync_all();
+}
+
+inline void runtime_broadcast(void *dst, void *src, size_t size, int root)
+{
+    validate_runtime();
+    if (use_shmem_runtime) runtime_shmem_broadcast(dst, src, size, root);
+    else if (use_mpi_runtime) runtime_mpi_broadcast(dst, src, size, root);
+}
+
+inline void runtime_uint64_sum_reduce(uint64_t *dst, uint64_t *src, size_t num)
+{
+    validate_runtime();
+    if (use_shmem_runtime) runtime_shmem_uint64_sum_reduce(dst, src, num);
+    else if (use_mpi_runtime) runtime_mpi_uint64_sum_reduce(dst, src, num);
+}
+
+inline void test_init_attr(ishmemx_attr_t *attr)
+{
+    *attr = {};
+
+    validate_runtime();
+    attr->initialize_runtime = true;
+    if (use_shmem_runtime) attr->runtime = ISHMEMX_RUNTIME_OPENSHMEM;
+    else if (use_mpi_runtime) attr->runtime = ISHMEMX_RUNTIME_MPI;
+}
 
 /* Max memory size is limited to 8M to avoid reaching the Level Zero memory
  * allocation unsupported size threshold
@@ -37,108 +157,6 @@ enum Pair {
     tile,
     xe
 };
-
-typedef enum : uint16_t {
-    PUT,
-    PUT_WORK_GROUP,
-    IPUT,
-    IPUT_WORK_GROUP,
-    P,
-    GET,
-    GET_WORK_GROUP,
-    IGET,
-    IGET_WORK_GROUP,
-    G,
-    PUT_NBI,
-    PUT_NBI_WORK_GROUP,
-    GET_NBI,
-    GET_NBI_WORK_GROUP,
-    AMO_FETCH,
-    AMO_SET,
-    AMO_COMPARE_SWAP,
-    AMO_SWAP,
-    AMO_FETCH_INC,
-    AMO_INC,
-    AMO_FETCH_ADD,
-    AMO_ADD,
-    AMO_FETCH_AND,
-    AMO_AND,
-    AMO_FETCH_OR,
-    AMO_OR,
-    AMO_FETCH_XOR,
-    AMO_XOR,
-    PUT_SIGNAL,
-    PUT_SIGNAL_WORK_GROUP,
-    PUT_SIGNAL_NBI,
-    PUT_SIGNAL_NBI_WORK_GROUP,
-    SIGNAL_FETCH,
-    BARRIER,
-    BARRIER_WORK_GROUP,
-    SYNC,
-    SYNC_WORK_GROUP,
-    ALLTOALL,
-    ALLTOALL_WORK_GROUP,
-    BCAST,
-    BCAST_WORK_GROUP,
-    COLLECT,
-    COLLECT_WORK_GROUP,
-    FCOLLECT,
-    FCOLLECT_WORK_GROUP,
-    AND_REDUCE,
-    AND_REDUCE_WORK_GROUP,
-    OR_REDUCE,
-    OR_REDUCE_WORK_GROUP,
-    XOR_REDUCE,
-    XOR_REDUCE_WORK_GROUP,
-    MAX_REDUCE,
-    MAX_REDUCE_WORK_GROUP,
-    MIN_REDUCE,
-    MIN_REDUCE_WORK_GROUP,
-    SUM_REDUCE,
-    SUM_REDUCE_WORK_GROUP,
-    PROD_REDUCE,
-    PROD_REDUCE_WORK_GROUP,
-    TEST,
-    WAIT,
-    FENCE,
-    QUIET,
-    KILL,
-    NOP,
-    NOP_NO_R,
-    TIMESTAMP,
-    PRINT,
-    DEBUG_TEST,
-    ISHMEMI_OP_END
-} ishmemi_op_t;
-
-typedef enum : uint16_t {
-    FLOAT,
-    DOUBLE,
-    LONGDOUBLE,
-    CHAR,
-    SCHAR,
-    SHORT,
-    INT,
-    LONG,
-    LONGLONG,
-    UCHAR,
-    USHORT,
-    UINT,
-    ULONG,
-    ULONGLONG,
-    INT8,
-    INT16,
-    INT32,
-    INT64,
-    UINT8,
-    UINT16,
-    UINT32,
-    UINT64,
-    SIZE,
-    PTRDIFF,
-    MEM,
-    ISHMEMI_TYPE_END
-} ishmemi_type_t;
 
 extern const char *ishmemi_op_str[];
 extern const char *ishmemi_type_str[];
@@ -777,8 +795,7 @@ void parse_args(int argc, char *argv[], size_t *max_msg_size, size_t *iterations
                 }
                 break;
             case 'i':
-                if (val > 0)
-                    *iterations = static_cast<size_t>(val);
+                if (val > 0) *iterations = static_cast<size_t>(val);
                 else {
                     std::cerr << "Warning: The argument for number of iterations must be "
                                  "a positive integer, therefore, the default value of "
@@ -786,8 +803,7 @@ void parse_args(int argc, char *argv[], size_t *max_msg_size, size_t *iterations
                 }
                 break;
             case 's':
-                if (val >= 0)
-                    *skip = static_cast<size_t>(val);
+                if (val >= 0) *skip = static_cast<size_t>(val);
                 else {
                     std::cerr << "Warning: The argument for number of skipped iterations "
                                  "must be a positive integer, therefore, the default "
@@ -854,8 +870,7 @@ void parse_args(int argc, char *argv[], size_t *max_msg_size, int *work_group_si
                 }
                 break;
             case 'i':
-                if (val > 0)
-                    *iterations = static_cast<size_t>(val);
+                if (val > 0) *iterations = static_cast<size_t>(val);
                 else {
                     std::cerr << "Warning: The argument for number of iterations must be "
                                  "a positive integer, therefore, the default value of "
@@ -863,8 +878,7 @@ void parse_args(int argc, char *argv[], size_t *max_msg_size, int *work_group_si
                 }
                 break;
             case 's':
-                if (val > 0)
-                    *skip = static_cast<size_t>(val);
+                if (val > 0) *skip = static_cast<size_t>(val);
                 else {
                     std::cerr << "Warning: The argument for number of skipped iterations "
                                  "must be a positive integer, therefore, the default "

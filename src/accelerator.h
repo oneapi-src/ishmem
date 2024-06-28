@@ -5,14 +5,15 @@
 #ifndef ISHMEM_ACCELERATOR_H
 #define ISHMEM_ACCELERATOR_H
 
-#include "internal.h"
+#include "ishmem/err.h"
+#include "ishmem/util.h"
 #include <level_zero/ze_api.h>
 
-#include <sys/mman.h>  // used by get_mmap_address
+#include <sys/mman.h>
 #include <sys/unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sstream>  // for stringstream below
+#include <sstream>
 
 #define ISHMEMI_NO_DEVICES       -1
 #define ISHMEMI_NO_DRIVERS       -2

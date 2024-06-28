@@ -9,9 +9,6 @@
 
 #define ISHMEMI_LINK_STRINGIFY(INPUT) #INPUT
 
-extern std::vector<void **>
-    ishmemi_wrapper_list; /* copies of addresses of function pointers to zap during cleanup */
-
 #define ISHMEMI_LINK_SYMBOL(lib_handle, prefix, suffix)                                            \
     do {                                                                                           \
         void **var_ptr = (void **) &prefix##_WRAPPER_##suffix;                                     \
@@ -22,7 +19,7 @@ extern std::vector<void **>
             ret = -1;                                                                              \
         } else {                                                                                   \
             *var_ptr = tmp;                                                                        \
-            ishmemi_wrapper_list.push_back(var_ptr);                                               \
+            ishmemi_##lib_handle##_wrapper_list.push_back(var_ptr);                                \
         }                                                                                          \
     } while (0);
 

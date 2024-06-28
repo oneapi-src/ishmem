@@ -16,7 +16,7 @@ void print2(sycl::queue q, char *hostbuf, char *devbuf, const char *format, int 
     q.memcpy(devbuf, hostbuf, static_cast<size_t>(size));
     try {
         q.single_task([=]() {
-             ishmemx_print(devbuf, ishmemx_print_msg_type_t::DEBUG);
+             ishmemx_print("file", 42, "func", devbuf, ishmemx_print_msg_type_t::DEBUG);
          }).wait_and_throw();
     } catch (sycl::exception &e) {
         std::cout << "print raises SYCL exception ";
@@ -29,12 +29,15 @@ int main(int argc, char **argv)
 {
     int exit_code = 0;
 
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
+
     sycl::queue q;
     char *hostbuf = sycl::malloc_host<char>(4096, q);
     CHECK_ALLOC(hostbuf);
     char *devbuf = sycl::malloc_device<char>(4096, q);
-    ishmemx_print("Host print\n", ishmemx_print_msg_type_t::DEBUG);
+    ishmemx_print(__FILE__, __LINE__, __func__, "Host print\n", ishmemx_print_msg_type_t::DEBUG);
     for (int i = 0; i < 10; i += 1) {
         print2(q, hostbuf, devbuf, "Hello %d\n", i);
     }

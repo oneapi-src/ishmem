@@ -4,7 +4,6 @@
 
 #include "wrapper.h"
 #include "env_utils.h"
-#include "internal.h"
 #include <pmi.h>
 #include <dlfcn.h>
 

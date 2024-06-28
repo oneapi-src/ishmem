@@ -5,8 +5,8 @@
 #ifndef ISHMEM_RUNTIME_H
 #define ISHMEM_RUNTIME_H
 
-#include "internal.h"
-#include "impl_proxy.h"
+#include "ishmemx.h"
+#include "proxy_impl.h"
 
 /* This sums the total number of base types used in defining the proxy function pointers:
  * - void, uint8_t, uint16_t, uint32_t, uint64_t
@@ -23,7 +23,7 @@ extern ishmemi_runtime_proxy_func_t **ishmemi_proxy_funcs;
 int ishmemi_runtime_init(ishmemx_attr_t *);
 
 /* Pre-initialize Heap */
-void ishmemi_runtime_heap_create(void *base, size_t size);
+void ishmemi_runtime_heap_create(ishmemx_attr_t *, void *base, size_t size);
 
 /* Finalize runtime */
 extern int (*ishmemi_runtime_fini)(void);
@@ -53,7 +53,7 @@ extern void (*ishmemi_runtime_fence)(void);
 extern void (*ishmemi_runtime_quiet)(void);
 
 /* Global barrier */
-extern void (*ishmemi_runtime_barrier)(void);
+extern void (*ishmemi_runtime_barrier_all)(void);
 
 /* Node-local barrier */
 extern void (*ishmemi_runtime_node_barrier)(void);
@@ -86,6 +86,42 @@ int ishmemi_runtime_mpi_init(bool initialize_runtime);
 int ishmemi_runtime_openshmem_init(bool initialize_runtime);
 int ishmemi_runtime_pmi_init(bool initialize_runtime);
 void ishmemi_runtime_openshmem_heap_create(void *base, size_t size);
+
+/* Team management functions */
+typedef enum {
+    WORLD,
+    SHARED,
+    NODE
+} ishmemi_runtime_team_predefined_t;
+
+inline const char *ishmemi_runtime_team_predefined_string(ishmemi_runtime_team_predefined_t val)
+{
+    switch (val) {
+        case WORLD:
+            return "WORLD";
+        case SHARED:
+            return "SHARED";
+        case NODE:
+            return "NODE";
+        default:
+            ISHMEM_ERROR_MSG("Unknown team passed to ishmemi_runtime_team_predefined_string\n");
+            return "";
+    }
+}
+
+extern int (*ishmemi_runtime_team_split_strided)(ishmemi_runtime_team_t parent_team, int PE_start,
+                                                 int PE_stride, int PE_size,
+                                                 const ishmemi_runtime_team_config_t *config,
+                                                 long config_mask,
+                                                 ishmemi_runtime_team_t *new_team);
+extern int (*ishmemi_runtime_uchar_and_reduce)(ishmemi_runtime_team_t team, unsigned char *dest,
+                                               const unsigned char *source, size_t nreduce);
+extern int (*ishmemi_runtime_int_max_reduce)(ishmemi_runtime_team_t team, int *dest,
+                                             const int *source, size_t nreduce);
+extern int (*ishmemi_runtime_team_sync)(ishmemi_runtime_team_t team);
+extern int (*ishmemi_runtime_team_predefined_set)(
+    ishmemi_runtime_team_t *team, ishmemi_runtime_team_predefined_t predefined_team_name,
+    int expected_team_size, int expected_world_pe, int expected_team_pe);
 
 /* Runtime-specific function pointer setup */
 void ishmemi_runtime_mpi_funcptr_init(void);

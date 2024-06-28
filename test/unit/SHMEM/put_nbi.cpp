@@ -3,42 +3,63 @@
  */
 
 #include "ishmem_tester.h"
+#include "rma_test.h"
 
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
+#define TEST_BRANCH_SINGLE(testname, typeenum, typename, type, op, opname)                         \
+    int pe = (ishmem_my_pe() + 1) % ishmem_n_pes();                                                \
+    ishmem_##typename##_##testname((type *) dest, (type *) src, nelems, pe);                       \
+    ishmem_quiet();
 
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    ishmem_##name##_put_nbi((type *) dest, (type *) src, nelems, pe);                              \
-    ishmem_quiet();                                                                                \
-    break;
+#define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
+    int pe = (ishmem_my_pe() + 1) % ishmem_n_pes();                                                \
+    ishmemx_##typename##_##testname##_work_group((type *) dest, (type *) src, nelems, pe, grp);    \
+    ishmemx_quiet_work_group(grp);
 
-ISHMEM_GEN_TEST_FUNCTION_SINGLE(int res = 0; int pe = (ishmem_my_pe() + 1) % ishmem_n_pes();
-                                , ishmem_putmem_nbi(dest COMMA src COMMA nelems COMMA pe);
-                                ishmem_quiet(); break;)
+GEN_FNS(put_nbi, NOP, nop)
 
-#ifdef ISHMEM_TYPE_BRANCH
-#undef ISHMEM_TYPE_BRANCH
-#endif
+#undef TEST_BRANCH_SINGLE
+#undef TEST_BRANCH_WORK_GROUP
 
-#define ISHMEM_TYPE_BRANCH(enumname, name, type)                                                   \
-    ishmemx_##name##_put_nbi_work_group((type *) dest, (type *) src, nelems, pe, grp);             \
-    ishmemx_quiet_work_group(grp);                                                                 \
-    break;
+#define TEST_BRANCH_SINGLE(testname, typeenum, typename, type, op, opname)                         \
+    int pe = (ishmem_my_pe() + 1) % ishmem_n_pes();                                                \
+    ishmem_##testname((type *) dest, (type *) src, nelems, pe);                                    \
+    ishmem_quiet();
 
-ISHMEM_GEN_TEST_FUNCTION_WORK_GROUP(
-    int res = 0; int pe = (ishmem_my_pe() + 1) % ishmem_n_pes();
-    , ishmemx_putmem_nbi_work_group(dest COMMA src COMMA nelems COMMA pe COMMA grp);
-    ishmemx_quiet_work_group(grp); break;)
+#define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
+    int pe = (ishmem_my_pe() + 1) % ishmem_n_pes();                                                \
+    ishmemx_##testname##_work_group((type *) dest, (type *) src, nelems, pe, grp);                 \
+    ishmemx_quiet_work_group(grp);
+
+GEN_MEM_FNS(putmem_nbi, NOP, nop)
+
+#undef TEST_BRANCH_SINGLE
+#undef TEST_BRANCH_WORK_GROUP
+
+#define TEST_BRANCH_SINGLE(testname, typeenum, typename, type, op, opname)                         \
+    int pe = (ishmem_my_pe() + 1) % ishmem_n_pes();                                                \
+    ishmem_##testname((type *) dest, (type *) src, nelems, pe);                                    \
+    ishmem_quiet();
+
+#define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
+    int pe = (ishmem_my_pe() + 1) % ishmem_n_pes();                                                \
+    ishmemx_##testname##_work_group((type *) dest, (type *) src, nelems, pe, grp);                 \
+    ishmemx_quiet_work_group(grp);
+
+GEN_SIZE_FNS(put, _nbi, NOP, nop)
 
 int main(int argc, char **argv)
 {
     class ishmem_tester t(argc, argv);
 
-    size_t bufsize = (t.max_nelems * sizeof(uint64_t)) + 4096;
+    size_t bufsize = (t.max_nelems * 2 * sizeof(uint64_t)) + 4096;
     t.alloc_memory(bufsize);
     size_t errors = 0;
 
+    GEN_TABLES(put_nbi, NOP, nop)
+    GEN_MEM_TABLES(putmem_nbi, NOP, nop)
+    GEN_SIZE_TABLES(put, _nbi, NOP, nop)
+
+    if (!t.test_types_set) t.add_test_type_list(rma_copy_types);
     errors += t.run_aligned_tests(NOP);
     errors += t.run_offset_tests(NOP);
     return (t.finalize_and_report(errors));

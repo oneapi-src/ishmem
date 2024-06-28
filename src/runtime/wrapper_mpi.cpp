@@ -2,11 +2,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "ishmem/err.h"
 #include "wrapper.h"
+#include "wrapper_mpi.h"
 #include "env_utils.h"
-#include "internal.h"
 #include <mpi.h>
 #include <dlfcn.h>
+
+static bool mpi_wrapper_initialized = false;
 
 int (*MPI_WRAPPER_Init)(int *, char ***);
 int (*MPI_WRAPPER_Finalize)(void);
@@ -21,12 +24,34 @@ int (*MPI_WRAPPER_Comm_free)(MPI_Comm *);
 int (*MPI_WRAPPER_Group_translate_ranks)(MPI_Group, int, const int[], MPI_Group, int[]);
 int (*MPI_WRAPPER_Group_free)(MPI_Group *);
 
+/* dl handle */
+void *mpi_handle = nullptr;
+std::vector<void **> ishmemi_mpi_handle_wrapper_list;
+
+int ishmemi_mpi_wrapper_fini()
+{
+    int ret = 0;
+    for (auto p : ishmemi_mpi_handle_wrapper_list)
+        *p = nullptr;
+    if (mpi_handle != nullptr) {
+        ret = dlclose(mpi_handle);
+        mpi_handle = nullptr;
+        ISHMEM_CHECK_GOTO_MSG(ret, fn_exit, "dlclose failed %s\n", dlerror());
+    }
+    return (0);
+fn_exit:
+    return (1);
+}
+
 int ishmemi_mpi_wrapper_init()
 {
     int ret = 0;
-    void *mpi_handle = nullptr;
 
     const char *mpi_libname = ishmemi_params.MPI_LIB_NAME.c_str();
+
+    /* don't initialize twice */
+    if (mpi_wrapper_initialized) goto fn_exit;
+    mpi_wrapper_initialized = true;
 
     mpi_handle = dlopen(mpi_libname, RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);
 

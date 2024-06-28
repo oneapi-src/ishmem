@@ -5,6 +5,7 @@
 #include "ipc.h"
 #include "memory.h"
 #include "runtime.h"
+#include "accelerator.h"
 #include <thread>
 #include <cstdlib>
 #include <unistd.h>
@@ -185,12 +186,12 @@ int ishmemi_ipc_init()
 
     if (ret != 0) {
         if (ishmemi_params.ENABLE_GPU_IPC_PIDFD) {
-            ISHMEM_DEBUG_MSG("ipc_init_pidfd failed '%d', falling back to ipc_init_sockets\n", ret);
+            ISHMEM_DEBUG_MSG("IPC init with PIDFD failed '%d', falling back to sockets\n", ret);
         }
 
         /* pidfd is not supported, so fallback to sockets implementation */
         ret = ipc_init_sockets();
-        ISHMEM_CHECK_GOTO_MSG(ret, fn_fail, "ipc_init_sockets failed '%d'\n", ret);
+        ISHMEM_CHECK_GOTO_MSG(ret, fn_fail, "IPC init with sockets failed '%d'\n", ret);
     }
 
     /* Initialize the local ipc_buffer info */

@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "internal.h"
+#include "ishmem/err.h"
 #include "sync_impl.h"
-#include "impl_proxy.h"
+#include "proxy_impl.h"
 #include "collectives.h"
 
 void ishmem_barrier_all()
@@ -14,14 +14,13 @@ void ishmem_barrier_all()
                   ishmemi_sync_algorithm == SYNC_ALGORITHM_ATOMIC_ADD ||
                   ishmemi_sync_algorithm == SYNC_ALGORITHM_STORE);
 
-    ishmemi_request_t req = {
-        .op = BARRIER,
-        .type = MEM,
-    };
+    ishmemi_request_t req;
+    req.op = BARRIER;
+    req.type = MEM;
 #ifdef __SYCL_DEVICE_ONLY__
-    ishmem_info_t *info = global_info;
+    ishmemi_info_t *info = global_info;
     if (info->only_intra_node) req.op = QUIET;
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
     if (info->only_intra_node) {
         if constexpr (ishmemi_sync_algorithm == SYNC_ALGORITHM_ATOMIC_EXCHANGE) {
             ISHMEMI_SYNC_LOCAL_PES_ATOMIC_EXCHANGE_DEVICE(barrier);

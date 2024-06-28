@@ -13,10 +13,10 @@ void *ishmemi_heap_base = nullptr;
 size_t ishmemi_heap_length = 0;
 uintptr_t ishmemi_heap_last = 0;
 void *ishmemi_mmap_heap_base = nullptr;
-ishmem_info_t *ishmemi_gpu_info = nullptr;
+ishmemi_info_t *ishmemi_gpu_info = nullptr;
 
 size_t ishmemi_info_size = 0;
-ishmem_info_t *ishmemi_mmap_gpu_info = nullptr;
+ishmemi_info_t *ishmemi_mmap_gpu_info = nullptr;
 
 mspace ishmemi_mspace;
 ze_command_queue_desc_t ishmem_copy_cmd_queue_desc = {
@@ -52,7 +52,7 @@ int ishmemi_memory_init()
          */
         ishmemi_mmap_heap_base = ishmemi_get_mmap_address(ishmemi_heap_base, ishmemi_heap_length);
         if (ishmemi_mmap_heap_base == nullptr) {
-            RAISE_ERROR_MSG("unable to mmap symmetric heap\n");
+            RAISE_ERROR_MSG("Unable to mmap GPU symmetric heap\n");
         }
         memset(ishmemi_mmap_heap_base, 0, ishmemi_heap_length);
         ishmemi_heap_last = (uintptr_t) pointer_offset(ishmemi_heap_base, ishmemi_heap_length - 1);
@@ -79,7 +79,7 @@ int ishmemi_memory_init()
 
     /* allocate info structure */
     ishmemi_info_size =
-        sizeof(ishmem_info_t) + (static_cast<size_t>(ishmemi_n_pes) * sizeof(uint8_t));
+        sizeof(ishmemi_info_t) + (static_cast<size_t>(ishmemi_n_pes) * sizeof(uint8_t));
     ret = ishmemi_usm_alloc_device((void **) &ishmemi_gpu_info, ishmemi_info_size);
 
     /* SYCL queue to initialize global_info */
@@ -94,13 +94,19 @@ int ishmemi_memory_init()
     /* host access for device data */
     ishmemi_mmap_gpu_info = ishmemi_get_mmap_address(ishmemi_gpu_info, ishmemi_info_size);
     if (ishmemi_mmap_gpu_info == nullptr) {
-        RAISE_ERROR_MSG("unable to mmap gpu info structure\n");
+        RAISE_ERROR_MSG("Unable to mmap GPU info object\n");
     }
     memset(ishmemi_mmap_gpu_info, 0, ishmemi_info_size);
 
     if (ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
         ishmemi_mspace = create_mspace_with_base(ishmemi_heap_base, ishmemi_heap_length, 0);
+    } else {
+#ifdef USE_DLMALLOC
+        ishmemi_mspace = create_mspace_with_base(ishmemi_mmap_heap_base, ishmemi_heap_length, 0);
+#endif
     }
+
+    /* create ZE command list */
     ZE_CHECK(zeCommandListCreateImmediate(ishmemi_ze_context, ishmemi_gpu_device,
                                           &ishmem_copy_cmd_queue_desc, &ishmem_copy_cmd_list));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
@@ -169,13 +175,27 @@ void *ishmem_malloc(size_t size)
 
     // TODO: internal barrier, dlmalloc, thread-safety
     if (!ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
+#ifndef USE_DLMALLOC
         ret = ishmemi_get_next(size);
+#else
+        void *host_ret = mspace_memalign(ishmemi_mspace, ISHMEMI_ALLOC_ALIGN, size);
+        ISHMEM_CHECK_GOTO_MSG(host_ret == nullptr, fn_fail,
+                              "Unable to allocate %zu bytes in symmetric space\n", size);
+
+        ret = (void *) (((uintptr_t) host_ret - (uintptr_t) ishmemi_mmap_heap_base) +
+                        (uintptr_t) ishmemi_heap_base);
+#endif
     } else {
         ret = mspace_memalign(ishmemi_mspace, ISHMEMI_ALLOC_ALIGN, size);
+        ISHMEM_CHECK_GOTO_MSG(ret == nullptr, fn_fail,
+                              "Unable to allocate %zu bytes in symmetric space\n", size);
     }
 
-    ishmemi_runtime_barrier();
+    ishmemi_runtime_barrier_all();
     return ret;
+
+fn_fail:
+    return nullptr;
 }
 
 void *ishmem_align(size_t alignment, size_t size)
@@ -187,26 +207,50 @@ void *ishmem_align(size_t alignment, size_t size)
     if (alignment == 0 || (alignment & (alignment - 1)) != 0) return nullptr;
 
     if (!ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
+#ifndef USE_DLMALLOC
         ret = ishmemi_get_next(size, alignment);
+#else
+        void *host_ret = mspace_memalign(ishmemi_mspace, alignment, size);
+        ISHMEM_CHECK_GOTO_MSG(host_ret == nullptr, fn_fail,
+                              "Unable to allocate %zu bytes in symmetric space\n", size);
+
+        ret = (void *) (((uintptr_t) host_ret - (uintptr_t) ishmemi_mmap_heap_base) +
+                        (uintptr_t) ishmemi_heap_base);
+#endif
     } else {
         ret = mspace_memalign(ishmemi_mspace, alignment, size);
+        ISHMEM_CHECK_GOTO_MSG(ret == nullptr, fn_fail,
+                              "Unable to allocate %zu bytes in symmetric space\n", size);
     }
 
-    ishmemi_runtime_barrier();
+    ishmemi_runtime_barrier_all();
     return ret;
+
+fn_fail:
+    return nullptr;
 }
 
 void *ishmem_calloc(size_t count, size_t size)
 {
-    int ret = 0;
     void *ptr;
     if (count == 0 || size == 0) return (nullptr);
 
     // TODO: internal barrier, dlmalloc, thread-safety
     if (!ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
+#ifndef USE_DLMALLOC
         ptr = ishmemi_get_next(size * count);
+#else
+        void *host_ret = mspace_memalign(ishmemi_mspace, ISHMEMI_ALLOC_ALIGN, count * size);
+        ISHMEM_CHECK_GOTO_MSG(host_ret == nullptr, fn_fail,
+                              "Unable to allocate %zu bytes in symmetric space\n", count * size);
+
+        ptr = (void *) (((uintptr_t) host_ret - (uintptr_t) ishmemi_mmap_heap_base) +
+                        (uintptr_t) ishmemi_heap_base);
+#endif
     } else {
         ptr = mspace_memalign(ishmemi_mspace, ISHMEMI_ALLOC_ALIGN, count * size);
+        ISHMEM_CHECK_GOTO_MSG(ptr == nullptr, fn_fail,
+                              "Unable to allocate %zu bytes in symmetric space\n", count * size);
     }
 
     if (ptr != nullptr) {
@@ -219,16 +263,18 @@ void *ishmem_calloc(size_t count, size_t size)
                                                   .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL};
         ze_command_list_handle_t cmd_list = {};
         uint32_t zero = 0;
+        int ret = 0;
         ZE_CHECK(zeCommandListCreateImmediate(ishmemi_ze_context, ishmemi_gpu_device,
                                               &cmd_queue_desc, &cmd_list));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
-        ZE_CHECK(zeCommandListAppendMemoryFill(cmd_list, ptr, &zero, 1, size, nullptr, 0, nullptr));
+        ZE_CHECK(zeCommandListAppendMemoryFill(cmd_list, ptr, &zero, 1, count * size, nullptr, 0,
+                                               nullptr));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
         ZE_CHECK(zeCommandListDestroy(cmd_list));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
     }
 
-    ishmemi_runtime_barrier();
+    ishmemi_runtime_barrier_all();
 
     return ptr;
 
@@ -239,10 +285,18 @@ fn_fail:
 void ishmem_free(void *ptr)
 {
     // TODO
-    ishmemi_runtime_barrier();
+    ishmemi_runtime_barrier_all();
     if (ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
         if (ptr != nullptr) {
             mspace_free(ishmemi_mspace, ptr);
+        }
+    } else {
+        if (ptr != nullptr) {
+#ifdef USE_DLMALLOC
+            void *host_ptr = (void *) (((uintptr_t) ptr - (uintptr_t) ishmemi_heap_base) +
+                                       (uintptr_t) ishmemi_mmap_heap_base);
+            mspace_free(ishmemi_mspace, host_ptr);
+#endif
         }
     }
 }

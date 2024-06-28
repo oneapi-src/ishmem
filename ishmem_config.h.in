@@ -6,5 +6,5 @@
 #cmakedefine ENABLE_OPENSHMEM
 #cmakedefine ENABLE_PMI
 #cmakedefine ENABLE_ERROR_CHECKING
-#cmakedefine ENABLE_GPU_RDMA
 #cmakedefine USE_REDUCED_LINK_ENGINE_SET
+#cmakedefine USE_DLMALLOC

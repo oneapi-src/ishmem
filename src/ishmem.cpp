@@ -2,101 +2,28 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "internal.h"
+#include "ishmem/err.h"
 #include "accelerator.h"
 #include "collectives.h"
-#include "impl_proxy.h"
-#include "internal.h"
+#include "proxy_impl.h"
 #include "ipc.h"
 #include "memory.h"
 #include "proxy.h"
 #include "runtime.h"
+#include "collectives/sync_impl.h"
 #include "collectives/reduce_impl.h"
 #include "collectives/broadcast_impl.h"
 #include "collectives/collect_impl.h"
 #include "collectives/alltoall_impl.h"
-#include <stdlib.h>  // abort
+#include <cstdlib>  // abort
 
 int ishmemi_my_pe;
 int ishmemi_n_pes;
 
-/* Note: this order should match ishmemi_op_t */
-const char *ishmemi_op_str[] = {
-    "put",
-    "put_work_group",
-    "iput",
-    "iput_work_group",
-    "p",
-    "get",
-    "get_work_group",
-    "iget",
-    "iget_work_group",
-    "g",
-    "put_nbi",
-    "put_nbi_work_group",
-    "get_nbi",
-    "get_nbi_work_group",
-    "amo_fetch",
-    "amo_set",
-    "amo_compare_swap",
-    "amo_swap",
-    "amo_fetch_inc",
-    "amo_inc",
-    "amo_fetch_add",
-    "amo_add",
-    "amo_fetch_and",
-    "amo_and",
-    "amo_fetch_or",
-    "amo_or",
-    "amo_fetch_xor",
-    "amo_xor",
-    "put_signal",
-    "put_signal_work_group",
-    "put_signal_nbi",
-    "put_signal_nbi_work_group",
-    "signal_fetch",
-    "barrier",
-    "barrier_work_group",
-    "sync",
-    "sync_work_group",
-    "alltoall",
-    "alltoall_work_group",
-    "bcast",
-    "bcast_work_group",
-    "collect",
-    "collect_work_group",
-    "fcollect",
-    "fcollect_work_group",
-    "and_reduce",
-    "and_reduce_work_group",
-    "or_reduce",
-    "or_reduce_work_group",
-    "xor_reduce",
-    "xor_reduce_work_group",
-    "max_reduce",
-    "max_reduce_work_group",
-    "min_reduce",
-    "min_reduce_work_group",
-    "sum_reduce",
-    "sum_reduce_work_group",
-    "prod_reduce",
-    "prod_reduce_work_group",
-    "test",
-    "wait",
-    "fence",
-    "quiet",
-    "kill",
-    "nop",
-    "nop_no_r",
-    "debug_test",
-};
-
-/* Note: this order should match ishmemi_type_t */
-const char *ishmemi_type_str[] = {
-    "mem",   "uint8",    "uint16", "uint32", "uint64",     "ulonglong", "int8",    "int16", "int32",
-    "int64", "longlong", "float",  "double", "longdouble", "char",      "schar",   "short", "int",
-    "long",  "uchar",    "ushort", "uint",   "ulong",      "size",      "ptrdiff",
-};
+/* Note: these string array is in the same order as ishmemi_op_t in types.h */
+const char *ishmemi_op_str[ISHMEMI_OP_END + 1];
+/* Note: these string array is in the same order as ishmemi_type_t in types.h */
+const char *ishmemi_type_str[ISHMEMI_TYPE_END + 1];
 
 /* Macros for generating ishmem external API implementation */
 /* Name convention is based on shmem function arguments
@@ -131,17 +58,16 @@ const char *ishmemi_type_str[] = {
  */
 
 /* device global pointer to global_info structure */
-sycl::ext::oneapi::experimental::device_global<ishmem_info_t *> global_info;
+sycl::ext::oneapi::experimental::device_global<ishmemi_info_t *> global_info;
 
 #define ISHMEMI_API_IMPL(SUFFIX)                                                                   \
     void ishmemx_##SUFFIX()                                                                        \
     {                                                                                              \
         if constexpr (ishmemi_is_device) {                                                         \
-            ishmemi_request_t req = {                                                              \
-                .op = ISHMEMI_OP_##SUFFIX,                                                         \
-                .type = MEM,                                                                       \
-            };                                                                                     \
-            ishmemi_proxy_blocking_request(&req);                                                  \
+            ishmemi_request_t req;                                                                 \
+            req.op = ISHMEMI_OP_##SUFFIX;                                                          \
+            req.type = MEM;                                                                        \
+            ishmemi_proxy_blocking_request(req);                                                   \
         }                                                                                          \
     }
 
@@ -149,11 +75,10 @@ sycl::ext::oneapi::experimental::device_global<ishmem_info_t *> global_info;
     void ishmemx_##SUFFIX()                                                                        \
     {                                                                                              \
         if constexpr (ishmemi_is_device) {                                                         \
-            ishmemi_request_t req = {                                                              \
-                .op = ISHMEMI_OP_##SUFFIX,                                                         \
-                .type = MEM,                                                                       \
-            };                                                                                     \
-            ishmemi_proxy_nonblocking_request(&req);                                               \
+            ishmemi_request_t req;                                                                 \
+            req.op = ISHMEMI_OP_##SUFFIX;                                                          \
+            req.type = MEM;                                                                        \
+            ishmemi_proxy_nonblocking_request(req);                                                \
         }                                                                                          \
     }
 
@@ -161,6 +86,110 @@ sycl::ext::oneapi::experimental::device_global<ishmem_info_t *> global_info;
 ISHMEMI_API_IMPL(debug_test)
 ISHMEMI_API_IMPL(nop)
 ISHMEMI_API_IMPL_NO_R(nop_no_r)
+
+void ishmemi_init_op_str()
+{
+    ishmemi_op_str[PUT] = "put";
+    ishmemi_op_str[IPUT] = "iput";
+    ishmemi_op_str[P] = "p";
+    ishmemi_op_str[GET] = "get";
+    ishmemi_op_str[IGET] = "iget";
+    ishmemi_op_str[G] = "g";
+    ishmemi_op_str[PUT_NBI] = "put_nbi";
+    ishmemi_op_str[GET_NBI] = "get_nbi";
+    ishmemi_op_str[AMO_FETCH] = "atomic_fetch";
+    ishmemi_op_str[AMO_SET] = "atomic_set";
+    ishmemi_op_str[AMO_COMPARE_SWAP] = "atomic_compare_swap";
+    ishmemi_op_str[AMO_SWAP] = "atomic_swap";
+    ishmemi_op_str[AMO_FETCH_INC] = "atomic_fetch_inc";
+    ishmemi_op_str[AMO_INC] = "atomic_inc";
+    ishmemi_op_str[AMO_FETCH_ADD] = "atomic_fetch_add";
+    ishmemi_op_str[AMO_ADD] = "atomic_add";
+    ishmemi_op_str[AMO_FETCH_AND] = "atomic_fetch_and";
+    ishmemi_op_str[AMO_AND] = "atomic_and";
+    ishmemi_op_str[AMO_FETCH_OR] = "atomic_fetch_or";
+    ishmemi_op_str[AMO_OR] = "atomic_or";
+    ishmemi_op_str[AMO_FETCH_XOR] = "atomic_fetch_xor";
+    ishmemi_op_str[AMO_XOR] = "atomic_xor";
+    ishmemi_op_str[AMO_FETCH_NBI] = "atomic_fetch_nbi";
+    ishmemi_op_str[AMO_COMPARE_SWAP_NBI] = "atomic_compare_swap_nbi";
+    ishmemi_op_str[AMO_SWAP_NBI] = "atomic_swap_nbi";
+    ishmemi_op_str[AMO_FETCH_INC_NBI] = "atomic_fetch_inc_nbi";
+    ishmemi_op_str[AMO_FETCH_ADD_NBI] = "atomic_fetch_add_nbi";
+    ishmemi_op_str[AMO_FETCH_AND_NBI] = "atomic_fetch_and_nbi";
+    ishmemi_op_str[AMO_FETCH_OR_NBI] = "atomic_fetch_or_nbi";
+    ishmemi_op_str[AMO_FETCH_XOR_NBI] = "atomic_fetch_xor_nbi";
+    ishmemi_op_str[PUT_SIGNAL] = "put_signal";
+    ishmemi_op_str[PUT_SIGNAL_NBI] = "put_signal_nbi";
+    ishmemi_op_str[SIGNAL_FETCH] = "signal_fetch";
+    ishmemi_op_str[SIGNAL_ADD] = "signal_add";
+    ishmemi_op_str[SIGNAL_SET] = "signal_set";
+    ishmemi_op_str[BARRIER] = "barrier_all";
+    ishmemi_op_str[SYNC] = "sync_all";
+    ishmemi_op_str[ALLTOALL] = "alltoall";
+    ishmemi_op_str[BCAST] = "broadcast";
+    ishmemi_op_str[COLLECT] = "collect";
+    ishmemi_op_str[FCOLLECT] = "fcollect";
+    ishmemi_op_str[AND_REDUCE] = "and_reduce";
+    ishmemi_op_str[OR_REDUCE] = "or_reduce";
+    ishmemi_op_str[XOR_REDUCE] = "xor_reduce";
+    ishmemi_op_str[MAX_REDUCE] = "max_reduce";
+    ishmemi_op_str[MIN_REDUCE] = "min_reduce";
+    ishmemi_op_str[SUM_REDUCE] = "sum_reduce";
+    ishmemi_op_str[PROD_REDUCE] = "prod_reduce";
+    ishmemi_op_str[WAIT] = "wait_until";
+    ishmemi_op_str[WAIT_ALL] = "wait_until_all";
+    ishmemi_op_str[WAIT_ANY] = "wait_until_any";
+    ishmemi_op_str[WAIT_SOME] = "wait_until_some";
+    ishmemi_op_str[TEST] = "test";
+    ishmemi_op_str[TEST_ALL] = "test_all";
+    ishmemi_op_str[TEST_ANY] = "test_any";
+    ishmemi_op_str[TEST_SOME] = "test_some";
+    ishmemi_op_str[FENCE] = "fence";
+    ishmemi_op_str[QUIET] = "quiet";
+    ishmemi_op_str[KILL] = "kill";
+    ishmemi_op_str[NOP] = "nop";
+    ishmemi_op_str[NOP_NO_R] = "nop_no_r";
+    ishmemi_op_str[TIMESTAMP] = "timestamp";
+    ishmemi_op_str[PRINT] = "print";
+    ishmemi_op_str[DEBUG_TEST] = "debug_test";
+    ishmemi_op_str[ISHMEMI_OP_END] = NULL;
+}
+
+void ishmemi_init_type_str()
+{
+    ishmemi_type_str[MEM] = "mem";
+    ishmemi_type_str[UINT8] = "uint8";
+    ishmemi_type_str[UINT16] = "uint16";
+    ishmemi_type_str[UINT32] = "uint32";
+    ishmemi_type_str[UINT64] = "uint64";
+    ishmemi_type_str[ULONGLONG] = "ulonglong";
+    ishmemi_type_str[INT8] = "int8";
+    ishmemi_type_str[INT16] = "int16";
+    ishmemi_type_str[INT32] = "int32";
+    ishmemi_type_str[INT64] = "int64";
+    ishmemi_type_str[LONGLONG] = "longlong";
+    ishmemi_type_str[FLOAT] = "float";
+    ishmemi_type_str[DOUBLE] = "double";
+    ishmemi_type_str[LONGDOUBLE] = "longdouble";
+    ishmemi_type_str[CHAR] = "char";
+    ishmemi_type_str[SCHAR] = "schar";
+    ishmemi_type_str[SHORT] = "short";
+    ishmemi_type_str[INT] = "int";
+    ishmemi_type_str[LONG] = "long";
+    ishmemi_type_str[UCHAR] = "uchar";
+    ishmemi_type_str[USHORT] = "ushort";
+    ishmemi_type_str[UINT] = "uint";
+    ishmemi_type_str[ULONG] = "ulong";
+    ishmemi_type_str[SIZE] = "size";
+    ishmemi_type_str[PTRDIFF] = "ptrdiff";
+    ishmemi_type_str[SIZE8] = "size8";
+    ishmemi_type_str[SIZE16] = "size16";
+    ishmemi_type_str[SIZE32] = "size32";
+    ishmemi_type_str[SIZE64] = "size64";
+    ishmemi_type_str[SIZE128] = "size128";
+    ishmemi_type_str[ISHMEMI_TYPE_END] = NULL;
+}
 
 void ishmem_init()
 {
@@ -178,24 +207,24 @@ void ishmemx_init_attr(ishmemx_attr_t *attr)
     int accelerator_initialized = 0;
     int memory_initialized = 0;
     int ipc_initialized = 0;
+    int teams_initialized = 0;
     int collectives_initialized = 0;
+    ishmemi_init_op_str();
+    ishmemi_init_type_str();
     static_assert(sizeof(ishmemi_request_t) == 64, "ISHMEM request object must be 64 bytes.");
+    static_assert(sizeof(ishmemi_completion_t) == 64, "ISHMEM completion object must be 64 bytes.");
+    static_assert(sizeof(ishmemi_ringcompletion_t) == 64,
+                  "ISHMEM ringcompletion object must be 64 bytes.");
 
-    ishmemi_cpu_info = (ishmem_cpu_info_t *) malloc(sizeof(ishmem_cpu_info_t));
+    ishmemi_cpu_info = (ishmemi_cpu_info_t *) malloc(sizeof(ishmemi_cpu_info_t));
     ISHMEM_CHECK_GOTO_MSG(ishmemi_cpu_info == nullptr, cleanup,
                           "CPU info object allocation failed\n");
-    memset(ishmemi_cpu_info, 0, sizeof(ishmem_cpu_info_t));
+    memset(ishmemi_cpu_info, 0, sizeof(ishmemi_cpu_info_t));
 
     /* Currently, no support for CPU environments */
     if (!attr->gpu) {
         ISHMEM_WARN_MSG("Currently, no support for CPU-only environment\n");
         attr->gpu = true;
-    }
-
-    /* Currently, no support for PMI, MPI */
-    if (attr->runtime != ISHMEMX_RUNTIME_OPENSHMEM) {
-        ISHMEM_WARN_MSG("Currently, no support for runtimes other than OpenSHMEM\n");
-        attr->runtime = ISHMEMX_RUNTIME_OPENSHMEM;
     }
 
     /* Parse environment variables */
@@ -229,7 +258,7 @@ void ishmemx_init_attr(ishmemx_attr_t *attr)
         memory_initialized = 1;
     }
     /* Register symmetric heap with host runtime */
-    ishmemi_runtime_heap_create(ishmemi_heap_base, ishmemi_heap_length);
+    ishmemi_runtime_heap_create(attr, ishmemi_heap_base, ishmemi_heap_length);
 
     ishmemi_cpu_info->use_ipc = false;  // This will be set to true if ishmemi_ipc_init passes
 
@@ -275,6 +304,10 @@ void ishmemx_init_attr(ishmemx_attr_t *attr)
         ishmemi_mmap_gpu_info->only_intra_node = false;
     }
 
+    ret = ishmemi_team_init();
+    ISHMEM_CHECK_GOTO_MSG(ret, cleanup, "Teams initialization failed '%d'\n", ret);
+    teams_initialized = 1;
+
     ret = ishmemi_collectives_init();
     ISHMEM_CHECK_GOTO_MSG(ret, cleanup, "Collectives initialization failed '%d'\n", ret);
     collectives_initialized = 1;
@@ -289,6 +322,10 @@ void ishmemx_init_attr(ishmemx_attr_t *attr)
 cleanup:
     if (collectives_initialized) {
         ishmemi_collectives_fini();
+    }
+
+    if (teams_initialized) {
+        ishmemi_team_fini();
     }
 
     if (ipc_initialized) {
@@ -321,6 +358,9 @@ void ishmem_finalize()
 
     ret = ishmemi_proxy_fini();
     ISHMEM_CHECK_GOTO_MSG(ret, fail, "Proxy finalize failed '%d'\n", ret);
+
+    ret = ishmemi_team_fini();
+    ISHMEM_CHECK_GOTO_MSG(ret, fail, "Teams finalize failed '%d'\n", ret);
 
     ret = ishmemi_collectives_fini();
     ISHMEM_CHECK_GOTO_MSG(ret, fail, "Collectives finalize failed '%d'\n", ret);
@@ -402,15 +442,128 @@ void *ishmem_ptr(const void *dest, int pe)
     }
 }
 
+int ishmem_team_my_pe(ishmem_team_t team)
+{
+    if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return -1;
+    else
+#ifdef __SYCL_DEVICE_ONLY__
+        return global_info->team_pool[team]->my_pe;
+#else
+        return ishmemi_mmap_gpu_info->team_pool[team]->my_pe;
+#endif
+}
+
+int ishmem_team_n_pes(ishmem_team_t team)
+{
+    if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return -1;
+    else
+#ifdef __SYCL_DEVICE_ONLY__
+        return global_info->team_pool[team]->size;
+#else
+        return ishmemi_mmap_gpu_info->team_pool[team]->size;
+#endif
+}
+
+int ishmem_team_get_config(ishmem_team_t team, long config_mask, ishmem_team_config_t *config)
+{
+    if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return -1;
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ishmemi_team_t *myteam = global_info->team_pool[team];
+#else
+    ishmemi_team_t *myteam = ishmemi_mmap_gpu_info->team_pool[team];
+#endif
+    if (config_mask != 0) {
+        if (config_mask != ISHMEM_TEAM_NUM_CONTEXTS) {
+            ISHMEM_WARN_MSG("Invalid team config mask (%ld)\n", config_mask);
+            return -1;
+        }
+        if (config == NULL) {
+            ISHMEM_WARN_MSG("NULL config pointer passed to shmem_team_get_config\n");
+            return -1;
+        }
+        memcpy(config, &myteam->config, sizeof(ishmem_team_config_t));
+    } else if (config != NULL) {
+        ISHMEM_WARN_MSG("%s %s\n", "ishmem_team_get_config encountered an unexpected",
+                        "non-NULL config structure passed with a config_mask of 0.");
+    }
+    return 0;
+}
+
+int ishmem_team_translate_pe(ishmem_team_t src_team, int src_pe, ishmem_team_t dest_team)
+{
+    if (src_team <= ISHMEM_TEAM_INVALID || dest_team <= ISHMEM_TEAM_INVALID ||
+        src_team >= ISHMEMI_N_TEAMS || dest_team >= ISHMEMI_N_TEAMS)
+        return -1;
+
+#ifdef __SYCL_DEVICE_ONLY__
+    return ishmemi_team_translate_pe(global_info->team_pool[src_team], src_pe,
+                                     global_info->team_pool[dest_team]);
+#else
+    return ishmemi_team_translate_pe(ishmemi_mmap_gpu_info->team_pool[src_team], src_pe,
+                                     ishmemi_mmap_gpu_info->team_pool[dest_team]);
+#endif
+}
+
+/* Teams Management Routines */
+int ishmem_team_split_strided(ishmem_team_t parent_team, int PE_start, int PE_stride, int PE_size,
+                              const ishmem_team_config_t *config, long config_mask,
+                              ishmem_team_t *new_team)
+{
+    if (parent_team <= ISHMEM_TEAM_INVALID || parent_team >= ISHMEMI_N_TEAMS ||
+        (PE_stride == 0 && PE_size != 1))
+        return -1;
+
+    return ishmemi_team_split_strided(ishmemi_mmap_gpu_info->team_pool[parent_team], PE_start,
+                                      PE_stride, PE_size, config, config_mask, new_team);
+}
+
+int ishmem_team_split_2d(ishmem_team_t parent_team, int xrange,
+                         const ishmem_team_config_t *xaxis_config, long xaxis_mask,
+                         ishmem_team_t *xaxis_team, const ishmem_team_config_t *yaxis_config,
+                         long yaxis_mask, ishmem_team_t *yaxis_team)
+{
+    if (parent_team <= ISHMEM_TEAM_INVALID || parent_team >= ISHMEMI_N_TEAMS) return -1;
+
+    return ishmemi_team_split_2d(ishmemi_mmap_gpu_info->team_pool[parent_team], xrange,
+                                 xaxis_config, xaxis_mask, xaxis_team, yaxis_config, yaxis_mask,
+                                 yaxis_team);
+}
+
+void ishmem_team_destroy(ishmem_team_t team)
+{
+    if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return;
+
+    if (team == ISHMEM_TEAM_WORLD || team == ISHMEM_TEAM_SHARED || team == ISHMEMX_TEAM_NODE) {
+        ISHMEM_WARN_MSG("User attempted to destroy a pre-defined team.\n");
+        return;
+    }
+
+    int ret = ishmemi_team_destroy(ishmemi_mmap_gpu_info->team_pool[team]);
+    if (ret != 0) {
+        RAISE_ERROR_MSG("ishmem_team_destroy failed\n");
+    }
+}
+
+int ishmem_team_sync(ishmem_team_t team)
+{
+    if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return -1;
+
+#ifdef __SYCL_DEVICE_ONLY__
+    return ishmemi_team_sync(global_info->team_pool[team]);
+#else
+    return ishmemi_team_sync(ishmemi_mmap_gpu_info->team_pool[team]);
+#endif
+}
+
 void ishmem_fence()
 {
 #ifdef __SYCL_DEVICE_ONLY__
-    ishmemi_request_t req = {
-        .op = FENCE,
-        .type = MEM,
-    };
+    ishmemi_request_t req;
+    req.op = FENCE;
+    req.type = MEM;
 
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
     atomic_fence(sycl::memory_order::seq_cst, sycl::memory_scope::system);
 #else
     ishmemi_runtime_fence();
@@ -427,12 +580,11 @@ void ishmemx_fence_work_group(const Group &grp)
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
         if (grp.leader()) {
-            ishmemi_request_t req = {
-                .op = FENCE,
-                .type = MEM,
-            };
+            ishmemi_request_t req;
+            req.op = FENCE;
+            req.type = MEM;
 
-            ishmemi_proxy_blocking_request(&req);
+            ishmemi_proxy_blocking_request(req);
         }
         atomic_fence(sycl::memory_order::seq_cst, sycl::memory_scope::system);
         sycl::group_barrier(grp);
@@ -444,12 +596,11 @@ void ishmemx_fence_work_group(const Group &grp)
 void ishmem_quiet()
 {
 #ifdef __SYCL_DEVICE_ONLY__
-    ishmemi_request_t req = {
-        .op = QUIET,
-        .type = MEM,
-    };
+    ishmemi_request_t req;
+    req.op = QUIET;
+    req.type = MEM;
 
-    ishmemi_proxy_blocking_request(&req);
+    ishmemi_proxy_blocking_request(req);
     atomic_fence(sycl::memory_order::seq_cst, sycl::memory_scope::system);
 #else
     ishmemi_runtime_quiet();
@@ -466,12 +617,11 @@ void ishmemx_quiet_work_group(const Group &grp)
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
         if (grp.leader()) {
-            ishmemi_request_t req = {
-                .op = QUIET,
-                .type = MEM,
-            };
+            ishmemi_request_t req;
+            req.op = QUIET;
+            req.type = MEM;
 
-            ishmemi_proxy_blocking_request(&req);
+            ishmemi_proxy_blocking_request(req);
         }
         atomic_fence(sycl::memory_order::seq_cst, sycl::memory_scope::system);
         sycl::group_barrier(grp);

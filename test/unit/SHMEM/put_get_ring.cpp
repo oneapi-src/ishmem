@@ -12,7 +12,9 @@ constexpr int chunk_sz = 2;    /* data partition/chunk size per thread */
 int main()
 {
     sycl::queue q;
-    ishmem_init();
+    ishmemx_attr_t attr = {};
+    test_init_attr(&attr);
+    ishmemx_init_attr(&attr);
 
     int my_pe = ishmem_my_pe();
     int npes = ishmem_n_pes();
@@ -34,15 +36,11 @@ int main()
 
     sycl::range<1> num_threads{array_size / chunk_sz};
 
-    int *src = (int *) sycl::malloc_shared<int>(array_size, q);
+    int *src = (int *) sycl::malloc_host<int>(array_size, q);
     CHECK_ALLOC(src);
-    int *dst = (int *) sycl::malloc_shared<int>(array_size, q);
-    CHECK_ALLOC(dst);
-
-    // TODO: should use ishmem_calloc instead of shmem_calloc
-    std::cerr << "Warning: Using shmem_calloc instead of ishmem_calloc\n";
-    int *dst_put = (int *) shmem_calloc(array_size, sizeof(int));
-    // int *dst_put = (int *) ishmem_calloc(array_size, sizeof(int));
+    int *dst_get = (int *) sycl::malloc_device<int>(array_size, q);
+    CHECK_ALLOC(dst_get);
+    int *dst_put = (int *) ishmem_malloc(array_size * sizeof(int));
     CHECK_ALLOC(dst_put);
 
     /* set src buffers in this fasion:
@@ -50,10 +48,10 @@ int main()
      *   PE1-> [2, 3, 4, ...];
      *   PE2-> [3, 4, 5, ...]       */
     for (int i = 0; i < array_size; i++) {
-        src[i] = shmem_my_pe() + i + 1;
+        src[i] = ishmem_my_pe() + i + 1;
     }
 
-    shmem_barrier_all();
+    ishmem_barrier_all();
 
     auto e1 =
         q.parallel_for(sycl::nd_range<1>{num_threads, num_threads}, [=](sycl::nd_item<1> idx) {
@@ -66,38 +64,38 @@ int main()
             ishmem_int_put(&dst_put[i * chunk_sz], &src[i * chunk_sz], chunk_sz,
                            (my_dev_pe + 1) % my_dev_npes);
 
+            ishmem_quiet();
+
             /* Get ring */
-            ishmem_int_get(&dst[i * chunk_sz], &dst_put[i * chunk_sz], chunk_sz,
+            ishmem_int_get(&dst_get[i * chunk_sz], &dst_put[i * chunk_sz], chunk_sz,
                            (my_dev_pe + 1) % my_dev_npes);
         });
     q.wait();
 
-    shmem_barrier_all();
+    ishmem_barrier_all();
 
     /* Verify results */
-    int errors = 0;
+    int *errors = sycl::malloc_host<int>(1, q);
+    *errors = 0;
     int src_pe = (my_pe == 0 ? npes - 1 : my_pe - 1);
-    for (int i = 0; i < array_size; i++) {
-        if (src[i] != dst[i] || dst_put[i] != src_pe + i + 1) {
-            std::cerr << "element " << i << " on PE " << my_pe << " incorrect! "
-                      << "src " << src[i] << " dst " << dst[i] << " dst_put " << dst_put[i]
-                      << " exp " << src_pe + i + 1 << std::endl;
-            errors++;
-        }
-    }
+    auto e_verify = q.submit([&](sycl::handler &h) {
+        h.single_task([=]() {
+            for (int i = 0; i < array_size; i++) {
+                if (src[i] != dst_get[i] || dst_put[i] != src_pe + i + 1) {
+                    *errors = *errors + 1;
+                }
+            }
+        });
+    });
+    e_verify.wait_and_throw();
 
-    if (errors == 0)
-        std::cout << "PE#" << my_pe << " SUCCESS - verified get/put" << std::endl;
-    else
-        std::cout << "Verification FAILED" << std::endl;
+    if (*errors == 0) std::cout << "PE#" << my_pe << " SUCCESS - verified get/put" << std::endl;
+    else std::cout << "PE#" << my_pe << " FAILURE - Error count: " << *errors << std::endl;
 
-    free(src);
-    free(dst);
-
-    // TODO: change to ishmem_free
-    shmem_free(dst_put);
+    sycl::free(src, q);
+    sycl::free(dst_get, q);
+    ishmem_free(dst_put);
 
     ishmem_finalize();
-    shmem_finalize();
     return 0;
 }
