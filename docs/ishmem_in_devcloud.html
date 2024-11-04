@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Writing Intel® SHMEM Programs &#8212; Documentation for Intel® SHMEM</title>
+    <title>Using Intel® SHMEM in Intel® Tiber™ AI Cloud &#8212; Documentation for Intel® SHMEM</title>
   
   
   
@@ -40,13 +40,13 @@
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'writing_programs';</script>
-    <link rel="canonical" href="oneapi-src.github.io/ishmem/writing_programs.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ishmem_in_devcloud';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/ishmem_in_devcloud.html" />
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Compiling and Running Programs" href="compiling_and_running_programs.html" />
-    <link rel="prev" title="Building Intel® SHMEM" href="building_ishmem.html" />
+    <link rel="next" title="Acknowledgements" href="acknowledgements.html" />
+    <link rel="prev" title="Compiling and Running Programs" href="compiling_and_running_programs.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -184,9 +184,9 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Build, Write, and Run Programs</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="building_ishmem.html">Building Intel® SHMEM</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Writing Intel® SHMEM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
 <ul class="nav bd-sidenav">
@@ -247,7 +247,7 @@
       
       
       
-      <li><a href="_sources/writing_programs.rst" target="_blank"
+      <li><a href="_sources/ishmem_in_devcloud.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -329,7 +329,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Writing Intel® SHMEM Programs</h1>
+    <h1>Using Intel® SHMEM in Intel® Tiber™ AI Cloud</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -343,93 +343,46 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="writing-intel-shmem-programs">
-<span id="writing-programs"></span><h1>Writing Intel® SHMEM Programs<a class="headerlink" href="#writing-intel-shmem-programs" title="Link to this heading">#</a></h1>
-<p>Intel® SHMEM Programs require including the following header files:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &lt;CL/sycl.hpp&gt;</span>
-<span class="c1">#include &lt;ishmem.h&gt;</span>
+  <section id="using-intel-shmem-in-intel-tiber-ai-cloud">
+<span id="ishmem-in-devcloud"></span><h1>Using Intel® SHMEM in Intel® Tiber™ AI Cloud<a class="headerlink" href="#using-intel-shmem-in-intel-tiber-ai-cloud" title="Link to this heading">#</a></h1>
+<p>Intel® SHMEM is now enabled in Intel® Tiber™ AI Cloud for oneAPI.
+To get access or sign in, please refer to the <a class="reference external" href="https://devcloud.intel.com/oneapi/get_started/">Getting Started Guide:</a>.
+When requesting hardware to launch an instance, please choose the
+Intel® Max Series GPU from the hardware catalog list. This will ensure the
+current supported GPUs for Intel® SHMEM are added to the requested instance.
+Intel® SHMEM has been tested and validated on instances with Ubuntu 22.04 LTS
+operating system (labeled as ubuntu-2204-jammy-v20230122).</p>
+<p>After logging into the allocated instance, the Intel® oneAPI DPC++/C++ Compiler needs to be
+added to the environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">intel</span><span class="o">/</span><span class="n">oneapi</span><span class="o">/</span><span class="n">setvars</span><span class="o">.</span><span class="n">sh</span>
 </pre></div>
 </div>
-<p>Here is how to <a class="reference internal" href="library_setup_exit_query.html#library-setup-exit-query-routines"><span class="std std-ref">initialize</span></a> the
-<code class="docutils literal notranslate"><span class="pre">ishmem</span></code> library with an OpenSHMEM runtime:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ishmem_init</span><span class="p">();</span>
+<p>By default, <cite>cmake</cite> is not installed in the instance which is required
+for building Intel® SHMEM. It can be added with the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">cmake</span>
 </pre></div>
 </div>
-<p>Now we can query for the PE identifier and total number of PEs:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="n">my_pe</span> <span class="o">=</span> <span class="n">ishmem_my_pe</span><span class="p">();</span>
-<span class="nb">int</span> <span class="n">npes</span> <span class="o">=</span> <span class="n">ishmem_n_pes</span><span class="p">();</span>
-
-<span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;Hello from PE &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">my_pe</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+<p>We also recommend to install a specific version of GNU <cite>autoconf</cite> that
+works well with Sandia <a class="footnote-reference brackets" href="#f1" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> OpenSHMEM installation. During testing, we occasionally found
+issues with the default <cite>autoconf</cite> version of 2.71 . Users can follow the
+instructions below to download and install <cite>autoconf</cite> 2.69 in such a case:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">gnu</span><span class="o">/</span><span class="n">autoconf</span><span class="o">/</span><span class="n">autoconf</span><span class="o">-</span><span class="mf">2.69</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">zxvf</span> <span class="n">autoconf</span><span class="o">-</span><span class="mf">2.69</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">cd</span> <span class="n">autoconf</span><span class="o">-</span><span class="mf">2.69</span>
+<span class="o">./</span><span class="n">configure</span>
+<span class="n">make</span>
+<span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
 </div>
-<p>To perform <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> operations, we must first allocate some symmetric
-objects:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="o">*</span><span class="n">src</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">ishmem_malloc</span><span class="p">(</span><span class="n">array_size</span> <span class="o">*</span> <span class="n">sizeof</span><span class="p">(</span><span class="nb">int</span><span class="p">));</span>
-<span class="nb">int</span> <span class="o">*</span><span class="n">dst</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">ishmem_calloc</span><span class="p">(</span><span class="n">array_size</span><span class="p">,</span> <span class="n">sizeof</span><span class="p">(</span><span class="nb">int</span><span class="p">));</span>
-</pre></div>
-</div>
-<p>Now let’s initialize these source and destination buffers from within a
-parallel SYCL kernel:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">auto</span> <span class="n">e_init</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">sycl</span><span class="p">::</span><span class="n">handler</span> <span class="o">&amp;</span><span class="n">h</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">h</span><span class="o">.</span><span class="n">parallel_for</span><span class="p">(</span><span class="n">sycl</span><span class="p">::</span><span class="n">nd_range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">{</span><span class="n">array_size</span><span class="p">,</span> <span class="n">array_size</span><span class="p">},</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">sycl</span><span class="p">::</span><span class="n">nd_item</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span> <span class="n">idx</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">idx</span><span class="o">.</span><span class="n">get_global_id</span><span class="p">()[</span><span class="mi">0</span><span class="p">];</span>
-        <span class="n">src</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">my_pe</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span><span class="p">;</span>
-        <span class="n">dst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">my_pe</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">+</span> <span class="mh">0xface</span><span class="p">;</span>
-    <span class="p">});</span>
-<span class="p">});</span>
-<span class="n">e_init</span><span class="o">.</span><span class="n">wait_and_throw</span><span class="p">();</span>
-</pre></div>
-</div>
-<p>Now we must perform a barrier operation to assure that all the source data is initialized before doing any communication:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ishmem_barrier_all</span><span class="p">();</span>
-</pre></div>
-</div>
-<p>Let’s perform a simple ring-style communication pattern; that is, have each PE send its source data to the subsequent PE (the PE with the largest identifier value will send to PE 0):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/*</span> <span class="n">Perform</span> <span class="n">put</span> <span class="n">operation</span> <span class="o">*/</span>
-<span class="n">auto</span> <span class="n">e1</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">sycl</span><span class="p">::</span><span class="n">handler</span> <span class="o">&amp;</span><span class="n">h</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">h</span><span class="o">.</span><span class="n">single_task</span><span class="p">([</span><span class="o">=</span><span class="p">]()</span> <span class="p">{</span>
-        <span class="nb">int</span> <span class="n">my_dev_pe</span> <span class="o">=</span> <span class="n">ishmem_my_pe</span><span class="p">();</span>
-        <span class="nb">int</span> <span class="n">my_dev_npes</span> <span class="o">=</span> <span class="n">ishmem_n_pes</span><span class="p">();</span>
-
-        <span class="n">ishmem_int_put</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">array_size</span><span class="p">,</span> <span class="p">(</span><span class="n">my_dev_pe</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">my_dev_npes</span><span class="p">);</span>
-    <span class="p">});</span>
-<span class="p">});</span>
-<span class="n">e1</span><span class="o">.</span><span class="n">wait_and_throw</span><span class="p">();</span>
-</pre></div>
-</div>
-<p>Before verifying the correct results, we need to perform another barrier operation, to assure all the communication is complete:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ishmem_barrier_all</span><span class="p">();</span>
-
-<span class="nb">int</span> <span class="o">*</span><span class="n">errors</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">sycl</span><span class="p">::</span><span class="n">malloc_host</span><span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">q</span><span class="p">);</span>
-<span class="o">*</span><span class="n">errors</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-
-<span class="o">/*</span> <span class="n">Verify</span> <span class="n">data</span> <span class="o">*/</span>
-<span class="n">auto</span> <span class="n">e_verify</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">sycl</span><span class="p">::</span><span class="n">handler</span> <span class="o">&amp;</span><span class="n">h</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">h</span><span class="o">.</span><span class="n">single_task</span><span class="p">([</span><span class="o">=</span><span class="p">]()</span> <span class="p">{</span>
-        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">array_size</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">dst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="p">(((</span><span class="n">my_pe</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">npes</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-                <span class="o">*</span><span class="n">errors</span> <span class="o">=</span> <span class="o">*</span><span class="n">errors</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">});</span>
-<span class="p">});</span>
-<span class="n">e_verify</span><span class="o">.</span><span class="n">wait_and_throw</span><span class="p">();</span>
-
-<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">errors</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">std</span><span class="p">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;[ERROR] Validation check(s) failed: &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">errors</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Finally, we can free all allocated memory and finalize the library.
-For symmetric <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> objects, we must call <code class="docutils literal notranslate"><span class="pre">ishmem_free</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ishmem_free</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
-<span class="n">ishmem_free</span><span class="p">(</span><span class="n">target</span><span class="p">);</span>
-<span class="n">sycl</span><span class="p">::</span><span class="n">free</span><span class="p">(</span><span class="n">errors</span><span class="p">,</span> <span class="n">q</span><span class="p">);</span>
-
-<span class="n">ishmem_finalize</span><span class="p">();</span>
-</pre></div>
-</div>
-<p>For an overview of more APIs and how they are used in applications, the <a href="https://github.com/oneapi-src/ishmem/tree/main/examples" target="_blank">Intel® SHMEM examples</a> provide an excellent resource.</p>
+<p>With the above, users can directly follow the installation instructions
+provided in <a class="reference external" href="https://github.com/oneapi-src/ishmem/blob/main/README.md">README.md</a>
+to install Intel® SHMEM with OpenSHMEM back-end.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="f1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Other names and brands may be claimed as the property of others.</p>
+</aside>
+</aside>
 </section>
 
 
@@ -444,20 +397,20 @@ For symmetric <code class="docutils literal notranslate"><span class="pre">ishme
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="building_ishmem.html"
+       href="compiling_and_running_programs.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Building Intel® SHMEM</p>
+        <p class="prev-next-title">Compiling and Running Programs</p>
       </div>
     </a>
     <a class="right-next"
-       href="compiling_and_running_programs.html"
+       href="acknowledgements.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Compiling and Running Programs</p>
+        <p class="prev-next-title">Acknowledgements</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -116,6 +116,43 @@ symmetric data objects issued by the calling PE.
 All operations on symmetric data objects are guaranteed to be complete and
 visible to all PEs when ``ishmem_quiet`` returns.
 
+A host-initiated ``ishmem_quiet`` will only guarantee completion of
+device-initiated operations for which the corresponding SYCL kernel has
+completed execution.
+
+.. _ishmemx_quiet_on_queue:
+
+^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_QUIET_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^
+
+Waits for completion of outstanding operations on symmetric data objects
+issued by a PE.
+
+.. cpp:function:: sycl::event ishmemx_quiet_on_queue(sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmemx_quiet_on_queue`` routine ensures completion of all operations on
+symmetric data objects issued by the calling PE.
+
+.. TODO:
+
+.. Table "mem-order" lists the operations that are ordered by the
+.. ``ishmem_fence`` routine.
+
+All operations on symmetric data objects are guaranteed to be complete and
+visible to all PEs when ``ishmemx_quiet_on_queue`` returns.
+
+To ensure the quiet operation has completed, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
 .. _ishmemx_quiet_work_group:
 
 ^^^^^^^^^^^^^^^^^^^^^^^^

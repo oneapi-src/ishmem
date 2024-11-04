@@ -1,0 +1,604 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Building Intel® SHMEM &#8212; Documentation for Intel® SHMEM</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="_static/documentation_options.js?v=db04a367"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'building_ishmem';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/building_ishmem.html" />
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Writing Intel® SHMEM Programs" href="writing_programs.html" />
+    <link rel="prev" title="Utility Routines" href="utility.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo-classicblue-400px.png" class="logo__image only-light" alt="Documentation for Intel® SHMEM - Home"/>
+    <script>document.write(`<img src="_static/logo-classicblue-400px.png" class="logo__image only-dark" alt="Documentation for Intel® SHMEM - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming_model.html">Programming Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_model.html">Memory Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution_model.html">Execution Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_features.html">Supported/Unsupported Features</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build, Write, and Run Programs</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Building Intel® SHMEM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/building_ishmem.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Building Intel® SHMEM</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enabling-the-openshmem-back-end">Enabling the OpenSHMEM back-end</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enabling-the-mpi-back-end">Enabling the MPI back-end</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cmake-build-options">CMake Build Options</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="building-intel-shmem">
+<span id="building-ishmem"></span><h1>Building Intel® SHMEM<a class="headerlink" href="#building-intel-shmem" title="Link to this heading">#</a></h1>
+<p>To download Intel® SHMEM, either clone the repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">oneapi</span><span class="o">-</span><span class="n">src</span><span class="o">/</span><span class="n">ishmem</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>or download a release tarball from: <a class="github reference external" href="https://github.com/oneapi-src/ishmem/releases">oneapi-src/ishmem</a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">README.md</span></code> file describes how to build the dependencies of Intel® SHMEM.</p>
+<p>The <a class="reference internal" href="#cmake-options"><span class="std std-ref">CMake Build Options</span></a> section lists all the available
+CMake build options for customizing Intel® SHMEM.</p>
+<p>Intel® SHMEM requires enabling a host back-end that is either:</p>
+<ol class="arabic simple">
+<li><p>a suitable OpenSHMEM v1.5 library</p></li>
+<li><p>Intel® MPI Library (Message Passing Interface)</p></li>
+</ol>
+<p>These options are covered in sections <a class="reference internal" href="#enabling-openshmem"><span class="std std-ref">Enabling
+OpenSHMEM</span></a> and <a class="reference internal" href="#enabling-mpi"><span class="std std-ref">Enabling MPI</span></a>,
+respectively.</p>
+<section id="enabling-the-openshmem-back-end">
+<span id="enabling-openshmem"></span><h2>Enabling the OpenSHMEM back-end<a class="headerlink" href="#enabling-the-openshmem-back-end" title="Link to this heading">#</a></h2>
+<p>As of version 1.2.0, Intel® SHMEM supports the following OpenSHMEM
+libraries:</p>
+<ul class="simple">
+<li><p><a href="https://github.com/Sandia-OpenSHMEM/SOS.git" target="_blank">Sandia OpenSHMEM</a> - please use the <code class="docutils literal notranslate"><span class="pre">v1.5.3</span></code> release.</p></li>
+<li><p><a href="https://github.com/pmodels/oshmpi.git" target="_blank">OSHMPI</a> - please use this <a href="https://github.com/davidozog/oshmpi/tree/wip/ishmem" target="_blank">experimental branch</a>.</p></li>
+</ul>
+<p>The OpenSHMEM back-end is enabled by default and is controlled via the
+<code class="docutils literal notranslate"><span class="pre">ENABLE_OPENSHMEM</span></code> CMake option, and the installation path is set via the
+<code class="docutils literal notranslate"><span class="pre">SHMEM_DIR</span></code> option, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CC</span><span class="o">=</span><span class="n">icx</span> <span class="n">CXX</span><span class="o">=</span><span class="n">icpx</span> <span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">DSHMEM_DIR</span><span class="o">=&lt;</span><span class="n">shmem_dir</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">DCMAKE_INSTALL_PREFIX</span><span class="o">=&lt;</span><span class="n">ishmem_install_dir</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">&lt;shmem_dir&gt;</span></code> is the path to the Sandia OpenSHMEM installation
+directory, and <code class="docutils literal notranslate"><span class="pre">&lt;ishmem_install_dir&gt;</span></code> is the path to the desired Intel®
+SHMEM installation directory.</p>
+<p>After successfully running the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command, run <code class="docutils literal notranslate"><span class="pre">make</span></code> to build the
+library and <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> to install the library to
+<code class="docutils literal notranslate"><span class="pre">&lt;ishmem_install_dir&gt;</span></code>.</p>
+<p>To enable OSHMPI, the build process is similar:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CC</span><span class="o">=</span><span class="n">icx</span> <span class="n">CXX</span><span class="o">=</span><span class="n">icpx</span> <span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">DSHMEM_DIR</span><span class="o">=&lt;</span><span class="n">oshmpi_dir</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">DCMAKE_INSTALL_PREFIX</span><span class="o">=&lt;</span><span class="n">ishmem_install_dir</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">&lt;oshmpi_dir&gt;</span></code> is the path to the OSHMPI installation. Additionally,
+setting the following environment variables are required for execution:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ISHMEM_SHMEM_LIB_NAME</span><span class="o">=</span><span class="n">liboshmpi</span><span class="o">.</span><span class="n">so</span>
+<span class="n">export</span> <span class="n">ISHMEM_RUNTIME_USE_OSHMPI</span><span class="o">=</span><span class="n">true</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Enabling the OSHMPI back-end in Intel® SHMEM version 1.2.0 may
+require setting environment variable <code class="docutils literal notranslate"><span class="pre">OSHMPI_TEAM_SHARED_ONLY_SELF=1</span></code> if the
+<code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_SHARED</span></code> team does not properly match <code class="docutils literal notranslate"><span class="pre">SHMEM_TEAM_SHARED</span></code>. This
+is likely the case if the following warning is encountered:
+<code class="docutils literal notranslate"><span class="pre">ishmemi_runtime_team_predefined_set</span> <span class="pre">SHARED</span> <span class="pre">failed.</span> <span class="pre">Runtime</span> <span class="pre">ISHMEM_TEAM_SHARED</span>
+<span class="pre">unable</span> <span class="pre">to</span> <span class="pre">use</span> <span class="pre">SHMEMX_TEAM_NODE</span></code></p>
+</div>
+</section>
+<section id="enabling-the-mpi-back-end">
+<span id="enabling-mpi"></span><h2>Enabling the MPI back-end<a class="headerlink" href="#enabling-the-mpi-back-end" title="Link to this heading">#</a></h2>
+<p>As of version 1.2.0, Intel® SHMEM supports the following MPI libraries:</p>
+<ul class="simple">
+<li><p><a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library-download.html" target="_blank">Intel® MPI Library</a> - please use the <code class="docutils literal notranslate"><span class="pre">2021.14.0</span></code> release.</p></li>
+</ul>
+<p>To enable the MPI back-end and disable the OpenSHMEM back-end:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CC</span><span class="o">=</span><span class="n">icx</span> <span class="n">CXX</span><span class="o">=</span><span class="n">icpx</span> <span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">DENABLE_OPENSHMEM</span><span class="o">=</span><span class="n">OFF</span> <span class="o">-</span><span class="n">DENABLE_MPI</span><span class="o">=</span><span class="n">ON</span> <span class="o">-</span><span class="n">DMPI_DIR</span><span class="o">=&lt;</span><span class="n">impi_install_dir</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">DCMAKE_INSTALL_PREFIX</span><span class="o">=&lt;</span><span class="n">ishmem_install_dir</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">&lt;impi_install_dir&gt;</span></code> is the path to the Intel® MPI Library installation.</p>
+<p>After successfully running the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command, run <code class="docutils literal notranslate"><span class="pre">make</span></code> to build the
+library and <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> to install the library to
+<code class="docutils literal notranslate"><span class="pre">&lt;ishmem_install_dir&gt;</span></code>.</p>
+<p>Note that enabling <em>both</em> the OpenSHMEM and MPI back-ends is also supported.
+In this case, the desired backend can be selected via the environment variable,
+<code class="docutils literal notranslate"><span class="pre">ISHMEM_RUNTIME</span></code>, which can be set to either “OpenSHMEM” or “MPI”. For
+example building with both runtimes enabled:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CC</span><span class="o">=</span><span class="n">icx</span> <span class="n">CXX</span><span class="o">=</span><span class="n">icpx</span> <span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">DSHMEM_DIR</span><span class="o">=&lt;</span><span class="n">shmem_dir</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">DENABLE_MPI</span><span class="o">=</span><span class="n">ON</span> <span class="o">-</span><span class="n">DMPI_DIR</span><span class="o">=&lt;</span><span class="n">impi_install_dir</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>And running with either <code class="docutils literal notranslate"><span class="pre">ISHMEM_RUNTIME=OPENSHMEM</span></code> or <code class="docutils literal notranslate"><span class="pre">ISHMEM_RUNTIME=MPI</span></code>.</p>
+</section>
+<section id="cmake-build-options">
+<span id="cmake-options"></span><h2>CMake Build Options<a class="headerlink" href="#cmake-build-options" title="Link to this heading">#</a></h2>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>CMake Variable</strong></p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ENABLE_OPENSHMEM</span></code></p></td>
+<td><p>Enable OpenSHMEM back-end support</p></td>
+<td><p>ON</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ENABLE_MPI</span></code></p></td>
+<td><p>Enable MPI back-end support</p></td>
+<td><p>OFF</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BUILD_UNIT_TESTS</span></code></p></td>
+<td><p>Build unit tests</p></td>
+<td><p>OFF</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BUILD_PERF_TESTS</span></code></p></td>
+<td><p>Build performance tests</p></td>
+<td><p>OFF</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BUILD_EXAMPLES</span></code></p></td>
+<td><p>Build examples</p></td>
+<td><p>OFF</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BUILD_APPS</span></code></p></td>
+<td><p>Build apps</p></td>
+<td><p>OFF</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BUILD_CMAKE_CONFIG</span></code></p></td>
+<td><p>Build CMake config files</p></td>
+<td><p>ON</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ENABLE_ERROR_CHECKING</span></code></p></td>
+<td><p>Validate API inputs</p></td>
+<td><p>OFF</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ENABLE_DLMALLOC</span></code></p></td>
+<td><p>Enable dlmalloc for shared heap</p></td>
+<td><p>ON</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ENABLE_REDUCED_LINK_ENGINES</span></code></p></td>
+<td><p>Enable reduced link engines (i.e. for single tile devices)</p></td>
+<td><p>OFF</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ENABLE_AOT_COMPILATION</span></code></p></td>
+<td><p>Enables Ahead-Of-Time compilation for GPU kernels</p></td>
+<td><p>ON</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SKIP_COMPILER_CHECK</span></code></p></td>
+<td><p>Skips compiler validation (NOT RECOMMENDED)</p></td>
+<td><p>OFF</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="utility.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Utility Routines</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="writing_programs.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Writing Intel® SHMEM Programs</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enabling-the-openshmem-back-end">Enabling the OpenSHMEM back-end</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enabling-the-mpi-back-end">Enabling the MPI back-end</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cmake-build-options">CMake Build Options</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Intel Corporation
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

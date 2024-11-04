@@ -114,7 +114,7 @@ Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
   :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem`` and ``ishmemx_putmem_work_group``, elements are bytes.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem``, ``ishmemx_putmem_on_queue``, and ``ishmemx_putmem_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :returns: None.
 
@@ -128,6 +128,47 @@ in any order.
 Furthermore, two successive `put` routines may deliver data out of order unless
 a call to ``ishmem_fence`` or ``ishmemx_fence_work_group`` is introduced
 between the two calls.
+
+""""""""""""""""""""
+ISHMEMX_PUT_ON_QUEUE
+""""""""""""""""""""
+The `put` routines provide a method for copying data from a contiguous local
+data object to a data object on a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_put_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_put_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_putSIZE_on_queue(void* dest, const void* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::evet ishmemx_putmem_on_queue(void* dest, const void* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem``, ``ishmemx_putmem_on_queue``, and ``ishmemx_putmem_work_group``, elements are bytes.
+  :param pe: PE number of the remote PE.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The `put` routines return after the data has been copied out of the **source**
+array on the local PE.
+The delivery of data words into the data object on the destination PE may occur
+in any order.
+Furthermore, two successive `put_on_queue` routines may deliver data out of
+order unless a call to ``ishmem_fence`` or ``ishmemx_fence_work_group`` is
+introduced between the two calls.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
 
 """"""""""""""""""""""
 ISHMEMX_PUT_WORK_GROUP
@@ -149,7 +190,7 @@ Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
   :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem`` and ``ishmemx_putmem_work_group``, elements are bytes.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem``, ``ishmemx_putmem_on_queue``, and ``ishmemx_putmem_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
   :returns: None.
@@ -230,6 +271,45 @@ The routines return when the data has been copied out of the **source** array
 on the local PE but not necessarily before the data has been delivered to the 
 remote data object.
 
+"""""""""""""""""""""
+ISHMEMX_IPUT_ON_QUEUE
+"""""""""""""""""""""
+Copies strided data to a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_iput_on_queue(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_iput_on_queue(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_iputSIZE_on_queue(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Symmetric address of the destination array data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Local address of the array containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
+  :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
+  :param nelems: Number of elements in the **dest** and **source** arrays.
+  :param pe: PE number of the remote PE.
+  :returns: None.
+
+Callable from the **host**.
+
+**Description:**
+The `iput` routines provide a method for copying strided data
+elements (specified by **sst**) of an array from a **source** array on the
+local PE to locations specified by stride **dst** on a **dest** array on
+specified remote PE.
+Both strides, **dst** and **sst**, must be greater than or equal to 1.
+The routines return when the data has been copied out of the **source** array 
+on the local PE but not necessarily before the data has been delivered to the 
+remote data object.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
 """""""""""""""""""""""
 ISHMEMX_IPUT_WORK_GROUP
 """""""""""""""""""""""
@@ -300,6 +380,46 @@ PE. The routines return when the data has been copied out of the **source**
 array on the local PE but not necessarily before the data has been delivered
 to the remote data object.
 
+""""""""""""""""""""""
+ISHMEMX_IBPUT_ON_QUEUE
+""""""""""""""""""""""
+Copies strided data blocks to a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_ibput_on_queue(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_ibput_on_queue(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_ibputSIZE_on_queue(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Symmetric address of the destination array data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Local address of the array containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive blocks of the **dest** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **dest** array. A value of **bsize** indicates contiguous data.
+  :param sst: The stride between consecutive blocks of the **source** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **source** array. A value of **bsize** indicates contiguous data.
+  :param bsize: Number of elements per block in the **dest** and **source** arrays.
+  :param nblocks: Number of blocks to be copied from the **source** array to the **dest** array.
+  :param pe: PE number of the remote PE.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The `ibput` routines provide a method for copying strided data blocks
+(specified by **sst**) of an array from a **source** array on the local PE to
+locations specified by stride **dst** on a **dest** array on specified remote
+PE. The routines return when the data has been copied out of the **source**
+array on the local PE but not necessarily before the data has been delivered
+to the remote data object.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
 """"""""""""""""""""""""
 ISHMEMX_IBPUT_WORK_GROUP
 """"""""""""""""""""""""
@@ -309,11 +429,11 @@ In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
 Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
-.. cpp:function:: template<typename TYPE> void ishmemx_ibput_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+.. cpp:function:: template<typename TYPE, typename Group> void ishmemx_ibput_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
 
-.. cpp:function:: void ishmemx_TYPENAME_ibput_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+.. cpp:function:: template<typename Group> void ishmemx_TYPENAME_ibput_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
 
-.. cpp:function:: void ishmemx_ibputSIZE_work_group(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+.. cpp:function:: template<typename Group> void ishmemx_ibputSIZE_work_group(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
 
   :param dest: Symmetric address of the destination array data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Local address of the array containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
@@ -354,7 +474,7 @@ Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
   :param dest: Local address of the data object containing the data to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Symmetric address of the source data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`RMA types<stdrmatypes>`.
-  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem`` and ``ishmemx_getmem_work_group``, elements are bytes.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem``, ``ishmemx_getmem_on_queue``, and ``ishmemx_getmem_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :returns: None.
 
@@ -365,6 +485,43 @@ The `get` routines provide a method for copying a contiguous symmetric data
 object from a different PE to a contiguous data object on the local PE.
 The routines return after the data has been delivered to the **dest** array on
 the local PE.
+
+""""""""""""""""""""
+ISHMEMX_GET_ON_QUEUE
+""""""""""""""""""""
+Copies data from a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_get_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_get_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_getSIZE_on_queue(void* dest, const void* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_getmem_on_queue(void* dest, const void* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Local address of the data object containing the data to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Symmetric address of the source data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`RMA types<stdrmatypes>`.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem``, ``ishmemx_getmem_on_queue``, and ``ishmemx_getmem_work_group``, elements are bytes.
+  :param pe: PE number of the remote PE.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The `get` routines provide a method for copying a contiguous symmetric data
+object from a different PE to a contiguous data object on the local PE.
+The routines return after the data has been delivered to the **dest** array on
+the local PE.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
 
 """"""""""""""""""""""
 ISHMEMX_GET_WORK_GROUP
@@ -385,7 +542,7 @@ Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
   :param dest: Local address of the data object containing the data to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Symmetric address of the source data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`RMA types<stdrmatypes>`.
-  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem`` and ``ishmemx_getmem_work_group``, elements are bytes.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem``, ``ishmemx_getmem_on_queue``, and ``ishmemx_getmem_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
   :returns: None.
@@ -453,6 +610,44 @@ array.
 The routines return when the data has been copied into the local **dest**
 array.
 
+"""""""""""""""""""""
+ISHMEMX_IGET_ON_QUEUE
+"""""""""""""""""""""
+Copies strided data from a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_iget_on_queue(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_iget_on_queue(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_igetSIZE_on_queue(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Local address of the array to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Symmetric address of the source array data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive elements of the **dest** array. The stride is scaled by the element size of the **dest** array. A value of 1 indicates contiguous data.
+  :param sst: The stride between consecutive elements of the **source** array. The stride is scaled by the element size of the **source** array. A value of 1 indicates contiguous data.
+  :param nelems: Number of elements in the **dest** and **source** arrays.
+  :param pe: PE number of the remote PE.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The `iget` routines provide a method for copying strided data elements from a
+symmetric array from a specified remote PE to strided locations on a local
+array.
+The routines return when the data has been copied into the local **dest**
+array.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section..
+
 """""""""""""""""""""""
 ISHMEMX_IGET_WORK_GROUP
 """""""""""""""""""""""
@@ -518,6 +713,44 @@ from a symmetric array from a specified remote PE to strided locations on a
 local array. The routines return when the data has been copied into the local
 **dest** array.
 
+""""""""""""""""""""""
+ISHMEMX_IBGET_ON_QUEUE
+""""""""""""""""""""""
+Copies strided data blocks to a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_ibget_on_queue(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_ibget_on_queue(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_ibgetSIZE_on_queue(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Local address of the array to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Symmetric address of the source array data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param dst: The stride between consecutive blocks of the **dest** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **dest** array. A value of **bsize** indicates contiguous data.
+  :param sst: The stride between consecutive blocks of the **source** array. The stride must be greater than or equal to **bsize** and is scaled by the element size of the **source** array. A value of **bsize** indicates contiguous data.
+  :param bsize: Number of elements per block in the **dest** and **source** arrays.
+  :param nblocks: Number of blocks to be copied from the **source** array to the **dest** array.
+  :param pe: PE number of the remote PE.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The `ibget` routines provide a method for copying strided data blocks
+from a symmetric array from a specified remote PE to strided locations on a
+local array. The routines return when the data has been copied into the local
+**dest** array.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
 """"""""""""""""""""""""
 ISHMEMX_IBGET_WORK_GROUP
 """"""""""""""""""""""""
@@ -527,11 +760,11 @@ In the functions below, TYPE is one of the standard RMA types and has a
 corresponding TYPENAME specified by Table :ref:`Standard RMA
 Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
-.. cpp:function:: template<typename TYPE> void ishmemx_ibget_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+.. cpp:function:: template<typename TYPE, typename Group> void ishmemx_ibget_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
 
-.. cpp:function:: void ishmemx_TYPENAME_ibget_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+.. cpp:function:: template<typename Group> void ishmemx_TYPENAME_ibget_work_group(TYPE* dest, const TYPE* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
 
-.. cpp:function:: void ishmemx_ibgetSIZE_work_group(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
+.. cpp:function:: template<typename Group> void ishmemx_ibgetSIZE_work_group(void* dest, const void* source, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group& group)
 
   :param dest: Local address of the array to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Symmetric address of the source array data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
@@ -575,7 +808,7 @@ Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
   :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE of TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem_nbi`` and ``ishmemx_putmem_nbi_work_group``, elements are bytes.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem_nbi``, ``ishmemx_putmem_nbi_on_queue``, and ``ishmemx_putmem_nbi_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :returns: None.
 
@@ -593,6 +826,51 @@ in any order.
 Furthermore, two successive put routines may deliver data out of order unless a
 call to ``ishmem_fence`` or ``ishmemx_fence_work_group`` is introduced
 between the two calls.
+
+""""""""""""""""""""""""
+ISHMEMX_PUT_NBI_ON_QUEUE
+""""""""""""""""""""""""
+The `nonblocking put` routines provide a method for copying data from a
+contiguous local data object to a data object on a specified PE.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_put_nbi_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_put_nbi_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_putSIZE_nbi_on_queue(void* dest, const void* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_putmem_nbi_on_queue(void* dest, const void* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE of TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem_nbi``, ``ishmemx_putmem_nbi_on_queue``, and ``ishmemx_putmem_nbi_work_group``, elements are bytes.
+  :param pe: PE number of the remote PE.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The `nonblocking put` routines return after initiating the operation.
+The operation is considered complete after a subsequent call to
+:ref:`ishmem_quiet<ishmem_quiet>` or 
+:ref:`ishmemx_quiet_work_group<ishmemx_quiet_work_group>`.
+At the completion of the quiet operation, the data has been copied into the
+**dest** array on the destination PE.
+The delivery of data words into the data object on the destination PE may occur
+in any order.
+Furthermore, two successive put routines may deliver data out of order unless a
+call to ``ishmem_fence`` or ``ishmemx_fence_work_group`` is introduced
+between the two calls.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
 
 """"""""""""""""""""""""""
 ISHMEMX_PUT_NBI_WORK_GROUP
@@ -614,7 +892,7 @@ Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
   :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE of TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`. 
   :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem_nbi`` and ``ishmemx_putmem_nbi_work_group``, elements are bytes.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_putmem_nbi``, ``ishmemx_putmem_nbi_on_queue``, and ``ishmemx_putmem_nbi_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Put` operation.
   :returns: None.
@@ -655,7 +933,7 @@ Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
   :param dest: Local address of the data object containing the data to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Symmetric address of the source data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem_nbi`` and ``ishmemx_getmem_nbi_work_group``, elements are bytes.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem_nbi``, ``ishmemx_getmem_on_queue``, and ``ishmemx_getmem_nbi_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :returns: None.
 
@@ -671,6 +949,49 @@ The operation is considered complete after a subsequent call to
 :ref:`ishmemx_quiet_work_group<ishmemx_quiet_work_group>`.
 At the completion of the quiet operation, the data has been delivered to the
 **dest** array on the local PE.
+
+""""""""""""""""""""""""
+ISHMEMX_GET_NBI_ON_QUEUE
+""""""""""""""""""""""""
+The `nonblocking get` routines provide a method for copying data from a
+contiguous remote data object on the specified PE to the local data object.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_get_nbi_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_get_nbi_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_getSIZE_nbi_on_queue(void* dest, const void* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_getmem_nbi_on_queue(void* dest, const void* source, size_t nelems, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Local address of the data object containing the data to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Symmetric address of the source data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem_nbi``, ``ishmemx_getmem_on_queue``, and ``ishmemx_getmem_nbi_work_group``, elements are bytes.
+  :param pe: PE number of the remote PE.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The `nonblocking get` routines provide a method for copying a contiguous 
+symmetric data
+object from a different PE to a contiguous data object on the local PE.
+The routines return after initiating the operation.
+The operation is considered complete after a subsequent call to
+:ref:`ishmem_quiet<ishmem_quiet>` or 
+:ref:`ishmemx_quiet_work_group<ishmemx_quiet_work_group>`.
+At the completion of the quiet operation, the data has been delivered to the
+**dest** array on the local PE.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
 
 """"""""""""""""""""""""""
 ISHMEMX_GET_NBI_WORK_GROUP
@@ -692,7 +1013,7 @@ Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
 
   :param dest: Local address of the data object containing the data to be updated. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
   :param source: Symmetric address of the source data object. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
-  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem_nbi`` and ``ishmemx_getmem_nbi_work_group``, elements are bytes.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmem_getmem_nbi``, ``ishmemx_getmem_on_queue``, and ``ishmemx_getmem_nbi_work_group``, elements are bytes.
   :param pe: PE number of the remote PE.
   :param group: The SYCL ``group`` or ``sub_group`` on which to collectively perform the `Get` operation.
   :returns: None.

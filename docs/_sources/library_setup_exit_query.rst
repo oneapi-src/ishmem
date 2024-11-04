@@ -4,14 +4,10 @@
 Library Setup, Exit, and Query Routines
 ---------------------------------------
 
-.. _ishmem_init:
-
-.. toctree::
-   :maxdepth: 2
-   :caption: ISHMEM_INIT
-
 The library setup, exit, and query interfaces initialize and monitor the
 parallel environment of the PEs.
+
+.. _ishmem_init:
 
 ^^^^^^^^^^^
 ISHMEM_INIT
@@ -92,6 +88,8 @@ After the first call to ``ishmemx_init_attr``, a subsequent call to
 ``ishmemx_init_attr`` or ``ishmem_init`` in the same program results in
 undefined behavior.
 
+.. _ishmem_my_pe:
+
 ^^^^^^^^^^^^
 ISHMEM_MY_PE
 ^^^^^^^^^^^^
@@ -108,6 +106,8 @@ This routine returns the PE number of the calling PE.  The result is an
 integer between 0 and *npes* - 1, where *npes* is the total number of PEs
 executing the current program.
 
+.. _ishmem_n_pes:
+
 ^^^^^^^^^^^^
 ISHMEM_N_PES
 ^^^^^^^^^^^^
@@ -121,6 +121,9 @@ Callable from the **host** and **device**.
 
 **Description:**
 The routine returns the number of PEs running in the program.
+
+
+.. _ishmem_finalize:
 
 ^^^^^^^^^^^^^^^
 ISHMEM_FINALIZE
@@ -176,6 +179,27 @@ that have been released.
 .. ISHMEM_ADDR_ACCESSIBLE
 .. ^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. _ishmem_query_initialized:
+
+^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEM_QUERY_INITIALIZED
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: void ishmem_query_initialized(int * initialized)
+
+  :param initialized: Nonzero if the library is in the initialized state. Zero otherwise.
+  :returns: None.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmem_query_initialized`` call returns the initialization status of the 
+``ishmem`` library. If the application has called an initialization routine and 
+has not yet made the corresponding call to ``ishmem_finalize``, this routine 
+returns nonzero. Otherwise, it returns zero.
+This function may be called at any time, regardless of the thread safety level 
+or the current initialized state of the library.
+
 .. _ishmem_ptr:
 
 ^^^^^^^^^^
@@ -211,6 +235,9 @@ object on a remote PE does not match the access pattern provided in a
 .. ISHMEM_TEAM_PTR
 .. ^^^^^^^^^^^^^^^^^
 
+
+.. _ishmem_info_get_version:
+
 ^^^^^^^^^^^^^^^^^^^^^^^
 ISHMEM_INFO_GET_VERSION
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -228,6 +255,9 @@ Returns the major and minor version of the ``ishmem`` specification in use.
 For a given library implementation, the major and minor version returned by
 these calls are consistent with the library constants ISHMEM_MAJOR_VERSION
 and ISHMEM_MINOR_VERSION.
+
+
+.. _ishmem_info_get_name:
 
 ^^^^^^^^^^^^^^^^^^^^
 ISHMEM_INFO_GET_NAME

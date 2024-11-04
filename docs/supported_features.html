@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" >
+<html lang="en" data-content_root="./" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Supported/Unsupported Features &#8212; Documentation for Intel® SHMEM</title>
   
@@ -19,28 +18,28 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="_static/documentation_options.js?v=db04a367"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'supported_features';</script>
     <link rel="canonical" href="oneapi-src.github.io/ishmem/supported_features.html" />
     <link rel="icon" href="_static/favicon.ico"/>
@@ -57,10 +56,9 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>
@@ -101,11 +99,14 @@
 </form></div>
   </div>
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
-    </nav>
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
+      
+      
       
       <div class="bd-sidebar-primary bd-sidebar">
         
@@ -120,6 +121,7 @@
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item">
+
   
 
 <a class="navbar-brand logo" href="index.html">
@@ -138,7 +140,18 @@
   
   
 </a></div>
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
 <ul class="current nav bd-sidenav">
@@ -156,9 +169,8 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
@@ -169,10 +181,12 @@
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build, Write, and Run Programs</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="building_ishmem.html">Building Intel® SHMEM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
 <ul class="nav bd-sidenav">
@@ -285,6 +299,7 @@
 </button>
 
 
+
 <script>
 document.write(`
   <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -294,6 +309,7 @@ document.write(`
   </button>
 `);
 </script>
+
 
 <script>
 document.write(`
@@ -325,12 +341,12 @@ document.write(`
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <section id="supported-unsupported-features">
-<span id="supported-features"></span><h1>Supported/Unsupported Features<a class="headerlink" href="#supported-unsupported-features" title="Permalink to this heading">#</a></h1>
+<span id="supported-features"></span><h1>Supported/Unsupported Features<a class="headerlink" href="#supported-unsupported-features" title="Link to this heading">#</a></h1>
 <p>The following tables indicate which APIs are supported in Intel® SHMEM as of
-the 1.1.0 release.
+the 1.2.0 release.
 The Intel® SHMEM development team strives to eventually support all OpenSHMEM
 APIs.
 Currently unsupported interfaces are targeted for implementation in future
@@ -348,16 +364,16 @@ releases of Intel® SHMEM.</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_init_attr</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_init_thread</span></code></p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_my_pe</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_my_pe</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_n_pes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_n_pes</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_query_initialized</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_global_exit</span></code></p></td>
@@ -379,6 +395,21 @@ releases of Intel® SHMEM.</p>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_info_get_name</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Thread</strong></p></th>
+<th class="head"><p>Supported?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_init_thread</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_query_thread</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 </tbody>
@@ -465,10 +496,16 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_put</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_putmem</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_putmem</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_putmem_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_putmem_work_group</span></code></p></td>
@@ -477,25 +514,55 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_putSIZE</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_p</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_iput</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_p</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_iput</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_iput_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_iput_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_ibput</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_iputSIZE</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_iputSIZE_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_iputSIZE_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_ibput</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_ibput_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_ibput_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_get</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_ibputSIZE</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_ibputSIZE_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_ibputSIZE_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_get</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_get_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_get_work_group</span></code></p></td>
@@ -504,10 +571,16 @@ releases of Intel® SHMEM.</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_getmem</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_getmem_work_group</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_getmem_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_getSIZE</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_getmem_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_getSIZE</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_getSIZE_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_getSIZE_work_group</span></code></p></td>
@@ -519,22 +592,52 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_iget</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_iget_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_iget_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_iget_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_igetSIZE</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_igetSIZE_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_igetSIZE_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_ibget</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_ibget_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_ibget_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_ibget_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_ibgetSIZE</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_ibgetSIZE_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_ibgetSIZE_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_put_nbi</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_nbi_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_nbi_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_putmem_nbi</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_nbi_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_putmem_nbi</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_putmem_nbi_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_putmem_nbi_work_group</span></code></p></td>
@@ -543,10 +646,16 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_putSIZE_nbi</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_nbi_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_nbi_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_get_nbi</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_nbi_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_get_nbi</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_get_nbi_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_get_nbi_work_group</span></code></p></td>
@@ -555,10 +664,16 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_getmem_nbi</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_getmem_nbi_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_getmem_nbi_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_getSIZE_nbi</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_getmem_nbi_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_getSIZE_nbi</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_getSIZE_nbi_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_getSIZE_nbi_work_group</span></code></p></td>
@@ -666,10 +781,16 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_put_signal</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_signal_work_group</span></code></p></td>
+<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_signal_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_put_signal_nbi</span></code></p></td>
+<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_signal_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_put_signal_nbi</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_signal_nbi_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_put_signal_nbi_work_group</span></code></p></td>
@@ -678,13 +799,25 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_putmem_signal</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
+<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putmem_signal_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putmem_signal_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
 <tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_putmem_signal_nbi</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putmem_signal_nbi_work_group</span></code></p></td>
+<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putmem_signal_nbi_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_putSIZE_signal</span></code></p></td>
+<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putmem_signal_nbi_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_putSIZE_signal</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_signal_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_signal_work_group</span></code></p></td>
@@ -693,16 +826,19 @@ releases of Intel® SHMEM.</p>
 <tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_putSIZE_signal_nbi</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_signal_nbi_work_group</span></code></p></td>
+<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_signal_nbi_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_signal_fetch</span></code></p></td>
+<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_putSIZE_signal_nbi_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_add</span></code></p></td>
+<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmem_signal_fetch</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_set</span></code></p></td>
+<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_add</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_set</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 </tbody>
@@ -723,7 +859,10 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_quiet</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 </tbody>
@@ -738,64 +877,124 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_barrier_all_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_barrier_all_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_sync_all</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_barrier_all_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_sync_all</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_sync_all_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_sync_all_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_alltoall</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_team_sync</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_team_sync_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_team_sync_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_alltoall</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_alltoall_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_alltoall_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_alltoalls</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_alltoallmem</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoallmem_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoallmem_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_alltoalls</span></code></p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_alltoalls_on_queue</span></code></p></td>
 <td><p>No</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_alltoalls_work_group</span></code></p></td>
 <td><p>No</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_broadcast</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_alltoallsmem</span></code></p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoallsmem_on_queue</span></code></p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoallsmem_work_group</span></code></p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_broadcast</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_broadcastmem</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_broadcast_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_broadcast_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_broadcast_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_work_group</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_broadcastmem</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_collect</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_fcollect</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_collect</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_collect_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_collect_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_collectmem</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_fcollectmem</span></code></p></td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_collect_work_group</span></code></p></td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_fcollect_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_collectmem_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_collectmem_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollectmem_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_fcollect</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_OP_reduce</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_fcollect_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_fcollect_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_fcollectmem</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollectmem_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollectmem_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_OP_reduce</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_OP_reduce_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_OP_reduce_work_group</span></code></p></td>
@@ -837,13 +1036,37 @@ releases of Intel® SHMEM.</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_test_some_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_test_all_vector</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_test_all_vector_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_test_any_vector</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_test_any_vector_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_test_some_vector</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_test_some_vector_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_all</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_all</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_all_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_all_work_group</span></code></p></td>
@@ -852,16 +1075,52 @@ releases of Intel® SHMEM.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_any</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_any_work_group</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_any_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_some</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_any_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_some</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_some_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_some_work_group</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_signal_wait_until</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_all_vector</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_all_vector_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_all_vector_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_any_vector</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_any_vector_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_any_vector_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_some_vector</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_some_vector_on_queue</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_some_vector_work_group</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmem_signal_wait_until</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_wait_until_on_queue</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_wait_until_work_group</span></code></p></td>
@@ -892,16 +1151,16 @@ releases of Intel® SHMEM.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_THREAD_SINGLE</span></code></p></td>
-<td><p>No</p></td>
+<td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_THREAD_FUNNELED</span></code></p></td>
-<td><p>No</p></td>
+<td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_THREAD_SERIALIZED</span></code></p></td>
-<td><p>No</p></td>
+<td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_THREAD_MULTIPLE</span></code></p></td>
-<td><p>No</p></td>
+<td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_MAJOR_VERSION</span></code></p></td>
 <td><p>Yes</p></td>
@@ -913,6 +1172,24 @@ releases of Intel® SHMEM.</p>
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_VENDOR_STRING</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_CMP_EQ</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_CMP_NE</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_CMP_LT</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_CMP_LE</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_CMP_GT</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ISHMEM_CMP_GE</span></code></p></td>
 <td><p>Yes</p></td>
 </tr>
 </tbody>
@@ -960,7 +1237,7 @@ with corresponding C++ template function routines in Intel® SHMEM.</p>
               
               
                 <footer class="prev-next-footer">
-                  <!-- Previous / next buttons -->
+                  
 <div class="prev-next-area">
     <a class="left-prev"
        href="execution_model.html"
@@ -987,6 +1264,8 @@ with corresponding C++ template function routines in Intel® SHMEM.</p>
             
             
               
+                <div class="bd-sidebar-secondary bd-toc"></div>
+              
             
           </div>
           <footer class="bd-footer-content">
@@ -1003,6 +1282,7 @@ By Intel Corporation
   
   <div class="footer-item">
     
+
   <p class="copyright">
     
       © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
@@ -1029,8 +1309,8 @@ By Intel Corporation
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
   <footer class="bd-footer">
   </footer>

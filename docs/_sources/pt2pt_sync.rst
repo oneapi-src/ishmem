@@ -57,6 +57,8 @@ Wait for a variable on the local PE to change.
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
 
+.. cpp:function:: template<typename TYPE> void ishmem_wait_until(TYPE* ivar, int cmp, TYPE cmp_value)
+
 .. cpp:function:: void ishmem_TYPENAME_wait_until(TYPE* ivar, int cmp, TYPE cmp_value)
 
   :param ivar: Symmetric address of a remotely accessible data object. The type of **ivar** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
@@ -69,18 +71,54 @@ Callable from the **host** and the **device**.
 **Description:**
 The ``ishmem_wait_until`` operation blocks until the value contained in the
 symmetric data object, **ivar**, at the calling PE satisfies the wait
-condition.
+condition specified by the comparison operator, **cmp**, and comparison value,
+**cmp_value**.
 The **ivar** object at the calling PE may be updated by an AMO performed by a
 thread located within the calling PE or within another PE.
 
 These routines can be used to implement point-to-point synchronization between
 PEs or between threads within the same PE.
-A call to ``ishmem_wait_until`` blocks until the value of **ivar** at the
-calling PE satisfies the wait condition specified by the comparison operator,
-**cmp**, and comparison value, **cmp_value**.
-
 Implementations must ensure that ``ishmem_wait_until`` does not return
 before the update of the memory indicated by **ivar** is fully complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for a variable on the local PE to change.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_wait_until_on_queue(TYPE* ivar, int cmp, TYPE cmp_value, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_wait_until_on_queue(TYPE* ivar, int cmp, TYPE cmp_value, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param ivar: Symmetric address of a remotely accessible data object. The type of **ivar** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivar** with **cmp_value**.
+  :param cmp_value: The value to be compared with **ivar**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmemx_wait_until_on_queue`` operation blocks until the value 
+contained in the symmetric data object, **ivar**, at the calling PE satisfies
+the wait condition specified by the comparison operator, **cmp**, and
+comparison value, **cmp_value**.
+The **ivar** object at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+
+These routines can be used to implement point-to-point synchronization between
+PEs or between threads within the same PE.
+Implementations must ensure that ``ishmemx_wait_until_on_queue`` does not
+return before the update of the memory indicated by **ivar** is fully complete.
+
+To ensure the operation has completed, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ISHMEMX_WAIT_UNTIL_WORK_GROUP
@@ -90,6 +128,8 @@ Wait for a variable on the local PE to change.
 
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> void ishmemx_wait_until_work_group(TYPE* ivar, int cmp, TYPE cmp_value, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_wait_until_work_group(TYPE* ivar, int cmp, TYPE cmp_value, const Group& group)
 
@@ -104,16 +144,13 @@ Callable from the **device**.
 **Description:**
 The ``ishmemx_wait_until_work_group`` operation blocks until the value
 contained in the symmetric data object, **ivar**, at the calling PE satisfies
-the wait condition.
+the wait condition specified by the comparison operator, **cmp**, and
+comparison value, **cmp_value**.
 The **ivar** object at the calling PE may be updated by an AMO performed by a
 thread located within the calling PE or within another PE.
 
 These routines can be used to implement point-to-point synchronization between
 PEs or between threads within the same PE.
-A call to ``ishmemx_wait_until_work_group`` blocks until the value of
-**ivar** at the calling PE satisfies the wait condition specified by the
-comparison operator, **cmp**, and comparison value, **cmp_value**.
-
 Implementations must ensure that ``ishmemx_wait_until_work_group`` does not
 return before the update of the memory indicated by **ivar** is fully
 complete.
@@ -126,6 +163,8 @@ Wait for an array of variables on the local PE until all variables meet the spec
 
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> void ishmem_wait_until_all(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value)
 
 .. cpp:function:: void ishmem_TYPENAME_wait_until_all(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value)
 
@@ -144,7 +183,6 @@ specified by **ivars** and **status** have satisfied the wait condition at
 the calling PE.
 The **ivars** objects at the calling PE may be updated by an AMO performed by
 a thread located within the calling PE or within another PE.
-If **nelems** is 0, the wait set is empty and this routine returns immediately.
 This routine compares each element of the **ivars** array in the wait set with
 the value **cmp_value** according to the comparison operator **cmp** at the
 calling PE.
@@ -165,6 +203,62 @@ The **ivars** and **status** arrays must not overlap in memory.
 Implementations must ensure that ``ishmem_wait_until_all`` does not return
 before the update of the memory indicated by **ivars** is fully complete.
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_ALL_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for an array of variables on the local PE until all variables meet the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_wait_until_all_on_queue(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_wait_until_all_on_queue(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivars** with **cmp_value**.
+  :param cmp_value: The value to be compared with the objects pointed to by **ivars**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmemx_wait_until_all_on_queue`` routine waits until all entries
+in the wait set specified by **ivars** and **status** have satisfied the
+wait condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by
+a thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+the value **cmp_value** according to the comparison operator **cmp** at the
+calling PE.
+This routine is semantically similar to ``ishmemx_wait_until_on_queue``, but
+adds support for point-to-point synchronization involving an array of symmetric
+data objects.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns immediately.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_wait_until_all_on_queue`` does
+not return before the update of the memory indicated by **ivars** is fully
+complete.
+
+To ensure the operation has completed, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ISHMEMX_WAIT_UNTIL_ALL_WORK_GROUP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -173,6 +267,8 @@ Wait for an array of variables on the local PE until all variables meet the spec
 
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> void ishmemx_wait_until_all_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, const Group& group)
 
 .. cpp:function:: template<typename Group> void ishmemx_TYPENAME_wait_until_all_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, const Group& group)
 
@@ -192,7 +288,6 @@ in the wait set specified by **ivars** and **status** have satisfied the
 wait condition at the calling PE.
 The **ivars** objects at the calling PE may be updated by an AMO performed by
 a thread located within the calling PE or within another PE.
-If **nelems** is 0, the wait set is empty and this routine returns immediately.
 This routine compares each element of the **ivars** array in the wait set with
 the value **cmp_value** according to the comparison operator **cmp** at the
 calling PE.
@@ -223,6 +318,8 @@ Wait for an array of variables on the local PE until any one variable meets the 
 
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> size_t ishmem_wait_until_any(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value)
 
 .. cpp:function:: size_t ishmem_TYPENAME_wait_until_any(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value)
 
@@ -262,6 +359,64 @@ The **ivars** and **status** arrays must not overlap in memory.
 Implementations must ensure that ``ishmem_wait_until_any`` does not return
 before the update of the memory indicated by **ivars** is fully complete.
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_ANY_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for an array of variables on the local PE until any one variable meets the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_wait_until_any_on_queue(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, size_t* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_wait_until_any_on_queue(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, size_t* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivars** with **cmp_value**.
+  :param cmp_value: The value to be compared with the objects pointed to by **ivars**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param ret: A pointer whose contents will be set to the index of an element in the **ivars** array that satisfies the wait condition. If the wait set is empty, this routine returns **SIZE_MAX**. **ret** must be accessible from the device.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmemx_wait_until_any_on_queue`` routine waits until any one entry in
+the wait set specified by **ivars** and **status** satisfies the wait
+condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+the value **cmp_value** according to the comparison operator **cmp** at the
+calling PE.
+The order in which these elements are tested is unspecified.
+If an entry **i** in **ivars** within the wait set satisfies the wait condition,
+a series of calls to ``ishmemx_wait_until_any_on_queue`` must
+eventually return **i**.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns **SIZE_MAX**.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_wait_until_any_on_queue`` does not
+return before the update of the memory indicated by **ivars** is fully
+complete.
+
+To ensure the contents of **ret** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ISHMEMX_WAIT_UNTIL_ANY_WORK_GROUP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -270,6 +425,8 @@ Wait for an array of variables on the local PE until any one variable meets the 
 
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> size_t ishmemx_wait_until_any_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, const Group& group)
 
 .. cpp:function:: template<typename Group> size_t ishmemx_TYPENAME_wait_until_any_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, const Group& group)
 
@@ -321,6 +478,8 @@ Wait on an array of variables on the local PE until at least one variable meets 
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
 
+.. cpp:function:: template<typename TYPE> size_t ishmem_wait_until_some(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value)
+
 .. cpp:function:: size_t ishmem_TYPENAME_wait_until_some(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value)
 
   :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
@@ -346,7 +505,7 @@ This routine tests all elements of **ivars** in the wait set at least once, and
 the order in which the elements are tested is unspecified.
 
 Upon return, the **indices** array contains the indices of at least one element
-in the wait set that satisfied the wait condition during the call to 
+in the wait set that satisfied the wait condition during the call to
 ``ishmem_wait_until_some``.
 The return value of ``ishmem_wait_until_some`` is equal to the total number of
 these satisfied elements.
@@ -373,6 +532,77 @@ The **ivars**, **indices**, and **status** arrays must not overlap in memory.
 Implementations must ensure that ``ishmem_wait_until_some`` does not return
 before the update of the memory indicated by **ivars** is fully complete.
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_SOME_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait on an array of variables on the local PE until at least one variable meets the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_wait_until_some_on_queue(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value, size_t* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_wait_until_some_on_queue(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value, size_t* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param indices: Local address of an array of indices of length at least **nelems** into **ivars** that satisfied the wait condition.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivars** with **cmp_value**.
+  :param cmp_value: The value to be compared with the objects pointed to by **ivars**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param ret: A pointer whose contents will be set to the number of indices returned in the **indices** array. If the wait set is empty, this routine returns 0. **ret** must be accessible from the device.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmemx_wait_until_some_on_queue`` routine waits until at least one
+entry in the wait set specified by **ivars** and **status** satisfies the wait
+condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+the value **cmp_value** according to the comparison operator **cmp** at the
+calling PE.
+This routine tests all elements of **ivars** in the wait set at least once, and
+the order in which the elements are tested is unspecified.
+
+Upon return, the **indices** array contains the indices of at least one element
+in the wait set that satisfied the wait condition during the call to 
+``ishmemx_wait_until_some_on_queue``.
+The return value of ``ishmemx_wait_until_some_on_queue`` is equal to the total
+number of these satisfied elements.
+For a given return value **N**, the first **N** elements of the **indices**
+array contain those unique indices that satisfied the wait condition.
+These first **N** elements of **indices** may be unordered with respect to the
+corresponding indices of **ivars**.
+The array pointed to by **indices** must be at least **nelems** long.
+If an entry **i** in **ivars** within the wait set satisfies the wait
+condition, a series of calls to ``ishmemx_wait_until_some_on_queue`` must
+eventually include **i** in the **indices** array.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns 0.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars**, **indices**, and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_wait_until_some_on_queue`` does not
+return before the update of the memory indicated by **ivars** is fully
+complete.
+
+To ensure the contents of **indices** and **ret** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ISHMEMX_WAIT_UNTIL_SOME_WORK_GROUP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -381,6 +611,8 @@ Wait on an array of variables on the local PE until at least one variable meets 
 
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> size_t ishmemx_wait_until_some_work_group(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value, const Group& group)
 
 .. cpp:function:: template<typename Group> size_t ishmemx_TYPENAME_wait_until_some_work_group(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value, const Group& group)
 
@@ -408,7 +640,7 @@ This routine tests all elements of **ivars** in the wait set at least once, and
 the order in which the elements are tested is unspecified.
 
 Upon return, the **indices** array contains the indices of at least one element
-in the wait set that satisfied the wait condition during the call to 
+in the wait set that satisfied the wait condition during the call to
 ``ishmemx_wait_until_some_work_group``.
 The return value of ``ishmemx_wait_until_some_work_group`` is equal to the total
 number of these satisfied elements.
@@ -436,6 +668,516 @@ Implementations must ensure that ``ishmemx_wait_until_some_work_group`` does not
 return before the update of the memory indicated by **ivars** is fully
 complete.
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEM_WAIT_UNTIL_ALL_VECTOR
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for an array of variables on the local PE until all variables meet the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> void ishmem_wait_until_all_vector(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values)
+
+.. cpp:function:: void ishmem_TYPENAME_wait_until_all_vector(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :returns: None.
+
+Callable from the **host** and the **device**.
+
+**Description:**
+The ``ishmem_wait_until_all_vector`` routine waits until all entries in the
+wait set specified by **ivars** and **status** have satisfied the wait
+condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by
+a thread located within the calling PE or within another PE.
+If **nelems** is 0, the wait set is empty and this routine returns immediately.
+This routine compares each element of the **ivars** array in the wait set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero, the wait set is empty and this
+routine returns immediately.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmem_wait_until_all_vector`` does not return
+before the update of the memory indicated by **ivars** is fully complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_ALL_VECTOR_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for an array of variables on the local PE until all variables meet the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_wait_until_all_vector_on_queue(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_wait_until_all_on_vector_queue(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivars** with **cmp_value**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmemx_wait_until_all_vector_on_queue`` routine waits until all entries
+in the wait set specified by **ivars** and **status** have satisfied the
+wait condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by
+a thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+each respective value in **cmp_values** according to the comparison operator 
+**cmp** at the calling PE.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns immediately.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_wait_until_all_vector_on_queue``
+does not return before the update of the memory indicated by **ivars** is
+fully complete.
+
+To ensure the operation has completed, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_ALL_VECTOR_WORK_GROUP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for an array of variables on the local PE until all variables meet the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> void ishmemx_wait_until_all_vector_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+.. cpp:function:: template<typename Group> void ishmemx_TYPENAME_wait_until_all_vector_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param group: The SYCL ``group`` or ``sub_group`` with which to collectively perform the wait operation.
+  :returns: None.
+
+Callable from the **device**.
+
+**Description:**
+The ``ishmemx_wait_until_all_vector_work_group`` routine waits until all
+entries in the wait set specified by **ivars** and **status** have
+satisfied the wait condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by
+a thread located within the calling PE or within another PE.
+If **nelems** is 0, the wait set is empty and this routine returns immediately.
+This routine compares each element of the **ivars** array in the wait set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero, the wait set is empty and this
+routine returns immediately.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_wait_until_all_vector_work_group`` does
+not return before the update of the memory indicated by **ivars** is fully
+complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEM_WAIT_UNTIL_ANY_VECTOR
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for an array of variables on the local PE until any one variable meets its specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> size_t ishmem_wait_until_any_vector(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values)
+
+.. cpp:function:: size_t ishmem_TYPENAME_wait_until_any_vector(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :returns: ``ishmem_wait_until_any_vector`` returns the index of an element in the **ivars** array that satisfies its wait condition. If the wait set is empty, this routine returns **SIZE_MAX**.
+
+Callable from the **host** and the **device**.
+
+**Description:**
+The ``ishmem_wait_until_any_vector`` routine waits until any one entry in the
+wait set specified by **ivars** and **status** satisfies its wait condition at
+the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+The order in which these elements are tested is unspecified.
+If an entry **i** in **ivars** within the wait set satisfies its wait condition,
+a series of calls to ``ishmem_wait_until_any_vector`` must eventually return
+**i**.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns **SIZE_MAX**.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmem_wait_until_any_vector`` does not
+return before the update of the memory indicated by **ivars** is fully
+complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_ANY_VECTOR_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for an array of variables on the local PE until any one variable meets the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_wait_until_any_vector_on_queue(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, size_t* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_wait_until_any_vector_on_queue(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, size_t* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivars** with **cmp_value**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param ret: A pointer whose contents will be set to the index of an element in the **ivars** array that satisfies the wait condition. If the wait set is empty, this routine returns **SIZE_MAX**. **ret** must be accessible from the device.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmemx_wait_until_any_vector_on_queue`` routine waits until any one
+entry in the wait set specified by **ivars** and **status** satisfies the wait
+condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+The order in which these elements are tested is unspecified.
+If an entry **i** in **ivars** within the wait set satisfies the wait
+condition, a series of calls to ``ishmemx_wait_until_any_vector_on_queue`` must
+eventually return **i**.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns **SIZE_MAX**.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_wait_until_any_vector_on_queue``
+does not return before the update of the memory indicated by **ivars** is
+fully complete.
+
+To ensure the contents of **ret** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_ANY_VECTOR_WORK_GROUP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for an array of variables on the local PE until any one variable meets its specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> size_t ishmemx_wait_until_any_vector_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+.. cpp:function:: template<typename Group> size_t ishmemx_TYPENAME_wait_until_any_vector_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param group: The SYCL ``group`` or ``sub_group`` with which to collectively perform the wait operation.
+  :returns: ``ishmemx_wait_until_any_vector_work_group`` returns the index of an element in the **ivars** array that satisfies its wait condition. If the wait set is empty, this routine returns **SIZE_MAX**.
+
+Callable from the **device**.
+
+**Description:**
+The ``ishmemx_wait_until_any_vector_work_group`` routine waits until any one
+entry in the wait set specified by **ivars** and **status** satisfies its wait
+condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+The order in which these elements are tested is unspecified.
+If an entry **i** in **ivars** within the wait set satisfies its wait
+condition, a series of calls to ``ishmemx_wait_until_any_vector_work_group``
+must eventually return **i**.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns **SIZE_MAX**.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_wait_until_any_vector_work_group``
+does not return before the update of the memory indicated by **ivars** is fully
+complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEM_WAIT_UNTIL_SOME_VECTOR
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait on an array of variables on the local PE until at least one variable meets the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> size_t ishmem_wait_until_some_vector(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_values)
+
+.. cpp:function:: size_t ishmem_TYPENAME_wait_until_some_vector_(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_values)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param indices: Local address of an array of indices of length at least **nelems** into **ivars** that satisfied the wait condition.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :returns: ``ishmem_wait_until_some_vector`` returns the number of indices returned in the **indices** array. If the wait set is empty, this routine returns 0.
+
+Callable from the **host** and the **device**.
+
+**Description:**
+The ``ishmem_wait_until_some_vector`` routine waits until at least one entry in
+the wait set specified by **ivars** and **status** satisfies its wait condition
+at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+This routine tests all elements of **ivars** in the wait set at least once, and
+the order in which the elements are tested is unspecified.
+
+Upon return, the **indices** array contains the indices of at least one element
+in the wait set that satisfied its wait condition during the call to 
+``ishmem_wait_until_some_vector``.
+The return value of ``ishmem_wait_until_some_vector`` is equal to the total
+number of these satisfied elements.
+For a given return value **N**, the first **N** elements of the **indices**
+array contain those unique indices that satisfied the wait condition.
+These first **N** elements of **indices** may be unordered with respect to the
+corresponding indices of **ivars**.
+The array pointed to by **indices** must be at least **nelems** long.
+If an entry **i** in **ivars** within the wait set satisfies its wait
+condition, a series of calls to ``ishmem_wait_until_some_vector`` must
+eventually include **i** in the **indices** array.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns 0.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars**, **indices**, and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmem_wait_until_some_vector`` does not
+return before the update of the memory indicated by **ivars** is fully
+complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_SOME_VECTOR_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait on an array of variables on the local PE until at least one variable meets the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_wait_until_some_vector_on_queue(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_value, size_t* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_wait_until_some_vector_on_queue(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_value, size_t* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param indices: Local address of an array of indices of length at least **nelems** into **ivars** that satisfied the wait condition.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivars** with **cmp_value**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param ret: A pointer whose contents will be set to the number of indices returned in the **indices** array. If the wait set is empty, this routine returns 0. **ret** must be accessible from the device.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmemx_wait_until_some_vector_on_queue`` routine waits until at least
+one entry in the wait set specified by **ivars** and **status** satisfies the
+wait condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+This routine tests all elements of **ivars** in the wait set at least once, and
+the order in which the elements are tested is unspecified.
+
+Upon return, the **indices** array contains the indices of at least one element
+in the wait set that satisfied the wait condition during the call to 
+``ishmemx_wait_until_some_vector_on_queue``.
+The return value of ``ishmemx_wait_until_some_vector_on_queue`` is equal to the
+total number of these satisfied elements.
+For a given return value **N**, the first **N** elements of the **indices**
+array contain those unique indices that satisfied the wait condition.
+These first **N** elements of **indices** may be unordered with respect to the
+corresponding indices of **ivars**.
+The array pointed to by **indices** must be at least **nelems** long.
+If an entry **i** in **ivars** within the wait set satisfies the wait
+condition, a series of calls to ``ishmemx_wait_until_some_vector_on_queue``
+must eventually include **i** in the **indices** array.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns 0.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars**, **indices**, and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_wait_until_some_vector_on_queue``
+does not return before the update of the memory indicated by **ivars** is
+fully complete.
+
+To ensure the contents of **indices** and **ret** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_WAIT_UNTIL_SOME_VECTOR_WORK_GROUP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait on an array of variables on the local PE until at least one variable meets the specified wait condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> size_t ishmemx_wait_until_some_vector_work_group(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+.. cpp:function:: template<typename Group> size_t ishmemx_TYPENAME_wait_until_some_vector_work_group(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param indices: Local address of an array of indices of length at least **nelems** into **ivars** that satisfied the wait condition.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param group: The SYCL ``group`` or ``sub_group`` with which to collectively perform the wait operation.
+  :returns: ``ishmemx_wait_until_some_vector_work_group`` returns the number of indices returned in the **indices** array. If the wait set is empty, this routine returns 0.
+
+Callable from the **device**.
+
+**Description:**
+The ``ishmemx_wait_until_some_vector_work_group`` routine waits until at least
+one entry in the wait set specified by **ivars** and **status** satisfies its
+wait condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine compares each element of the **ivars** array in the wait set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+This routine tests all elements of **ivars** in the wait set at least once, and
+the order in which the elements are tested is unspecified.
+
+Upon return, the **indices** array contains the indices of at least one element
+in the wait set that satisfied its wait condition during the call to
+``ishmemx_wait_until_some_vector_work_group``.
+The return value of ``ishmemx_wait_until_some_vector_work_group`` is equal to
+the total number of these satisfied elements.
+For a given return value **N**, the first **N** elements of the **indices**
+array contain those unique indices that satisfied the wait condition.
+These first **N** elements of **indices** may be unordered with respect to the
+corresponding indices of **ivars**.
+The array pointed to by **indices** must be at least **nelems** long.
+If an entry **i** in **ivars** within the wait set satisfies its wait
+condition, a series of calls to ``ishmemx_wait_until_some_vector_work_group`` must
+eventually include **i** in the **indices** array.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the wait set.
+Elements of **status** set to 0 will be included in the wait set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the wait set is
+empty and this routine returns 0.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the wait set.
+The **ivars**, **indices**, and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_wait_until_some_vector_work_group``
+does not return before the update of the memory indicated by **ivars** is fully
+complete.
+
 ^^^^^^^^^^^^^
 ISHMEM_TEST
 ^^^^^^^^^^^^^
@@ -444,6 +1186,8 @@ Indicate whether a variable on the local PE meets the specified condition.
 
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> int ishmem_test(TYPE* ivar, int cmp, TYPE cmp_value)
 
 .. cpp:function:: int ishmem_TYPENAME_test(TYPE* ivar, int cmp, TYPE cmp_value)
 
@@ -471,6 +1215,8 @@ Indicate whether a variable on the local PE meets the specified condition.
 
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> int ishmemx_test_work_group(TYPE* ivar, int cmp, TYPE cmp_value, const Group& group)
 
 .. cpp:function:: template<typename Group> int ishmemx_TYPENAME_test_work_group(TYPE* ivar, int cmp, TYPE cmp_value, const Group& group)
 
@@ -500,13 +1246,15 @@ Indicate whether all variables within an array of variables on the local PE meet
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
 
+.. cpp:function:: template<typename TYPE> int ishmem_test_all(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value)
+
 .. cpp:function:: int ishmem_TYPENAME_test_all(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value)
 
   :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :param nelems: The number of elements in the **ivars** array.
   :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
-  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivar** with **cmp_value**.
-  :param cmp_value: The value to be compared with **ivar**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with **cmp_value**.
+  :param cmp_value: The value to be compared with objects pointed to by **ivars**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :returns: ``ishmem_test_all`` returns 1 if all variables in **ivars** satisfy the test condition or if **nelems** is 0, otherwise this routine returns 0.
 
 Callable from the **host** and **device**.
@@ -523,15 +1271,13 @@ This routine compares each element of the **ivars** array in the test set with
 the value **cmp_value** according to the comparison operator **cmp** at the
 calling PE.
 
-If **nelems** is 0, the test set is empty and this routine returns 1.
-
 The optional **status** is a mask array of length **nelems** where each element
 corresponds to the respective element in **ivars** and indicates whether the
 element is excluded from the test set.
 Elements of **status** set to 0 will be included in the test set, and elements
 set to a nonzero value will be ignored.
 If all elements in **status** are nonzero or **nelems** is 0, the test set is
-empty and this routine returns 0.
+empty and this routine returns 1.
 If **status** is a null pointer, it is ignored and all elements in **ivars**
 are included in the test set.
 The **ivars** and **status** arrays must not overlap in memory.
@@ -548,13 +1294,15 @@ Indicate whether all variables within an array of variables on the local PE meet
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
 
+.. cpp:function:: template<typename TYPE, typename Group> int ishmemx_test_all_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, const Group& group)
+
 .. cpp:function:: template<typename Group> int ishmemx_TYPENAME_test_all_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, const Group& group)
 
   :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :param nelems: The number of elements in the **ivars** array.
   :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
-  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivar** with **cmp_value**.
-  :param cmp_value: The value to be compared with **ivar**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with **cmp_value**.
+  :param cmp_value: The value to be compared with the objects pointed to by **ivars**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :param group: The SYCL ``group`` or ``sub_group`` with which to collectively perform the test operation.
   :returns: ``ishmemx_test_all_work_group`` returns 1 if all variables in **ivars** satisfy the test condition or if **nelems** is 0, otherwise this routine returns 0.
 
@@ -571,8 +1319,6 @@ satisfied the test condition.
 This routine compares each element of the **ivars** array in the test set with
 the value **cmp_value** according to the comparison operator **cmp** at the
 calling PE.
-
-If **nelems** is 0, the test set is empty and this routine returns 1.
 
 The optional **status** is a mask array of length **nelems** where each element
 corresponds to the respective element in **ivars** and indicates whether the
@@ -598,13 +1344,15 @@ Indicate whether any one variable within an array of variables on the local PE m
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
 
+.. cpp:function:: template<typename TYPE> size_t ishmem_test_any(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value)
+
 .. cpp:function:: size_t ishmem_TYPENAME_test_any(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value)
 
   :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :param nelems: The number of elements in the **ivars** array.
   :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
-  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivar** with **cmp_value**.
-  :param cmp_value: The value to be compared with **ivar**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with **cmp_value**.
+  :param cmp_value: The value to be compared with the objects pointed to by **ivars**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :returns: ``ishmem_test_any`` returns the index of an element in the **ivars** array that satisfies the test condition. If the test set is empty or no conditions in the test set are satisfied, this routine returns **SIZE_MAX**.
 
 Callable from the **host** and **device**.
@@ -648,13 +1396,15 @@ Indicate whether any one variable within an array of variables on the local PE m
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
 
+.. cpp:function:: template<typename TYPE, typename Group> size_t ishmemx_test_any_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, const Group& group)
+
 .. cpp:function:: template<typename Group> size_t ishmemx_TYPENAME_test_any_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, TYPE cmp_value, const Group& group)
 
   :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :param nelems: The number of elements in the **ivars** array.
   :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
-  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivar** with **cmp_value**.
-  :param cmp_value: The value to be compared with **ivar**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with **cmp_value**.
+  :param cmp_value: The value to be compared with the objects pointed to by **ivars**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :param group: The SYCL ``group`` or ``sub_group`` with which to collectively perform the test operation.
   :returns: ``ishmemx_test_any_work_group`` returns the index of an element in the **ivars** array that satisfies the test condition. If the test set is empty or no conditions in the test set are satisfied, this routine returns **SIZE_MAX**.
 
@@ -700,13 +1450,15 @@ Indicate whether at least one variable within an array of variables on the local
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
 
+.. cpp:function:: template<typename TYPE> size_t ishmem_test_some(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value)
+
 .. cpp:function:: size_t ishmem_TYPENAME_test_some(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value)
 
   :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :param nelems: The number of elements in the **ivars** array.
   :param indices: Local address of an array of indices of length at least **nelems** into **ivars** that satisfied the wait condition.
   :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
-  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivars** with **cmp_value**.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with **cmp_value**.
   :param cmp_value: The value to be compared with the objects pointed to by **ivars**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :returns: ``ishmem_test_some`` returns the number of indices returned in the **indices** array. If the test set is empty, this routine returns 0.
 
@@ -764,13 +1516,15 @@ Indicate whether at least one variable within an array of variables on the local
 Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by Table :ref:`Standard AMO Types<stdamotypes>`.
 
+.. cpp:function:: template<typename TYPE, typename Group> size_t ishmemx_test_some_work_group(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value, const Group& group)
+
 .. cpp:function:: template<typename Group> size_t ishmemx_TYPENAME_test_some_work_group(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, TYPE cmp_value, const Group& group)
 
   :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :param nelems: The number of elements in the **ivars** array.
   :param indices: Local address of an array of indices of length at least **nelems** into **ivars** that satisfied the wait condition.
   :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
-  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **ivars** with **cmp_value**.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with **cmp_value**.
   :param cmp_value: The value to be compared with the objects pointed to by **ivars**. The type of **cmp_value** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
   :param group: The SYCL ``group`` or ``sub_group`` with which to collectively perform the test operation.
   :returns: ``ishmemx_test_some_work_group`` returns the number of indices returned in the **indices** array. If the test set is empty, this routine returns 0.
@@ -820,6 +1574,346 @@ Implementations must ensure that ``ishmemx_test_some_work_group`` does not
 return indices before the updates of the memory indicated by the
 corresponding **ivars** elements are fully complete.
 
+^^^^^^^^^^^^^^^^^^^^^^
+ISHMEM_TEST_ALL_VECTOR
+^^^^^^^^^^^^^^^^^^^^^^
+
+Indicate whether all variables within an array of variables on the local PE meet the specified test conditions.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> int ishmem_test_all_vector(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values)
+
+.. cpp:function:: int ishmem_TYPENAME_test_all_vector(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :returns: ``ishmem_test_all_vector`` returns 1 if all variables in **ivars** satisfy the test conditions or if **nelems** is 0, otherwise this routine returns 0.
+
+Callable from the **host** and **device**.
+
+**Description:**
+The ``ishmem_test_all_vector`` routine indicates whether all entries in the
+test set specified by **ivars** and **status** have satisfied the test
+conditions at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine does not block and returns zero if not all entries in **ivars**
+satisfied the test conditions.
+This routine compares each element of the **ivars** array in the test set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the test set.
+Elements of **status** set to 0 will be included in the test set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the test set is
+empty and this routine returns 1.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the test set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmem_test_all_vector`` does not return 1
+before the update of the memory indicated by **ivars** is fully complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_TEST_ALL_VECTOR_WORK_GROUP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Indicate whether all variables within an array of variables on the local PE meet the specified test conditions.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> int ishmemx_test_all_vector_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+.. cpp:function:: template<typename Group> int ishmemx_TYPENAME_test_all_vector_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param group: The SYCL ``group`` or ``sub_group`` with which to collectively perform the test operation.
+  :returns: ``ishmemx_test_all_vector_work_group`` returns 1 if all variables in **ivars** satisfy the test conditions or if **nelems** is 0, otherwise this routine returns 0.
+
+Callable from the **device**.
+
+**Description:**
+The ``ishmemx_test_all_vector_work_group`` routine indicates whether all
+entries in the test set specified by **ivars** and **status** have
+satisfied the test conditions at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine does not block and returns zero if not all entries in **ivars**
+satisfied the test condition.
+This routine compares each element of the **ivars** array in the test set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+
+If **nelems** is 0, the test set is empty and this routine returns 1.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the test set.
+Elements of **status** set to 0 will be included in the test set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the test set is
+empty and this routine returns 0.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the test set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_test_all_vector_work_group`` does
+not return 1 before the update of the memory indicated by **ivars** is fully
+complete.
+
+^^^^^^^^^^^^^^^^^^^^^^
+ISHMEM_TEST_ANY_VECTOR
+^^^^^^^^^^^^^^^^^^^^^^
+
+Indicate whether any one variable within an array of variables on the local PE meets its specified test condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> size_t ishmem_test_any_vector(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values)
+
+.. cpp:function:: size_t ishmem_TYPENAME_test_any_vector(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :returns: ``ishmem_test_any_vector`` returns the index of an element in the **ivars** array that satisfies its test condition. If the test set is empty or no conditions in the test set are satisfied, this routine returns **SIZE_MAX**.
+
+Callable from the **host** and **device**.
+
+**Description:**
+The ``ishmem_test_any_vector`` routine indicates whether any entry in the test
+set specified by **ivars** and **status** has satisfied its test condition at
+the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine does not block and returns **SIZE_MAX** if no entries in **ivars**
+satisfied the test condition.
+This routine compares each element of the **ivars** array in the test set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+The order in which these elements are tested is unspecified.
+If an entry **i** in **ivars** within the test set satisfies its test
+condition, a series of calls to ``ishmem_test_any_vector`` must eventually
+return **i**.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the test set.
+Elements of **status** set to 0 will be included in the test set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the test set is
+empty and this routine returns **SIZE_MAX**.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the test set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmem_test_any_vector`` does not return an
+index before the update of the memory indicated by the corresponding **ivars**
+element is fully complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_TEST_ANY_VECTOR_WORK_GROUP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Indicate whether any one variable within an array of variables on the local PE meets its specified test condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> size_t ishmemx_test_any_vector_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+.. cpp:function:: template<typename Group> size_t ishmemx_TYPENAME_test_any_vector_work_group(TYPE* ivars, size_t nelems, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param group: The SYCL ``group`` or ``sub_group`` with which to collectively perform the test operation.
+  :returns: ``ishmemx_test_any_vector_work_group`` returns the index of an element in the **ivars** array that satisfies the test condition. If the test set is empty or no conditions in the test set are satisfied, this routine returns **SIZE_MAX**.
+
+Callable from the **device**.
+
+**Description:**
+The ``ishmemx_test_any_vector_work_group`` routine indicates whether any entry
+in the test set specified by **ivars** and **status** has satisfied its test
+condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine does not block and returns **SIZE_MAX** if no entries in **ivars**
+satisfied the test condition.
+This routine compares each element of the **ivars** array in the test set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+The order in which these elements are tested is unspecified.
+If an entry **i** in **ivars** within the test set satisfies its test
+condition, a series of calls to ``ishmemx_test_any_vector_work_group`` must
+eventually return **i**.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the test set.
+Elements of **status** set to 0 will be included in the test set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the test set is
+empty and this routine returns **SIZE_MAX**.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the test set.
+The **ivars** and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_test_any_vector_work_group`` does
+not return an index before the update of the memory indicated by the
+corresponding **ivars** element is fully complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEM_TEST_SOME_VECTOR
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Indicate whether at least one variable within an array of variables on the local PE meets its specified test condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE> size_t ishmem_test_some_vector(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_values)
+
+.. cpp:function:: size_t ishmem_TYPENAME_test_some_vector(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_values)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param indices: Local address of an array of indices of length at least **nelems** into **ivars** that satisfied the wait condition.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :returns: ``ishmem_test_some_vector`` returns the number of indices returned in the **indices** array. If the test set is empty, this routine returns 0.
+
+Callable from the **host** and **device**.
+
+**Description:**
+The ``ishmem_test_some_vector`` routine indicates whether at least one entry in
+the test set specified by **ivars** and **status** satisfies its test condition
+at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine does not block and returns zero if no entries in **ivars**
+satisfied the test condition.
+This routine compares each element of the **ivars** array in the test set with
+each respective value in **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+This routine tests all elements of **ivars** in the test set at least once, and
+the order in which the elements are tested is unspecified.
+
+Upon return, the **indices** array contains the indices of the elements in the
+test set that satisfied the test condition during the call to
+``ishmem_test_some_vector``.
+The return value of ``ishmem_test_some_vector`` is equal to the total number of
+these satisfied elements.
+If the return value is **N**, then the first **N** elements of the **indices**
+array contain those unique indices that satisfied the test condition.
+These first **N** elements of **indices** may be unordered with respect to the
+corresponding indices of **ivars**.
+The array pointed to by **indices** must be at least **nelems** long.
+If an entry **i** in **ivars** within the test set satisfies the test
+condition, a series of calls to ``ishmem_test_some_vector`` must eventually
+include **i** in the **indices** array.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the test set.
+Elements of **status** set to 0 will be included in the test set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the test set is
+empty and this routine returns 0.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the test set.
+The **ivars**, **indices**, and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmem_test_some_vector`` does not return
+indices before the updates of the memory indicated by the corresponding
+**ivars** elements are fully complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_TEST_SOME_VECTOR_WORK_GROUP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Indicate whether at least one variable within an array of variables on the local PE meets its specified test condition.
+
+Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
+specified by Table :ref:`Standard AMO Types<stdamotypes>`.
+
+.. cpp:function:: template<typename TYPE, typename Group> size_t ishmemx_test_some_vector_work_group(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+.. cpp:function:: template<typename Group> size_t ishmemx_TYPENAME_test_some_vector_work_group(TYPE* ivars, size_t nelems, size_t* indices, const int* status, int cmp, const TYPE* cmp_values, const Group& group)
+
+  :param ivars: Symmetric address of an array of remotely accessible data objects. The type of **ivars** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param nelems: The number of elements in the **ivars** array.
+  :param indices: Local address of an array of indices of length at least **nelems** into **ivars** that satisfied the wait condition.
+  :param status: Local address of an optional mask array of length **nelems** that indicates which elements in **ivars** are excluded from the wait set.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares elements of **ivars** with elements of **cmp_values**.
+  :param cmp_values: Local address of an array of length **nelems** containing values to be compared with the respective objects in **ivars**. The type of **cmp_values** should match the TYPE and TYPENAME according to the table of :ref:`Standard AMO Types<stdamotypes>`.
+  :param group: The SYCL ``group`` or ``sub_group`` with which to collectively perform the test operation.
+  :returns: ``ishmemx_test_some_vector_work_group`` returns the number of indices returned in the **indices** array. If the test set is empty, this routine returns 0.
+
+Callable from the **device**.
+
+**Description:**
+The ``ishmemx_test_some_vector_work_group`` routine indicates whether at least
+one entry in the test set specified by **ivars** and **status** satisfies its
+test condition at the calling PE.
+The **ivars** objects at the calling PE may be updated by an AMO performed by a
+thread located within the calling PE or within another PE.
+This routine does not block and returns zero if no entries in **ivars**
+satisfied the test condition.
+This routine compares each element of the **ivars** array in the test set with
+each respective value in  **cmp_values** according to the comparison operator
+**cmp** at the calling PE.
+This routine tests all elements of **ivars** in the test set at least once, and
+the order in which the elements are tested is unspecified.
+
+Upon return, the **indices** array contains the indices of the elements in the
+test set that satisfied the test condition during the call to
+``ishmemx_test_some_vector_work_group``.
+The return value of ``ishmemx_test_some_vector_work_group`` is equal to the
+total number of these satisfied elements.
+If the return value is **N**, then the first **N** elements of the **indices**
+array contain those unique indices that satisfied the test condition.
+These first **N** elements of **indices** may be unordered with respect to the
+corresponding indices of **ivars**.
+The array pointed to by **indices** must be at least **nelems** long.
+If an entry **i** in **ivars** within the test set satisfies the test
+condition, a series of calls to ``ishmemx_test_some_vector_work_group`` must
+eventually include **i** in the **indices** array.
+
+The optional **status** is a mask array of length **nelems** where each element
+corresponds to the respective element in **ivars** and indicates whether the
+element is excluded from the test set.
+Elements of **status** set to 0 will be included in the test set, and elements
+set to a nonzero value will be ignored.
+If all elements in **status** are nonzero or **nelems** is 0, the test set is
+empty and this routine returns 0.
+If **status** is a null pointer, it is ignored and all elements in **ivars**
+are included in the test set.
+The **ivars**, **indices**, and **status** arrays must not overlap in memory.
+
+Implementations must ensure that ``ishmemx_test_some_vector_work_group`` does
+not return indices before the updates of the memory indicated by the
+corresponding **ivars** elements are fully complete.
+
 ^^^^^^^^^^^^^^^^^^^^^^^^
 ISHMEM_SIGNAL_WAIT_UNTIL
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -839,10 +1933,8 @@ Callable from the **host** and **device**.
 ``ishmem_signal_wait_until`` operation blocks until the value contained in the
 signal data object, **sig_addr**, at the calling PE satisfies the wait
 condition.
-
-.. In an Intel® SHMEM program with single-threaded or multithreaded PEs,
-
-The **sig_addr** object at the calling PE is expected only to be updated using
+In an Intel® SHMEM program with single-threaded or multithreaded PEs,
+the **sig_addr** object at the calling PE is expected only to be updated using
 the APIs defined in :ref:`Signaling Operations<signaling>` that perform a write
 to a signal variable.
 This routine can be used to implement point-to-point synchronization
@@ -852,6 +1944,44 @@ condition specified by the comparison operator, **cmp**, and comparison value,
 **cmp_value**. Implementations must ensure that ``ishmem_signal_wait_until`` do
 not return before the update of the memory indicated by **sig_addr** is fully
 complete.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_SIGNAL_WAIT_UNTIL_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wait for a variable on the local PE to change from a signaling operation.
+
+.. cpp:function:: sycl::event ishmemx_signal_wait_until_on_queue(uint64_t* sig_addr, int cmp, uint64_t cmp_value, uint64_t* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param sig_addr: Local, symmetric address of the source signal variable.
+  :param cmp: A comparison operator from Table :ref:`Point-to-point Comparison Constants<p2p_consts>` that compares **sig_addr** with **cmp_value**.
+  :param cmp_value: The value against which the object pointed to by **sig_addr** will be compared.
+  :param ret: A pointer whose contents will be set to the value of the signal data object, **sig_addr**, at the calling PE that satisfies the wait condition. **ret** must be accessible from the device.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+``ishmemx_signal_wait_until_on_queue`` operation blocks until the value contained in the
+signal data object, **sig_addr**, at the calling PE satisfies the wait
+condition.
+In an Intel® SHMEM program with single-threaded or multithreaded PEs,
+the **sig_addr** object at the calling PE is expected only to be updated using
+the APIs defined in :ref:`Signaling Operations<signaling>` that perform a write
+to a signal variable.
+This routine can be used to implement point-to-point synchronization
+between PEs or between threads within the same PE. A call to this routine
+blocks until the value of **sig_addr** at the calling PE satisfies the wait
+condition specified by the comparison operator, **cmp**, and comparison value,
+**cmp_value**. Implementations must ensure that
+``ishmemx_signal_wait_until_on_queue`` do not return before the update of the
+memory indicated by **sig_addr** is fully complete.
+
+To ensure the contents of **ret** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ISHMEMX_SIGNAL_WAIT_UNTIL_WORK_GROUP
@@ -873,10 +2003,8 @@ Callable from the **device**.
 ``ishmemx_signal_wait_until_work_group`` operation blocks until the value
 contained in the signal data object, **sig_addr**, at the calling PE
 satisfies the wait condition.
-
-.. In an Intel® SHMEM program with single-threaded or multithreaded PEs,
-
-The **sig_addr** object at the calling PE is expected only to be updated using
+In an Intel® SHMEM program with single-threaded or multithreaded PEs,
+the **sig_addr** object at the calling PE is expected only to be updated using
 the APIs defined in :ref:`Signaling Operations<signaling>` that perform a write
 to a signal variable.
 This routine can be used to implement point-to-point synchronization

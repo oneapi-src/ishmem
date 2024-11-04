@@ -29,7 +29,7 @@ passing requests to the host CPU, which transfers the data through the network
 fabric to another GPU's memory.
 
 The original OpenSHMEM specification, described in the :ref:`"What is
-OpenSHMEM?" section<what_is_openshmem>`, establishes a programming and memory
+OpenSHMEM?" section <what_is_openshmem>`, establishes a programming and memory
 model that is most suitable for *host-driven* (CPU) communication.
 The Intel® SHMEM APIs are based on the original OpenSHMEM
 interfaces, but are augmented to support *device-driven* communication across
@@ -39,7 +39,7 @@ requires subtle modifications to the original OpenSHMEM interfaces, memory
 model, and execution model.
 The Intel® SHMEM APIs are defined in the context of this adjusted
 memory and execution model, which is described in sections :ref:`Memory
-Model<memory_model>` and :ref:`Execution Model<execution_model>`.
+Model <memory_model>` and :ref:`Execution Model <execution_model>`.
 
 .. |sycl_spec_link| raw:: html
 
@@ -67,14 +67,13 @@ with subtle vendor-specific implementation differences.
 The OpenSHMEM [#]_ effort is driven by the OpenSHMEM specification committee
 with continuous input from the OpenSHMEM user community.
 To see all of the contributors and participants for the OpenSHMEM API, please
-see: `http://www.openshmem.org/site/Contributors
-<http://www.openshmem.org/site/Contributors>`_.
+see: `http://www.openshmem.org/site/Contributors <http://www.openshmem.org/site/Contributors>`_.
 In addition to the specification, the effort includes a reference OpenSHMEM
 implementation, validation and verification suites, tools, a mailing list and
 website infrastructure to support specification activities.  For more
-information please refer to: `http://www.openshmem.org
-<http://www.openshmem.org/>`_.
+information please refer to: `http://www.openshmem.org <http://www.openshmem.org/>`_.
 
-.. [#] The OpenSHMEM specification is owned by Open Source Software Solutions Inc., a nonprofit organization, under an agreement with HPE.
+.. [#] The OpenSHMEM specification is owned by Open Source Software Solutions Inc., a nonprofit organization, under an agreement with HPE [#f1]_.
+.. [#f1] Other names and brands may be claimed as the property of others.
 
 

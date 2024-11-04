@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" >
+<html lang="en" data-content_root="./" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Atomic Memory Operations (AMO) &#8212; Documentation for Intel® SHMEM</title>
   
@@ -19,28 +18,28 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="_static/documentation_options.js?v=db04a367"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'atomics';</script>
     <link rel="canonical" href="oneapi-src.github.io/ishmem/atomics.html" />
     <link rel="icon" href="_static/favicon.ico"/>
@@ -57,10 +56,9 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>
@@ -101,11 +99,14 @@
 </form></div>
   </div>
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
-    </nav>
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
+      
+      
       
       <div class="bd-sidebar-primary bd-sidebar">
         
@@ -120,6 +121,7 @@
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item">
+
   
 
 <a class="navbar-brand logo" href="index.html">
@@ -138,7 +140,18 @@
   
   
 </a></div>
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
 <ul class="nav bd-sidenav">
@@ -156,9 +169,8 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
@@ -169,10 +181,12 @@
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build, Write, and Run Programs</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="building_ishmem.html">Building Intel® SHMEM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
 <ul class="nav bd-sidenav">
@@ -285,6 +299,7 @@
 </button>
 
 
+
 <script>
 document.write(`
   <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -294,6 +309,7 @@ document.write(`
   </button>
 `);
 </script>
+
 
 <script>
 document.write(`
@@ -326,31 +342,119 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#blocking-atomic-memory-operations">Blocking Atomic Memory Operations</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv428ishmem_TYPENAME_atomic_fetchPK4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_setvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_set()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_setP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_set()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_compare_swap()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv435ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_compare_swap()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_swap()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_swap()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_inc()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_incP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_inc()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_incvP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_inc()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_incP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_inc()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_add()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_add()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_add()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_addP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_add()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_and()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_and()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_andvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_and()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_andP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_and()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_or()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv431ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_or()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E16ishmem_atomic_orvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_or()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425ishmem_TYPENAME_atomic_orP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_or()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_xor()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_xor()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_xor()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_xor()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-blocking-atomic-memory-operations">Non-blocking Atomic Memory Operations</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-nbi">ISHMEM_ATOMIC_FETCH_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap-nbi">ISHMEM_ATOMIC_COMPARE_SWAP_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap-nbi">ISHMEM_ATOMIC_SWAP_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc-nbi">ISHMEM_ATOMIC_FETCH_INC_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add-nbi">ISHMEM_ATOMIC_FETCH_ADD_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and-nbi">ISHMEM_ATOMIC_FETCH_AND_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or-nbi">ISHMEM_ATOMIC_FETCH_OR_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor-nbi">ISHMEM_ATOMIC_FETCH_XOR_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-nbi">ISHMEM_ATOMIC_FETCH_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap-nbi">ISHMEM_ATOMIC_COMPARE_SWAP_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_compare_swap_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv439ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_compare_swap_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap-nbi">ISHMEM_ATOMIC_SWAP_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_swap_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv431ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_swap_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc-nbi">ISHMEM_ATOMIC_FETCH_INC_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_inc_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_inc_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add-nbi">ISHMEM_ATOMIC_FETCH_ADD_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_add_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_add_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and-nbi">ISHMEM_ATOMIC_FETCH_AND_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_and_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_and_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or-nbi">ISHMEM_ATOMIC_FETCH_OR_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_or_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv435ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_or_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor-nbi">ISHMEM_ATOMIC_FETCH_XOR_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_xor_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_xor_nbi()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -362,10 +466,10 @@ document.write(`
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <section id="atomic-memory-operations-amo">
-<span id="atomics"></span><h1>Atomic Memory Operations (AMO)<a class="headerlink" href="#atomic-memory-operations-amo" title="Permalink to this heading">#</a></h1>
+<span id="atomics"></span><h1>Atomic Memory Operations (AMO)<a class="headerlink" href="#atomic-memory-operations-amo" title="Link to this heading">#</a></h1>
 <p>An AMO is a one-sided communication mechanism that combines memory read,
 update, or write operations with atomicity guarantees described in
 <a class="reference internal" href="memory_model.html#amo-guarantees"><span class="std std-ref">Atomicity Guarantees</span></a>. Similar to the RMA routines,
@@ -522,20 +626,20 @@ integer types defined in the C++11 language library header <code class="docutils
 </tbody>
 </table>
 <section id="blocking-atomic-memory-operations">
-<h2>Blocking Atomic Memory Operations<a class="headerlink" href="#blocking-atomic-memory-operations" title="Permalink to this heading">#</a></h2>
+<h2>Blocking Atomic Memory Operations<a class="headerlink" href="#blocking-atomic-memory-operations" title="Link to this heading">#</a></h2>
 <section id="ishmem-atomic-fetch">
-<h3>ISHMEM_ATOMIC_FETCH<a class="headerlink" href="#ishmem-atomic-fetch" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH<a class="headerlink" href="#ishmem-atomic-fetch" title="Link to this heading">#</a></h3>
 <p>Atomically fetches the value of a remote data object.</p>
 <p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi">
-<span id="_CPPv3I0E19ishmem_atomic_fetchPK4TYPEi"></span><span id="_CPPv2I0E19ishmem_atomic_fetchPK4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi" title="ishmem_atomic_fetch::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi" title="ishmem_atomic_fetch::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E19ishmem_atomic_fetchPK4TYPEi"></span><span id="_CPPv2I0E19ishmem_atomic_fetchPK4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi" title="ishmem_atomic_fetch::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi" title="ishmem_atomic_fetch::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv428ishmem_TYPENAME_atomic_fetchPK4TYPEi">
-<span id="_CPPv328ishmem_TYPENAME_atomic_fetchPK4TYPEi"></span><span id="_CPPv228ishmem_TYPENAME_atomic_fetchPK4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch__TYPECP.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv428ishmem_TYPENAME_atomic_fetchPK4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv328ishmem_TYPENAME_atomic_fetchPK4TYPEi"></span><span id="_CPPv228ishmem_TYPENAME_atomic_fetchPK4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch__TYPECP.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv428ishmem_TYPENAME_atomic_fetchPK4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -555,18 +659,18 @@ specified by the <a class="reference internal" href="#extamotypes"><span class="
 contents of the <strong>source</strong> as an atomic operation.</p>
 </section>
 <section id="ishmem-atomic-set">
-<h3>ISHMEM_ATOMIC_SET<a class="headerlink" href="#ishmem-atomic-set" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_SET<a class="headerlink" href="#ishmem-atomic-set" title="Link to this heading">#</a></h3>
 <p>Atomically sets the value of a remote data object.</p>
 <p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E17ishmem_atomic_setvP4TYPE4TYPEi">
-<span id="_CPPv3I0E17ishmem_atomic_setP4TYPE4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_setP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_set</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_setvP4TYPE4TYPEi" title="ishmem_atomic_set::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_setvP4TYPE4TYPEi" title="ishmem_atomic_set::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_setvP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E17ishmem_atomic_setP4TYPE4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_setP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_set</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_setvP4TYPE4TYPEi" title="ishmem_atomic_set::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_setvP4TYPE4TYPEi" title="ishmem_atomic_set::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_setvP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_atomic_setP4TYPE4TYPEi">
-<span id="_CPPv326ishmem_TYPENAME_atomic_setP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_setP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_set__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_setP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv326ishmem_TYPENAME_atomic_setP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_setP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_set__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_setP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -587,18 +691,18 @@ specified by the <a class="reference internal" href="#extamotypes"><span class="
 into <strong>dest</strong> on <strong>pe</strong> as an atomic operation.</p>
 </section>
 <section id="ishmem-atomic-compare-swap">
-<h3>ISHMEM_ATOMIC_COMPARE_SWAP<a class="headerlink" href="#ishmem-atomic-compare-swap" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_COMPARE_SWAP<a class="headerlink" href="#ishmem-atomic-compare-swap" title="Link to this heading">#</a></h3>
 <p>Performs an atomic conditional swap on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi">
-<span id="_CPPv3I0E26ishmem_atomic_compare_swapP4TYPE4TYPE4TYPEi"></span><span id="_CPPv2I0E26ishmem_atomic_compare_swapP4TYPE4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="ishmem_atomic_compare_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_compare_swap</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="ishmem_atomic_compare_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="ishmem_atomic_compare_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <a class="reference internal" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="ishmem_atomic_compare_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E26ishmem_atomic_compare_swapP4TYPE4TYPE4TYPEi"></span><span id="_CPPv2I0E26ishmem_atomic_compare_swapP4TYPE4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="ishmem_atomic_compare_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_compare_swap</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="ishmem_atomic_compare_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="ishmem_atomic_compare_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <a class="reference internal" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="ishmem_atomic_compare_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv435ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi">
-<span id="_CPPv335ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi"></span><span id="_CPPv235ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_compare_swap__TYPEP.TYPE.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_compare_swap</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv435ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv335ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi"></span><span id="_CPPv235ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_compare_swap__TYPEP.TYPE.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_compare_swap</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv435ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -621,18 +725,18 @@ the specified PE and return the prior contents of the data object in one
 atomic operation.</p>
 </section>
 <section id="ishmem-atomic-swap">
-<h3>ISHMEM_ATOMIC_SWAP<a class="headerlink" href="#ishmem-atomic-swap" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_SWAP<a class="headerlink" href="#ishmem-atomic-swap" title="Link to this heading">#</a></h3>
 <p>Performs an atomic swap to a remote data object.</p>
 <p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi">
-<span id="_CPPv3I0E18ishmem_atomic_swapP4TYPE4TYPEi"></span><span id="_CPPv2I0E18ishmem_atomic_swapP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi" title="ishmem_atomic_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_swap</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi" title="ishmem_atomic_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi" title="ishmem_atomic_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E18ishmem_atomic_swapP4TYPE4TYPEi"></span><span id="_CPPv2I0E18ishmem_atomic_swapP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi" title="ishmem_atomic_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_swap</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi" title="ishmem_atomic_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi" title="ishmem_atomic_swap::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv427ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi">
-<span id="_CPPv327ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_swap__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_swap</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv327ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_swap__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_swap</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -654,18 +758,18 @@ into <strong>dest</strong> on <strong>pe</strong> and returns the previous conte
 atomic operation.</p>
 </section>
 <section id="ishmem-atomic-fetch-inc">
-<h3>ISHMEM_ATOMIC_FETCH_INC<a class="headerlink" href="#ishmem-atomic-fetch-inc" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_INC<a class="headerlink" href="#ishmem-atomic-fetch-inc" title="Link to this heading">#</a></h3>
 <p>Performs an atomic fetch-and-increment operation on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi">
-<span id="_CPPv3I0E23ishmem_atomic_fetch_incP4TYPEi"></span><span id="_CPPv2I0E23ishmem_atomic_fetch_incP4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi" title="ishmem_atomic_fetch_inc::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_inc</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi" title="ishmem_atomic_fetch_inc::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E23ishmem_atomic_fetch_incP4TYPEi"></span><span id="_CPPv2I0E23ishmem_atomic_fetch_incP4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi" title="ishmem_atomic_fetch_inc::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_inc</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi" title="ishmem_atomic_fetch_inc::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv432ishmem_TYPENAME_atomic_fetch_incP4TYPEi">
-<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_incP4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_incP4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_inc__TYPEP.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_inc</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_incP4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_incP4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_incP4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_inc__TYPEP.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_inc</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_incP4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -686,18 +790,18 @@ These routines perform a fetch-and-increment operation. The <strong>dest</strong
 of <strong>dest</strong> as an atomic operation.</p>
 </section>
 <section id="ishmem-atomic-inc">
-<h3>ISHMEM_ATOMIC_INC<a class="headerlink" href="#ishmem-atomic-inc" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_INC<a class="headerlink" href="#ishmem-atomic-inc" title="Link to this heading">#</a></h3>
 <p>Performs an atomic increment operation on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E17ishmem_atomic_incvP4TYPEi">
-<span id="_CPPv3I0E17ishmem_atomic_incP4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_incP4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_inc</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_incvP4TYPEi" title="ishmem_atomic_inc::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_incvP4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E17ishmem_atomic_incP4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_incP4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_inc</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_incvP4TYPEi" title="ishmem_atomic_inc::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_incvP4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_atomic_incP4TYPEi">
-<span id="_CPPv326ishmem_TYPENAME_atomic_incP4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_incP4TYPEi"></span><span id="ishmem_TYPENAME_atomic_inc__TYPEP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_inc</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_incP4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv326ishmem_TYPENAME_atomic_incP4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_incP4TYPEi"></span><span id="ishmem_TYPENAME_atomic_inc__TYPEP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_inc</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_incP4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -717,18 +821,18 @@ These routines perform an atomic increment operation on the <strong>dest</strong
 object on PE <strong>pe</strong>.</p>
 </section>
 <section id="ishmem-atomic-fetch-add">
-<h3>ISHMEM_ATOMIC_FETCH_ADD<a class="headerlink" href="#ishmem-atomic-fetch-add" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_ADD<a class="headerlink" href="#ishmem-atomic-fetch-add" title="Link to this heading">#</a></h3>
 <p>Performs an atomic fetch-and-add operation on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi">
-<span id="_CPPv3I0E23ishmem_atomic_fetch_addP4TYPE4TYPEi"></span><span id="_CPPv2I0E23ishmem_atomic_fetch_addP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_add</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E23ishmem_atomic_fetch_addP4TYPE4TYPEi"></span><span id="_CPPv2I0E23ishmem_atomic_fetch_addP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_add</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv432ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi">
-<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_add__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_add</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_add__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_add</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -754,18 +858,18 @@ These routines add <strong>value</strong> to <strong>dest</strong> on <strong>pe
 contents of <strong>dest</strong> as an atomic operation.</p>
 </section>
 <section id="ishmem-atomic-add">
-<h3>ISHMEM_ATOMIC_ADD<a class="headerlink" href="#ishmem-atomic-add" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_ADD<a class="headerlink" href="#ishmem-atomic-add" title="Link to this heading">#</a></h3>
 <p>Performs an atomic add operation on a remote symmetric data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi">
-<span id="_CPPv3I0E17ishmem_atomic_addP4TYPE4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_addP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_add</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi" title="ishmem_atomic_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi" title="ishmem_atomic_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E17ishmem_atomic_addP4TYPE4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_addP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_add</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi" title="ishmem_atomic_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi" title="ishmem_atomic_add::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_atomic_addP4TYPE4TYPEi">
-<span id="_CPPv326ishmem_TYPENAME_atomic_addP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_addP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_add__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_add</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_addP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv326ishmem_TYPENAME_atomic_addP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_addP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_add__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_add</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_addP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -787,18 +891,18 @@ It adds <strong>value</strong> to <strong>dest</strong> on PE <strong>pe</strong
 without returning the value.</p>
 </section>
 <section id="ishmem-atomic-fetch-and">
-<h3>ISHMEM_ATOMIC_FETCH_AND<a class="headerlink" href="#ishmem-atomic-fetch-and" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_AND<a class="headerlink" href="#ishmem-atomic-fetch-and" title="Link to this heading">#</a></h3>
 <p>Atomically perform a fetching bitwise AND operation on a remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi">
-<span id="_CPPv3I0E23ishmem_atomic_fetch_andP4TYPE4TYPEi"></span><span id="_CPPv2I0E23ishmem_atomic_fetch_andP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_and</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E23ishmem_atomic_fetch_andP4TYPE4TYPEi"></span><span id="_CPPv2I0E23ishmem_atomic_fetch_andP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_and</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv432ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi">
-<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_and__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_and</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_and__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_and</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -820,19 +924,19 @@ remotely accessible data object pointed to by <strong>dest</strong> at PE <stron
 operand <strong>value</strong>.</p>
 </section>
 <section id="ishmem-atomic-and">
-<h3>ISHMEM_ATOMIC_AND<a class="headerlink" href="#ishmem-atomic-and" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_AND<a class="headerlink" href="#ishmem-atomic-and" title="Link to this heading">#</a></h3>
 <p>Atomically perform a non-fetching bitwise AND operation on a remote data
 object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E17ishmem_atomic_andvP4TYPE4TYPEi">
-<span id="_CPPv3I0E17ishmem_atomic_andP4TYPE4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_andP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_and</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_andvP4TYPE4TYPEi" title="ishmem_atomic_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_andvP4TYPE4TYPEi" title="ishmem_atomic_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_andvP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E17ishmem_atomic_andP4TYPE4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_andP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_and</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_andvP4TYPE4TYPEi" title="ishmem_atomic_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_andvP4TYPE4TYPEi" title="ishmem_atomic_and::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_andvP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_atomic_andP4TYPE4TYPEi">
-<span id="_CPPv326ishmem_TYPENAME_atomic_andP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_andP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_and__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_and</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_andP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv326ishmem_TYPENAME_atomic_andP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_andP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_and__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_and</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_andP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -854,18 +958,18 @@ remotely accessible data object pointed to by <strong>dest</strong> at PE <stron
 operand <strong>value</strong>.</p>
 </section>
 <section id="ishmem-atomic-fetch-or">
-<h3>ISHMEM_ATOMIC_FETCH_OR<a class="headerlink" href="#ishmem-atomic-fetch-or" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_OR<a class="headerlink" href="#ishmem-atomic-fetch-or" title="Link to this heading">#</a></h3>
 <p>Atomically perform a fetching bitwise OR operation on a remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi">
-<span id="_CPPv3I0E22ishmem_atomic_fetch_orP4TYPE4TYPEi"></span><span id="_CPPv2I0E22ishmem_atomic_fetch_orP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_or</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E22ishmem_atomic_fetch_orP4TYPE4TYPEi"></span><span id="_CPPv2I0E22ishmem_atomic_fetch_orP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_or</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv431ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi">
-<span id="_CPPv331ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi"></span><span id="_CPPv231ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_or__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_or</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv331ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi"></span><span id="_CPPv231ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_or__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_or</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -887,19 +991,19 @@ remotely accessible data object pointed to by <strong>dest</strong> at PE <stron
 operand <strong>value</strong>.</p>
 </section>
 <section id="ishmem-atomic-or">
-<h3>ISHMEM_ATOMIC_OR<a class="headerlink" href="#ishmem-atomic-or" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_OR<a class="headerlink" href="#ishmem-atomic-or" title="Link to this heading">#</a></h3>
 <p>Atomically perform a non-fetching bitwise OR operation on a remote data
 object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E16ishmem_atomic_orvP4TYPE4TYPEi">
-<span id="_CPPv3I0E16ishmem_atomic_orP4TYPE4TYPEi"></span><span id="_CPPv2I0E16ishmem_atomic_orP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_or</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E16ishmem_atomic_orvP4TYPE4TYPEi" title="ishmem_atomic_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E16ishmem_atomic_orvP4TYPE4TYPEi" title="ishmem_atomic_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E16ishmem_atomic_orvP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E16ishmem_atomic_orP4TYPE4TYPEi"></span><span id="_CPPv2I0E16ishmem_atomic_orP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_or</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E16ishmem_atomic_orvP4TYPE4TYPEi" title="ishmem_atomic_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E16ishmem_atomic_orvP4TYPE4TYPEi" title="ishmem_atomic_or::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E16ishmem_atomic_orvP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv425ishmem_TYPENAME_atomic_orP4TYPE4TYPEi">
-<span id="_CPPv325ishmem_TYPENAME_atomic_orP4TYPE4TYPEi"></span><span id="_CPPv225ishmem_TYPENAME_atomic_orP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_or__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_or</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425ishmem_TYPENAME_atomic_orP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv325ishmem_TYPENAME_atomic_orP4TYPE4TYPEi"></span><span id="_CPPv225ishmem_TYPENAME_atomic_orP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_or__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_or</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425ishmem_TYPENAME_atomic_orP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -921,19 +1025,19 @@ remotely accessible data object pointed to by <strong>dest</strong> at PE <stron
 operand <strong>value</strong>.</p>
 </section>
 <section id="ishmem-atomic-fetch-xor">
-<h3>ISHMEM_ATOMIC_FETCH_XOR<a class="headerlink" href="#ishmem-atomic-fetch-xor" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_XOR<a class="headerlink" href="#ishmem-atomic-fetch-xor" title="Link to this heading">#</a></h3>
 <p>Atomically perform a fetching bitwise exclusive OR (XOR) operation on a
 remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi">
-<span id="_CPPv3I0E23ishmem_atomic_fetch_xorP4TYPE4TYPEi"></span><span id="_CPPv2I0E23ishmem_atomic_fetch_xorP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_xor</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E23ishmem_atomic_fetch_xorP4TYPE4TYPEi"></span><span id="_CPPv2I0E23ishmem_atomic_fetch_xorP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_xor</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi" title="ishmem_atomic_fetch_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv432ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi">
-<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_xor__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_xor</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_xor__TYPEP.TYPE.i"></span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_xor</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -955,19 +1059,19 @@ remotely accessible data object pointed to by <strong>dest</strong> at PE <stron
 operand <strong>value</strong>.</p>
 </section>
 <section id="ishmem-atomic-xor">
-<h3>ISHMEM_ATOMIC_XOR<a class="headerlink" href="#ishmem-atomic-xor" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_XOR<a class="headerlink" href="#ishmem-atomic-xor" title="Link to this heading">#</a></h3>
 <p>Atomically perform a non-fetching bitwise exclusive OR (XOR) operation on a
 remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi">
-<span id="_CPPv3I0E17ishmem_atomic_xorP4TYPE4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_xorP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_xor</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi" title="ishmem_atomic_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi" title="ishmem_atomic_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv3I0E17ishmem_atomic_xorP4TYPE4TYPEi"></span><span id="_CPPv2I0E17ishmem_atomic_xorP4TYPE4TYPEi"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_xor</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi" title="ishmem_atomic_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi" title="ishmem_atomic_xor::TYPE"><span class="n"><span class="pre">TYPE</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv426ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi">
-<span id="_CPPv326ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_xor__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_xor</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv326ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_xor__TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_xor</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -990,21 +1094,21 @@ operand <strong>value</strong>.</p>
 </section>
 </section>
 <section id="non-blocking-atomic-memory-operations">
-<h2>Non-blocking Atomic Memory Operations<a class="headerlink" href="#non-blocking-atomic-memory-operations" title="Permalink to this heading">#</a></h2>
+<h2>Non-blocking Atomic Memory Operations<a class="headerlink" href="#non-blocking-atomic-memory-operations" title="Link to this heading">#</a></h2>
 <section id="ishmem-atomic-fetch-nbi">
-<h3>ISHMEM_ATOMIC_FETCH_NBI<a class="headerlink" href="#ishmem-atomic-fetch-nbi" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_NBI<a class="headerlink" href="#ishmem-atomic-fetch-nbi" title="Link to this heading">#</a></h3>
 <p>The nonblocking atomic fetch routine provides a method for atomically fetching
 the value of a remote data object.</p>
 <p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv423ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi">
-<span id="_CPPv323ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="_CPPv223ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="ishmem_atomic_fetch_nbi__TYPEP.TYPECP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv323ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="_CPPv223ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="ishmem_atomic_fetch_nbi__TYPEP.TYPECP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv432ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi">
-<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_nbi__TYPEP.TYPECP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv332ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="_CPPv232ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_nbi__TYPEP.TYPECP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1033,19 +1137,19 @@ At the completion of <a class="reference internal" href="memory_ordering.html#is
 data object.</p>
 </section>
 <section id="ishmem-atomic-compare-swap-nbi">
-<h3>ISHMEM_ATOMIC_COMPARE_SWAP_NBI<a class="headerlink" href="#ishmem-atomic-compare-swap-nbi" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_COMPARE_SWAP_NBI<a class="headerlink" href="#ishmem-atomic-compare-swap-nbi" title="Link to this heading">#</a></h3>
 <p>The nonblocking atomic routine provides a method for performing an atomic
 conditional swap on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv430ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi">
-<span id="_CPPv330ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="_CPPv230ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="ishmem_atomic_compare_swap_nbi__TYPEP.TYPEP.TYPE.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_compare_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv330ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="_CPPv230ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="ishmem_atomic_compare_swap_nbi__TYPEP.TYPEP.TYPE.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_compare_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv439ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi">
-<span id="_CPPv339ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="_CPPv239ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_compare_swap_nbi__TYPEP.TYPEP.TYPE.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_compare_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv439ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv339ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="_CPPv239ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_compare_swap_nbi__TYPEP.TYPEP.TYPE.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_compare_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv439ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1078,19 +1182,19 @@ the contents of value have been conditionally updated into <strong>dest</strong>
 remote PE <strong>pe</strong>.</p>
 </section>
 <section id="ishmem-atomic-swap-nbi">
-<h3>ISHMEM_ATOMIC_SWAP_NBI<a class="headerlink" href="#ishmem-atomic-swap-nbi" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_SWAP_NBI<a class="headerlink" href="#ishmem-atomic-swap-nbi" title="Link to this heading">#</a></h3>
 <p>This nonblocking atomic operation performs an atomic swap to a remote data
 object.</p>
 <p>Below, TYPE is one of the extended AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#extamotypes"><span class="std std-ref">Extended AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv422ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv322ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv222ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_swap_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv322ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv222ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_swap_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv431ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv331ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv231ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_swap_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv331ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv231ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_swap_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_swap_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1119,19 +1223,19 @@ into <strong>dest</strong> on PE <strong>pe</strong> and fetched the prior conte
 <strong>fetch</strong> local data object.</p>
 </section>
 <section id="ishmem-atomic-fetch-inc-nbi">
-<h3>ISHMEM_ATOMIC_FETCH_INC_NBI<a class="headerlink" href="#ishmem-atomic-fetch-inc-nbi" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_INC_NBI<a class="headerlink" href="#ishmem-atomic-fetch-inc-nbi" title="Link to this heading">#</a></h3>
 <p>This nonblocking atomic routine performs an atomic fetch-and-increment
 operation on a remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv427ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi">
-<span id="_CPPv327ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="ishmem_atomic_fetch_inc_nbi__TYPEP.TYPEP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_inc_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv327ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="ishmem_atomic_fetch_inc_nbi__TYPEP.TYPEP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_inc_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv436ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi">
-<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_inc_nbi__TYPEP.TYPEP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_inc_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_inc_nbi__TYPEP.TYPEP.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_inc_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1160,19 +1264,19 @@ At the completion of <a class="reference internal" href="memory_ordering.html#is
 into the <strong>fetch</strong> local data object.</p>
 </section>
 <section id="ishmem-atomic-fetch-add-nbi">
-<h3>ISHMEM_ATOMIC_FETCH_ADD_NBI<a class="headerlink" href="#ishmem-atomic-fetch-add-nbi" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_ADD_NBI<a class="headerlink" href="#ishmem-atomic-fetch-add-nbi" title="Link to this heading">#</a></h3>
 <p>This nonblocking atomic routine performs an atomic fetch-and-add operation on a
 remote data object.</p>
 <p>Below, TYPE is one of the standard AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#stdamotypes"><span class="std std-ref">Standard AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv427ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv327ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_add_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_add_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv327ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_add_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_add_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv436ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_add_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_add_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_add_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_add_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1204,19 +1308,19 @@ added to <strong>dest</strong> on PE <strong>pe</strong> and the prior contents 
 the <strong>fetch</strong> local data object.</p>
 </section>
 <section id="ishmem-atomic-fetch-and-nbi">
-<h3>ISHMEM_ATOMIC_FETCH_AND_NBI<a class="headerlink" href="#ishmem-atomic-fetch-and-nbi" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_AND_NBI<a class="headerlink" href="#ishmem-atomic-fetch-and-nbi" title="Link to this heading">#</a></h3>
 <p>This nonblocking atomic operation performs an atomic fetching bitwise AND
 operation on a remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv427ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv327ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_and_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_and_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv327ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_and_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_and_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv436ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_and_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_and_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_and_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_and_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1248,19 +1352,19 @@ performed a fetching bitwise AND on <strong>dest</strong> at PE <strong>pe</stro
 data object.</p>
 </section>
 <section id="ishmem-atomic-fetch-or-nbi">
-<h3>ISHMEM_ATOMIC_FETCH_OR_NBI<a class="headerlink" href="#ishmem-atomic-fetch-or-nbi" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_OR_NBI<a class="headerlink" href="#ishmem-atomic-fetch-or-nbi" title="Link to this heading">#</a></h3>
 <p>This nonblocking atomic operation performs an atomic fetching bitwise OR
 operation on a remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv426ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv326ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_or_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_or_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv326ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv226ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_or_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_or_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv435ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv335ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv235ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_or_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_or_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv435ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv335ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv235ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_or_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_or_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv435ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1292,19 +1396,19 @@ performed a fetching bitwise OR on <strong>dest</strong> at PE <strong>pe</stron
 data object.</p>
 </section>
 <section id="ishmem-atomic-fetch-xor-nbi">
-<h3>ISHMEM_ATOMIC_FETCH_XOR_NBI<a class="headerlink" href="#ishmem-atomic-fetch-xor-nbi" title="Permalink to this heading">#</a></h3>
+<h3>ISHMEM_ATOMIC_FETCH_XOR_NBI<a class="headerlink" href="#ishmem-atomic-fetch-xor-nbi" title="Link to this heading">#</a></h3>
 <p>This nonblocking atomic operation performs an atomic fetching bitwise XOR
 operation on a remote data object.</p>
 <p>Below, TYPE is one of the bitwise AMO types and has a corresponding TYPENAME
 specified by the <a class="reference internal" href="#bitamotypes"><span class="std std-ref">Bitwise AMO Types table</span></a>.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv427ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv327ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_xor_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_xor_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv327ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv227ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_atomic_fetch_xor_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_atomic_fetch_xor_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv436ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi">
-<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_xor_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_xor_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv336ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="_CPPv236ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"></span><span id="ishmem_TYPENAME_atomic_fetch_xor_nbi__TYPEP.TYPEP.TYPE.i"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_TYPENAME_atomic_fetch_xor_nbi</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fetch</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">TYPE</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pe</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1347,7 +1451,7 @@ data object.</p>
               
               
                 <footer class="prev-next-footer">
-                  <!-- Previous / next buttons -->
+                  
 <div class="prev-next-area">
     <a class="left-prev"
        href="rma.html"
@@ -1376,6 +1480,7 @@ data object.</p>
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
   <div class="sidebar-secondary-item">
   <div class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
@@ -1383,31 +1488,119 @@ data object.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#blocking-atomic-memory-operations">Blocking Atomic Memory Operations</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch">ISHMEM_ATOMIC_FETCH</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E19ishmem_atomic_fetch4TYPEPK4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv428ishmem_TYPENAME_atomic_fetchPK4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-set">ISHMEM_ATOMIC_SET</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_setvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_set()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_setP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_set()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap">ISHMEM_ATOMIC_COMPARE_SWAP</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E26ishmem_atomic_compare_swap4TYPEP4TYPE4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_compare_swap()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv435ishmem_TYPENAME_atomic_compare_swapP4TYPE4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_compare_swap()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap">ISHMEM_ATOMIC_SWAP</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E18ishmem_atomic_swap4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_swap()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_TYPENAME_atomic_swapP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_swap()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc">ISHMEM_ATOMIC_FETCH_INC</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E23ishmem_atomic_fetch_inc4TYPEP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_inc()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_incP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_inc()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-inc">ISHMEM_ATOMIC_INC</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_incvP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_inc()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_incP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_inc()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add">ISHMEM_ATOMIC_FETCH_ADD</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E23ishmem_atomic_fetch_add4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_add()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_addP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_add()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-add">ISHMEM_ATOMIC_ADD</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_addvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_add()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_addP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_add()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and">ISHMEM_ATOMIC_FETCH_AND</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E23ishmem_atomic_fetch_and4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_and()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_andP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_and()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-and">ISHMEM_ATOMIC_AND</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_andvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_and()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_andP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_and()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or">ISHMEM_ATOMIC_FETCH_OR</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E22ishmem_atomic_fetch_or4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_or()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv431ishmem_TYPENAME_atomic_fetch_orP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_or()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-or">ISHMEM_ATOMIC_OR</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E16ishmem_atomic_orvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_or()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425ishmem_TYPENAME_atomic_orP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_or()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor">ISHMEM_ATOMIC_FETCH_XOR</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E23ishmem_atomic_fetch_xor4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_xor()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_xorP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_xor()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-xor">ISHMEM_ATOMIC_XOR</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0E17ishmem_atomic_xorvP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_xor()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_TYPENAME_atomic_xorP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_xor()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-blocking-atomic-memory-operations">Non-blocking Atomic Memory Operations</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-nbi">ISHMEM_ATOMIC_FETCH_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap-nbi">ISHMEM_ATOMIC_COMPARE_SWAP_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap-nbi">ISHMEM_ATOMIC_SWAP_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc-nbi">ISHMEM_ATOMIC_FETCH_INC_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add-nbi">ISHMEM_ATOMIC_FETCH_ADD_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and-nbi">ISHMEM_ATOMIC_FETCH_AND_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or-nbi">ISHMEM_ATOMIC_FETCH_OR_NBI</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor-nbi">ISHMEM_ATOMIC_FETCH_XOR_NBI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-nbi">ISHMEM_ATOMIC_FETCH_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423ishmem_atomic_fetch_nbiP4TYPEPK4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432ishmem_TYPENAME_atomic_fetch_nbiP4TYPEPK4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-compare-swap-nbi">ISHMEM_ATOMIC_COMPARE_SWAP_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430ishmem_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_compare_swap_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv439ishmem_TYPENAME_atomic_compare_swap_nbiP4TYPEP4TYPE4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_compare_swap_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-swap-nbi">ISHMEM_ATOMIC_SWAP_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422ishmem_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_swap_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv431ishmem_TYPENAME_atomic_swap_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_swap_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-inc-nbi">ISHMEM_ATOMIC_FETCH_INC_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_atomic_fetch_inc_nbiP4TYPEP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_inc_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_inc_nbiP4TYPEP4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_inc_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-add-nbi">ISHMEM_ATOMIC_FETCH_ADD_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_add_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_add_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_add_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-and-nbi">ISHMEM_ATOMIC_FETCH_AND_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_and_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_and_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_and_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-or-nbi">ISHMEM_ATOMIC_FETCH_OR_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426ishmem_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_or_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv435ishmem_TYPENAME_atomic_fetch_or_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_or_nbi()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-atomic-fetch-xor-nbi">ISHMEM_ATOMIC_FETCH_XOR_NBI</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427ishmem_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_atomic_fetch_xor_nbi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv436ishmem_TYPENAME_atomic_fetch_xor_nbiP4TYPEP4TYPE4TYPEi"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_atomic_fetch_xor_nbi()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1431,6 +1624,7 @@ By Intel Corporation
   
   <div class="footer-item">
     
+
   <p class="copyright">
     
       © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
@@ -1457,8 +1651,8 @@ By Intel Corporation
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
   <footer class="bd-footer">
   </footer>

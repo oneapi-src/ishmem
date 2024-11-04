@@ -34,6 +34,7 @@ Intel® SHMEM
    :caption: Intel® SHMEM API
 
    library_setup_exit_query
+   thread_support
    memory_management
    teams
    rma
@@ -67,10 +68,12 @@ Intel® SHMEM
 
 .. toctree::
    :maxdepth: 3
-   :caption: Writing and Running Programs
+   :caption: Build, Write, and Run Programs
 
+   building_ishmem
    writing_programs
    compiling_and_running_programs
+   ishmem_in_devcloud
 
 .. toctree::
    :maxdepth: 3

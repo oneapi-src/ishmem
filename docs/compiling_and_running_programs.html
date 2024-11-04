@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" >
+<html lang="en" data-content_root="./" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Compiling and Running Programs &#8212; Documentation for Intel® SHMEM</title>
   
@@ -19,34 +18,34 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="_static/documentation_options.js?v=db04a367"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'compiling_and_running_programs';</script>
     <link rel="canonical" href="oneapi-src.github.io/ishmem/compiling_and_running_programs.html" />
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Acknowledgements" href="acknowledgements.html" />
+    <link rel="next" title="Using Intel® SHMEM in Intel® Tiber™ AI Cloud" href="ishmem_in_devcloud.html" />
     <link rel="prev" title="Writing Intel® SHMEM Programs" href="writing_programs.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -57,10 +56,9 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>
@@ -101,11 +99,14 @@
 </form></div>
   </div>
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
-    </nav>
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
+      
+      
       
       <div class="bd-sidebar-primary bd-sidebar">
         
@@ -120,6 +121,7 @@
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item">
+
   
 
 <a class="navbar-brand logo" href="index.html">
@@ -138,7 +140,18 @@
   
   
 </a></div>
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
 <ul class="nav bd-sidenav">
@@ -156,9 +169,8 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
@@ -169,10 +181,12 @@
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build, Write, and Run Programs</span></p>
 <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="building_ishmem.html">Building Intel® SHMEM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Compiling and Running Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
 <ul class="nav bd-sidenav">
@@ -285,6 +299,7 @@
 </button>
 
 
+
 <script>
 document.write(`
   <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -294,6 +309,7 @@ document.write(`
   </button>
 `);
 </script>
+
 
 <script>
 document.write(`
@@ -325,10 +341,10 @@ document.write(`
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <section id="compiling-and-running-programs">
-<span id="id1"></span><h1>Compiling and Running Programs<a class="headerlink" href="#compiling-and-running-programs" title="Permalink to this heading">#</a></h1>
+<span id="id1"></span><h1>Compiling and Running Programs<a class="headerlink" href="#compiling-and-running-programs" title="Link to this heading">#</a></h1>
 <p>Let’s consider the simple example program from Section <a class="reference internal" href="writing_programs.html#writing-programs"><span class="std std-ref">Writing Intel®
 SHMEM Programs</span></a> and assume the code is in a file called
 <code class="docutils literal notranslate"><span class="pre">ishmem_example.cpp</span></code>.</p>
@@ -340,6 +356,10 @@ For example:</p>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">ISHMEM_INSTALL_DIR</span></code> is the path to the Intel® SHMEM
 installation directory.</p>
+<p>While building Intel® SHMEM with the <code class="docutils literal notranslate"><span class="pre">ENABLE_OPENSHMEM</span></code> CMake option enabled, it
+may be convenient to use the <code class="docutils literal notranslate"><span class="pre">oshc++</span></code> compiler wrapper (instead of <code class="docutils literal notranslate"><span class="pre">icpx</span></code>
+directly) to easily include the necessary compilation flags that enable the host
+OpenSHMEM back-end.</p>
 <p>Intel® SHMEM provides a launcher script, <code class="docutils literal notranslate"><span class="pre">ishmrun</span></code> that
 assigns the environment variable <strong>ZE_AFFINITY_MASK</strong> so that each PE is
 assigned a single SYCL device.
@@ -351,6 +371,16 @@ on your user path and use of the Portable Batch System launcher:</p>
 </pre></div>
 </div>
 <p>This will launch the example program on 12 PEs with 6 PEs per compute node.</p>
+<p>As described in section <a class="reference internal" href="building_ishmem.html#building-ishmem"><span class="std std-ref">Building Intel® SHMEM</span></a>, the
+following environment variables may be required for execution, depending on the
+Intel® SHMEM build configuration:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ISHMEM_RUNTIME</span>
+<span class="n">ISHMEM_SHMEM_LIB_NAME</span>
+<span class="n">ISHMEM_RUNTIME_USE_OSHMPI</span>
+</pre></div>
+</div>
+<p>See section <a class="reference internal" href="library_constants.html#library-constants"><span class="std std-ref">Library Constants</span></a> for more information
+about these variables.</p>
 </section>
 
 
@@ -362,7 +392,7 @@ on your user path and use of the Portable Batch System launcher:</p>
               
               
                 <footer class="prev-next-footer">
-                  <!-- Previous / next buttons -->
+                  
 <div class="prev-next-area">
     <a class="left-prev"
        href="writing_programs.html"
@@ -374,11 +404,11 @@ on your user path and use of the Portable Batch System launcher:</p>
       </div>
     </a>
     <a class="right-next"
-       href="acknowledgements.html"
+       href="ishmem_in_devcloud.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Acknowledgements</p>
+        <p class="prev-next-title">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -388,6 +418,8 @@ on your user path and use of the Portable Batch System launcher:</p>
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"></div>
               
             
           </div>
@@ -405,6 +437,7 @@ By Intel Corporation
   
   <div class="footer-item">
     
+
   <p class="copyright">
     
       © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
@@ -431,8 +464,8 @@ By Intel Corporation
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
   <footer class="bd-footer">
   </footer>

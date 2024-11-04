@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" >
+<html lang="en" data-content_root="./" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Library Constants &#8212; Documentation for Intel® SHMEM</title>
   
@@ -19,28 +18,28 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="_static/documentation_options.js?v=db04a367"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'library_constants';</script>
     <link rel="canonical" href="oneapi-src.github.io/ishmem/library_constants.html" />
@@ -58,10 +57,9 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>
@@ -102,11 +100,14 @@
 </form></div>
   </div>
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
-    </nav>
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
+      
+      
       
       <div class="bd-sidebar-primary bd-sidebar">
         
@@ -121,6 +122,7 @@
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item">
+
   
 
 <a class="navbar-brand logo" href="index.html">
@@ -139,7 +141,18 @@
   
   
 </a></div>
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
 <ul class="nav bd-sidenav">
@@ -157,9 +170,8 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
@@ -170,10 +182,12 @@
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build, Write, and Run Programs</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="building_ishmem.html">Building Intel® SHMEM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
 <ul class="nav bd-sidenav">
@@ -286,6 +300,7 @@
 </button>
 
 
+
 <script>
 document.write(`
   <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -295,6 +310,7 @@ document.write(`
   </button>
 `);
 </script>
+
 
 <script>
 document.write(`
@@ -339,41 +355,130 @@ document.write(`
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <section id="library-constants">
-<span id="id1"></span><h1>Library Constants<a class="headerlink" href="#library-constants" title="Permalink to this heading">#</a></h1>
+<span id="id1"></span><h1>Library Constants<a class="headerlink" href="#library-constants" title="Link to this heading">#</a></h1>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_THREAD_SINGLE">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_THREAD_SINGLE</span></span></span><a class="headerlink" href="#c.ISHMEM_THREAD_SINGLE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>The thread support level which specifies that the program must not be multithreaded.
+See Section <a class="reference internal" href="thread_support.html#thread-support-routines"><span class="std std-ref">Thread Support</span></a> for more
+detail about its use.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_THREAD_FUNNELED">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_THREAD_FUNNELED</span></span></span><a class="headerlink" href="#c.ISHMEM_THREAD_FUNNELED" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>The thread support level which specifies that the program may be multithreaded
+but must ensure that only the main thread invokes the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> interfaces.
+See Section <a class="reference internal" href="thread_support.html#thread-support-routines"><span class="std std-ref">Thread Support</span></a> for more
+detail about its use.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_THREAD_SERIALIZED">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_THREAD_SERIALIZED</span></span></span><a class="headerlink" href="#c.ISHMEM_THREAD_SERIALIZED" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>The thread support level which specifies that the program may be multithreaded
+but must ensure that the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> interfaces are not invoked concurrently
+by multiple threads. See Section <a class="reference internal" href="thread_support.html#thread-support-routines"><span class="std std-ref">Thread Support</span></a> for more
+detail about its use.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_THREAD_MULTIPLE">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_THREAD_MULTIPLE</span></span></span><a class="headerlink" href="#c.ISHMEM_THREAD_MULTIPLE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>The thread support level which specifies that the program may be multithreaded
+and any thread may invoke the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> interfaces. See
+Section <a class="reference internal" href="thread_support.html#thread-support-routines"><span class="std std-ref">Thread Support</span></a> for more
+detail about its use.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_MAJOR_VERSION">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_MAJOR_VERSION</span></span></span><a class="headerlink" href="#c.ISHMEM_MAJOR_VERSION" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_MAJOR_VERSION</span></span></span><a class="headerlink" href="#c.ISHMEM_MAJOR_VERSION" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Integer representing the major version of Intel® SHMEM Specification
 in use.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_MINOR_VERSION">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_MINOR_VERSION</span></span></span><a class="headerlink" href="#c.ISHMEM_MINOR_VERSION" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_MINOR_VERSION</span></span></span><a class="headerlink" href="#c.ISHMEM_MINOR_VERSION" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Integer representing the minor version of Intel® SHMEM Specification
 in use.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_MAX_NAME_LEN">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_MAX_NAME_LEN</span></span></span><a class="headerlink" href="#c.ISHMEM_MAX_NAME_LEN" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_MAX_NAME_LEN</span></span></span><a class="headerlink" href="#c.ISHMEM_MAX_NAME_LEN" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Integer representing the maximum length of <code class="docutils literal notranslate"><span class="pre">ISHMEM_VENDOR_STRING</span></code>.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_VENDOR_STRING">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_VENDOR_STRING</span></span></span><a class="headerlink" href="#c.ISHMEM_VENDOR_STRING" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_VENDOR_STRING</span></span></span><a class="headerlink" href="#c.ISHMEM_VENDOR_STRING" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>String representing vendor defined information of size at  most
 <code class="docutils literal notranslate"><span class="pre">ISHMEM_MAX_NAME_LEN</span></code>. The string <code class="docutils literal notranslate"><span class="pre">ISHMEM_VENDOR_STRING</span></code> is terminated by a
 null character.</p>
 <dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_CMP_EQ">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_CMP_EQ</span></span></span><a class="headerlink" href="#c.ISHMEM_CMP_EQ" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>An integer constant expression corresponding to the “equal to” comparison
+operation.
+See Section <a class="reference internal" href="pt2pt_sync.html#point-to-point"><span class="std std-ref">Point-to-Point Synchronization</span></a> for more
+detail about its use.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_CMP_NE">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_CMP_NE</span></span></span><a class="headerlink" href="#c.ISHMEM_CMP_NE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>An integer constant expression corresponding to the “not equal to” comparison
+operation.
+See Section <a class="reference internal" href="pt2pt_sync.html#point-to-point"><span class="std std-ref">Point-to-Point Synchronization</span></a> for more
+detail about its use.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_CMP_LT">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_CMP_LT</span></span></span><a class="headerlink" href="#c.ISHMEM_CMP_LT" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>An integer constant expression corresponding to the “less than” comparison
+operation.
+See Section <a class="reference internal" href="pt2pt_sync.html#point-to-point"><span class="std std-ref">Point-to-Point Synchronization</span></a> for more
+detail about its use.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_CMP_LE">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_CMP_LE</span></span></span><a class="headerlink" href="#c.ISHMEM_CMP_LE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>An integer constant expression corresponding to the “less than or equal to”
+comparison operation.
+See Section <a class="reference internal" href="pt2pt_sync.html#point-to-point"><span class="std std-ref">Point-to-Point Synchronization</span></a> for more
+detail about its use.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_CMP_GT">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_CMP_GT</span></span></span><a class="headerlink" href="#c.ISHMEM_CMP_GT" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>An integer constant expression corresponding to the “greater than” comparison
+operation.
+See Section <a class="reference internal" href="pt2pt_sync.html#point-to-point"><span class="std std-ref">Point-to-Point Synchronization</span></a> for more
+detail about its use.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_CMP_GE">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_CMP_GE</span></span></span><a class="headerlink" href="#c.ISHMEM_CMP_GE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>An integer constant expression corresponding to the “greater than or equal to”
+comparison operation.
+See Section <a class="reference internal" href="pt2pt_sync.html#point-to-point"><span class="std std-ref">Point-to-Point Synchronization</span></a> for more
+detail about its use.</p>
+<dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_TEAM_INVALID">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_TEAM_INVALID</span></span></span><a class="headerlink" href="#c.ISHMEM_TEAM_INVALID" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_TEAM_INVALID</span></span></span><a class="headerlink" href="#c.ISHMEM_TEAM_INVALID" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>A value corresponding to an invalid team.
@@ -385,10 +490,10 @@ See Section <a class="reference internal" href="teams.html#team"><span class="st
 use.</p>
 </section>
 <section id="library-handles">
-<span id="id2"></span><h1>Library Handles<a class="headerlink" href="#library-handles" title="Permalink to this heading">#</a></h1>
+<span id="id2"></span><h1>Library Handles<a class="headerlink" href="#library-handles" title="Link to this heading">#</a></h1>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_TEAM_WORLD">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_TEAM_WORLD</span></span></span><a class="headerlink" href="#c.ISHMEM_TEAM_WORLD" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_TEAM_WORLD</span></span></span><a class="headerlink" href="#c.ISHMEM_TEAM_WORLD" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Handle of type <strong>ishmem_team_t</strong> that corresponds to the world team that
@@ -400,7 +505,7 @@ See Section <a class="reference internal" href="teams.html#team"><span class="st
 use.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_TEAM_SHARED">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_TEAM_SHARED</span></span></span><a class="headerlink" href="#c.ISHMEM_TEAM_SHARED" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_TEAM_SHARED</span></span></span><a class="headerlink" href="#c.ISHMEM_TEAM_SHARED" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Handle of type <strong>ishmem_team_t</strong> that corresponds to a team of PEs that share
@@ -416,25 +521,25 @@ See Section <a class="reference internal" href="teams.html#team"><span class="st
 use.</p>
 </section>
 <section id="environment-variables">
-<span id="env-vars"></span><h1>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this heading">#</a></h1>
+<span id="env-vars"></span><h1>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading">#</a></h1>
 <p>The Intel® SHMEM specification provides a set of environment
 variables that allows users to configure the implementation and receive
 information about the implementation.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_VERSION">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_VERSION</span></span></span><a class="headerlink" href="#c.ISHMEM_VERSION" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_VERSION</span></span></span><a class="headerlink" href="#c.ISHMEM_VERSION" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>If set to any value, print the library version at startup.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_INFO">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_INFO</span></span></span><a class="headerlink" href="#c.ISHMEM_INFO" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_INFO</span></span></span><a class="headerlink" href="#c.ISHMEM_INFO" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>If set to any value, print helpful text about all these environment variables.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_SYMMETRIC_SIZE">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_SYMMETRIC_SIZE</span></span></span><a class="headerlink" href="#c.ISHMEM_SYMMETRIC_SIZE" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_SYMMETRIC_SIZE</span></span></span><a class="headerlink" href="#c.ISHMEM_SYMMETRIC_SIZE" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Specifies the size (in bytes) of the symmetric heap memory per PE.
@@ -458,13 +563,13 @@ An invalid value for <code class="docutils literal notranslate"><span class="pre
 Intel® SHMEM library to terminate the program.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_DEBUG">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_DEBUG</span></span></span><a class="headerlink" href="#c.ISHMEM_DEBUG" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_DEBUG</span></span></span><a class="headerlink" href="#c.ISHMEM_DEBUG" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>If set to any value, enable debugging messages.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_SHMEM_LIB_NAME">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_SHMEM_LIB_NAME</span></span></span><a class="headerlink" href="#c.ISHMEM_SHMEM_LIB_NAME" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_SHMEM_LIB_NAME</span></span></span><a class="headerlink" href="#c.ISHMEM_SHMEM_LIB_NAME" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Informs the Intel® SHMEM library of the shared object name (e.g.
@@ -472,7 +577,7 @@ Intel® SHMEM library to terminate the program.</p>
 The default value is <code class="docutils literal notranslate"><span class="pre">libsma.so</span></code>.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_ENABLE_GPU_IPC">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_GPU_IPC</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_GPU_IPC" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_GPU_IPC</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_GPU_IPC" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Enables the intra-node inter-process communication (IPC) implementation.
@@ -482,7 +587,7 @@ The value can be set to 0 for situations in which Intel® <span class="math notr
 Link fabric is not available or does not connect all the GPUs.</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_ENABLE_GPU_IPC_PIDFD">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_GPU_IPC_PIDFD</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_GPU_IPC_PIDFD" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_GPU_IPC_PIDFD</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_GPU_IPC_PIDFD" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Enables the pidfd implementation of IPC.
@@ -491,18 +596,35 @@ support the necessary system calls.
 In such cases, use ISHMEM_ENABLE_GPU_IPC_PIDFD=0</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_ENABLE_ACCESSIBLE_HOST_HEAP">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_ACCESSIBLE_HOST_HEAP</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_ACCESSIBLE_HOST_HEAP" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_ACCESSIBLE_HOST_HEAP</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_ACCESSIBLE_HOST_HEAP" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Places symmetric heap in <cite>host</cite> unified shared memory (allocated on the host and
 accessible by the host and device).</p>
 <dl class="c macro">
 <dt class="sig sig-object c" id="c.ISHMEM_ENABLE_VERBOSE_PRINT">
-<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_VERBOSE_PRINT</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_VERBOSE_PRINT" title="Permalink to this definition">#</a><br /></dt>
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_ENABLE_VERBOSE_PRINT</span></span></span><a class="headerlink" href="#c.ISHMEM_ENABLE_VERBOSE_PRINT" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <p>Includes the file, line, and function along with messages printed by the utility
 routines and other output for debug, warning, or error reporting.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_RUNTIME">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_RUNTIME</span></span></span><a class="headerlink" href="#c.ISHMEM_RUNTIME" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>Selects the host back-end library. Valid options are <code class="docutils literal notranslate"><span class="pre">OPENSHMEM</span></code> or <code class="docutils literal notranslate"><span class="pre">MPI</span></code>.
+These options are case-insensitive strings, so <code class="docutils literal notranslate"><span class="pre">OPENSHMEM</span></code>, <code class="docutils literal notranslate"><span class="pre">OpenSHMEM</span></code>,
+<code class="docutils literal notranslate"><span class="pre">opEnshmem</span></code>, etc., select the OpenSHMEM back-end, and <code class="docutils literal notranslate"><span class="pre">MPI</span></code>, <code class="docutils literal notranslate"><span class="pre">mpi</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mPi</span></code>, etc., select the MPI back-end.
+See <a class="reference internal" href="building_ishmem.html#building-ishmem"><span class="std std-ref">Building Intel® SHMEM</span></a> for more information about
+using this variable.</p>
+<dl class="c macro">
+<dt class="sig sig-object c" id="c.ISHMEM_RUNTIME_USE_OSHMPI">
+<span class="sig-name descname"><span class="n"><span class="pre">ISHMEM_RUNTIME_USE_OSHMPI</span></span></span><a class="headerlink" href="#c.ISHMEM_RUNTIME_USE_OSHMPI" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<p>Indicates whether the host back-end is the OSHMPI library.</p>
 </section>
 
 
@@ -514,7 +636,7 @@ routines and other output for debug, warning, or error reporting.</p>
               
               
                 <footer class="prev-next-footer">
-                  <!-- Previous / next buttons -->
+                  
 <div class="prev-next-area">
     <a class="left-prev"
        href="supported_features.html"
@@ -542,6 +664,7 @@ routines and other output for debug, warning, or error reporting.</p>
             
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
 
   <div class="sidebar-secondary-item">
   <div class="page-toc tocsection onthispage">
@@ -574,6 +697,7 @@ By Intel Corporation
   
   <div class="footer-item">
     
+
   <p class="copyright">
     
       © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
@@ -600,8 +724,8 @@ By Intel Corporation
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
   <footer class="bd-footer">
   </footer>

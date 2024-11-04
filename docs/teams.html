@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" >
+<html lang="en" data-content_root="./" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Team Management Routines &#8212; Documentation for Intel® SHMEM</title>
   
@@ -19,28 +18,28 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="_static/documentation_options.js?v=db04a367"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'teams';</script>
     <link rel="canonical" href="oneapi-src.github.io/ishmem/teams.html" />
@@ -58,10 +57,9 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>
@@ -102,11 +100,14 @@
 </form></div>
   </div>
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
-    </nav>
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
+      
+      
       
       <div class="bd-sidebar-primary bd-sidebar">
         
@@ -121,6 +122,7 @@
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item">
+
   
 
 <a class="navbar-brand logo" href="index.html">
@@ -139,7 +141,18 @@
   
   
 </a></div>
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
 <ul class="nav bd-sidenav">
@@ -157,9 +170,8 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
@@ -170,10 +182,12 @@
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build, Write, and Run Programs</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="building_ishmem.html">Building Intel® SHMEM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
 <ul class="nav bd-sidenav">
@@ -286,6 +300,7 @@
 </button>
 
 
+
 <script>
 document.write(`
   <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -295,6 +310,7 @@ document.write(`
   </button>
 `);
 </script>
+
 
 <script>
 document.write(`
@@ -328,16 +344,41 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#predefined-and-application-defined-teams">Predefined and Application-Defined Teams</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#team-handles">Team Handles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#thread-safety">Thread Safety</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#collective-ordering">Collective Ordering</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#team-creation">Team Creation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-my-pe">ISHMEM_TEAM_MY_PE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-n-pes">ISHMEM_TEAM_N_PES</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-config-t">ISHMEM_TEAM_CONFIG_T</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-get-config">ISHMEM_TEAM_GET_CONFIG</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-translate-pe">ISHMEM_TEAM_TRANSLATE_PE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-strided">ISHMEM_TEAM_SPLIT_STRIDED</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-2d">ISHMEM_TEAM_SPLIT_2D</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-destroy">ISHMEM_TEAM_DESTROY</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-my-pe">ISHMEM_TEAM_MY_PE</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417ishmem_team_my_pe13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_my_pe()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-n-pes">ISHMEM_TEAM_N_PES</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417ishmem_team_n_pes13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_n_pes()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-config-t">ISHMEM_TEAM_CONFIG_T</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420ishmem_team_config_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_config_t</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-get-config">ISHMEM_TEAM_GET_CONFIG</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-translate-pe">ISHMEM_TEAM_TRANSLATE_PE</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_translate_pe()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-strided">ISHMEM_TEAM_SPLIT_STRIDED</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_split_strided()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-2d">ISHMEM_TEAM_SPLIT_2D</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_split_2d()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-destroy">ISHMEM_TEAM_DESTROY</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419ishmem_team_destroy13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_destroy()</span></code></a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -347,10 +388,10 @@ document.write(`
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <section id="team-management-routines">
-<span id="team"></span><h1>Team Management Routines<a class="headerlink" href="#team-management-routines" title="Permalink to this heading">#</a></h1>
+<span id="team"></span><h1>Team Management Routines<a class="headerlink" href="#team-management-routines" title="Link to this heading">#</a></h1>
 <p>The PEs in an <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> program communicate using either point-to-point
 routines, such as RMA and AMO routines, that specify the PE number of the
 target PE, or collective routines that operate over a set of PEs.
@@ -359,7 +400,7 @@ Team-based collective operations include all PEs in a valid team.
 Point-to-point communication can make use of team-relative PE numbering via PE
 number translation.</p>
 <section id="predefined-and-application-defined-teams">
-<h2>Predefined and Application-Defined Teams<a class="headerlink" href="#predefined-and-application-defined-teams" title="Permalink to this heading">#</a></h2>
+<h2>Predefined and Application-Defined Teams<a class="headerlink" href="#predefined-and-application-defined-teams" title="Link to this heading">#</a></h2>
 <p>An Intel® SHMEM team may be predefined (i.e., provided by the Intel® SHMEM
 library) or defined by the Intel® SHMEM application.
 An application-defined team is created by <cite>splitting</cite> a parent team into one or
@@ -372,7 +413,7 @@ until it is destroyed.
 All valid teams have at least one member.</p>
 </section>
 <section id="team-handles">
-<h2>Team Handles<a class="headerlink" href="#team-handles" title="Permalink to this heading">#</a></h2>
+<h2>Team Handles<a class="headerlink" href="#team-handles" title="Link to this heading">#</a></h2>
 <p>A <cite>team handle</cite> is an opaque object with type <strong>ishmem_team_t</strong> that is used to
 reference a team.
 Team handles are not remotely accessible objects.
@@ -390,8 +431,18 @@ team.
 When managed in this way, applications can use an equality comparison to test
 whether a given team handle references a valid team.</p>
 </section>
+<section id="thread-safety">
+<h2>Thread Safety<a class="headerlink" href="#thread-safety" title="Link to this heading">#</a></h2>
+<p>When it is allowed by the threading model provided by the Intel® SHMEM
+library, a team may be used concurrently in non-collective operations
+(e.g., <a class="reference internal" href="#ishmem-team-my-pe"><span class="std std-ref">ishmem_team_my_pe</span></a>) by multiple threads within the
+PE where it was created.
+A team may not be used concurrently by multiple threads in the same PE for
+collective operations. However, multiple collective operations on different
+teams may be performed in parallel.</p>
+</section>
 <section id="collective-ordering">
-<h2>Collective Ordering<a class="headerlink" href="#collective-ordering" title="Permalink to this heading">#</a></h2>
+<h2>Collective Ordering<a class="headerlink" href="#collective-ordering" title="Link to this heading">#</a></h2>
 <p>In Intel® SHMEM, a team object encapsulates resources used to communicate
 between PEs in collective operations.
 When calling multiple subsequent collective operations on a team, the
@@ -404,7 +455,7 @@ occur in the same program order across all PEs in a team.</p>
 <a class="reference internal" href="collectives.html#collectives"><span class="std std-ref">Collectives</span></a>.</p>
 </section>
 <section id="team-creation">
-<h2>Team Creation<a class="headerlink" href="#team-creation" title="Permalink to this heading">#</a></h2>
+<h2>Team Creation<a class="headerlink" href="#team-creation" title="Link to this heading">#</a></h2>
 <p>Team creation is a collective operation on the parent team object that occurs
 on the host.
 New teams result from an <code class="docutils literal notranslate"><span class="pre">ishmem_team_split_*</span></code> routine, which takes a parent
@@ -437,11 +488,11 @@ child teams will be immediately usable for any team-based operations, including
 creating new child teams, without any intervening synchronization.</p>
 </section>
 <section id="ishmem-team-my-pe">
-<h2>ISHMEM_TEAM_MY_PE<a class="headerlink" href="#ishmem-team-my-pe" title="Permalink to this heading">#</a></h2>
+<span id="id1"></span><h2>ISHMEM_TEAM_MY_PE<a class="headerlink" href="#ishmem-team-my-pe" title="Link to this heading">#</a></h2>
 <p>Returns the number of the calling PE within a specified team.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv417ishmem_team_my_pe13ishmem_team_t">
-<span id="_CPPv317ishmem_team_my_pe13ishmem_team_t"></span><span id="_CPPv217ishmem_team_my_pe13ishmem_team_t"></span><span id="ishmem_team_my_pe__ishmem_team_t"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_my_pe</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417ishmem_team_my_pe13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv317ishmem_team_my_pe13ishmem_team_t"></span><span id="_CPPv217ishmem_team_my_pe13ishmem_team_t"></span><span id="ishmem_team_my_pe__ishmem_team_t"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_my_pe</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417ishmem_team_my_pe13ishmem_team_t" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p>
@@ -467,11 +518,11 @@ For the world team, this routine will return the same value as
 <code class="docutils literal notranslate"><span class="pre">ishmem_my_pe</span></code>.</p>
 </section>
 <section id="ishmem-team-n-pes">
-<h2>ISHMEM_TEAM_N_PES<a class="headerlink" href="#ishmem-team-n-pes" title="Permalink to this heading">#</a></h2>
+<h2>ISHMEM_TEAM_N_PES<a class="headerlink" href="#ishmem-team-n-pes" title="Link to this heading">#</a></h2>
 <p>Returns the number of PEs in a specified team.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv417ishmem_team_n_pes13ishmem_team_t">
-<span id="_CPPv317ishmem_team_n_pes13ishmem_team_t"></span><span id="_CPPv217ishmem_team_n_pes13ishmem_team_t"></span><span id="ishmem_team_n_pes__ishmem_team_t"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_n_pes</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417ishmem_team_n_pes13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv317ishmem_team_n_pes13ishmem_team_t"></span><span id="_CPPv217ishmem_team_n_pes13ishmem_team_t"></span><span id="ishmem_team_n_pes__ishmem_team_t"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_n_pes</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417ishmem_team_n_pes13ishmem_team_t" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p>
@@ -496,19 +547,19 @@ For the world team, this routine will return the same value as
 <code class="docutils literal notranslate"><span class="pre">ishmem_n_pes</span></code>.</p>
 </section>
 <section id="ishmem-team-config-t">
-<span id="id1"></span><h2>ISHMEM_TEAM_CONFIG_T<a class="headerlink" href="#ishmem-team-config-t" title="Permalink to this heading">#</a></h2>
+<span id="id2"></span><h2>ISHMEM_TEAM_CONFIG_T<a class="headerlink" href="#ishmem-team-config-t" title="Link to this heading">#</a></h2>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Intel® SHMEM 1.1.0 ignores <code class="docutils literal notranslate"><span class="pre">ishmem_team_config_t</span></code>, because
+<p>Intel® SHMEM 1.2.0 ignores <code class="docutils literal notranslate"><span class="pre">ishmem_team_config_t</span></code>, because
 communication contexts are not yet supported.</p>
 </div>
 <p>A structure type representing team configuration arguments.</p>
 <dl class="cpp struct">
 <dt class="sig sig-object cpp" id="_CPPv420ishmem_team_config_t">
-<span id="_CPPv320ishmem_team_config_t"></span><span id="_CPPv220ishmem_team_config_t"></span><span id="ishmem_team_config_t"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_config_t</span></span></span><a class="headerlink" href="#_CPPv420ishmem_team_config_t" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv320ishmem_team_config_t"></span><span id="_CPPv220ishmem_team_config_t"></span><span id="ishmem_team_config_t"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_config_t</span></span></span><a class="headerlink" href="#_CPPv420ishmem_team_config_t" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="c var">
 <dt class="sig sig-object c" id="c.num_contexts">
-<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">num_contexts</span></span></span><a class="headerlink" href="#c.num_contexts" title="Permalink to this definition">#</a><br /></dt>
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">num_contexts</span></span></span><a class="headerlink" href="#c.num_contexts" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -560,11 +611,11 @@ A configuration mask value of <strong>0</strong> indicates that the team should 
 </table>
 </section>
 <section id="ishmem-team-get-config">
-<h2>ISHMEM_TEAM_GET_CONFIG<a class="headerlink" href="#ishmem-team-get-config" title="Permalink to this heading">#</a></h2>
+<h2>ISHMEM_TEAM_GET_CONFIG<a class="headerlink" href="#ishmem-team-get-config" title="Link to this heading">#</a></h2>
 <p>Return the configuration parameters of a given team.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv422ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t">
-<span id="_CPPv322ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t"></span><span id="_CPPv222ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t"></span><span id="ishmem_team_get_config__ishmem_team_t.l.ishmem_team_config_tP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_get_config</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">config_mask</span></span>, <a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">config</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv322ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t"></span><span id="_CPPv222ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t"></span><span id="ishmem_team_get_config__ishmem_team_t.l.ishmem_team_config_tP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_get_config</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">config_mask</span></span>, <a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">config</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -588,12 +639,12 @@ performed.
 If <strong>team</strong> is otherwise invalid, the behavior is undefined.</p>
 </section>
 <section id="ishmem-team-translate-pe">
-<h2>ISHMEM_TEAM_TRANSLATE_PE<a class="headerlink" href="#ishmem-team-translate-pe" title="Permalink to this heading">#</a></h2>
+<h2>ISHMEM_TEAM_TRANSLATE_PE<a class="headerlink" href="#ishmem-team-translate-pe" title="Link to this heading">#</a></h2>
 <p>Translate a given PE number from one team to the corresponding PE number in
 another team.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv424ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t">
-<span id="_CPPv324ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t"></span><span id="_CPPv224ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t"></span><span id="ishmem_team_translate_pe__ishmem_team_t.i.ishmem_team_t"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_translate_pe</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">src_team</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">src_pe</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dest_team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv324ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t"></span><span id="_CPPv224ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t"></span><span id="ishmem_team_translate_pe__ishmem_team_t.i.ishmem_team_t"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_translate_pe</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">src_team</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">src_pe</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dest_team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -626,13 +677,13 @@ routine acts as a global PE number translator and will return the corresponding
 <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_WORLD</span></code> number.</p>
 </section>
 <section id="ishmem-team-split-strided">
-<h2>ISHMEM_TEAM_SPLIT_STRIDED<a class="headerlink" href="#ishmem-team-split-strided" title="Permalink to this heading">#</a></h2>
-<p>Create a new Intel SHMEM team from a subset of the existing parent team PEs,
+<h2>ISHMEM_TEAM_SPLIT_STRIDED<a class="headerlink" href="#ishmem-team-split-strided" title="Link to this heading">#</a></h2>
+<p>Create a new Intel® SHMEM team from a subset of the existing parent team PEs,
 where the subset is defined by the PE triplet (<strong>start</strong>, <strong>stride</strong>, and
 <strong>size</strong>) supplied to the routine.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv425ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t">
-<span id="_CPPv325ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="_CPPv225ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="ishmem_team_split_strided__ishmem_team_t.i.i.i.ishmem_team_config_tCP.l.ishmem_team_tP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_split_strided</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">parent_team</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">start</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">stride</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">config</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">config_mask</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">new_team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv325ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="_CPPv225ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="ishmem_team_split_strided__ishmem_team_t.i.i.i.ishmem_team_config_tCP.l.ishmem_team_tP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_split_strided</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">parent_team</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">start</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">stride</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">config</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">config_mask</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">new_team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -713,13 +764,13 @@ Management Routines</span></a> for more information about team handle semantics 
 usage.</p>
 </section>
 <section id="ishmem-team-split-2d">
-<h2>ISHMEM_TEAM_SPLIT_2D<a class="headerlink" href="#ishmem-team-split-2d" title="Permalink to this heading">#</a></h2>
+<h2>ISHMEM_TEAM_SPLIT_2D<a class="headerlink" href="#ishmem-team-split-2d" title="Link to this heading">#</a></h2>
 <p>Create two new teams by splitting an existing parent team into two subsets
 based on a 2D Cartesian space defined by the <strong>xrange</strong> argument and a <cite>y</cite>
 dimension that is derived from <strong>xrange</strong> and the parent team size.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv420ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t">
-<span id="_CPPv320ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="_CPPv220ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="ishmem_team_split_2d__ishmem_team_t.i.ishmem_team_config_tCP.l.ishmem_team_tP.ishmem_team_config_tCP.l.ishmem_team_tP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_split_2d</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">parent_team</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xrange</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">xaxis_config</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xaxis_mask</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">xaxis_team</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">yaxis_config</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">yaxis_mask</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">yaxis_team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv320ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="_CPPv220ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t"></span><span id="ishmem_team_split_2d__ishmem_team_t.i.ishmem_team_config_tCP.l.ishmem_team_tP.ishmem_team_config_tCP.l.ishmem_team_tP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_split_2d</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">parent_team</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xrange</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">xaxis_config</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xaxis_mask</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">xaxis_team</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv420ishmem_team_config_t" title="ishmem_team_config_t"><span class="n"><span class="pre">ishmem_team_config_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">yaxis_config</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">yaxis_mask</span></span>, <span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">yaxis_team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -847,11 +898,11 @@ Management Routines</span></a> for more information about team handle semantics 
 usage.</p>
 </section>
 <section id="ishmem-team-destroy">
-<h2>ISHMEM_TEAM_DESTROY<a class="headerlink" href="#ishmem-team-destroy" title="Permalink to this heading">#</a></h2>
+<h2>ISHMEM_TEAM_DESTROY<a class="headerlink" href="#ishmem-team-destroy" title="Link to this heading">#</a></h2>
 <p>Destroy an existing team.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv419ishmem_team_destroy13ishmem_team_t">
-<span id="_CPPv319ishmem_team_destroy13ishmem_team_t"></span><span id="_CPPv219ishmem_team_destroy13ishmem_team_t"></span><span id="ishmem_team_destroy__ishmem_team_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_destroy</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419ishmem_team_destroy13ishmem_team_t" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv319ishmem_team_destroy13ishmem_team_t"></span><span id="_CPPv219ishmem_team_destroy13ishmem_team_t"></span><span id="ishmem_team_destroy__ishmem_team_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_team_destroy</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ishmem_team_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">team</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419ishmem_team_destroy13ishmem_team_t" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>team</strong> – An <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> team handle.</p>
@@ -884,7 +935,7 @@ If <strong>team</strong> is otherwise invalid, the behavior is undefined.</p>
               
               
                 <footer class="prev-next-footer">
-                  <!-- Previous / next buttons -->
+                  
 <div class="prev-next-area">
     <a class="left-prev"
        href="memory_management.html"
@@ -913,6 +964,7 @@ If <strong>team</strong> is otherwise invalid, the behavior is undefined.</p>
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
   <div class="sidebar-secondary-item">
   <div class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
@@ -921,16 +973,41 @@ If <strong>team</strong> is otherwise invalid, the behavior is undefined.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#predefined-and-application-defined-teams">Predefined and Application-Defined Teams</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#team-handles">Team Handles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#thread-safety">Thread Safety</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#collective-ordering">Collective Ordering</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#team-creation">Team Creation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-my-pe">ISHMEM_TEAM_MY_PE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-n-pes">ISHMEM_TEAM_N_PES</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-config-t">ISHMEM_TEAM_CONFIG_T</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-get-config">ISHMEM_TEAM_GET_CONFIG</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-translate-pe">ISHMEM_TEAM_TRANSLATE_PE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-strided">ISHMEM_TEAM_SPLIT_STRIDED</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-2d">ISHMEM_TEAM_SPLIT_2D</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-destroy">ISHMEM_TEAM_DESTROY</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-my-pe">ISHMEM_TEAM_MY_PE</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417ishmem_team_my_pe13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_my_pe()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-n-pes">ISHMEM_TEAM_N_PES</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417ishmem_team_n_pes13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_n_pes()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-config-t">ISHMEM_TEAM_CONFIG_T</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420ishmem_team_config_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_config_t</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-get-config">ISHMEM_TEAM_GET_CONFIG</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-translate-pe">ISHMEM_TEAM_TRANSLATE_PE</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_translate_pe()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-strided">ISHMEM_TEAM_SPLIT_STRIDED</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_split_strided()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-split-2d">ISHMEM_TEAM_SPLIT_2D</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_split_2d()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-team-destroy">ISHMEM_TEAM_DESTROY</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419ishmem_team_destroy13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_destroy()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -952,6 +1029,7 @@ By Intel Corporation
   
   <div class="footer-item">
     
+
   <p class="copyright">
     
       © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
@@ -978,8 +1056,8 @@ By Intel Corporation
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
   <footer class="bd-footer">
   </footer>

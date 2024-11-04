@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Acknowledgements &#8212; Documentation for Intel® SHMEM</title>
+    <title>Thread Support &#8212; Documentation for Intel® SHMEM</title>
   
   
   
@@ -40,12 +40,13 @@
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'acknowledgements';</script>
-    <link rel="canonical" href="oneapi-src.github.io/ishmem/acknowledgements.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'thread_support';</script>
+    <link rel="canonical" href="oneapi-src.github.io/ishmem/thread_support.html" />
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Using Intel® SHMEM in Intel® Tiber™ AI Cloud" href="ishmem_in_devcloud.html" />
+    <link rel="next" title="Memory Management" href="memory_management.html" />
+    <link rel="prev" title="Library Setup, Exit, and Query Routines" href="library_setup_exit_query.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -167,9 +168,9 @@
 
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Thread Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
@@ -188,8 +189,8 @@
 <li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Acknowledgements</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
 
 
 </ul>
@@ -246,7 +247,7 @@
       
       
       
-      <li><a href="_sources/acknowledgements.rst" target="_blank"
+      <li><a href="_sources/thread_support.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -330,7 +331,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Acknowledgements</h1>
+    <h1>Thread Support</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -340,11 +341,15 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Acknowledgements</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#notices-disclaimers">Notices &amp; Disclaimers</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#copyright">Copyright</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-init-thread">ISHMEM_INIT_THREAD</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418ishmem_init_threadiPi"><code class="docutils literal notranslate"><span class="pre">ishmem_init_thread()</span></code></a></li>
 </ul>
-
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-query-thread">ISHMEM_QUERY_THREAD</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419ishmem_query_threadPi"><code class="docutils literal notranslate"><span class="pre">ishmem_query_thread()</span></code></a></li>
+</ul>
+</li>
+</ul>
             </nav>
         </div>
     </div>
@@ -355,69 +360,150 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="acknowledgements">
-<span id="id1"></span><h1>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading">#</a></h1>
-<p>Intel acknowledges the OpenSHMEM specification and its many contributors. For
-more details on OpenSHMEM, visit <a class="reference external" href="http://openshmem.org">http://openshmem.org</a>.</p>
-<p>Some of the Intel® SHMEM documentation and library routines are
-derived from the OpenSHMEM specification.
-The OpenSHMEM specification belongs to Open Source Software Solutions, Inc.
-(OSSS), a nonprofit organization, under an agreement with HPE.
-Permission to copy without fee all or part of this material is granted,
-provided the OSSS notice and the title of this document appear, and notice is
-given that copying is by permission of OSSS.</p>
-<p>All software downloads produced by the OpenSHMEM project on the OpenSHMEM
-website are provided under the following BSD 3-clause license.</p>
-<p>Copyright (c) 2016 - 2020
-Stony Brook University</p>
-<p>Copyright (c) 2015 - 2020
-Los Alamos National Security, LLC.</p>
-<p>Copyright (c) 2011 - 2016
-University of Houston System and UT-Battelle, LLC.</p>
-<p>Copyright (c) 2009 - 2016
-Silicon Graphics International Corp. SHMEM is copyrighted by Silicon Graphics International Corp. (SGI) The OpenSHMEM API (shmem) is released by Open Source Software Solutions, Inc., under an agreement with Silicon Graphics International Corp. (SGI).</p>
-<p>Copyright (c) 2016-2020
-Open Source Software Solutions (OSSS), Inc.</p>
-<p>Copyright (c) 2016-2017
-Hewlett Packard Enterprise Development LP.</p>
-<p>Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:</p>
-<ul class="simple">
-<li><p>Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimers.</p></li>
-<li><p>Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.</p></li>
-<li><p>Neither the name of the University of Houston System, UT-Battelle, LLC. nor
-the names of its contributors may be used to endorse or promote products
-derived from this software without specific prior written permission.</p></li>
-<li><p>Neither the name of Los Alamos National Security, LLC, Los Alamos National
-Laboratory, LANL, the U.S. Government, nor the names of its contributors may
-be used to endorse or promote products derived from this software without
-specific prior written permission.</p></li>
+  <section id="thread-support">
+<span id="thread-support-routines"></span><h1>Thread Support<a class="headerlink" href="#thread-support" title="Link to this heading">#</a></h1>
+<p>This section specifies the interaction between the Intel® SHMEM interfaces
+and user threads. It also describes the routines that can be used for
+initializing and querying the thread environment. There are four levels
+of threading defined by the specification.</p>
+<p id="thread-level-constants"><strong>Thread Level Constants</strong></p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Thread Levels</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ISHMEM_THREAD_SINGLE</p></td>
+<td><p>The Intel® SHMEM program must not be
+multithreaded.</p></td>
+</tr>
+<tr class="row-odd"><td><p>ISHMEM_THREAD_FUNNELED</p></td>
+<td><p>The Intel® SHMEM program may be multithreaded.
+However, the program must ensure that only the
+main thread invokes the Intel® SHMEM
+interfaces. The main thread is the thread that
+invokes either <a class="reference internal" href="library_setup_exit_query.html#ishmem-init"><span class="std std-ref">ishmem_init</span></a>
+or
+<a class="reference internal" href="#ishmem-init-thread"><span class="std std-ref">ishmem_init_thread</span></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p>ISHMEM_THREAD_SERIALIZED</p></td>
+<td><p>The Intel® SHMEM program may be multithreaded.
+However, the program must ensure that the
+Intel® SHMEM interfaces are not invoked
+concurrently by multiple threads.</p></td>
+</tr>
+<tr class="row-odd"><td><p>ISHMEM_THREAD_MULTIPLE</p></td>
+<td><p>The Intel® SHMEM program may be multithreaded
+and any thread may invoke the Intel® SHMEM
+interfaces.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The thread level constants must have
+increasing integer values; i.e., ISHMEM_THREAD_SINGLE &lt;
+ISHMEM_THREAD_FUNNELED &lt; ISHMEM_THREAD_SERIALIZED &lt; ISHMEM_THREAD_MULTIPLE.</p>
+<p>The following semantics apply to the usage of these models:</p>
+<ol class="arabic simple">
+<li><p>In the ISHMEM_THREAD_FUNNELED, ISHMEM_THREAD_SERIALIZED, and
+ISHMEM_THREAD_MULTIPLE thread levels, the
+<a class="reference internal" href="#ishmem-init-thread"><span class="std std-ref">ishmem_init_thread</span></a> and
+<a class="reference internal" href="library_setup_exit_query.html#ishmem-finalize"><span class="std std-ref">ishmem_finalize</span></a> calls must be invoked by the
+same thread.</p></li>
+<li><p>Any Intel® SHMEM operation initiated by a thread is considered an action of
+the PE as a whole. The symmetric heap and symmetric variables scope are
+not impacted by multiple threads invoking the Intel® SHMEM interfaces.
+Each PE has a single symmetric heap that is shared by all threads within
+that PE. For example, a CPU thread invoking a memory allocation routine
+such as <a class="reference internal" href="memory_management.html#ishmem-malloc"><span class="std std-ref">ishmem_malloc</span></a> allocates memory that is
+accessible by all threads of the PE. The requirement that the same
+symmetric heap operations must be executed by all PEs in the same order
+also applies in a threaded environment. Similarly, the completion of
+collective operations is not impacted by multiple threads. For example,
+<a class="reference internal" href="collectives.html#ishmem-barrier-all"><span class="std std-ref">ishmem_barrier_all</span></a> is completed when all PEs
+enter and exit the call, even though only one thread in the PE is
+participating in the collective call.</p></li>
+<li><p>Blocking Intel® SHMEM calls will only block the calling thread, allowing
+other threads, if available, to continue executing. The calling thread
+will be blocked until the event on which it is waiting occurs. Once the
+blocking call is completed, the thread is ready to continue execution.
+A blocked thread will not prevent progress of other threads on the same PE
+and will not prevent them from executing other Intel® SHMEM calls when the
+thread level permits. In addition, a blocked thread will not prevent the
+progress of Intel® SHMEM calls performed on other PEs.</p></li>
+<li><p>In the ISHMEM_THREAD_MULTIPLE thread level, all Intel® SHMEM calls are
+thread-safe. That is, any two concurrently running threads may make
+Intel® SHMEM calls.</p></li>
+<li><p>In the ISHMEM_THREAD_SERIALIZED and ISHMEM_THREAD_MULTIPLE thread levels,
+if multiple threads call collective routines, including the symmetric
+heap management routines, it is the programmer’s responsibility to
+ensure the correct ordering of collective calls.</p></li>
+</ol>
+<section id="ishmem-init-thread">
+<span id="id1"></span><h2>ISHMEM_INIT_THREAD<a class="headerlink" href="#ishmem-init-thread" title="Link to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418ishmem_init_threadiPi">
+<span id="_CPPv318ishmem_init_threadiPi"></span><span id="_CPPv218ishmem_init_threadiPi"></span><span id="ishmem_init_thread__i.iP"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_init_thread</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">requested</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">provided</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418ishmem_init_threadiPi" title="Link to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>requested</strong> – The thread level support requested by the user.</p></li>
+<li><p><strong>provided</strong> – The thread level support provided by the Intel® SHMEM implementation.</p></li>
 </ul>
-<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>0 upon success; otherwise, a nonzero value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+Initializes the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> library, similar to
+<a class="reference internal" href="library_setup_exit_query.html#ishmem-init"><span class="std std-ref">ishmem_init</span></a> and
+<a class="reference internal" href="library_setup_exit_query.html#id2"><span class="std std-ref">ishmemx_init_attr</span></a>. In addition, it also performs the
+initialization required for supporting the provided thread level.
+The argument <code class="docutils literal notranslate"><span class="pre">requested</span></code> is used to specify the desired level of thread support.
+The argument <code class="docutils literal notranslate"><span class="pre">provided</span></code> returns the support level provided by the library.
+The allowed values for provided and requested are
+ISHMEM_THREAD_SINGLE, ISHMEM_THREAD_FUNNELED, ISHMEM_THREAD_SERIALIZED, and
+ISHMEM_THREAD_MULTIPLE.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>As of Intel® SHMEM 1.2.0, only ISHMEM_THREAD_MULTIPLE is supported for device, host, and on_queue APIs.</p>
+</div>
+<p>At the end of the <code class="docutils literal notranslate"><span class="pre">ishmem</span></code> program which it initialized, the call to
+<code class="docutils literal notranslate"><span class="pre">ishmem_init_thread</span></code> must be matched with a call to <code class="docutils literal notranslate"><span class="pre">ishmem_finalize</span></code>.
+After the first call to <code class="docutils literal notranslate"><span class="pre">ishmem_init_thread</span></code>, a subsequent call to
+<code class="docutils literal notranslate"><span class="pre">ishmem_init</span></code> or <code class="docutils literal notranslate"><span class="pre">ishmemx_init_attr</span></code> or <code class="docutils literal notranslate"><span class="pre">ishmem_init_thread</span></code>
+in the same program results in
+undefined behavior.</p>
 </section>
-<section id="notices-disclaimers">
-<h1>Notices &amp; Disclaimers<a class="headerlink" href="#notices-disclaimers" title="Link to this heading">#</a></h1>
-<p><a href="https://www.intel.com/LegalNoticesAndDisclaimers" target="_blank">Legal Notices and Disclaimers</a></p>
-<p>Intel technologies may require enabled hardware, software or service activation.</p>
-<p>No product or component can be absolutely secure.</p>
-<p>Your costs and results may vary.</p>
-<p>© Intel Corporation.  Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries.  Other names and brands may be claimed as the property of others.</p>
+<section id="ishmem-query-thread">
+<span id="id2"></span><h2>ISHMEM_QUERY_THREAD<a class="headerlink" href="#ishmem-query-thread" title="Link to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419ishmem_query_threadPi">
+<span id="_CPPv319ishmem_query_threadPi"></span><span id="_CPPv219ishmem_query_threadPi"></span><span id="ishmem_query_thread__iP"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_query_thread</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">provided</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419ishmem_query_threadPi" title="Link to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>provided</strong> – The thread level support provided by the Intel® SHMEM implementation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmem_query_thread</span></code> call returns the level of thread support currently
+being provided. The value returned will be same as was returned in provided by
+a call to <code class="docutils literal notranslate"><span class="pre">ishmem_init_thread</span></code> during initialization. If the library was
+initialized by <code class="docutils literal notranslate"><span class="pre">ishmem_init</span></code> or <code class="docutils literal notranslate"><span class="pre">ishmemx_init_attr</span></code>, the implementation can
+choose to provide any one of the defined thread levels, and <code class="docutils literal notranslate"><span class="pre">ishmem_query_thread</span></code>
+returns this thread level.</p>
+<p>This function may be called at any time, regardless of the thread safety level of the library.</p>
 </section>
-<section id="copyright">
-<h1>Copyright<a class="headerlink" href="#copyright" title="Link to this heading">#</a></h1>
-<p><p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">The <a property="dct:title" rel="cc:attributionURL" href="https://oneapi-src.github.io/ishmem">Intel® SHMEM specification</a> © 2023 is licensed under <a href="http://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"></a></p></p>
 </section>
 
 
@@ -432,13 +518,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="ishmem_in_devcloud.html"
+       href="library_setup_exit_query.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</p>
+        <p class="prev-next-title">Library Setup, Exit, and Query Routines</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="memory_management.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Memory Management</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -456,11 +551,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Acknowledgements</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#notices-disclaimers">Notices &amp; Disclaimers</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#copyright">Copyright</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-init-thread">ISHMEM_INIT_THREAD</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418ishmem_init_threadiPi"><code class="docutils literal notranslate"><span class="pre">ishmem_init_thread()</span></code></a></li>
 </ul>
-
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-query-thread">ISHMEM_QUERY_THREAD</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419ishmem_query_threadPi"><code class="docutils literal notranslate"><span class="pre">ishmem_query_thread()</span></code></a></li>
+</ul>
+</li>
+</ul>
   </nav></div>
 
 </div></div>

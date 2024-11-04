@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" >
+<html lang="en" data-content_root="./" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Memory Ordering &#8212; Documentation for Intel® SHMEM</title>
   
@@ -19,28 +18,28 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="_static/documentation_options.js?v=db04a367"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'memory_ordering';</script>
     <link rel="canonical" href="oneapi-src.github.io/ishmem/memory_ordering.html" />
     <link rel="icon" href="_static/favicon.ico"/>
@@ -57,10 +56,9 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>
@@ -101,11 +99,14 @@
 </form></div>
   </div>
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
-    </nav>
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
+      
+      
       
       <div class="bd-sidebar-primary bd-sidebar">
         
@@ -120,6 +121,7 @@
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item">
+
   
 
 <a class="navbar-brand logo" href="index.html">
@@ -138,7 +140,18 @@
   
   
 </a></div>
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
 <ul class="nav bd-sidenav">
@@ -156,9 +169,8 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
@@ -169,10 +181,12 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Memory Ordering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Writing and Running Programs</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build, Write, and Run Programs</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="building_ishmem.html">Building Intel® SHMEM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
 <ul class="nav bd-sidenav">
@@ -285,6 +299,7 @@
 </button>
 
 
+
 <script>
 document.write(`
   <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -294,6 +309,7 @@ document.write(`
   </button>
 `);
 </script>
+
 
 <script>
 document.write(`
@@ -325,10 +341,26 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-fence">ISHMEM_FENCE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-fence-work-group">ISHMEMX_FENCE_WORK_GROUP</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-quiet">ISHMEM_QUIET</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-quiet-work-group">ISHMEMX_QUIET_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-fence">ISHMEM_FENCE</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412ishmem_fencev"><code class="docutils literal notranslate"><span class="pre">ishmem_fence()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-fence-work-group">ISHMEMX_FENCE_WORK_GROUP</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424ishmemx_fence_work_groupRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_fence_work_group()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-quiet">ISHMEM_QUIET</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412ishmem_quietv"><code class="docutils literal notranslate"><span class="pre">ishmem_quiet()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-quiet-on-queue">ISHMEMX_QUIET_ON_QUEUE</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422ishmemx_quiet_on_queueRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_on_queue()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-quiet-work-group">ISHMEMX_QUIET_WORK_GROUP</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424ishmemx_quiet_work_groupRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_work_group()</span></code></a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -338,10 +370,10 @@ document.write(`
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <section id="memory-ordering">
-<span id="id1"></span><h1>Memory Ordering<a class="headerlink" href="#memory-ordering" title="Permalink to this heading">#</a></h1>
+<span id="id1"></span><h1>Memory Ordering<a class="headerlink" href="#memory-ordering" title="Link to this heading">#</a></h1>
 <p id="mem-ordering-impact"><strong>List of Operations affected by Memory Ordering Routines:</strong></p>
 <table class="table">
 <thead>
@@ -384,7 +416,7 @@ document.write(`
 <td><p>X</p></td>
 </tr>
 <tr class="row-even"><td><p>Nonblocking <cite>AMO</cite></p></td>
-<td><p>X <a class="footnote-reference brackets" href="#id5" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
+<td><p>X <a class="footnote-reference brackets" href="#id6" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
 <td><p>X</p></td>
 </tr>
 <tr class="row-odd"><td><p>Nonblocking <cite>put-with-signal</cite></p></td>
@@ -399,11 +431,11 @@ and nonblocking routines. Table <a class="reference internal" href="#mem-orderin
 Memory Ordering Routines</span></a> lists the operations
 affected by Intel® SHMEM memory ordering routines.</p>
 <section id="ishmem-fence">
-<h2>ISHMEM_FENCE<a class="headerlink" href="#ishmem-fence" title="Permalink to this heading">#</a></h2>
+<h2>ISHMEM_FENCE<a class="headerlink" href="#ishmem-fence" title="Link to this heading">#</a></h2>
 <p>Ensures ordering of delivery of operations on symmetric data objects.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv412ishmem_fencev">
-<span id="_CPPv312ishmem_fencev"></span><span id="_CPPv212ishmem_fencev"></span><span id="ishmem_fence__void"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_fence</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_fencev" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv312ishmem_fencev"></span><span id="_CPPv212ishmem_fencev"></span><span id="ishmem_fence__void"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_fence</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_fencev" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None.</p>
@@ -426,11 +458,11 @@ It does not guarantee order of delivery of nonblocking <cite>Get</cite> or value
 by nonblocking AMO routines.</p>
 </section>
 <section id="ishmemx-fence-work-group">
-<h2>ISHMEMX_FENCE_WORK_GROUP<a class="headerlink" href="#ishmemx-fence-work-group" title="Permalink to this heading">#</a></h2>
+<h2>ISHMEMX_FENCE_WORK_GROUP<a class="headerlink" href="#ishmemx-fence-work-group" title="Link to this heading">#</a></h2>
 <p>Ensures ordering of delivery of operations on symmetric data objects.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv424ishmemx_fence_work_groupRK5Group">
-<span id="_CPPv324ishmemx_fence_work_groupRK5Group"></span><span id="_CPPv224ishmemx_fence_work_groupRK5Group"></span><span id="ishmemx_fence_work_group__GroupCR"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_fence_work_group</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">Group</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmemx_fence_work_groupRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv324ishmemx_fence_work_groupRK5Group"></span><span id="_CPPv224ishmemx_fence_work_groupRK5Group"></span><span id="ishmemx_fence_work_group__GroupCR"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_fence_work_group</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">Group</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmemx_fence_work_groupRK5Group" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the fence operation.</p>
@@ -453,12 +485,12 @@ It does not guarantee order of delivery of nonblocking <cite>Get</cite> or value
 by nonblocking AMO routines.</p>
 </section>
 <section id="ishmem-quiet">
-<span id="id3"></span><h2>ISHMEM_QUIET<a class="headerlink" href="#ishmem-quiet" title="Permalink to this heading">#</a></h2>
+<span id="id3"></span><h2>ISHMEM_QUIET<a class="headerlink" href="#ishmem-quiet" title="Link to this heading">#</a></h2>
 <p>Waits for completion of outstanding operations on symmetric data objects
 issued by a PE.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv412ishmem_quietv">
-<span id="_CPPv312ishmem_quietv"></span><span id="_CPPv212ishmem_quietv"></span><span id="ishmem_quiet__void"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_quiet</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_quietv" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv312ishmem_quietv"></span><span id="_CPPv212ishmem_quietv"></span><span id="ishmem_quiet__void"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmem_quiet</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412ishmem_quietv" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None.</p>
@@ -475,14 +507,47 @@ The <code class="docutils literal notranslate"><span class="pre">ishmem_quiet</s
 symmetric data objects issued by the calling PE.</p>
 <p>All operations on symmetric data objects are guaranteed to be complete and
 visible to all PEs when <code class="docutils literal notranslate"><span class="pre">ishmem_quiet</span></code> returns.</p>
+<p>A host-initiated <code class="docutils literal notranslate"><span class="pre">ishmem_quiet</span></code> will only guarantee completion of
+device-initiated operations for which the corresponding SYCL kernel has
+completed execution.</p>
+</section>
+<section id="ishmemx-quiet-on-queue">
+<span id="id4"></span><h2>ISHMEMX_QUIET_ON_QUEUE<a class="headerlink" href="#ishmemx-quiet-on-queue" title="Link to this heading">#</a></h2>
+<p>Waits for completion of outstanding operations on symmetric data objects
+issued by a PE.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422ishmemx_quiet_on_queueRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE">
+<span id="_CPPv322ishmemx_quiet_on_queueRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"></span><span id="_CPPv222ishmemx_quiet_on_queueRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"></span><span id="ishmemx_quiet_on_queue__sycl::queueR.std::vector:sycl::event:CR"></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">event</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_quiet_on_queue</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">queue</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">q</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">deps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422ishmemx_quiet_on_queueRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE" title="Link to this definition">#</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q</strong> – The SYCL queue on which to execute the operation. <strong>q</strong> must be mapped to the GPU tile assigned to the calling PE.</p></li>
+<li><p><strong>deps</strong> – An optional vector of SYCL events that the operation depends on.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The SYCL event created upon submitting the operation to the SYCL runtime.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Callable from the <strong>host</strong>.</p>
+<p><strong>Description:</strong>
+The <code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_on_queue</span></code> routine ensures completion of all operations on
+symmetric data objects issued by the calling PE.</p>
+<p>All operations on symmetric data objects are guaranteed to be complete and
+visible to all PEs when <code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_on_queue</span></code> returns.</p>
+<p>To ensure the quiet operation has completed, refer to the
+<a class="reference internal" href="programming_model.html#on-queue-api-completion-semantics"><span class="std std-ref">on_queue API Completion Semantics</span></a>
+section.</p>
 </section>
 <section id="ishmemx-quiet-work-group">
-<span id="id4"></span><h2>ISHMEMX_QUIET_WORK_GROUP<a class="headerlink" href="#ishmemx-quiet-work-group" title="Permalink to this heading">#</a></h2>
+<span id="id5"></span><h2>ISHMEMX_QUIET_WORK_GROUP<a class="headerlink" href="#ishmemx-quiet-work-group" title="Link to this heading">#</a></h2>
 <p>Waits for completion of outstanding operations on symmetric data objects
 issued by a PE.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv424ishmemx_quiet_work_groupRK5Group">
-<span id="_CPPv324ishmemx_quiet_work_groupRK5Group"></span><span id="_CPPv224ishmemx_quiet_work_groupRK5Group"></span><span id="ishmemx_quiet_work_group__GroupCR"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_quiet_work_group</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">Group</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmemx_quiet_work_groupRK5Group" title="Permalink to this definition">#</a><br /></dt>
+<span id="_CPPv324ishmemx_quiet_work_groupRK5Group"></span><span id="_CPPv224ishmemx_quiet_work_groupRK5Group"></span><span id="ishmemx_quiet_work_group__GroupCR"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ishmemx_quiet_work_group</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">Group</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">group</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424ishmemx_quiet_work_groupRK5Group" title="Link to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>group</strong> – The SYCL <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">sub_group</span></code> on which to collectively perform the quiet operation.</p>
@@ -500,7 +565,7 @@ symmetric data objects issued by the calling PE.</p>
 <p>All operations on symmetric data objects are guaranteed to be complete and
 visible to all PEs when <code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_work_group</span></code> returns.</p>
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id5" role="note">
+<aside class="footnote brackets" id="id6" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
 <p>Intel® SHMEM fence routines does not guarantee order of delivery of
 values fetched by nonblocking AMO routines.</p>
@@ -518,7 +583,7 @@ values fetched by nonblocking AMO routines.</p>
               
               
                 <footer class="prev-next-footer">
-                  <!-- Previous / next buttons -->
+                  
 <div class="prev-next-area">
     <a class="left-prev"
        href="pt2pt_sync.html"
@@ -547,16 +612,33 @@ values fetched by nonblocking AMO routines.</p>
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
   <div class="sidebar-secondary-item">
   <div class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-fence">ISHMEM_FENCE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-fence-work-group">ISHMEMX_FENCE_WORK_GROUP</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-quiet">ISHMEM_QUIET</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-quiet-work-group">ISHMEMX_QUIET_WORK_GROUP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-fence">ISHMEM_FENCE</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412ishmem_fencev"><code class="docutils literal notranslate"><span class="pre">ishmem_fence()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-fence-work-group">ISHMEMX_FENCE_WORK_GROUP</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424ishmemx_fence_work_groupRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_fence_work_group()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmem-quiet">ISHMEM_QUIET</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412ishmem_quietv"><code class="docutils literal notranslate"><span class="pre">ishmem_quiet()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-quiet-on-queue">ISHMEMX_QUIET_ON_QUEUE</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422ishmemx_quiet_on_queueRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_on_queue()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ishmemx-quiet-work-group">ISHMEMX_QUIET_WORK_GROUP</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424ishmemx_quiet_work_groupRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_work_group()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -578,6 +660,7 @@ By Intel Corporation
   
   <div class="footer-item">
     
+
   <p class="copyright">
     
       © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
@@ -604,8 +687,8 @@ By Intel Corporation
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
   <footer class="bd-footer">
   </footer>

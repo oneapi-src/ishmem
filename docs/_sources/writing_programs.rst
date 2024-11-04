@@ -92,5 +92,5 @@ For an overview of more APIs and how they are used in applications, the |ishmem_
 
 .. |ishmem_examples| raw:: html
 
-   <a href="https://github.com/oneapi-src/ishmem/tree/main/examples/SHMEM" target="_blank">Intel® SHMEM examples</a>
+   <a href="https://github.com/oneapi-src/ishmem/tree/main/examples" target="_blank">Intel® SHMEM examples</a>
 

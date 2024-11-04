@@ -53,19 +53,18 @@ team.
 When managed in this way, applications can use an equality comparison to test
 whether a given team handle references a valid team.
 
-.. FIXME : add after thread model section:
 
-.. ^^^^^^^^^^^^^
-.. Thread Safety
-.. ^^^^^^^^^^^^^
-.. 
-.. When it is allowed by the threading model provided by the OpenSHMEM
-.. library, a team may be used concurrently in non-collective operations
-.. (e.g., \FUNC{shmem\_team\_my\_pe}) by multiple threads within the
-.. \ac{PE} where it was created.
-.. A team may not be used concurrently by multiple threads in the same \ac{PE} for
-.. collective operations. However, multiple collective operations on different
-.. teams may be performed in parallel.
+^^^^^^^^^^^^^
+Thread Safety
+^^^^^^^^^^^^^
+
+When it is allowed by the threading model provided by the Intel® SHMEM
+library, a team may be used concurrently in non-collective operations
+(e.g., :ref:`ishmem_team_my_pe<ishmem_team_my_pe>`) by multiple threads within the
+PE where it was created.
+A team may not be used concurrently by multiple threads in the same PE for
+collective operations. However, multiple collective operations on different
+teams may be performed in parallel.
 
 ^^^^^^^^^^^^^^^^^^^
 Collective Ordering
@@ -123,6 +122,9 @@ parent team.
 Upon completion of a team creation operation, the parent and any resulting
 child teams will be immediately usable for any team-based operations, including
 creating new child teams, without any intervening synchronization.
+
+
+.. _ishmem_team_my_pe:
 
 ^^^^^^^^^^^^^^^^^
 ISHMEM_TEAM_MY_PE
@@ -297,7 +299,7 @@ routine acts as a global PE number translator and will return the corresponding
 ISHMEM_TEAM_SPLIT_STRIDED
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Create a new Intel SHMEM team from a subset of the existing parent team PEs,
+Create a new Intel® SHMEM team from a subset of the existing parent team PEs,
 where the subset is defined by the PE triplet (**start**, **stride**, and
 **size**) supplied to the routine.
 

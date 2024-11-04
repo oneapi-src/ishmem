@@ -31,6 +31,8 @@ undefined.
 .. involving the given memory block are pending on other contexts prior to calling
 .. the ``ishmem_free`` and ``ishmem_realloc`` routines.
 
+.. _ishmem_malloc:
+
 ^^^^^^^^^^^^^
 ISHMEM_MALLOC
 ^^^^^^^^^^^^^
@@ -55,6 +57,8 @@ returns a null pointer; otherwise, ``ishmem_malloc`` calls a barrier on exit.
 
 The value of the **size** argument must be identical on all PEs; otherwise, the
 behavior is undefined.
+
+.. _ishmem_free:
 
 ^^^^^^^^^^^
 ISHMEM_FREE
@@ -89,6 +93,8 @@ behavior is undefined.
 ..   :param ptr:
 ..   :param size:
 
+.. _ishmem_align:
+
 ^^^^^^^^^^^^
 ISHMEM_ALIGN
 ^^^^^^^^^^^^
@@ -120,6 +126,8 @@ The memory space is uninitialized.
 ..
 ..  :param size:
 ..  :param hints:
+
+.. _ishmem_calloc:
 
 ^^^^^^^^^^^^^
 ISHMEM_CALLOC
