@@ -1,16 +1,22 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #define BW_TEST_HEADER
 #define BW_TEST_FUNCTION                                                                           \
     for (int i = 0; i < iterations; i += 1) {                                                      \
-        ishmem_long_alltoall((long *) dest, (long *) src, nelems);                                 \
+        ishmem_long_alltoall(ISHMEM_TEAM_WORLD, (long *) dest, (long *) src, nelems);              \
+    }
+
+#define BW_TEST_FUNCTION_ON_QUEUE                                                                  \
+    for (int i = 0; i < iterations; i += 1) {                                                      \
+        ishmemx_long_alltoall_on_queue((long *) dest, (long *) src, nelems, test_return, q);       \
     }
 
 #define BW_TEST_FUNCTION_WORK_GROUP                                                                \
     for (int i = 0; i < iterations; i += 1) {                                                      \
-        ishmemx_long_alltoall_work_group((long *) dest, (long *) src, nelems, grp);                \
+        ishmemx_long_alltoall_work_group(ISHMEM_TEAM_WORLD, (long *) dest, (long *) src, nelems,   \
+                                         grp);                                                     \
     }
 
 #include "ishmem_tester.h"
@@ -19,7 +25,7 @@ STUB_UNIT_TESTS
 
 int main(int argc, char **argv)
 {
-    class ishmem_tester t(argc, argv);
+    class ishmem_tester t(argc, argv, true);
     size_t bufsize = (t.max_nelems * (size_t) t.n_pes * sizeof(uint64_t)) + 4096;
     t.alloc_memory(bufsize);
     size_t errors = 0;

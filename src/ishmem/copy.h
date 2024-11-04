@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -6,7 +6,6 @@
 #ifndef ISHMEM_COPY_H
 #define ISHMEM_COPY_H
 
-#include "env_utils.h"
 #include "ishmem/types.h"
 #include "ishmem/util.h"
 
@@ -71,6 +70,10 @@
 #define ISHMEM_COLLECT_GROUP_CUTOVER     (total_nbytes >= (32768L * ((size_t) info->n_pes)))
 
 #endif /* CUTOVER */
+
+/* Copy utility function */
+void *ishmem_copy(void *dst, const void *src, size_t size);
+void *ishmem_zero(void *dst, size_t size);
 
 // use the routines below rather than a type specific copy loop
 constexpr bool ishmemi_use_vec_copy = true;

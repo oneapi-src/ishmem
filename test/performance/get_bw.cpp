@@ -8,6 +8,11 @@
         ishmem_long_get((long *) dest, (long *) src, nelems, pe);                                  \
     }
 
+#define BW_TEST_FUNCTION_ON_QUEUE                                                                  \
+    for (int i = 0; i < iterations; i += 1) {                                                      \
+        ishmemx_long_get_on_queue((long *) dest, (long *) src, nelems, pe, q);                     \
+    }
+
 #define BW_TEST_FUNCTION_WORK_GROUP                                                                \
     for (int i = 0; i < iterations; i += 1) {                                                      \
         ishmemx_long_get_work_group((long *) dest, (long *) src, nelems, pe, grp);                 \
@@ -19,7 +24,7 @@ STUB_UNIT_TESTS
 
 int main(int argc, char **argv)
 {
-    class ishmem_tester t(argc, argv);
+    class ishmem_tester t(argc, argv, true);
 
     size_t bufsize = (t.max_nelems * sizeof(uint64_t)) + 4096;
     t.alloc_memory(bufsize);

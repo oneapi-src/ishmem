@@ -4,25 +4,32 @@
 Library Constants
 =================
 
-.. .. c:macro:: ISHMEM_THREAD_SINGLE
-..
-.. The thread support level which specifies that the program must not be multithreaded.
-..
-.. .. c:macro:: ISHMEM_THREAD_FUNNELED
-..
-.. The thread support level which specifies that the program may be multithreaded
-.. but must ensure that only the main thread invokes the ``ishmem`` interfaces.
-..
-.. .. c:macro:: ISHMEM_THREAD_SERIALIZED
-..
-.. The thread support level which specifies that the program may be multithreaded
-.. but must ensure that the ``ishmem`` interfaces are not invoked concurrently
-.. by multiple threads.
-..
-.. .. c:macro:: ISHMEM_THREAD_MULTIPLE
-..
-.. The thread support level which specifies that the program may be multithreaded
-.. and any thread may invoke the ``ishmem`` interfaces.
+.. c:macro:: ISHMEM_THREAD_SINGLE
+
+The thread support level which specifies that the program must not be multithreaded.
+See Section :ref:`Thread Support<thread_support_routines>` for more
+detail about its use.
+
+.. c:macro:: ISHMEM_THREAD_FUNNELED
+
+The thread support level which specifies that the program may be multithreaded
+but must ensure that only the main thread invokes the ``ishmem`` interfaces.
+See Section :ref:`Thread Support<thread_support_routines>` for more
+detail about its use.
+
+.. c:macro:: ISHMEM_THREAD_SERIALIZED
+
+The thread support level which specifies that the program may be multithreaded
+but must ensure that the ``ishmem`` interfaces are not invoked concurrently
+by multiple threads. See Section :ref:`Thread Support<thread_support_routines>` for more
+detail about its use.
+
+.. c:macro:: ISHMEM_THREAD_MULTIPLE
+
+The thread support level which specifies that the program may be multithreaded
+and any thread may invoke the ``ishmem`` interfaces. See 
+Section :ref:`Thread Support<thread_support_routines>` for more
+detail about its use.
 
 .. c:macro:: ISHMEM_MAJOR_VERSION
 
@@ -44,47 +51,47 @@ String representing vendor defined information of size at  most
 ``ISHMEM_MAX_NAME_LEN``. The string ``ISHMEM_VENDOR_STRING`` is terminated by a
 null character.
 
-.. .. c:macro:: ISHMEM_CMP_EQ
-..
-.. An integer constant expression corresponding to the “equal to” comparison
-.. operation.
-.. See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
-.. detail about its use.
-..
-.. .. c:macro:: ISHMEM_CMP_NE
-..
-.. An integer constant expression corresponding to the “not equal to” comparison
-.. operation.
-.. See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
-.. detail about its use.
-..
-.. .. c:macro:: ISHMEM_CMP_LT
-..
-.. An integer constant expression corresponding to the “less than” comparison
-.. operation.
-.. See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
-.. detail about its use.
-..
-.. .. c:macro:: ISHMEM_CMP_LE
-..
-.. An integer constant expression corresponding to the “less than or equal to”
-.. comparison operation.
-.. See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
-.. detail about its use.
-..
-.. .. c:macro:: ISHMEM_CMP_GT
-..
-.. An integer constant expression corresponding to the “greater than” comparison
-.. operation.
-.. See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
-.. detail about its use.
-..
-.. .. c:macro:: ISHMEM_CMP_GE
-..
-.. An integer constant expression corresponding to the “greater than or equal to”
-.. comparison operation.
-.. See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
-.. detail about its use.
+.. c:macro:: ISHMEM_CMP_EQ
+
+An integer constant expression corresponding to the “equal to” comparison
+operation.
+See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
+detail about its use.
+
+.. c:macro:: ISHMEM_CMP_NE
+
+An integer constant expression corresponding to the “not equal to” comparison
+operation.
+See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
+detail about its use.
+
+.. c:macro:: ISHMEM_CMP_LT
+
+An integer constant expression corresponding to the “less than” comparison
+operation.
+See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
+detail about its use.
+
+.. c:macro:: ISHMEM_CMP_LE
+
+An integer constant expression corresponding to the “less than or equal to”
+comparison operation.
+See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
+detail about its use.
+
+.. c:macro:: ISHMEM_CMP_GT
+
+An integer constant expression corresponding to the “greater than” comparison
+operation.
+See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
+detail about its use.
+
+.. c:macro:: ISHMEM_CMP_GE
+
+An integer constant expression corresponding to the “greater than or equal to”
+comparison operation.
+See Section :ref:`Point-to-Point Synchronization<point_to_point>` for more
+detail about its use.
 
 .. ISHMEM_TEAM_NUM_CONTEXTS
 
@@ -216,3 +223,16 @@ accessible by the host and device).
 
 Includes the file, line, and function along with messages printed by the utility
 routines and other output for debug, warning, or error reporting. 
+
+.. c:macro:: ISHMEM_RUNTIME
+
+Selects the host back-end library. Valid options are ``OPENSHMEM`` or ``MPI``.
+These options are case-insensitive strings, so ``OPENSHMEM``, ``OpenSHMEM``,
+``opEnshmem``, etc., select the OpenSHMEM back-end, and ``MPI``, ``mpi``,
+``mPi``, etc., select the MPI back-end.
+See :ref:`Building Intel® SHMEM<building_ishmem>` for more information about
+using this variable.
+
+.. c:macro:: ISHMEM_RUNTIME_USE_OSHMPI
+
+Indicates whether the host back-end is the OSHMPI library.

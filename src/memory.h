@@ -30,12 +30,16 @@ int ishmemi_memory_init();
 /* Finalize memory */
 int ishmemi_memory_fini();
 
-/* Copy utility function */
-void *ishmem_copy(void *dst, void *src, size_t size);
+void *ishmemi_calloc(size_t count, size_t size);
+void *ishmemi_ptr(const void *dest, int pe);
 
 #ifdef __cplusplus
 }
 #endif
+
+#define ISHMEMI_FAST_ADJUST(TYPENAME, info, index, p)                                              \
+    ((TYPENAME *) (reinterpret_cast<ptrdiff_t>(p) +                                                \
+                   static_cast<ptrdiff_t>(info->ipc_buffer_delta[(index)])))
 
 #ifdef __SYCL_DEVICE_ONLY__
 #define ISHMEMI_ADJUST_PTR(TYPENAME, index, p)                                                     \

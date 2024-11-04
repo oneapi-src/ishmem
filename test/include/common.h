@@ -10,125 +10,50 @@
 #include <type_traits>
 #include <ishmem.h>
 #include <ishmemx.h>
-#include "ishmem_config.h"
-
-#include "shmem_helper.h"
-#include "mpi_helper.h"
+#include <ishmem/config.h>
+#include "runtime.h"
 
 static std::once_flag validate_once;
-static bool check_runtime = true;
-static bool use_shmem_runtime = false;
-static bool use_mpi_runtime = false;
+ishmemi_test_runtime_type *ishmemi_test_runtime = nullptr;
 
 static inline void validate_runtime()
 {
     std::call_once(validate_once, []() {
-        if (check_runtime) {
-            check_runtime = false;
-            const char *env_val = getenv("ISHMEM_TEST_RUNTIME");
-            if (env_val && strcasecmp(env_val, "OPENSHMEM") == 0) {
+        const char *env_val = getenv("ISHMEM_RUNTIME");
+        if (env_val && strcasecmp(env_val, "OPENSHMEM") == 0) {
 #if defined(ENABLE_OPENSHMEM)
-                use_shmem_runtime = true;
+            ishmemi_test_runtime = new ishmemi_test_runtime_openshmem();
 #else
-                fprintf(stderr, "ERROR: Runtime OpenSHMEM selected but it is not configured\n");
+            fprintf(stderr, "ERROR: Runtime OpenSHMEM selected but it is not configured\n");
 #endif
-            } else if (env_val && strcasecmp(env_val, "MPI") == 0) {
+        } else if (env_val && strcasecmp(env_val, "MPI") == 0) {
 #if defined(ENABLE_MPI)
-                use_mpi_runtime = true;
+            ishmemi_test_runtime = new ishmemi_test_runtime_mpi();
 #else
-                fprintf(stderr, "ERROR: Runtime MPI selected but it is not configured\n");
+            fprintf(stderr, "ERROR: Runtime MPI selected but it is not configured\n");
 #endif
-            } else if (env_val && strcasecmp(env_val, "PMI") == 0) {
+        } else if (env_val && strcasecmp(env_val, "PMI") == 0) {
 #if defined(ENABLE_PMI)
-                fprintf(stderr, "ERROR: Runtime PMI selected but is not yet supported\n");
+            fprintf(stderr, "ERROR: Runtime PMI selected but is not yet supported\n");
 #else
-                fprintf(stderr, "ERROR: Runtime PMI selected but it is not configured\n");
+            fprintf(stderr, "ERROR: Runtime PMI selected but it is not configured\n");
 #endif
-            } else {
-                /* Default value */
+        } else {
+            /* Default value */
 #if defined(ENABLE_OPENSHMEM)
-                use_shmem_runtime = true;
-                return;
+            ishmemi_test_runtime = new ishmemi_test_runtime_openshmem();
+            return;
 #endif
 #if defined(ENABLE_MPI)
-                use_mpi_runtime = true;
-                return;
+            ishmemi_test_runtime = new ishmemi_test_runtime_mpi();
+            return;
 #endif
 #if defined(ENABLE_PMI)
-                fprintf(stderr, "ERROR: Runtime PMI selected but is not yet supported\n");
-                return;
+            fprintf(stderr, "ERROR: Runtime PMI selected but is not yet supported\n");
+            return;
 #endif
-            }
         }
     });
-}
-
-inline void runtime_init()
-{
-    validate_runtime();
-    if (use_shmem_runtime) runtime_shmem_init();
-    else if (use_mpi_runtime) runtime_mpi_init();
-}
-
-inline void runtime_finalize()
-{
-    validate_runtime();
-    if (use_shmem_runtime) runtime_shmem_finalize();
-    else if (use_mpi_runtime) runtime_mpi_finalize();
-}
-
-inline void *runtime_calloc(size_t num, size_t size)
-{
-    validate_runtime();
-    if (use_shmem_runtime) return runtime_shmem_calloc(num, size);
-    else if (use_mpi_runtime) return runtime_mpi_calloc(num, size);
-    else return nullptr;
-}
-
-inline void *runtime_malloc(size_t size)
-{
-    validate_runtime();
-    if (use_shmem_runtime) return runtime_shmem_malloc(size);
-    else if (use_mpi_runtime) return runtime_mpi_malloc(size);
-    else return nullptr;
-}
-
-inline void runtime_free(void *ptr)
-{
-    validate_runtime();
-    if (use_shmem_runtime) runtime_shmem_free(ptr);
-    else if (use_mpi_runtime) runtime_mpi_free(ptr);
-}
-
-inline void runtime_sync_all()
-{
-    validate_runtime();
-    if (use_shmem_runtime) runtime_shmem_sync_all();
-    else if (use_mpi_runtime) runtime_mpi_sync_all();
-}
-
-inline void runtime_broadcast(void *dst, void *src, size_t size, int root)
-{
-    validate_runtime();
-    if (use_shmem_runtime) runtime_shmem_broadcast(dst, src, size, root);
-    else if (use_mpi_runtime) runtime_mpi_broadcast(dst, src, size, root);
-}
-
-inline void runtime_uint64_sum_reduce(uint64_t *dst, uint64_t *src, size_t num)
-{
-    validate_runtime();
-    if (use_shmem_runtime) runtime_shmem_uint64_sum_reduce(dst, src, num);
-    else if (use_mpi_runtime) runtime_mpi_uint64_sum_reduce(dst, src, num);
-}
-
-inline void test_init_attr(ishmemx_attr_t *attr)
-{
-    *attr = {};
-
-    validate_runtime();
-    attr->initialize_runtime = true;
-    if (use_shmem_runtime) attr->runtime = ISHMEMX_RUNTIME_OPENSHMEM;
-    else if (use_mpi_runtime) attr->runtime = ISHMEMX_RUNTIME_MPI;
 }
 
 /* Max memory size is limited to 8M to avoid reaching the Level Zero memory
@@ -515,8 +440,7 @@ void ishmem_rma_perf_test(Pair pair, PerfTestArgs &perfTestArgs)
             std::cout << "Test Completed with " << errors << " errors!" << std::endl;
             if (errors > 0) {
                 std::cout << "First occurence of unexpected value (index " << first_failure_index
-                          << "): "
-                          << " Received (" << first_failure_value << ") Expected ("
+                          << "): " << " Received (" << first_failure_value << ") Expected ("
                           << static_cast<size_t>(source_pe << 16) + first_failure_index << ")"
                           << std::endl;
             }
@@ -690,8 +614,8 @@ void ishmem_rma_work_group_perf_test(Pair pair, PerfTestArgs &perfTestArgs)
                 std::cout << "Test Completed with " << errors << " errors!" << std::endl;
                 if (errors > 0) {
                     std::cout << "First occurence of unexpected value (index "
-                              << first_failure_index << "): "
-                              << " Received (" << first_failure_value << ") Expected ("
+                              << first_failure_index << "): " << " Received ("
+                              << first_failure_value << ") Expected ("
                               << static_cast<size_t>(source_pe << 16) + first_failure_index << ")"
                               << std::endl;
                 }

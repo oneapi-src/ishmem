@@ -1,0 +1,12 @@
+prefix=${pcfiledir}/../../
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib/
+includedir=${prefix}/include/
+
+Name: Intel® SHMEM
+Description: Provides an efficient implementation of GPU-initiated communication for Intel® GPUs.
+URL: https://github.com/oneapi-src/ishmem
+Version: @PROJECT_VERSION@
+Requires: impi
+Libs: -L${libdir} -l:libishmem.a
+Cflags: -I${includedir}

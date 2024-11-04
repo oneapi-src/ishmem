@@ -1,44 +1,43 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "runtime.h"
+#if defined(ENABLE_OPENSHMEM)
+#include "runtime/runtime_openshmem.h"
+#endif
+#if defined(ENABLE_MPI)
+#include "runtime/runtime_mpi.h"
+#endif
+#if defined(ENABLE_PMI)
+#include "runtime/runtime_pmi.h"
+#endif
 
-ishmemi_runtime_proxy_func_t **ishmemi_proxy_funcs;
+/* The instance of the runtime backend */
+ishmemi_runtime_type *ishmemi_runtime = nullptr;
 
-int (*ishmemi_runtime_fini)(void);
-void (*ishmemi_runtime_abort)(int, const char[]);
-int (*ishmemi_runtime_get_rank)(void);
-int (*ishmemi_runtime_get_size)(void);
-int (*ishmemi_runtime_get_node_rank)(int pe);
-int (*ishmemi_runtime_get_node_size)(void);
-void (*ishmemi_runtime_sync)(void);
-void (*ishmemi_runtime_fence)(void);
-void (*ishmemi_runtime_quiet)(void);
-void (*ishmemi_runtime_barrier_all)(void);
-void (*ishmemi_runtime_node_barrier)(void);
-void (*ishmemi_runtime_bcast)(void *buf, size_t count, int root);
-void (*ishmemi_runtime_node_bcast)(void *buf, size_t count, int root);
-void (*ishmemi_runtime_fcollect)(void *dst, void *src, size_t count);
-void (*ishmemi_runtime_node_fcollect)(void *dst, void *src, size_t count);
-bool (*ishmemi_runtime_is_local)(int pe);
-void *(*ishmemi_runtime_malloc)(size_t);
-void *(*ishmemi_runtime_calloc)(size_t, size_t);
-void (*ishmemi_runtime_free)(void *);
-int (*ishmemi_runtime_get)(int pe, char *key, void *value, size_t valuelen);
-int (*ishmemi_runtime_team_split_strided)(ishmemi_runtime_team_t parent_team, int PE_start,
-                                          int PE_stride, int PE_size,
-                                          const ishmemi_runtime_team_config_t *config,
-                                          long config_mask, ishmemi_runtime_team_t *new_team);
-int (*ishmemi_runtime_uchar_and_reduce)(ishmemi_runtime_team_t team, unsigned char *dest,
-                                        const unsigned char *source, size_t nreduce);
-int (*ishmemi_runtime_int_max_reduce)(ishmemi_runtime_team_t team, int *dest, const int *source,
-                                      size_t nreduce);
-int (*ishmemi_runtime_team_sync)(ishmemi_runtime_team_t team);
-int (*ishmemi_runtime_team_predefined_set)(ishmemi_runtime_team_t *team,
-                                           ishmemi_runtime_team_predefined_t predefined_team_name,
-                                           int expected_team_size, int expected_world_pe,
-                                           int expected_team_pe);
+int ishmemi_runtime_type::unsupported(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
+{
+    RAISE_ERROR_MSG("Encountered type '%s (%d)' unsupported for operation '%s (%d)'\n",
+                    ishmemi_type_str[msg->type], msg->type, ishmemi_op_str[msg->op], msg->op);
+    ishmemi_cpu_info->proxy_state = EXIT;
+    return -1;
+}
+
+const char *ishmemi_runtime_type::team_predefined_string(ishmemi_runtime_team_predefined_t val)
+{
+    switch (val) {
+        case WORLD:
+            return "WORLD";
+        case SHARED:
+            return "SHARED";
+        case NODE:
+            return "NODE";
+        default:
+            ISHMEM_ERROR_MSG("Unknown team passed to ishmemi_runtime_team_predefined_string\n");
+            return "";
+    }
+}
 
 int ishmemi_runtime_init(ishmemx_attr_t *attr)
 {
@@ -47,7 +46,9 @@ int ishmemi_runtime_init(ishmemx_attr_t *attr)
     switch (attr->runtime) {
         case ISHMEMX_RUNTIME_MPI:
 #if defined(ENABLE_MPI)
-            ret = ishmemi_runtime_mpi_init(attr->initialize_runtime);
+            ishmemi_runtime = new ishmemi_runtime_mpi(attr->initialize_runtime, attr->mpi_comm);
+            ISHMEM_CHECK_GOTO_MSG(ishmemi_runtime == nullptr, fn_fail,
+                                  "MPI runtime instance allocation failed\n");
 #else
             ISHMEM_ERROR_MSG(
                 "MPI runtime was selected, but Intel® SHMEM is not built with MPI support\n");
@@ -56,7 +57,10 @@ int ishmemi_runtime_init(ishmemx_attr_t *attr)
             break;
         case ISHMEMX_RUNTIME_OPENSHMEM:
 #if defined(ENABLE_OPENSHMEM)
-            ret = ishmemi_runtime_openshmem_init(attr->initialize_runtime);
+            ishmemi_runtime = new ishmemi_runtime_openshmem(
+                attr->initialize_runtime, std::get<bool>(ishmemi_env["RUNTIME_USE_OSHMPI"].first));
+            ISHMEM_CHECK_GOTO_MSG(ishmemi_runtime == nullptr, fn_fail,
+                                  "SHMEM runtime instance allocation failed\n");
 #else
             ISHMEM_ERROR_MSG(
                 "OpenSHMEM runtime was selected, but Intel® SHMEM is not built with OpenSHMEM "
@@ -66,7 +70,9 @@ int ishmemi_runtime_init(ishmemx_attr_t *attr)
             break;
         case ISHMEMX_RUNTIME_PMI:
 #if defined(ENABLE_PMI)
-            ret = ishmemi_runtime_pmi_init(attr->initialize_runtime);
+            ishmemi_runtime = new ishmemi_runtime_pmi(attr->initialize_runtime);
+            ISHMEM_CHECK_GOTO_MSG(ishmemi_runtime == nullptr, fn_fail,
+                                  "PMI runtime instance allocation failed\n");
 #else
             ISHMEM_ERROR_MSG(
                 "PMI runtime was selected, but Intel® SHMEM is not built with PMI support\n");
@@ -78,38 +84,15 @@ int ishmemi_runtime_init(ishmemx_attr_t *attr)
             ret = -1;
     }
 
+fn_exit:
     return ret;
+fn_fail:
+    ret = -1;
+    goto fn_exit;
 }
 
-void ishmemi_runtime_heap_create(ishmemx_attr_t *attr, void *base, size_t size)
+int ishmemi_runtime_fini()
 {
-    switch (attr->runtime) {
-        case ISHMEMX_RUNTIME_MPI:
-#if defined(ENABLE_MPI)
-            ISHMEM_ERROR_MSG("MPI runtime was selected, which does not yet support heap preinit\n");
-#else
-            ISHMEM_ERROR_MSG(
-                "MPI runtime was selected, but Intel® SHMEM is not built with MPI support\n");
-#endif
-            break;
-        case ISHMEMX_RUNTIME_OPENSHMEM:
-#if defined(ENABLE_OPENSHMEM)
-            ishmemi_runtime_openshmem_heap_create(base, size);
-#else
-            ISHMEM_ERROR_MSG(
-                "OpenSHMEM runtime was selected, but Intel® SHMEM is not built with OpenSHMEM "
-                "support\n");
-#endif
-            break;
-        case ISHMEMX_RUNTIME_PMI:
-#if defined(ENABLE_PMI)
-            ISHMEM_ERROR_MSG("PMI runtime was selected, which does not yet support heap preinit\n");
-#else
-            ISHMEM_ERROR_MSG(
-                "PMI runtime was selected, but Intel® SHMEM is not built with PMI support\n");
-#endif
-            break;
-        default:
-            ISHMEM_ERROR_MSG("Invalid runtime selection\n");
-    }
+    delete ishmemi_runtime;
+    return 0;
 }

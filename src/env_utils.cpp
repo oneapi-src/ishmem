@@ -9,14 +9,18 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
-#include "env_utils.h"
+#include <utility>
+#include "ishmem/env_utils.h"
 #include "ishmem/err.h"
-#include <string.h>
+#include <cstring>
 
 struct ishmemi_params_s ishmemi_params;
+std::map<std::string, std::pair<ishmemi_env_val, bool>> ishmemi_env;
+
+extern char **environ;
 
 /* atol() + optional scaled suffix recognition: 1K, 2M, 3G, 1T */
-static int atol_scaled(char *str, ishmemi_env_size *out)
+static int atol_scaled(char *str, size_t *out)
 {
     int scale, n, ncheck;
     double p = -1.0;
@@ -57,22 +61,8 @@ static int atol_scaled(char *str, ishmemi_env_size *out)
         scale = 0;
     }
 
-    *out = (ishmemi_env_size) ceil(p * static_cast<double>(1lu << scale));
+    *out = static_cast<size_t>(ceil(p * static_cast<double>(1lu << scale)));
     return 0;
-}
-
-static long errchk_atol(char *s)
-{
-    long val;
-    char *e;
-    errno = 0;
-
-    val = strtol(s, &e, 0);
-    if (errno != 0 || e == s) {
-        RAISE_ERROR_MSG("Environment variable conversion failed (%s)\n", s);
-    }
-
-    return val;
 }
 
 static char *ishmemi_getenv(const char *name)
@@ -93,70 +83,128 @@ static char *ishmemi_getenv(const char *name)
     return nullptr;
 }
 
-static int ishmemi_getenv_size(const char *name, ishmemi_env_size default_val,
-                               ishmemi_env_size *out, bool *provided)
+/* Note - this function should only be called after ishmemi_parse_env */
+ishmemx_runtime_type_t ishmemi_env_get_runtime()
 {
-    char *env = ishmemi_getenv(name);
-    *provided = (env != nullptr);
-    if (*provided) {
-        int ret = atol_scaled(env, out);
-        if (ret) {
-            RAISE_ERROR_MSG("Could not parse '%s' as a valid a value for ISHMEM_%s\n", env, name);
-        }
+    const char *value = std::get<std::string>(ishmemi_env["RUNTIME"].first).c_str();
+    ishmemx_runtime_type_t ret = ISHMEMX_RUNTIME_INVALID;
+
+    /* Note - proper checking of compiled runtime support is handled in runtime.cpp */
+    if (strcasecmp(value, "OPENSHMEM") == 0) {
+        ret = ISHMEMX_RUNTIME_OPENSHMEM;
+    } else if (strcasecmp(value, "MPI") == 0) {
+        ret = ISHMEMX_RUNTIME_MPI;
+    } else if (strcasecmp(value, "PMI") == 0) {
+        ret = ISHMEMX_RUNTIME_PMI;
     } else {
-        *out = default_val;
+        /* Default value */
+#if defined(ENABLE_OPENSHMEM)
+        return ISHMEMX_RUNTIME_OPENSHMEM;
+#endif
+#if defined(ENABLE_MPI)
+        return ISHMEMX_RUNTIME_MPI;
+#endif
+#if defined(ENABLE_PMI)
+        return ISHMEMX_RUNTIME_PMI;
+#endif
     }
-    return 0;
+
+    return ret;
 }
 
-static int ishmemi_getenv_bool(const char *name, ishmemi_env_bool default_val,
-                               ishmemi_env_bool *out, bool *provided)
+static int set_env(std::string name,
+                   std::map<std::string, std::pair<ishmemi_env_val, bool>>::iterator &iter)
 {
-    char *env = ishmemi_getenv(name);
-    bool val;
-    *provided = (env != nullptr);
-    if (*provided) {
-        if (strcmp(env, "0") == 0) {
-            val = false;
-        } else if (strcasecmp(env, "false") == 0) {
-            val = false;
+    int ret = 0;
+    char *env_value = nullptr;
+
+    env_value = ishmemi_getenv(name.c_str());
+
+    if (env_value != nullptr) {
+        if (std::holds_alternative<size_t>(ishmemi_env[name].first)) {
+            size_t value;
+
+            ret = atol_scaled(env_value, &value);
+            ISHMEM_CHECK_GOTO_MSG(ret != 0, fn_exit,
+                                  "Could not parse '%s' as a valid value for ISHMEM_%s\n",
+                                  env_value, name.c_str());
+
+            iter->second = std::make_pair(value, true);
+        } else if (std::holds_alternative<long>(ishmemi_env[name].first)) {
+            long value = std::atol(env_value);
+            iter->second = std::make_pair(value, true);
+        } else if (std::holds_alternative<bool>(ishmemi_env[name].first)) {
+            bool value;
+
+            if (strcmp(env_value, "0") == 0) {
+                value = false;
+            } else if (strcasecmp(env_value, "false") == 0) {
+                value = false;
+            } else {
+                value = true;
+            }
+
+            iter->second = std::make_pair(value, true);
+        } else if (std::holds_alternative<std::string>(ishmemi_env[name].first)) {
+            iter->second = std::make_pair(std::move(env_value), true);
         } else {
-            val = true;
+            ISHMEM_CHECK_GOTO_MSG(true, fn_fail, "Could not determine type of ishmemi_env[%s]\n",
+                                  name.c_str());
         }
-    } else {
-        val = default_val;
     }
-    *out = val;
-    return 0;
-}
 
-static int ishmemi_getenv_string(const char *name, ishmemi_env_string default_val,
-                                 ishmemi_env_string *out, bool *provided)
-{
-    char *env = ishmemi_getenv(name);
-    *provided = (env != nullptr);
-    *out = (*provided) ? env : std::move(default_val);
-    return 0;
-}
-
-__attribute__((unused)) static int ishmemi_getenv_long(const char *name,
-                                                       ishmemi_env_long default_val,
-                                                       ishmemi_env_long *out, bool *provided)
-{
-    char *env = ishmemi_getenv(name);
-    *provided = (env != NULL);
-    *out = (*provided) ? errchk_atol(env) : default_val;
-    return 0;
+fn_exit:
+    return ret;
+fn_fail:
+    ret = 1;
+    goto fn_exit;
 }
 
 int ishmemi_parse_env(void)
 {
-    int ret;
-#define ISHMEMI_ENV_DEF(NAME, KIND, DEFAULT, CATEGORY, SHORT_DESC)                                 \
-    ret = ishmemi_getenv_##KIND(#NAME, DEFAULT, &(ishmemi_params.NAME),                            \
-                                &(ishmemi_params.NAME##_provided));                                \
-    if (ret) return ret;
-#include "env_defs.h"
+    int ret = 0;
+    const char *prefix = "ISHMEM_";
+    size_t prefix_len = std::strlen(prefix);
+
+    /* Fill ishemmi_env with the default values for environment variables */
+#define ISHMEMI_ENV_DEF(NAME, KIND, DEFAULT, SHORT_DESC)                                           \
+    ishmemi_env[#NAME] = std::make_pair(ishmemi_env_val(std::in_place_type<KIND>, DEFAULT), false);
+#include "ishmem/env_defs.h"
 #undef ISHMEMI_ENV_DEF
-    return 0;
+
+    /* Parse environment variables provided by the user */
+    for (char **env_var = environ; *env_var != nullptr; env_var++) {
+        /* Skip any non-ISHMEM environment variables */
+        if (std::strncmp(*env_var, prefix, prefix_len) != 0) continue;
+
+        std::string::size_type eq_pos;
+        std::string env(*env_var);
+        env = env.substr(prefix_len);
+
+        eq_pos = env.find("=");
+        if (eq_pos != std::string::npos) {
+            env = env.substr(0, eq_pos);
+        }
+
+        /* Check that ISHMEM environment variable is defined */
+        auto iter = ishmemi_env.find(env);
+
+        if (iter == ishmemi_env.end()) {
+            ISHMEM_WARN_MSG("Environment variable 'ISHMEM_%s' is not a supported variable\n",
+                            env.c_str());
+        } else {
+            ret = set_env(env, iter);
+            ISHMEM_CHECK_GOTO_MSG(ret != 0, fn_exit,
+                                  "Failed to initialize variable for 'ISHMEM_%s'\n", env.c_str());
+        }
+    }
+
+    /* Fill ishmemi_params with the default/user values */
+#define ISHMEMI_ENV_DEF(NAME, KIND, DEFAULT, SHORT_DESC)                                           \
+    ishmemi_params.NAME = std::get<KIND>(ishmemi_env[#NAME].first);
+#include "ishmem/env_defs.h"
+#undef ISHMEMI_ENV_DEF
+
+fn_exit:
+    return ret;
 }

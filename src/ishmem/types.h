@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -11,8 +11,12 @@
 /* Note: this should mirror ISHMEM_DEVICE_ATTRIBUTES definition in ishmem.h */
 #define ISHMEM_DEVICE_ATTRIBUTES SYCL_EXTERNAL
 
+// Needed to make GEN_SIZE_FNS_FOR_SIZE macro compatible for SIZE128 operations
+typedef __uint128_t uint128_t;
+
 typedef enum : uint16_t {
-    PUT = 0,
+    UNDEFINED = 0,
+    PUT,
     IPUT,
     IBPUT,
     P,
@@ -64,12 +68,18 @@ typedef enum : uint16_t {
     PROD_REDUCE,
     WAIT,
     WAIT_ALL,
+    WAIT_ALL_VECTOR,
     WAIT_ANY,
+    WAIT_ANY_VECTOR,
     WAIT_SOME,
+    WAIT_SOME_VECTOR,
     TEST,
     TEST_ALL,
+    TEST_ALL_VECTOR,
     TEST_ANY,
+    TEST_ANY_VECTOR,
     TEST_SOME,
+    TEST_SOME_VECTOR,
     SIGNAL_WAIT_UNTIL,
     FENCE,
     QUIET,
@@ -85,11 +95,14 @@ typedef enum : uint16_t {
     ISHMEMI_OP_END
 } ishmemi_op_t;
 
+constexpr ishmemi_op_t ISHMEMI_OP_undefined = UNDEFINED;
 constexpr ishmemi_op_t ISHMEMI_OP_put = PUT;
 constexpr ishmemi_op_t ISHMEMI_OP_iput = IPUT;
+constexpr ishmemi_op_t ISHMEMI_OP_ibput = IBPUT;
 constexpr ishmemi_op_t ISHMEMI_OP_p = P;
 constexpr ishmemi_op_t ISHMEMI_OP_get = GET;
 constexpr ishmemi_op_t ISHMEMI_OP_iget = IGET;
+constexpr ishmemi_op_t ISHMEMI_OP_ibget = IBGET;
 constexpr ishmemi_op_t ISHMEMI_OP_g = G;
 constexpr ishmemi_op_t ISHMEMI_OP_put_nbi = PUT_NBI;
 constexpr ishmemi_op_t ISHMEMI_OP_get_nbi = GET_NBI;
@@ -135,14 +148,24 @@ constexpr ishmemi_op_t ISHMEMI_OP_sum_reduce = SUM_REDUCE;
 constexpr ishmemi_op_t ISHMEMI_OP_prod_reduce = PROD_REDUCE;
 constexpr ishmemi_op_t ISHMEMI_OP_wait_until = WAIT;
 constexpr ishmemi_op_t ISHMEMI_OP_wait_until_all = WAIT_ALL;
+constexpr ishmemi_op_t ISHMEMI_OP_wait_until_all_vector = WAIT_ALL_VECTOR;
 constexpr ishmemi_op_t ISHMEMI_OP_wait_until_any = WAIT_ANY;
+constexpr ishmemi_op_t ISHMEMI_OP_wait_until_any_vector = WAIT_ANY_VECTOR;
 constexpr ishmemi_op_t ISHMEMI_OP_wait_until_some = WAIT_SOME;
+constexpr ishmemi_op_t ISHMEMI_OP_wait_until_some_vector = WAIT_SOME_VECTOR;
 constexpr ishmemi_op_t ISHMEMI_OP_test = TEST;
 constexpr ishmemi_op_t ISHMEMI_OP_test_all = TEST_ALL;
+constexpr ishmemi_op_t ISHMEMI_OP_test_all_vector = TEST_ALL_VECTOR;
 constexpr ishmemi_op_t ISHMEMI_OP_test_any = TEST_ANY;
+constexpr ishmemi_op_t ISHMEMI_OP_test_any_vector = TEST_ANY_VECTOR;
 constexpr ishmemi_op_t ISHMEMI_OP_test_some = TEST_SOME;
+constexpr ishmemi_op_t ISHMEMI_OP_test_some_vector = TEST_SOME_VECTOR;
+constexpr ishmemi_op_t ISHMEMI_OP_signal_wait_until = SIGNAL_WAIT_UNTIL;
 constexpr ishmemi_op_t ISHMEMI_OP_fence = FENCE;
 constexpr ishmemi_op_t ISHMEMI_OP_quiet = QUIET;
+constexpr ishmemi_op_t ISHMEMI_OP_team_my_pe = TEAM_MY_PE;
+constexpr ishmemi_op_t ISHMEMI_OP_team_n_pes = TEAM_N_PES;
+constexpr ishmemi_op_t ISHMEMI_OP_team_sync = TEAM_SYNC;
 constexpr ishmemi_op_t ISHMEMI_OP_kill = KILL;
 constexpr ishmemi_op_t ISHMEMI_OP_nop = NOP;
 constexpr ishmemi_op_t ISHMEMI_OP_nop_no_r = NOP_NO_R;
@@ -151,7 +174,8 @@ constexpr ishmemi_op_t ISHMEMI_OP_print = PRINT;
 constexpr ishmemi_op_t ISHMEMI_OP_debug_test = DEBUG_TEST;
 
 typedef enum : uint16_t {
-    MEM = 0,
+    NONE = 0,
+    MEM,
     UINT8,
     UINT16,
     UINT32,
@@ -185,6 +209,7 @@ typedef enum : uint16_t {
     ISHMEMI_TYPE_END
 } ishmemi_type_t;
 
+constexpr ishmemi_type_t ISHMEMI_TYPE_none = NONE;
 constexpr ishmemi_type_t ISHMEMI_TYPE_float = FLOAT;
 constexpr ishmemi_type_t ISHMEMI_TYPE_double = DOUBLE;
 constexpr ishmemi_type_t ISHMEMI_TYPE_longdouble = LONGDOUBLE;
@@ -210,37 +235,6 @@ constexpr ishmemi_type_t ISHMEMI_TYPE_uint64 = UINT64;
 constexpr ishmemi_type_t ISHMEMI_TYPE_size = SIZE;
 constexpr ishmemi_type_t ISHMEMI_TYPE_ptrdiff = PTRDIFF;
 constexpr ishmemi_type_t ISHMEMI_TYPE_void = MEM;
-
-template <typename TYPE>
-ISHMEM_DEVICE_ATTRIBUTES constexpr ishmemi_type_t ishmemi_get_type()
-{
-    if constexpr (std::is_same_v<TYPE, float>) return FLOAT;
-    else if constexpr (std::is_same_v<TYPE, double>) return DOUBLE;
-    else if constexpr (std::is_same_v<TYPE, long double>) return LONGDOUBLE;
-    else if constexpr (std::is_same_v<TYPE, char>) return CHAR;
-    else if constexpr (std::is_same_v<TYPE, signed char>) return SCHAR;
-    else if constexpr (std::is_same_v<TYPE, short>) return SHORT;
-    else if constexpr (std::is_same_v<TYPE, int>) return INT;
-    else if constexpr (std::is_same_v<TYPE, long>) return LONG;
-    else if constexpr (std::is_same_v<TYPE, long long>) return LONGLONG;
-    else if constexpr (std::is_same_v<TYPE, unsigned char>) return UCHAR;
-    else if constexpr (std::is_same_v<TYPE, unsigned short>) return USHORT;
-    else if constexpr (std::is_same_v<TYPE, unsigned int>) return UINT;
-    else if constexpr (std::is_same_v<TYPE, unsigned long>) return ULONG;
-    else if constexpr (std::is_same_v<TYPE, unsigned long long>) return ULONGLONG;
-    else if constexpr (std::is_same_v<TYPE, int8_t>) return INT8;
-    else if constexpr (std::is_same_v<TYPE, int16_t>) return INT16;
-    else if constexpr (std::is_same_v<TYPE, int32_t>) return INT32;
-    else if constexpr (std::is_same_v<TYPE, int64_t>) return INT64;
-    else if constexpr (std::is_same_v<TYPE, uint8_t>) return UINT8;
-    else if constexpr (std::is_same_v<TYPE, uint16_t>) return UINT16;
-    else if constexpr (std::is_same_v<TYPE, uint32_t>) return UINT32;
-    else if constexpr (std::is_same_v<TYPE, uint64_t>) return UINT64;
-    else if constexpr (std::is_same_v<TYPE, size_t>) return SIZE;
-    else if constexpr (std::is_same_v<TYPE, ptrdiff_t>) return PTRDIFF;
-    else if constexpr (std::is_same_v<TYPE, void>) return MEM;
-    else return ISHMEMI_TYPE_END;
-}
 
 extern const char *ishmemi_op_str[ISHMEMI_OP_END + 1];
 extern const char *ishmemi_type_str[ISHMEMI_TYPE_END + 1];

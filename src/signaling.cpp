@@ -8,14 +8,17 @@
 #include "proxy_impl.h"
 #include "runtime.h"
 #include "memory.h"
+#include "on_queue.h"
 
 /* Put with signal */
 template <typename T>
 void ishmem_put_signal(T *dest, const T *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,
                        int sig_op, int pe)
 {
+    size_t nbytes = nelems * sizeof(T);
+
     if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, sizeof(T) * nelems,
+        validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
                             sizeof(uint64_t));
     }
 
@@ -23,7 +26,7 @@ void ishmem_put_signal(T *dest, const T *src, size_t nelems, uint64_t *sig_addr,
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if (local_index != 0) {
+        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
             vec_copy_push(ISHMEMI_ADJUST_PTR(T, local_index, dest), src, nelems);
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
             sycl::atomic_ref<uint64_t, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -53,23 +56,25 @@ void ishmem_put_signal(T *dest, const T *src, size_t nelems, uint64_t *sig_addr,
 #ifdef __SYCL_DEVICE_ONLY__
     ishmemi_proxy_blocking_request(req);
 #else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
 }
 
 void ishmem_putmem_signal(void *dest, const void *src, size_t nelems, uint64_t *sig_addr,
                           uint64_t signal, int sig_op, int pe)
 {
+    size_t nbytes = nelems * sizeof(char);
+
     if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr,
-                            sizeof(char) * nelems, sizeof(uint64_t));
+        validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                            sizeof(uint64_t));
     }
 
     uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if (local_index != 0) {
+        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
             vec_copy_push(ISHMEMI_ADJUST_PTR(uint8_t, local_index, (uint8_t *) dest),
                           (uint8_t *) src, nelems);
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
@@ -100,8 +105,48 @@ void ishmem_putmem_signal(void *dest, const void *src, size_t nelems, uint64_t *
 #ifdef __SYCL_DEVICE_ONLY__
     ishmemi_proxy_blocking_request(req);
 #else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
+}
+
+template <typename T>
+sycl::event ishmemx_put_signal_on_queue(T *dest, const T *src, size_t nelems, uint64_t *sig_addr,
+                                        uint64_t signal, int sig_op, int pe, sycl::queue &q,
+                                        const std::vector<sycl::event> &deps)
+{
+    bool entry_already_exists = true;
+    const std::lock_guard<std::mutex> lock(ishmemi_on_queue_events_map.map_mtx);
+    auto iter = ishmemi_on_queue_events_map.get_entry_info(q, entry_already_exists);
+
+    size_t nbytes = nelems * sizeof(T);
+    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+
+    auto e = q.submit([&](sycl::handler &cgh) {
+        set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
+        if ((nelems != 0) && (local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+            size_t max_work_group_size = iter->second->max_work_group_size;
+            size_t range_size = (nelems < max_work_group_size) ? nelems : max_work_group_size;
+            cgh.parallel_for(
+                sycl::nd_range<1>(sycl::range<1>(range_size), sycl::range<1>(range_size)),
+                [=](sycl::nd_item<1> it) {
+                    ishmemx_put_signal_work_group(dest, src, nelems, sig_addr, signal, sig_op, pe,
+                                                  it.get_group());
+                });
+        } else {
+            cgh.host_task(
+                [=]() { ishmem_put_signal(dest, src, nelems, sig_addr, signal, sig_op, pe); });
+        }
+    });
+    ishmemi_on_queue_events_map[&q]->event = e;
+    return e;
+}
+
+sycl::event ishmemx_putmem_signal_on_queue(void *dest, const void *src, size_t nelems,
+                                           uint64_t *sig_addr, uint64_t signal, int sig_op, int pe,
+                                           sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemx_put_signal_on_queue((uint8_t *) dest, (uint8_t *) src, nelems, sig_addr, signal,
+                                       sig_op, pe, q, deps);
 }
 
 /* Put with signal (work-group) */
@@ -109,15 +154,17 @@ template <typename T, typename Group>
 void ishmemx_put_signal_work_group(T *dest, const T *src, size_t nelems, uint64_t *sig_addr,
                                    uint64_t signal, int sig_op, int pe, const Group &grp)
 {
+    size_t nbytes = nelems * sizeof(T);
+
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
         if constexpr (enable_error_checking) {
             if (grp.leader())
-                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr,
-                                    sizeof(T) * nelems, sizeof(uint64_t));
+                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                                    sizeof(uint64_t));
         }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if (local_index != 0) {
+        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
             size_t my_nelems_work_item;
             size_t work_item_start_idx;
             ishmemi_work_item_calculate_offset(nelems, grp, my_nelems_work_item,
@@ -170,15 +217,17 @@ void ishmemx_putmem_signal_work_group(void *dest, const void *src, size_t nelems
                                       uint64_t *sig_addr, uint64_t signal, int sig_op, int pe,
                                       const Group &grp)
 {
+    size_t nbytes = nelems * sizeof(char);
+
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
         if constexpr (enable_error_checking) {
             if (grp.leader())
-                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr,
-                                    sizeof(char) * nelems, sizeof(uint64_t));
+                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                                    sizeof(uint64_t));
         }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if (local_index != 0) {
+        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
             size_t my_nelems_work_item;
             size_t work_item_start_idx;
             ishmemi_work_item_calculate_offset(nelems, grp, my_nelems_work_item,
@@ -230,6 +279,9 @@ void ishmemx_putmem_signal_work_group(void *dest, const void *src, size_t nelems
 /* clang-format off */
 #define ISHMEMI_API_IMPL_PUT_SIGNAL(TYPENAME, TYPE)                                                                                                                                                                            \
     void ishmem_##TYPENAME##_put_signal(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe) { return ishmem_put_signal(dest, src, nelems, sig_addr, signal, sig_op, pe); }    \
+    sycl::event ishmemx_##TYPENAME##_put_signal_on_queue(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                        \
+        return ishmemx_put_signal_on_queue(dest, src, nelems, sig_addr, signal, sig_op, pe, q, deps);                                                                                                                                       \
+    }                                                                                                                                                                                                                          \
     template void ishmemx_##TYPENAME##_put_signal_work_group<sycl::group<1>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<1> &grp);                  \
     template void ishmemx_##TYPENAME##_put_signal_work_group<sycl::group<2>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<2> &grp);                  \
     template void ishmemx_##TYPENAME##_put_signal_work_group<sycl::group<3>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<3> &grp);                  \
@@ -238,6 +290,9 @@ void ishmemx_putmem_signal_work_group(void *dest, const void *src, size_t nelems
 
 #define ISHMEMI_API_IMPL_PUTSIZE_SIGNAL(SIZE, ELEMSIZE)                                                                                                                                                                                                                                   \
     void ishmem_put##SIZE##_signal(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe) { return ishmem_put_signal((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe); }  \
+    sycl::event ishmemx_put##SIZE##_signal_on_queue(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                                                                                        \
+        return ishmemx_put_signal_on_queue((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe, q, deps);                                                                                                                                \
+    }                                                                                                                                                                                                                                                                                     \
     template void ishmemx_put##SIZE##_signal_work_group<sycl::group<1>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<1> &grp);                                                                                  \
     template void ishmemx_put##SIZE##_signal_work_group<sycl::group<2>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<2> &grp);                                                                                  \
     template void ishmemx_put##SIZE##_signal_work_group<sycl::group<3>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<3> &grp);                                                                                  \
@@ -279,8 +334,10 @@ template <typename T>
 void ishmem_put_signal_nbi(T *dest, const T *src, size_t nelems, uint64_t *sig_addr,
                            uint64_t signal, int sig_op, int pe)
 {
+    size_t nbytes = nelems * sizeof(T);
+
     if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, sizeof(T) * nelems,
+        validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
                             sizeof(uint64_t));
     }
 
@@ -288,7 +345,7 @@ void ishmem_put_signal_nbi(T *dest, const T *src, size_t nelems, uint64_t *sig_a
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if (local_index != 0) {
+        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
             vec_copy_push(ISHMEMI_ADJUST_PTR(T, local_index, dest), src, nelems);
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
             sycl::atomic_ref<uint64_t, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -318,23 +375,25 @@ void ishmem_put_signal_nbi(T *dest, const T *src, size_t nelems, uint64_t *sig_a
 #ifdef __SYCL_DEVICE_ONLY__
     ishmemi_proxy_nonblocking_request(req);
 #else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
 }
 
 void ishmem_putmem_signal_nbi(void *dest, const void *src, size_t nelems, uint64_t *sig_addr,
                               uint64_t signal, int sig_op, int pe)
 {
+    size_t nbytes = nelems * sizeof(char);
+
     if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr,
-                            sizeof(char) * nelems, sizeof(uint64_t));
+        validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                            sizeof(uint64_t));
     }
 
     uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if (local_index != 0) {
+        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
             vec_copy_push(ISHMEMI_ADJUST_PTR(uint8_t, local_index, (uint8_t *) dest),
                           (uint8_t *) src, nelems);
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
@@ -365,8 +424,49 @@ void ishmem_putmem_signal_nbi(void *dest, const void *src, size_t nelems, uint64
 #ifdef __SYCL_DEVICE_ONLY__
     ishmemi_proxy_nonblocking_request(req);
 #else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
+}
+
+template <typename T>
+sycl::event ishmemx_put_signal_nbi_on_queue(T *dest, const T *src, size_t nelems,
+                                            uint64_t *sig_addr, uint64_t signal, int sig_op, int pe,
+                                            sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    bool entry_already_exists = true;
+    const std::lock_guard<std::mutex> lock(ishmemi_on_queue_events_map.map_mtx);
+    auto iter = ishmemi_on_queue_events_map.get_entry_info(q, entry_already_exists);
+
+    size_t nbytes = nelems * sizeof(T);
+    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+
+    auto e = q.submit([&](sycl::handler &cgh) {
+        set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
+        if ((nelems != 0) && (local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+            size_t max_work_group_size = iter->second->max_work_group_size;
+            size_t range_size = (nelems < max_work_group_size) ? nelems : max_work_group_size;
+            cgh.parallel_for(
+                sycl::nd_range<1>(sycl::range<1>(range_size), sycl::range<1>(range_size)),
+                [=](sycl::nd_item<1> it) {
+                    ishmemx_put_signal_nbi_work_group(dest, src, nelems, sig_addr, signal, sig_op,
+                                                      pe, it.get_group());
+                });
+        } else {
+            cgh.host_task(
+                [=]() { ishmem_put_signal_nbi(dest, src, nelems, sig_addr, signal, sig_op, pe); });
+        }
+    });
+    ishmemi_on_queue_events_map[&q]->event = e;
+    return e;
+}
+
+sycl::event ishmemx_putmem_signal_nbi_on_queue(void *dest, const void *src, size_t nelems,
+                                               uint64_t *sig_addr, uint64_t signal, int sig_op,
+                                               int pe, sycl::queue &q,
+                                               const std::vector<sycl::event> &deps)
+{
+    return ishmemx_put_signal_nbi_on_queue((uint8_t *) dest, (uint8_t *) src, nelems, sig_addr,
+                                           signal, sig_op, pe, q, deps);
 }
 
 /* Non-blocking Put with signal (work-group) */
@@ -374,15 +474,17 @@ template <typename T, typename Group>
 void ishmemx_put_signal_nbi_work_group(T *dest, const T *src, size_t nelems, uint64_t *sig_addr,
                                        uint64_t signal, int sig_op, int pe, const Group &grp)
 {
+    size_t nbytes = nelems * sizeof(T);
+
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
         if constexpr (enable_error_checking) {
             if (grp.leader())
-                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr,
-                                    sizeof(T) * nelems, sizeof(uint64_t));
+                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                                    sizeof(uint64_t));
         }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if (local_index != 0) {
+        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
             size_t my_nelems_work_item;
             size_t work_item_start_idx;
             ishmemi_work_item_calculate_offset(nelems, grp, my_nelems_work_item,
@@ -442,15 +544,17 @@ void ishmemx_putmem_signal_nbi_work_group(void *dest, const void *src, size_t ne
                                           uint64_t *sig_addr, uint64_t signal, int sig_op, int pe,
                                           const Group &grp)
 {
+    size_t nbytes = nelems * sizeof(char);
+
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
         if constexpr (enable_error_checking) {
             if (grp.leader())
-                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr,
-                                    sizeof(char) * nelems, sizeof(uint64_t));
+                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                                    sizeof(uint64_t));
         }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if (local_index != 0) {
+        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
             size_t my_nelems_work_item;
             size_t work_item_start_idx;
             ishmemi_work_item_calculate_offset(nelems, grp, my_nelems_work_item,
@@ -502,6 +606,9 @@ void ishmemx_putmem_signal_nbi_work_group(void *dest, const void *src, size_t ne
 /* clang-format off */
 #define ISHMEMI_API_IMPL_PUT_SIGNAL_NBI(TYPENAME, TYPE)                                                                                                                                                                                \
     void ishmem_##TYPENAME##_put_signal_nbi(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe) { return ishmem_put_signal_nbi(dest, src, nelems, sig_addr, signal, sig_op, pe); }    \
+    sycl::event ishmemx_##TYPENAME##_put_signal_nbi_on_queue(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                            \
+        return ishmemx_put_signal_nbi_on_queue(dest, src, nelems, sig_addr, signal, sig_op, pe, q, deps);                                                                                                                                           \
+    }                                                                                                                                                                                                                                  \
     template void ishmemx_##TYPENAME##_put_signal_nbi_work_group<sycl::group<1>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<1> &grp);                      \
     template void ishmemx_##TYPENAME##_put_signal_nbi_work_group<sycl::group<2>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<2> &grp);                      \
     template void ishmemx_##TYPENAME##_put_signal_nbi_work_group<sycl::group<3>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<3> &grp);                      \
@@ -510,6 +617,9 @@ void ishmemx_putmem_signal_nbi_work_group(void *dest, const void *src, size_t ne
 
 #define ISHMEMI_API_IMPL_PUTSIZE_SIGNAL_NBI(SIZE, ELEMSIZE)                                                                                                                                                                                                                                       \
     void ishmem_put##SIZE##_signal_nbi(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe) { return ishmem_put_signal_nbi((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe); }  \
+    sycl::event ishmemx_put##SIZE##_signal_nbi_on_queue(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                                                                                            \
+        return ishmemx_put_signal_nbi_on_queue((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe, q, deps);                                                                                                                                        \
+    }                                                                                                                                                                                                                                                                                             \
     template void ishmemx_put##SIZE##_signal_nbi_work_group<sycl::group<1>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<1> &grp);                                                                                      \
     template void ishmemx_put##SIZE##_signal_nbi_work_group<sycl::group<2>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<2> &grp);                                                                                      \
     template void ishmemx_put##SIZE##_signal_nbi_work_group<sycl::group<3>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<3> &grp);                                                                                      \
@@ -569,11 +679,11 @@ uint64_t ishmem_signal_fetch(uint64_t *sig_addr)
     req.type = UINT64;
 
 #if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<uint64_t>(req);
+    ret = ishmemi_proxy_blocking_request_return<uint64_t, AMO_FETCH>(req);
 #else
     ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    ret = ishmemi_proxy_get_field_value<uint64_t>(comp.completion.ret);
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
+    ret = ishmemi_union_get_field_value<uint64_t, AMO_FETCH>(comp.completion.ret);
 #endif
     return ret;
 }
@@ -604,14 +714,14 @@ void ishmemx_signal_set(uint64_t *sig_addr, uint64_t val, int pe)
     req.dest_pe = pe;
     req.dst = sig_addr;
     req.op = SIGNAL_SET;
-    req.type = ishmemi_proxy_get_base_type<uint64_t>();
+    req.type = ishmemi_union_get_base_type<uint64_t, SIGNAL_SET>();
 
-    ishmemi_proxy_set_field_value<uint64_t>(req.value, val);
+    ishmemi_union_set_field_value<uint64_t, SIGNAL_SET>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
     ishmemi_proxy_blocking_request(req);
 #else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
 }
 
@@ -641,13 +751,13 @@ void ishmemx_signal_add(uint64_t *sig_addr, uint64_t val, int pe)
     req.dest_pe = pe;
     req.dst = sig_addr;
     req.op = SIGNAL_ADD;
-    req.type = ishmemi_proxy_get_base_type<uint64_t>();
+    req.type = ishmemi_union_get_base_type<uint64_t, SIGNAL_ADD>();
 
-    ishmemi_proxy_set_field_value<uint64_t>(req.value, val);
+    ishmemi_union_set_field_value<uint64_t, SIGNAL_ADD>(req.value, val);
 
 #if __SYCL_DEVICE_ONLY__
     ishmemi_proxy_blocking_request(req);
 #else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
 }

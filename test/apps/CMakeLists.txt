@@ -1,8 +1,8 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 if (ENABLE_OPENSHMEM)
-    add_subdirectory(SHMEM)
+    add_subdirectory(jacobi)
 endif()
 
 if (ENABLE_MPI)

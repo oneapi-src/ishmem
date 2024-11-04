@@ -188,8 +188,7 @@ int ishmemi_ipc_put_nbi(TYPENAME *dst, const TYPENAME *src, size_t nelems, int p
             zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
         /* save the command list for later destruction on synchronize */
-        ishmemi_ze_cmd_lists.push_back(cmd_list);
-        outstanding = ishmemi_ze_cmd_lists.size();
+        outstanding = ishmemi_ze_cmd_lists.push_back_thread_safe(cmd_list);
     } else {
         // rotate through link copy engines
         unsigned int idx = ishmemi_next_link_engine_index();
@@ -200,8 +199,7 @@ int ishmemi_ipc_put_nbi(TYPENAME *dst, const TYPENAME *src, size_t nelems, int p
             zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
         /* save the command list for later destruction on synchronize */
-        ishmemi_ze_link_cmd_lists[idx].push_back(cmd_list);
-        outstanding = ishmemi_ze_link_cmd_lists[idx].size();
+        outstanding = ishmemi_ze_link_cmd_lists[idx].push_back_thread_safe(cmd_list);
     }
 
     /* We can assume that dst is a GPU buffer since it has to be on the symmetric heap */
@@ -365,8 +363,7 @@ int ishmemi_ipc_get_nbi(TYPENAME *dst, const TYPENAME *src, size_t nelems, int p
             zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
         /* save the command list for later destruction on synchronize */
-        ishmemi_ze_cmd_lists.push_back(cmd_list);
-        outstanding = ishmemi_ze_cmd_lists.size();
+        outstanding = ishmemi_ze_cmd_lists.push_back_thread_safe(cmd_list);
     } else {
         // rotate through link copy engines
         unsigned int idx = ishmemi_next_link_engine_index();
@@ -377,8 +374,7 @@ int ishmemi_ipc_get_nbi(TYPENAME *dst, const TYPENAME *src, size_t nelems, int p
             zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
         /* save the command list for later destruction on synchronize */
-        ishmemi_ze_link_cmd_lists[idx].push_back(cmd_list);
-        outstanding = ishmemi_ze_link_cmd_lists[idx].size();
+        outstanding = ishmemi_ze_link_cmd_lists[idx].push_back_thread_safe(cmd_list);
     }
 
     /* We can assume that dst is a GPU buffer since it has to be on the symmetric heap */

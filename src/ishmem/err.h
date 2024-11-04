@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -8,6 +8,7 @@
 #include <cstddef>
 #include "ishmem.h"
 #include "ishmem/util.h"
+#include "ishmem/env_utils.h"
 
 #define ISHMEMI_ERROR_MPI  1
 #define ISHMEMI_ERROR_ZE   2
@@ -15,6 +16,8 @@
 
 #define RAISE_PE_PREFIX     "[%04d]        "
 #define ISHMEMI_DIAG_STRLEN 1024
+
+void ishmemi_print_trace();
 
 #define ZE_ERR_NAME_EXPANSION(name)                                                                \
     case name:                                                                                     \
@@ -93,11 +96,19 @@
         }                                                                                          \
     } while (0)
 
+#ifdef __SYCL_DEVICE_ONLY__
+#define RAISE_ERROR_MSG(format, ...)                                                               \
+    do {                                                                                           \
+        ishmemx_print(__FILE__, __LINE__, __FUNCTION__, format, ishmemx_print_msg_type_t::ERROR);  \
+    } while (0)
+#else
 #define RAISE_ERROR_MSG(...)                                                                       \
     do {                                                                                           \
         ISHMEM_ERROR_MSG(__VA_ARGS__);                                                             \
+        if (ishmemi_params.DEBUG) ishmemi_print_trace();                                           \
         exit(1);                                                                                   \
     } while (0)
+#endif
 
 /* TODO recommend changing this assign to ret with something returning a value */
 #define ZE_CHECK(call)                                                                             \
@@ -120,9 +131,13 @@
         }                                                                                          \
     } while (0)
 
+#define validate_init() validate_init_internal(__FILE__, __LINE__, __func__)
 /* Parameter validation function */
 #define validate_parameters(...)                                                                   \
     validate_parameters_internal(__FILE__, __LINE__, __func__, __VA_ARGS__)
+/* Internal validation helper functions */
+ISHMEM_DEVICE_ATTRIBUTES void validate_init_internal(const char *file, long int line,
+                                                     const char *func);
 ISHMEM_DEVICE_ATTRIBUTES void validate_parameters_internal(const char *file, long int line,
                                                            const char *func, int pe);
 ISHMEM_DEVICE_ATTRIBUTES void validate_parameters_internal(const char *file, long int line,

@@ -128,6 +128,75 @@ For example, the completion of the signal update in a sequence consisting of a
 put routine followed by a `put-with-signal` routine does not imply delivery of
 the `put` routine's data.
 
+"""""""""""""""""""""""""""
+ISHMEMX_PUT_SIGNAL_ON_QUEUE
+"""""""""""""""""""""""""""
+The `put-with-signal` routines provide a method for copying data from a
+contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_put_signal_on_queue(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_put_signal_on_queue(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_putSIZE_signal_on_queue(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_putmem_signal_on_queue(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For ``ishmemx_putmem_signal_on_queue``, elements are bytes.
+  :param sig_addr: Symmetric address of the signal data object to be updated on the remote PE as a signal.
+  :param signal: Unsigned 64-bit value that is used for updating the remote **sig_addr** signal data object.
+  :param sig_op: Signal operator that represents the type of update to be performed on the remote **sig_addr** signal data object.
+  :param pe: PE number of the remote PE.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+
+The `put-with-signal` routines provide a method for copying data from a
+contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.
+The routines return after the data has been copied out of the **source** array
+on the local PE.
+
+The **sig_op** signal operator determines the type of update to be performed on
+the remote **sig_addr** signal data object.
+The completion of signal update based on the **sig_op** signal operator using
+the **signal** flag on the remote PE indicates the delivery of its
+corresponding **dest** data words into the data object on the remote PE.
+
+An update to the **sig_addr** signal data object through a `put-with-signal`
+routine completes as if performed atomically as described in Section :ref:`Atomicity
+Guarantees for Signaling Operations<signal_atomicity>`.
+The various options as described in Section :ref:`Available Signal
+Operators<signal_operators>` can be used as the **sig_op** signal operator.
+
+The **dest** and **sig_addr** data objects must both be remotely accessible and
+may not be overlapping in memory.
+
+The completion of signal update using the **signal** flag on the remote PE
+indicates only the delivery of its corresponding **dest** data words into the
+data object on the remote PE.
+Without a memory-ordering operation, there is no implied ordering between the
+signal update of a `put-with-signal` routine and another data transfer.
+For example, the completion of the signal update in a sequence consisting of a
+put routine followed by a `put-with-signal` routine does not imply delivery of
+the `put` routine's data.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+
+
 """""""""""""""""""""""""""""
 ISHMEMX_PUT_SIGNAL_WORK_GROUP
 """""""""""""""""""""""""""""
@@ -256,6 +325,68 @@ Operators<signal_operators>` can be used as the **sig_op** signal operator.
 
 The **dest** and **sig_addr** data objects must both be remotely accessible and
 may not be overlapping in memory.
+
+"""""""""""""""""""""""""""""""
+ISHMEMX_PUT_SIGNAL_NBI_ON_QUEUE
+"""""""""""""""""""""""""""""""
+The `nonblocking put-with-signal` routines provide a method for copying data
+from a contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.
+
+In the functions below, TYPE is one of the standard RMA types and has a
+corresponding TYPENAME specified by Table :ref:`Standard RMA
+Types<stdrmatypes>`, and SIZE is one of 8, 16, 32, 64, 128.
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_put_signal_nbi_on_queue(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_put_signal_nbi_on_queue(TYPE* dest, const TYPE* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_putSIZE_signal_nbi_on_queue(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_putmem_signal_nbi_on_queue(void* dest, const void* source, size_t nelems, uint64_t* sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+  :param dest: Symmetric address of the destination data object. The type of **dest** should match the TYPE of TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`. 
+  :param source: Local address of the data object containing the data to be copied. The type of **source** should match the TYPE and TYPENAME according to the table of :ref:`Standard RMA types<stdrmatypes>`.
+  :param nelems: Number of elements in the **dest** and **source** arrays. For **ishmem_putmem**, elements are bytes.
+  :param sig_addr: Symmetric address of the signal data object to be updated on the remote PE as a signal.
+  :param signal: Unsigned 64-bit value that is used for updating the remote **sig_addr** signal data object.
+  :param sig_op: Signal operator that represents the type of update to be performed on the remote **sig_addr** signal data object.
+  :param pe: PE number of the remote PE.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+
+The `nonblocking put-with-signal` routines provide a method for copying data
+from a contiguous local data object to a data object on a specified PE and
+subsequently updating a remote flag to signal completion.
+
+The delivery of the **signal** flag on the remote PE indicates only the
+delivery of its corresponding **dest** data words into the data object on the
+remote PE.
+Furthermore, two successive nonblocking `put-with-signal` routines, or a
+nonblocking `put-with-signal` routine with another data transfer may deliver
+data out of order unless a call to ``ishmem_fence`` or
+``ishmemx_fence_work_group`` is introduced between the two calls.
+
+The **sig_op** signal operator determines the type of update to be performed on
+the remote **sig_addr** signal data object.
+
+An update to the **sig_addr** signal data object through a nonblocking
+`put-with-signal` routine completes as if performed atomically as described in
+Section :ref:`Atomicity Guarantees for Signaling Operations<signal_atomicity>`.
+The various options as described in Section :ref:`Available Signal
+Operators<signal_operators>` can be used as the **sig_op** signal operator.
+
+The **dest** and **sig_addr** data objects must both be remotely accessible and
+may not be overlapping in memory.
+
+To ensure the contents of **dest** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
 
 """""""""""""""""""""""""""""""""
 ISHMEMX_PUT_SIGNAL_NBI_WORK_GROUP

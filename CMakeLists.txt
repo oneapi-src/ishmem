@@ -1,156 +1,156 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
+#
+# Common CMakeLists.txt to build ishmem, tests, examples
 
 cmake_minimum_required(VERSION 3.17)
 
-project(ishmem VERSION 1.0)
+set(CMAKE_DISABLE_SOURCE_CHANGES ON)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(ISHMRUN_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/ishmrun)
+set(PROJECT_NAME "ishmem")
+set(PROJECT_FULL_NAME "Intel® SHMEM")
 
-# Configurable paths
-set(L0_INSTALL_PREFIX "/usr" CACHE PATH "Path to L0 installation")
-set(SHMEM_INSTALL_PREFIX "/usr" CACHE PATH "Path to OpenSHMEM installation")
+set(ISHMEM_MAJOR_VERSION "1")
+set(ISHMEM_MINOR_VERSION "2")
+set(ISHMEM_PATCH_VERSION "0")
+set(PROJECT_VERSION "${ISHMEM_MAJOR_VERSION}.${ISHMEM_MINOR_VERSION}.${ISHMEM_PATCH_VERSION}")
 
-option(BUILD_SHARED_LIBS ON)
+project(${PROJECT_NAME} VERSION ${PROJECT_VERSION})
 
-# Build flags for choosing back-ends
-option(ENABLE_OPENSHMEM "Enable OpenSHMEM runtime support" ON)
-option(ENABLE_MPI "Enable MPI runtime support" OFF)
-#option(ENABLE_PMI "Enable PMI runtime support" OFF)
-#option(ENABLE_OSHMPI "Enable OSHMPI support for MPI runtimes" OFF)
-#option(ENABLE_ONECCL "Enable ONECCL support for collectives" OFF)
+set(COMMON_CMAKE_DIR "${PROJECT_SOURCE_DIR}/cmake")
+include(${COMMON_CMAKE_DIR}/utils.cmake)
 
-# Build flags for selecting unit and performance tests
-option(ENABLE_ERROR_CHECKING "Verify correctness of API arguments" OFF)
-option(BUILD_TEST "Build Test" ON)
-option(BUILD_PERF_TEST "Build Performance Test" ON)
+# -------------------------------------------------------------------
+# Configuration Options
+option(BUILD_UNIT_TESTS "Build unit tests" FALSE)
+option(BUILD_PERF_TESTS "Build performance tests" FALSE)
+option(BUILD_EXAMPLES "Build examples" FALSE)
+option(BUILD_APPS "Build apps" FALSE)
+option(BUILD_CMAKE_CONFIG "Build CMake config files" TRUE)
+option(ENABLE_ERROR_CHECKING "Validate API inputs" FALSE)
+option(ENABLE_DLMALLOC "Enable dlmalloc for shared heap" TRUE)
+option(ENABLE_REDUCED_LINK_ENGINES "Enable reduced link engines (i.e. for single tile devices)" FALSE)
+option(ENABLE_AOT_COMPILATION "Enables AOT compilation for GPU kernels" TRUE)
 
-# Build flags for choosing different configurations
-#option(ENABLE_GPU_RDMA "Enable GPU RDMA support" ON)
+# Other options defined elsewhere
+# - SKIP_COMPILER_CHECK - default: FALSE  (cmake/utils.cmake)
+# - ENABLE_OPENSHMEM    - default: TRUE   (cmake/utils.cmake)
+# - ENABLE_MPI          - default: FALSE  (cmake/utils.cmake)
 
-# Other build flags
-option(USE_REDUCED_LINK_ENGINE_SET "Reduced link engines for single tile device" OFF)
-option(USE_DLMALLOC "DLMALLOC library for allocation and free" ON)
-
-option(CTEST_SCHEDULER "Job scheduler used for ctest" OFF)
-if(NOT CTEST_SCHEDULER)
-    set(CTEST_SCHEDULER srun CACHE STRING "Job scheduler used for ctest" FORCE)
-endif()
-set(valid_schedulers srun qsub mpi)
-list(FIND valid_schedulers "${CTEST_SCHEDULER}" scheduler_found)
-if (scheduler_found EQUAL -1)
-        string(REPLACE ";" ", " valid_schedulers_csv "${valid_schedulers}")
-        message(FATAL_ERROR
-                "Invalid valid value for CTEST_SCHEDULER provided: ${CTEST_SCHEDULER}\n"
-                "Supported schedulers: ${valid_schedulers_csv}")
-endif()
-set(CTEST_WRAPPER ${CMAKE_CURRENT_SOURCE_DIR}/scripts/ctest/${CTEST_SCHEDULER}_wrapper)
-
-enable_testing()
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-
-configure_file(ishmem_config.h.in ishmem_config.h)
-
-# adopt icpx -fsycl for all compilation, replacing dpcpp
-set(CMAKE_CXX_COMPILER icpx)
-add_compile_options(-fsycl)
-add_link_options(-fsycl)
-
-if (ISHMEM_USE_OFFLINE_COMPILER)
-        message("will build using ahead of time compiler")
-        add_compile_options(-fsycl-targets=spir64_gen)
-        set(devtype "-device pvc")
-        add_compile_options(--start-no-unused-arguments -Xs ${devtype} --end-no-unused-arguments)
-        add_link_options(-fsycl-targets=spir64_gen)
-        add_link_options(--start-no-unused-arguments -Xs ${devtype} --end-no-unused-arguments)
-else()
-        message("will build using incremental compiler")
+# Set default device type(s) for AOT compilation
+if (NOT ISHMEM_AOT_DEVICE_TYPES)
+    set(ISHMEM_AOT_DEVICE_TYPES "pvc")
 endif()
 
-add_compile_options(-Werror -Wuninitialized -Wunused-variable)
-
-add_compile_options(-Rno-debug-disables-optimization)
-add_link_options(-Rno-debug-disables-optimization)
-
-# Make sure at least one of the backends is enabled
-if (ENABLE_MPI STREQUAL "OFF" AND ENABLE_OPENSHMEM STREQUAL "OFF" AND ENABLE_PMI STREQUAL "OFF")
-    message(FATAL_ERROR "At least one of 'ENABLE_MPI', 'ENABLE_OPENSHMEM' or 'ENABLE_PMI' must be on")
+# -------------------------------------------------------------------
+# Set default install path
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/_install" CACHE PATH "Default install path" FORCE)
 endif()
 
-# Check for valid L0 path
-if (EXISTS "${L0_INSTALL_PREFIX}/include/level_zero/ze_api.h" AND
-    EXISTS "${L0_INSTALL_PREFIX}/include/level_zero/zet_api.h")
-    list(APPEND EXTRA_INCS "${L0_INSTALL_PREFIX}/include")
-else()
-    message(FATAL_ERROR
-            "Cannot find level zero headers!\n"
-            "Provided: ${L0_INSTALL_PREFIX}\n"
-            "Required Headers:\n"
-            "    level_zero/ze_api.h\n"
-            "    level_zero/zet_api.h")
+# -------------------------------------------------------------------
+# Setup compiler
+setup_compiler_options()
+
+# Set default build type
+# Options are: Debug, Release, RelWithDebInfo, and MinSizeRel
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-if (EXISTS "${L0_INSTALL_PREFIX}/lib64/libze_loader.so")
-    list(APPEND EXTRA_LIBS "-L${L0_INSTALL_PREFIX}/lib64 -lze_loader")
-elseif (EXISTS "${L0_INSTALL_PREFIX}/lib/libze_loader.so")
-    list(APPEND EXTRA_LIBS "-L${L0_INSTALL_PREFIX}/lib -lze_loader")
-elseif (EXISTS "${L0_INSTALL_PREFIX}/lib/x86_64-linux-gnu/libze_loader.so")
-    list(APPEND EXTRA_LIBS "-L${L0_INSTALL_PREFIX}/lib/x86_64-linux-gnu -lze_loader")
-else()
-    message(FATAL_ERROR
-            "Cannot find level zero library!\n"
-            "Provided: ${L0_INSTALL_PREFIX}\n"
-            "Required Headers:\n"
-            "    libze_loader.so")
+string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_CASE_INSENSITIVE)
+
+# -------------------------------------------------------------------
+# Show build summary
+message(STATUS "\n========== Build summary ==========")
+message(STATUS "Installation directory:      ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "CXX compiler:                ${CMAKE_CXX_COMPILER}")
+message(STATUS "Build type:                  ${CMAKE_BUILD_TYPE_CASE_INSENSITIVE}")
+message(STATUS "Build unit tests:            ${BUILD_UNIT_TESTS}")
+message(STATUS "Build performance tests:     ${BUILD_PERF_TESTS}")
+message(STATUS "Build examples:              ${BUILD_EXAMPLES}")
+message(STATUS "Build apps:                  ${BUILD_APPS}")
+message(STATUS "Build CMake configs:         ${BUILD_CMAKE_CONFIG}")
+message(STATUS "Enable input validation:     ${ENABLE_ERROR_CHECKING}")
+message(STATUS "Enable dlmalloc:             ${ENABLE_DLMALLOC}")
+message(STATUS "Enable reduced link engines: ${ENABLE_REDUCED_LINK_ENGINES}")
+message(STATUS "Enable AOT compilation:      ${ENABLE_AOT_COMPILATION}")
+if (ENABLE_AOT_COMPILATION)
+    message(STATUS "    AOT Device type(s): ${ISHMEM_AOT_DEVICE_TYPES}")
+endif()
+message(STATUS "Enable OpenSHMEM support:    ${ENABLE_OPENSHMEM}")
+message(STATUS "Enable MPI support:          ${ENABLE_MPI}")
+message(STATUS "===================================\n")
+
+# -------------------------------------------------------------------
+# Set installation options
+
+include(GNUInstallDirs)
+
+set(CMAKE_INSTALL_LIBDIR "lib")
+set(ISHMEM_INSTALL_LIB "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+set(ISHMEM_INSTALL_INC "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
+set(ISHMEM_INSTALL_DOC "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}")
+set(ISHMEM_INSTALL_BIN "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
+set(ISHMEM_INSTALL_ENV "${CMAKE_INSTALL_PREFIX}/env")
+set(ISHMEM_INSTALL_ETC "${CMAKE_INSTALL_PREFIX}/etc")
+set(ISHMEM_INSTALL_SHARE "${CMAKE_INSTALL_PREFIX}/share")
+set(ISHMEM_INSTALL_LICENSE "${ISHMEM_INSTALL_SHARE}/doc/ishmem/licensing")
+set(ISHMEM_INSTALL_TESTS "${CMAKE_INSTALL_PREFIX}/tests")
+set(ISHMEM_INSTALL_EXAMPLES "${ISHMEM_INSTALL_SHARE}/doc/ishmem/examples")
+set(ISHMEM_INSTALL_MODULE "${ISHMEM_INSTALL_ETC}/modulefiles")
+
+# -------------------------------------------------------------------
+# Setup dependencies and runtimes
+
+# Set default paths
+set(LEVEL_ZERO_DIR "/usr" CACHE PATH "Path to oneAPI Level Zero installation")
+set(SHMEM_DIR "/usr" CACHE PATH "Path to OpenSHMEM installation")
+set(MPI_DIR "/usr" CACHE PATH "Path to MPI installation")
+
+setup_dependencies()
+setup_runtime_backends()
+
+# -------------------------------------------------------------------
+# Misc project settings
+
+set(ISHMEM_BUILD_ROOT "${CMAKE_CURRENT_BINARY_DIR}")
+set(ISHMEM_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/src")
+
+# This is set to cover building tests with the source. It can be set by users in case the tests are built stand-alone
+set(ISHMEM_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "Path to Intel SHMEM installation")
+
+# -------------------------------------------------------------------
+# Generate and install files
+configure_file(${PROJECT_SOURCE_DIR}/src/ishmem_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/ishmem/config.h)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/ishmem ${CMAKE_CURRENT_BINARY_DIR}/ishmem @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/vars.sh.in ${CMAKE_CURRENT_BINARY_DIR}/vars.sh @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/pkgconfig/ishmem.pc.in ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/ishmem.pc @ONLY)
+
+install(PROGRAMS scripts/ishmrun DESTINATION bin)
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/ishmem DESTINATION ${ISHMEM_INSTALL_MODULE})
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/vars.sh DESTINATION ${ISHMEM_INSTALL_ENV})
+install(FILES ${PROJECT_SOURCE_DIR}/third-party-programs.txt DESTINATION ${ISHMEM_INSTALL_LICENSE})
+install(FILES ${PROJECT_SOURCE_DIR}/LICENSE DESTINATION ${ISHMEM_INSTALL_LICENSE} RENAME license.txt)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/ishmem.pc DESTINATION ${ISHMEM_INSTALL_LIB}/pkgconfig)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/examples/ DESTINATION ${ISHMEM_INSTALL_EXAMPLES}
+        FILES_MATCHING PATTERN "*.cpp"
+                       PATTERN "build" EXCLUDE)
+
+if (BUILD_CMAKE_CONFIG)
+    # TODO
 endif()
 
-if (ENABLE_MPI)
-    find_package(MPI REQUIRED)
-    string(REGEX REPLACE "[^/]+/?$" "" MPI_CXX_LIBRARY_DIR "${MPI_mpicxx_LIBRARY}")
-    list(APPEND EXTRA_INCS ${MPI_CXX_INCLUDE_PATH})
-    list(APPEND EXTRA_LIBS -L${MPI_CXX_LIBRARY_DIR})
-endif()
-
-if (ENABLE_OPENSHMEM)
-    # Check for valid SOS path
-    if (EXISTS "${SHMEM_INSTALL_PREFIX}/include/shmem.h" AND
-        EXISTS "${SHMEM_INSTALL_PREFIX}/include/shmemx.h")
-        list(APPEND EXTRA_INCS "${SHMEM_INSTALL_PREFIX}/include")
-    else()
-        message(FATAL_ERROR
-                "Cannot find OpenSHMEM headers!\n"
-                "Provided: ${SHMEM_INSTALL_PREFIX}\n"
-                "Required Headers:\n"
-                "    shmem.h\n"
-                "    shmemx.h")
-    endif()
-
-    if (EXISTS "${SHMEM_INSTALL_PREFIX}/bin/oshc++")
-        execute_process(COMMAND ${SHMEM_INSTALL_PREFIX}/bin/oshc++ -showlibs OUTPUT_VARIABLE SHMEM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
-        list(APPEND EXTRA_LIBS ${SHMEM_LIBS})
-    else()
-        message(FATAL_ERROR
-                "Cannot find OpenSHMEM library!\n"
-                "Provided: ${SHMEM_INSTALL_PREFIX}\n"
-                "Required files:\n"
-                "    oshc++")
-    endif()
-endif()
+# -------------------------------------------------------------------
+# Include other CMakeLists.txt
 
 add_subdirectory(pmi-simple)
 add_subdirectory(src)
-add_subdirectory(examples)
-if (BUILD_TEST OR BUILD_PERF_TEST)
-    add_subdirectory(test)
+
+# Build options for tests are handled directly in test/CMakeLists.txt
+add_subdirectory(test)
+
+if (BUILD_EXAMPLES)
+    add_subdirectory(examples)
 endif()
-
-# setup installer
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set(CPACK_PACKAGE_VERSION_MAJOR "${ISHMEM_MAJOR_VERSION}")
-set(CPACK_PACKAGE_VERSION_MINOR "${ISHMEM_MINOR_VERSION}")
-include(CPack)
-
-install(PROGRAMS scripts/ishmrun DESTINATION bin)

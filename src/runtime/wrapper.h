@@ -11,7 +11,7 @@
 
 #define ISHMEMI_LINK_SYMBOL(lib_handle, prefix, suffix)                                            \
     do {                                                                                           \
-        void **var_ptr = (void **) &prefix##_WRAPPER_##suffix;                                     \
+        void **var_ptr = (void **) &suffix;                                                        \
         void *tmp = (void *) dlsym(lib_handle, ISHMEMI_LINK_STRINGIFY(prefix##_##suffix));         \
         if (tmp == nullptr) {                                                                      \
             ISHMEM_ERROR_MSG("link symbol failed for '%s'\n",                                      \
@@ -19,7 +19,7 @@
             ret = -1;                                                                              \
         } else {                                                                                   \
             *var_ptr = tmp;                                                                        \
-            ishmemi_##lib_handle##_wrapper_list.push_back(var_ptr);                                \
+            wrapper_list.push_back(var_ptr);                                                       \
         }                                                                                          \
     } while (0);
 

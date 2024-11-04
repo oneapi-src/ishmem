@@ -128,10 +128,10 @@ int ishmemi_ipc_init()
     bool zex_passed = false;
     ze_result_t ze_ret;
 
-    memset(&ipc_handle, 0, sizeof(ze_ipc_mem_handle_t) * 2);
+    ::memset(&ipc_handle, 0, sizeof(ze_ipc_mem_handle_t) * 2);
 
-    local_rank = ishmemi_runtime_get_node_rank(ishmemi_runtime_get_rank());
-    local_size = ishmemi_runtime_get_node_size();
+    local_rank = ishmemi_runtime->get_node_rank(ishmemi_runtime->get_rank());
+    local_size = ishmemi_runtime->get_node_size();
     ISHMEM_CHECK_GOTO_MSG((local_size > MAX_LOCAL_PES), fn_fail, "get_node_size > MAX_LOCAL_PES\n");
     ISHMEM_DEBUG_MSG("we are local rank %d of %d\n", local_rank, local_size);
 
@@ -203,7 +203,7 @@ int ishmemi_ipc_init()
     /* Populate local_pes in info */
     for (int i = 0; i < ishmemi_cpu_info->n_pes; ++i) {
         /* Note: local_pes[i] == 0 means "not local" */
-        int local_idx = ishmemi_runtime_get_node_rank(i);
+        int local_idx = ishmemi_runtime->get_node_rank(i);
         if (local_idx == -1) {
             ishmemi_mmap_gpu_info->local_pes[i] = 0; /* For device use */
             ishmemi_local_pes[i] = 0;                /* For hose use */
@@ -246,7 +246,7 @@ int ishmemi_ipc_fini()
 
     /* Symmetric heap is freed by memory_fini */
     /* Assumes no kernels are running when calling ipc_fini */
-    ishmemi_runtime_node_barrier();
+    ishmemi_runtime->node_barrier();
 
     ishmemi_cpu_info->use_ipc = false;
 
@@ -289,23 +289,23 @@ static int ipc_init_pidfd()
 
     /* Attempt to use pidfd to communicate IPC handles */
     /* Allocate pid arrays to communicate across PEs */
-    heap_data = (ipc_data_t *) ishmemi_runtime_calloc(MAX_LOCAL_PES, sizeof(ipc_data_t));
+    heap_data = (ipc_data_t *) ishmemi_runtime->calloc(MAX_LOCAL_PES, sizeof(ipc_data_t));
     ISHMEM_CHECK_GOTO_MSG((heap_data == NULL), fn_fail, "unable to allocate heap_data\n");
 
-    local_heap_data = (ipc_data_t *) ishmemi_runtime_calloc(1, sizeof(ipc_data_t));
+    local_heap_data = (ipc_data_t *) ishmemi_runtime->calloc(1, sizeof(ipc_data_t));
     ISHMEM_CHECK_GOTO_MSG((local_heap_data == NULL), fn_fail,
                           "unable to allocate local_heap_data\n");
 
-    local_data = (ipc_data_t *) malloc(MAX_LOCAL_PES * sizeof(ipc_data_t));
+    local_data = (ipc_data_t *) ::malloc(MAX_LOCAL_PES * sizeof(ipc_data_t));
     ISHMEM_CHECK_GOTO_MSG((local_data == NULL), fn_fail, "unable to allocate local_data\n");
 
     /* Copy our info to the host symmetric heap for use in fcollect */
     memcpy(&local_heap_data[0], &ipc_data, sizeof(ipc_data_t));
 
-    ishmemi_runtime_node_barrier();
+    ishmemi_runtime->node_barrier();
 
     /* Gather the info from other PEs */
-    ishmemi_runtime_node_fcollect(heap_data, local_heap_data, sizeof(ipc_data_t));
+    ishmemi_runtime->node_fcollect(heap_data, local_heap_data, sizeof(ipc_data_t));
     ishmem_copy(local_data, heap_data, static_cast<size_t>(local_size) * sizeof(ipc_data_t));
 
     /* Validate that every pid can be opened locally */
@@ -333,7 +333,7 @@ static int ipc_init_pidfd()
         pidfd = -1;
 
         /* Build the remote IPC handle */
-        memset(&remote_ipc_handle, 0, sizeof(ze_ipc_mem_handle_t) * 2);
+        ::memset(&remote_ipc_handle, 0, sizeof(ze_ipc_mem_handle_t) * 2);
 
         for (int j = 0; j < local_data[i].nfds; ++j) {
             memcpy(&remote_ipc_handle[j], &local_data[i].ipc_handle[j],
@@ -372,9 +372,9 @@ fn_exit:
     /* TODO: Gather status from every PE */
 
     /* Cleanup heap_pids */
-    ISHMEMI_FREE(ishmemi_runtime_free, local_heap_data);
-    ISHMEMI_FREE(ishmemi_runtime_free, heap_data);
-    ISHMEMI_FREE(free, local_data);
+    ISHMEMI_FREE(ishmemi_runtime->free, local_heap_data);
+    ISHMEMI_FREE(ishmemi_runtime->free, heap_data);
+    ISHMEMI_FREE(::free, local_data);
 
     return ret;
 fn_fail:
@@ -404,13 +404,13 @@ static int ipc_init_sockets()
     ze_ipc_mem_handle_t remote_ipc_handle[2];
 
     /* Allocate pid arrays to communicate accross PEs */
-    heap_pids = (pid_t *) ishmemi_runtime_calloc(MAX_LOCAL_PES, sizeof(pid_t));
+    heap_pids = (pid_t *) ishmemi_runtime->calloc(MAX_LOCAL_PES, sizeof(pid_t));
     ISHMEM_CHECK_GOTO_MSG((heap_pids == NULL), fn_fail, "unable to allocate heap_pids\n");
 
-    local_heap_pid = (pid_t *) ishmemi_runtime_calloc(1, sizeof(pid_t));
+    local_heap_pid = (pid_t *) ishmemi_runtime->calloc(1, sizeof(pid_t));
     ISHMEM_CHECK_GOTO_MSG((local_heap_pid == NULL), fn_fail, "unable to allocate local_heap_pid\n");
 
-    local_pids = (pid_t *) malloc(MAX_LOCAL_PES * sizeof(pid_t));
+    local_pids = (pid_t *) ::malloc(MAX_LOCAL_PES * sizeof(pid_t));
     ISHMEM_CHECK_GOTO_MSG((local_pids == NULL), fn_fail, "unable to allocate local_pids\n");
 
     /* Initialize local_pids and ishmemi_ipc_buffers */
@@ -424,10 +424,10 @@ static int ipc_init_sockets()
     /* Copy our pid to the host symmetric heap for use in fcollect */
     local_heap_pid[0] = ipc_data.pid;
 
-    ishmemi_runtime_node_barrier();
+    ishmemi_runtime->node_barrier();
 
     /* Gather pids from other PEs */
-    ishmemi_runtime_node_fcollect(heap_pids, local_heap_pid, sizeof(pid_t));
+    ishmemi_runtime->node_fcollect(heap_pids, local_heap_pid, sizeof(pid_t));
     ishmem_copy(local_pids, heap_pids, static_cast<size_t>(local_size) * sizeof(pid_t));
 
     for (int i = 0; i < local_size; ++i) {
@@ -435,7 +435,7 @@ static int ipc_init_sockets()
     }
 
     /* Wait for all processes to copy before proceeding */
-    ishmemi_runtime_node_barrier();
+    ishmemi_runtime->node_barrier();
 
     /* Prepare for receiving buffers from processes */
     /* fork responder */
@@ -446,7 +446,7 @@ static int ipc_init_sockets()
         CPU_RELAX();
 
     /* this barrier is to assure all local ranks have responders up and running */
-    ishmemi_runtime_node_barrier();
+    ishmemi_runtime->node_barrier();
 
     /* loop through all local pe's except us fetching ipc handles */
     for (int i = 0; i < local_size; ++i) {
@@ -502,12 +502,12 @@ static int ipc_init_sockets()
 
 fn_exit:
     /* Barrier to ensure all local PEs have completed init (pass or fail) */
-    ishmemi_runtime_node_barrier();
+    ishmemi_runtime->node_barrier();
 
     /* Cleanup heap_pids */
-    ISHMEMI_FREE(ishmemi_runtime_free, local_heap_pid);
-    ISHMEMI_FREE(ishmemi_runtime_free, heap_pids);
-    ISHMEMI_FREE(free, local_pids);
+    ISHMEMI_FREE(ishmemi_runtime->free, local_heap_pid);
+    ISHMEMI_FREE(ishmemi_runtime->free, heap_pids);
+    ISHMEMI_FREE(::free, local_pids);
 
     /* Complete the responder thread */
     responder_ready = false;
@@ -530,7 +530,7 @@ static void socket_send_ipc_handle(void *arg)
     int connfd = -1;
 
     /* set up and bind listener socket */
-    memset(&sockaddr, 0, sizeof(sockaddr));
+    ::memset(&sockaddr, 0, sizeof(sockaddr));
 
     /* Create the local socket name */
     snprintf(sock_name, SOCK_MAX_STR_LEN, "/tmp/ishmem-ipc-fd-sock-%d:%d", ipc_data.pid,
@@ -587,10 +587,10 @@ static void socket_send_ipc_handle(void *arg)
             char ctrl_buf[CMSG_SPACE(sizeof(int))][2];
             ishmemi_socket_payload_t payload[2];
 
-            memset(mmsg, 0, sizeof(mmsghdr) * 2);
-            memset(iov, 0, sizeof(iovec) * 2);
-            memset(ctrl_buf, 0, CMSG_SPACE(sizeof(int)) * 2);
-            memset(payload, 0, sizeof(ishmemi_socket_payload_t) * 2);
+            ::memset(mmsg, 0, sizeof(mmsghdr) * 2);
+            ::memset(iov, 0, sizeof(iovec) * 2);
+            ::memset(ctrl_buf, 0, CMSG_SPACE(sizeof(int)) * 2);
+            ::memset(payload, 0, sizeof(ishmemi_socket_payload_t) * 2);
 
             for (int i = 0; i < ipc_data.nfds; ++i) {
                 /* Setup the payload with device and msg-matching info */
@@ -654,7 +654,7 @@ static int socket_recv_ipc_handle(int pe, pid_t pe_pid, ze_ipc_mem_handle_t (&ha
     {
         char remote_sock_name[SOCK_MAX_STR_LEN];
 
-        memset(&remote_sockaddr, 0, sizeof(remote_sockaddr));
+        ::memset(&remote_sockaddr, 0, sizeof(remote_sockaddr));
         remote_sockaddr.sun_family = AF_UNIX;
         snprintf(remote_sock_name, SOCK_MAX_STR_LEN, "/tmp/ishmem-ipc-fd-sock-%d:%d", pe_pid, pe);
 
@@ -673,10 +673,10 @@ static int socket_recv_ipc_handle(int pe, pid_t pe_pid, ze_ipc_mem_handle_t (&ha
         char ctrl_buf[CMSG_SPACE(sizeof(int))][2];
         ishmemi_socket_payload_t payload[2];
 
-        memset(mmsg, 0, sizeof(mmsghdr) * 2);
-        memset(iov, 0, sizeof(iovec) * 2);
-        memset(ctrl_buf, 0, CMSG_SPACE(sizeof(int)) * 2);
-        memset(payload, 0, sizeof(ishmemi_socket_payload_t) * 2);
+        ::memset(mmsg, 0, sizeof(mmsghdr) * 2);
+        ::memset(iov, 0, sizeof(iovec) * 2);
+        ::memset(ctrl_buf, 0, CMSG_SPACE(sizeof(int)) * 2);
+        ::memset(payload, 0, sizeof(ishmemi_socket_payload_t) * 2);
 
         /* Always assume 2 messages are coming, but the data in the second one may not be needed */
         for (int i = 0; i < 2; ++i) {

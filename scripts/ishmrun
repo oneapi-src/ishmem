@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 assignment="device"
@@ -17,7 +17,7 @@ fi
 
 # See https://spec.oneapi.io/level-zero/latest/core/PROG.html#device-hierarchy regarding possible
 # device hierarchy options.
-if [ -z "$ZE_FLAT_DEVICE_HIERARCHY" -o "$ZE_FLAT_DEVICE_HIERARCHY" == "COMPOSITE" -o "$ZE_FLAT_DEVICE_HIERARCHY" == "COMBINED" ]; then
+if [ -z "$ZE_FLAT_DEVICE_HIERARCHY" -o "$ZE_FLAT_DEVICE_HIERARCHY" == "COMPOSITE" ]; then
     assignment="tile"
     echo -e "\033[33mWARNING: Assigning a single tile per PE due to ZE_FLAT_DEVICE_HIERARCHY=${ZE_FLAT_DEVICE_HIERARCHY}.\033[0m" >&2
 fi
@@ -52,22 +52,22 @@ if [ $which_sycl_ls_exit_code -eq 0 ]; then
     sycl_ls_output=$(ONEAPI_DEVICE_SELECTOR=level_zero:* sycl-ls 2>/dev/null)
     num_root_devices=$(grep -P -o "\[level_zero:gpu\]" <<< ${sycl_ls_output} | wc -l)
     if [ ${num_root_devices} -gt 0 ]; then
-        root_devices=$(seq 0 $((${num_root_devices} - 1)))
+        root_devices=($(seq 0 $((${num_root_devices} - 1))))
     else
         root_devices=($(grep -P -o "(?<=gpu:)[0-9]+" <<< ${sycl_ls_output}))
     fi
     if [ "$assignment" == "tile" ]; then
         for root_device in ${root_devices[@]}
         do
-            sub_devices=($(ONEAPI_DEVICE_SELECTOR=level_zero:${root_device}.* sycl-ls 2>/dev/null | grep -P -o "(?<=gpu:)[0-9]+"))
-            if [ -z "${sub_devices}" ]; then
-                #Root device is not partitionable / has no sub-devices
-                all_sub_devices+=("${root_device}")
-            else
-                for sub_device in ${sub_devices[@]}
-                do
+            sycl_ls_output=$(ONEAPI_DEVICE_SELECTOR=level_zero:${root_device}.* sycl-ls 2>/dev/null)
+            num_sub_devices=$(grep -P -o "level_zero:gpu" <<< ${sycl_ls_output} | wc -l)
+            if [ ${num_sub_devices} -gt 0 ]; then
+                for (( sub_device=0; sub_device<${num_sub_devices}; sub_device++ )); do
                     all_sub_devices+=("${root_device}.${sub_device}")
                 done
+            else
+                #Root device is not partitionable / has no sub-devices
+                all_sub_devices+=("${root_device}")
             fi
         done
     fi

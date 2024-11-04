@@ -2,9 +2,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "env_utils.h"
+#include "ishmem/env_utils.h"
 #include "accelerator.h"
 #include <level_zero/ze_api.h>
+#include <atomic>
 
 /* TODO: Workaround to resolve compiler limitation. Need to be fixed later */
 #if __INTEL_CLANG_COMPILER <= 20210400
@@ -29,7 +30,7 @@ ze_context_desc_t ishmemi_ze_context_desc = {};
 ze_event_pool_handle_t ishmemi_ze_event_pool;
 
 unsigned int ishmemi_link_engine_index = 0;
-#ifdef USE_REDUCED_LINK_ENGINE_SET
+#ifdef ENABLE_REDUCED_LINK_ENGINES
 unsigned int ishmemi_link_engine[NUM_LINK_QUEUE] = {2, 4};
 #else
 unsigned int ishmemi_link_engine[NUM_LINK_QUEUE] = {2, 4, 6};
@@ -38,8 +39,8 @@ unsigned int ishmemi_link_engine[NUM_LINK_QUEUE] = {2, 4, 6};
 ze_command_queue_handle_t ishmemi_ze_cmd_queue;
 ze_command_queue_handle_t ishmemi_ze_all_cmd_queue;
 ze_command_queue_handle_t ishmemi_ze_link_cmd_queue[NUM_LINK_QUEUE];
-std::vector<ze_command_list_handle_t> ishmemi_ze_cmd_lists;
-std::vector<ze_command_list_handle_t> ishmemi_ze_link_cmd_lists[NUM_LINK_QUEUE];
+ishmemi_thread_safe_vector<ze_command_list_handle_t> ishmemi_ze_cmd_lists;
+ishmemi_thread_safe_vector<ze_command_list_handle_t> ishmemi_ze_link_cmd_lists[NUM_LINK_QUEUE];
 
 uint32_t ishmemi_gpu_driver_idx = 0;
 uint32_t ishmemi_fpga_driver_idx = 0;
@@ -50,21 +51,29 @@ bool ishmemi_fpga_driver_found = false;
  * then destroy the first size items, then erase them from the list
  */
 static int ishmemi_sync_cmd_queue(ze_command_queue_handle_t &queue,
-                                  std::vector<ze_command_list_handle_t> &cmd_lists)
+                                  ishmemi_thread_safe_vector<ze_command_list_handle_t> &cmd_lists)
 {
+    size_t cur_size = 0;
+
+    cmd_lists.mtx.lock();
     int ret = 0;
-    size_t size = cmd_lists.size();
+    static std::atomic<size_t> size;
+    size.store(cmd_lists.size());
+    cmd_lists.mtx.unlock();
     std::vector<ze_command_list_handle_t>::iterator first, last;
 
     ZE_CHECK(zeCommandQueueSynchronize(queue, UINT64_MAX));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
-    for (size_t i = 0; i < size; i += 1)
+    cmd_lists.mtx.lock();
+    cur_size = size.load();
+    for (size_t i = 0; i < cur_size; i += 1)
         ZE_CHECK(zeCommandListDestroy(cmd_lists[i]));
 
     first = cmd_lists.begin();
-    last = first + static_cast<long>(size);
+    last = first + static_cast<long>(cur_size);
     cmd_lists.erase(first, last);
+    cmd_lists.mtx.unlock();
 
 fn_exit:
     return ret;
@@ -100,10 +109,10 @@ int ishmemi_accelerator_preinit()
     }
 
     /* Allocate device handle buffers, but don't make any PE assignments in preinit */
-    all_drivers = (ze_driver_handle_t *) calloc(driver_count, sizeof(ze_driver_handle_t));
+    all_drivers = (ze_driver_handle_t *) ::calloc(driver_count, sizeof(ze_driver_handle_t));
     ISHMEM_CHECK_GOTO_MSG(all_drivers == nullptr, fn_fail, "Allocation of all_drivers failed\n");
 
-    all_devices = (ze_device_handle_t **) calloc(driver_count, sizeof(ze_device_handle_t *));
+    all_devices = (ze_device_handle_t **) ::calloc(driver_count, sizeof(ze_device_handle_t *));
     ISHMEM_CHECK_GOTO_MSG(all_devices == nullptr, fn_fail, "Allocation of all_devices failed\n");
 
     ZE_CHECK(zeDriverGet(&driver_count, all_drivers));
@@ -118,7 +127,7 @@ int ishmemi_accelerator_preinit()
 
         // Only a single device will be returned because of setting in ishmrun launcher
         ISHMEM_CHECK_GOTO_MSG(device_count != 1, fn_fail, "Detected more than one device\n");
-        all_devices[i] = (ze_device_handle_t *) malloc(device_count * sizeof(ze_device_handle_t));
+        all_devices[i] = (ze_device_handle_t *) ::malloc(device_count * sizeof(ze_device_handle_t));
         ISHMEM_CHECK_GOTO_MSG(all_devices == nullptr, fn_fail,
                               "Allocation of all_drivers[%d] failed\n", i);
 
@@ -305,9 +314,9 @@ int ishmemi_accelerator_fini(void)
     }
 
     for (int i = 0; i < driver_count; i++)
-        ISHMEMI_FREE(free, all_devices[i]);
-    ISHMEMI_FREE(free, all_devices);
-    ISHMEMI_FREE(free, all_drivers);
+        ISHMEMI_FREE(::free, all_devices[i]);
+    ISHMEMI_FREE(::free, all_devices);
+    ISHMEMI_FREE(::free, all_drivers);
 
     ishmemi_accelerator_preinitialized = false;
     ishmemi_accelerator_initialized = false;

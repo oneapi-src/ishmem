@@ -38,7 +38,7 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_internal_put_nbi(T *dest, const T *src, siz
 #else
     int ret = 1;
     if (local_index != 0) ret = ishmemi_ipc_put_nbi(dest, src, nelems, pe);
-    if (ret != 0) ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+    if (ret != 0) ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
 }
 
@@ -108,7 +108,7 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_internal_get_nbi(T *dest, const T *src, siz
 #else
     int ret = 1;
     if (local_index != 0) ret = ishmemi_ipc_get_nbi(dest, src, nelems, pe);
-    if (ret != 0) ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+    if (ret != 0) ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
 }
 

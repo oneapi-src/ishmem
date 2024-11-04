@@ -15,11 +15,32 @@ int ishmem_broadcastmem(ishmem_team_t team, void *dest, const void *src, size_t 
     return ishmem_broadcast(team, (uint8_t *) dest, (uint8_t *) src, nelems, pe);
 }
 
+sycl::event ishmemx_broadcastmem_on_queue(void *dest, const void *src, size_t nelems, int pe,
+                                          int *ret, sycl::queue &q,
+                                          const std::vector<sycl::event> &deps)
+{
+    return ishmemx_broadcast_on_queue((uint8_t *) dest, (uint8_t *) src, nelems, pe, ret, q, deps);
+}
+
+sycl::event ishmemx_broadcastmem_on_queue(ishmem_team_t team, void *dest, const void *src,
+                                          size_t nelems, int pe, int *ret, sycl::queue &q,
+                                          const std::vector<sycl::event> &deps)
+{
+    return ishmemx_broadcast_on_queue(team, (uint8_t *) dest, (uint8_t *) src, nelems, pe, ret, q,
+                                      deps);
+}
+
 /* clang-format off */
-#define ISHMEMI_API_IMPL_BROADCAST(TYPENAME, TYPE)  \
-    int ishmem_##TYPENAME##_broadcast(TYPE *dest, const TYPE *src, size_t nelems, int pe) { return ishmem_broadcast(dest, src, nelems, pe); }
-#define ISHMEMI_API_IMPL_TEAM_BROADCAST(TYPENAME, TYPE)  \
-    int ishmem_##TYPENAME##_broadcast(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems, int pe) { return ishmem_broadcast(team, dest, src, nelems, pe); }
+#define ISHMEMI_API_IMPL_BROADCAST(TYPENAME, TYPE)                                                                                                                            \
+    int ishmem_##TYPENAME##_broadcast(TYPE *dest, const TYPE *src, size_t nelems, int pe) { return ishmem_broadcast(dest, src, nelems, pe); }                                 \
+    sycl::event ishmemx_##TYPENAME##_broadcast_on_queue(TYPE *dest, const TYPE *src, size_t nelems, int pe, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) { \
+        return ishmemx_broadcast_on_queue(dest, src, nelems, pe, ret, q, deps);                                                                                               \
+    }
+#define ISHMEMI_API_IMPL_TEAM_BROADCAST(TYPENAME, TYPE)                                                                                                                                           \
+    int ishmem_##TYPENAME##_broadcast(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems, int pe) { return ishmem_broadcast(team, dest, src, nelems, pe); }                           \
+    sycl::event ishmemx_##TYPENAME##_broadcast_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems, int pe, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) { \
+        return ishmemx_broadcast_on_queue(team, dest, src, nelems, pe, ret, q, deps);                                                                                                             \
+    }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_BROADCAST(float, float)

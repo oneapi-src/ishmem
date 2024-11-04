@@ -34,8 +34,8 @@ typedef struct {
         const int *status;
         /* Block size for ibput/ibget */
         size_t bsize;
-        /* Pointer to an internal team type */
-        ishmemi_team_t *team;
+        /* Index of a team */
+        ishmem_team_t team;
     };
     /* Attribute used for condition, comparison types, or signal operation types */
     union {
@@ -52,6 +52,7 @@ typedef struct {
     union {
         ishmemi_union_type value;
         ishmemi_union_type cmp_value;
+        const void *cmp_values;
         uint64_t signal;
         /* Source stride value for iput/iget*/
         ptrdiff_t src_stride;

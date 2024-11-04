@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -8,10 +8,10 @@
 #include "ishmem/err.h"
 #include "ishmem/copy.h"
 #include "collectives.h"
-#include "collectives/sync_impl.h"
 #include <type_traits>
 #include "memory.h"
 #include "runtime.h"
+#include "on_queue.h"
 
 #define IN_HEAP(p)                                                                                 \
     ((((uintptr_t) p) >= ((uintptr_t) ishmemi_heap_base)) &&                                       \
@@ -120,87 +120,40 @@ inline void vector_reduce_work_group(T *d, const T *s, size_t count, const Group
     }
 }
 
-/* we only need one templated function for all the reductions because the proxy functions take
- * the reduction operator to call the correct backend reduction API */
-template <typename T>
-int ishmem_generic_op_reduce(T *dest, const T *src, size_t nreduce, ishmemi_op_t op)
-{
-    int ret = 0;
-    size_t max_reduce = ISHMEM_REDUCE_BUFFER_SIZE / sizeof(T);
-
-    while (nreduce > 0) {
-        size_t this_reduce = nreduce;
-        if (this_reduce > max_reduce) this_reduce = max_reduce;
-        void *cdst = ishmem_copy((void *) ishmemi_cpu_info->reduce.source, (void *) src,
-                                 this_reduce * sizeof(T));
-        if ((uintptr_t) cdst != (uintptr_t) ishmemi_cpu_info->reduce.source) {
-            ISHMEM_DEBUG_MSG("Copy-in of source failed in reduce\n");
-            return (1);
-        }
-
-        ishmemi_ringcompletion_t comp;
-        ishmemi_request_t req;
-        req.src = ishmemi_cpu_info->reduce.source;
-        req.dst = ishmemi_cpu_info->reduce.dest;
-        req.nelems = this_reduce;
-        req.op = op;
-        req.type = ishmemi_proxy_get_base_type<T, true, true>();
-        req.team = ishmemi_mmap_gpu_info->team_pool[ISHMEM_TEAM_WORLD];
-
-        ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-        ret = ishmemi_proxy_get_status(comp.completion.ret);
-
-        if (ret != 0) {
-            ISHMEM_DEBUG_MSG("Runtime reduction failed\n");
-            return ret;
-        }
-        cdst = ishmem_copy((void *) dest, (void *) ishmemi_cpu_info->reduce.dest,
-                           this_reduce * sizeof(T));
-        if ((uintptr_t) cdst != (uintptr_t) dest) {
-            ISHMEM_DEBUG_MSG("Copy-out of dest failed in reduce\n");
-            return 1;
-        }
-        dest += this_reduce;
-        src += this_reduce;
-        nreduce -= this_reduce;
-    }
-    return (0);
-}
-
 /* on a team... */
-template <typename T>
-int ishmemi_generic_op_reduce(ishmemi_team_t *team, T *dest, const T *src, size_t nreduce,
-                              ishmemi_op_t op)
+template <typename T, ishmemi_op_t OP>
+int ishmemi_generic_op_reduce(ishmem_team_t team, T *dest, const T *src, size_t nreduce)
 {
     int ret = 0;
     size_t max_reduce = ISHMEM_REDUCE_BUFFER_SIZE / sizeof(T);
+    ishmemi_team_host_t *team_ptr = &ishmemi_cpu_info->team_host_pool[team];
 
     while (nreduce > 0) {
         size_t this_reduce = nreduce;
         if (this_reduce > max_reduce) this_reduce = max_reduce;
-        void *cdst = ishmem_copy((void *) team->source, (void *) src, this_reduce * sizeof(T));
-        if ((uintptr_t) cdst != (uintptr_t) team->source) {
+        void *cdst = ishmem_copy((void *) team_ptr->source, (void *) src, this_reduce * sizeof(T));
+        if ((uintptr_t) cdst != (uintptr_t) team_ptr->source) {
             ISHMEM_DEBUG_MSG("ishmem_copy in failed\n");
             return (1);
         }
 
         ishmemi_ringcompletion_t comp;
         ishmemi_request_t req;
-        req.src = team->source;
-        req.dst = team->dest;
+        req.src = team_ptr->source;
+        req.dst = team_ptr->dest;
         req.nelems = this_reduce;
-        req.op = op;
-        req.type = ishmemi_proxy_get_base_type<T, true, true>();
+        req.op = OP;
+        req.type = ishmemi_union_get_base_type<T, OP>();
         req.team = team;
 
-        ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
+        ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
         ret = ishmemi_proxy_get_status(comp.completion.ret);
 
         if (ret != 0) {
             ISHMEM_DEBUG_MSG("runtime reduction failed\n");
             return ret;
         }
-        cdst = ishmem_copy((void *) dest, (void *) team->dest, this_reduce * sizeof(T));
+        cdst = ishmem_copy((void *) dest, (void *) team_ptr->dest, this_reduce * sizeof(T));
         if ((uintptr_t) cdst != (uintptr_t) dest) {
             ISHMEM_DEBUG_MSG("ishmem_copy out failed\n");
             return 1;
@@ -213,99 +166,29 @@ int ishmemi_generic_op_reduce(ishmemi_team_t *team, T *dest, const T *src, size_
 }
 
 /* Sub-reduce - SYCL can't make recursive calls, so this function is used by the top-level reduce */
-template <typename T, ishmemi_op_t OP>
-inline int ishmemi_sub_reduce(T *dest, const T *source, size_t nreduce)
-{
-    ishmemi_info_t *info = global_info;
-    int ret = 0;
-    ishmem_sync_all(); /* assure all source buffers are ready for use */
-    for (int pe_idx = 0; pe_idx < info->n_local_pes; pe_idx += 1) {
-        if (pe_idx == info->local_rank) continue;
-        T *s = ISHMEMI_ADJUST_PTR(T, (pe_idx + 1), source);
-        T *d = dest;
-        vector_reduce<T, OP>(d, s, nreduce);
-    }
-    ishmem_sync_all(); /* assure destination buffers ready for use and source can be reused */
-    return ret;
-}
-
 /* on a team... */
 template <typename T, ishmemi_op_t OP>
-inline int ishmemi_sub_reduce(ishmemi_team_t *team, T *dest, const T *source, size_t nreduce)
+inline int ishmemi_sub_reduce(ishmem_team_t team, T *dest, const T *source, size_t nreduce)
 {
     ishmemi_info_t *info = global_info;
     int ret = 0;
+#if __SYCL_DEVICE_ONLY__
+    ishmemi_team_device_t *team_ptr = &info->team_device_pool[team];
+#else
+    ishmemi_team_host_t *team_ptr = &ishmemi_cpu_info->team_host_pool[team];
+#endif
+    int my_world_pe = ishmem_team_translate_pe(team, team_ptr->my_pe, ISHMEM_TEAM_WORLD);
 
-    ishmemi_team_sync(team); /* assure all source buffers are ready for use */
+    ishmem_team_sync(team); /* assure all source buffers are ready for use */
 
     int idx = 0;
-    for (int pe = team->start; idx < team->size; pe += team->stride, idx++) {
-        if (pe == info->local_rank) continue;
-        T *s = ISHMEMI_ADJUST_PTR(T, (pe + 1), source);
-        T *d = dest;
-        vector_reduce<T, OP>(d, s, nreduce);
+    for (int pe = team_ptr->start; idx < team_ptr->size; pe += team_ptr->stride, idx++) {
+        if (pe == my_world_pe) continue;
+        T *remote = ISHMEMI_FAST_ADJUST(T, info, info->local_pes[pe], source);
+        vector_reduce<T, OP>(dest, remote, nreduce);
     }
-    ishmemi_team_sync(team);
+    ishmem_team_sync(team);
     return ret;
-}
-
-/* Reduce - top-level reduce */
-/* device code */
-template <typename T, ishmemi_op_t OP>
-inline int ishmemi_reduce(T *dest, const T *source, size_t nreduce)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters((void *) dest, (void *) source, nreduce * sizeof(T));
-    }
-
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        /* if this operation involves multiple nodes, just call the proxy */
-        if (info->only_intra_node) {
-            size_t max_nreduce = ISHMEM_REDUCE_BUFFER_SIZE / sizeof(T);
-            if (source == dest) {
-                while (nreduce > 0) {
-                    size_t this_nreduce = (nreduce < max_nreduce) ? nreduce : max_nreduce;
-                    vec_copy_push((T *) (info->reduce.buffer), source, this_nreduce);
-                    int res =
-                        ishmemi_sub_reduce<T, OP>(dest, (T *) info->reduce.buffer, this_nreduce);
-                    if (res != 0) return res;
-                    dest += this_nreduce;
-                    source += this_nreduce;
-                    nreduce -= this_nreduce;
-                }
-                return 0;
-            }
-            vec_copy_push(dest, source, nreduce);
-            return ishmemi_sub_reduce<T, OP>(dest, source, nreduce);
-        }
-    }
-
-#ifndef __SYCL_DEVICE_ONLY__
-    /* if source and dest are both host memory, then call shmem */
-    /* at the moment, device memory must be in the symmetric heap, which is an easier test */
-    if (IN_HEAP(dest) || IN_HEAP(source)) {
-        return (ishmem_generic_op_reduce<T>(dest, source, nreduce, OP));
-    }
-#endif
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.src = source;
-    req.dst = dest;
-    req.nelems = nreduce;
-    req.op = OP;
-    req.type = ishmemi_proxy_get_base_type<T, true, true>();
-
-#ifdef __SYCL_DEVICE_ONLY__
-    req.team = global_info->team_pool[ISHMEM_TEAM_WORLD];
-    return ishmemi_proxy_blocking_request_status(req);
-#else
-    ishmemi_ringcompletion_t comp;
-    req.team = ishmemi_mmap_gpu_info->team_pool[ISHMEM_TEAM_WORLD];
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    return ishmemi_proxy_get_status(comp.completion.ret);
-#endif
 }
 
 /* on a team... */
@@ -313,25 +196,24 @@ template <typename T, ishmemi_op_t OP>
 inline int ishmemi_reduce(ishmem_team_t team, T *dest, const T *source, size_t nreduce)
 {
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_team_t *myteam = global_info->team_pool[team];
+    ishmemi_team_device_t *team_ptr = &global_info->team_device_pool[team];
 #else
-    ishmemi_team_t *myteam = ishmemi_mmap_gpu_info->team_pool[team];
+    ishmemi_team_host_t *team_ptr = &ishmemi_cpu_info->team_host_pool[team];
 #endif
     if constexpr (enable_error_checking) {
         validate_parameters((void *) dest, (void *) source, nreduce * sizeof(T));
     }
 
     if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
         /* if this operation involves multiple nodes, just call the proxy */
-        if (info->only_intra_node) {
+        if (team_ptr->only_intra) {
             size_t max_nreduce = ISHMEM_REDUCE_BUFFER_SIZE / sizeof(T);
             if (source == dest) {
                 while (nreduce > 0) {
                     size_t this_nreduce = (nreduce < max_nreduce) ? nreduce : max_nreduce;
-                    vec_copy_push((T *) (myteam->buffer), source, this_nreduce);
+                    vec_copy_push((T *) (team_ptr->buffer), source, this_nreduce);
                     int res =
-                        ishmemi_sub_reduce<T, OP>(myteam, dest, (T *) myteam->buffer, this_nreduce);
+                        ishmemi_sub_reduce<T, OP>(team, dest, (T *) team_ptr->buffer, this_nreduce);
                     if (res != 0) return res;
                     dest += this_nreduce;
                     source += this_nreduce;
@@ -340,7 +222,7 @@ inline int ishmemi_reduce(ishmem_team_t team, T *dest, const T *source, size_t n
                 return 0;
             }
             vec_copy_push(dest, source, nreduce);
-            return ishmemi_sub_reduce<T, OP>(myteam, dest, source, nreduce);
+            return ishmemi_sub_reduce<T, OP>(team, dest, source, nreduce);
         }
     }
 
@@ -348,7 +230,7 @@ inline int ishmemi_reduce(ishmem_team_t team, T *dest, const T *source, size_t n
     /* if source and dest are both host memory, then call shmem */
     /* at the moment, device memory must be in the symmetric heap, which is an easier test */
     if (IN_HEAP(dest) || IN_HEAP(source)) {
-        return (ishmemi_generic_op_reduce<T>(myteam, dest, source, nreduce, OP));
+        return (ishmemi_generic_op_reduce<T, OP>(team, dest, source, nreduce));
     }
 #endif
 
@@ -358,88 +240,54 @@ inline int ishmemi_reduce(ishmem_team_t team, T *dest, const T *source, size_t n
     req.dst = dest;
     req.nelems = nreduce;
     req.op = OP;
-    req.type = ishmemi_proxy_get_base_type<T, true, true>();
-    req.team = myteam;
+    req.type = ishmemi_union_get_base_type<T, OP>();
+    req.team = team;
 
 #ifdef __SYCL_DEVICE_ONLY__
     return ishmemi_proxy_blocking_request_status(req);
 #else
     ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     return ishmemi_proxy_get_status(comp.completion.ret);
 #endif
+}
+
+/* Reduce - top-level reduce */
+/* device code */
+template <typename T, ishmemi_op_t OP>
+inline int ishmemi_reduce(T *dest, const T *source, size_t nreduce)
+{
+    int ret = ishmemi_reduce<T, OP>(ISHMEM_TEAM_WORLD, dest, source, nreduce);
+    return ret;
 }
 
 /* Sub-reduce (work-group) - SYCL can't make recursive calls, so this function is used by the
  * top-level reduce */
 /* TODO: figure out how to spread the available threads across all the remote PEs, so as to equalize
  * xe-link loading */
-template <typename T, ishmemi_op_t OP, typename Group>
-inline int ishmemi_sub_reduce_work_group(T *dest, const T *source, size_t nreduce, const Group &grp)
-{
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        int ret = 0;
-        if (info->only_intra_node) {
-            /* assure local source buffer ready for use (group_garrier)
-             * assure all source buffers ready for use (sync all)
-             */
-            ishmemx_sync_all_work_group(grp);
-            for (int i = 1; i < info->n_local_pes; i += 1) {
-                // TODO FP add is not associative, fix ordering
-                int pe_idx = info->my_pe + i;
-                if (pe_idx >= info->n_local_pes) pe_idx -= info->n_local_pes;
-                T *remote = ISHMEMI_ADJUST_PTR(T, (pe_idx + 1), source);
-                vector_reduce_work_group<T, OP>(dest, remote, nreduce, grp);
-            }
-            /* assure all threads have finished copies (group_barrier)
-             * assure destination buffers complete and source buffers may be reused */
-            ishmemx_sync_all_work_group(grp);
-            /* group broadcast not needed because ret is always 0 here */
-            return (ret);
-        } else {
-            if (grp.leader()) {
-                ishmemi_request_t req;
-                req.src = source;
-                req.dst = dest;
-                req.nelems = nreduce;
-                req.op = OP;
-                req.type = ishmemi_proxy_get_base_type<T, true, true>();
-                req.team = info->team_pool[ISHMEM_TEAM_WORLD];
-
-                ret = ishmemi_proxy_blocking_request_status(req);
-                ret = sycl::group_broadcast(grp, ret, 0);
-                return (ret);
-            }
-        }
-    } else {
-        /* Safe check and return; should never be reached */
-        return -1;
-    }
-}
-
 /* on a team... */
 template <typename T, ishmemi_op_t OP, typename Group>
 inline int ishmemi_sub_reduce_work_group(ishmem_team_t team, T *dest, const T *source,
                                          size_t nreduce, const Group &grp)
 {
 #if __SYCL_DEVICE_ONLY__
-    ishmemi_team_t *myteam = global_info->team_pool[team];
+    ishmemi_team_device_t *team_ptr = &global_info->team_device_pool[team];
 #else
-    ishmemi_team_t *myteam = ishmemi_mmap_gpu_info->team_pool[team];
+    ishmemi_team_host_t *team_ptr = &ishmemi_cpu_info->team_host_pool[team];
 #endif
     if constexpr (ishmemi_is_device) {
         ishmemi_info_t *info = global_info;
         int ret = 0;
-        if (info->only_intra_node) {
+        if (team_ptr->only_intra) {
             /* assure local source buffer ready for use (group_garrier)
              * assure all source buffers ready for use (sync all)
              */
             ishmemx_team_sync_work_group(team, grp);
             int idx = 0;
-            for (int pe = myteam->start; idx < myteam->size; pe += myteam->stride, idx++) {
-                if (pe == info->local_rank) continue;
-                T *remote = ISHMEMI_ADJUST_PTR(T, (pe + 1), source);
+            int my_world_pe = ishmem_team_translate_pe(team, team_ptr->my_pe, ISHMEM_TEAM_WORLD);
+            for (int pe = team_ptr->start; idx < team_ptr->size; pe += team_ptr->stride, idx++) {
+                if (pe == my_world_pe) continue;
+                T *remote = ISHMEMI_FAST_ADJUST(T, info, info->local_pes[pe], source);
                 vector_reduce_work_group<T, OP>(dest, remote, nreduce, grp);
             }
             /* assure all threads have finished copies (group_barrier)
@@ -454,8 +302,8 @@ inline int ishmemi_sub_reduce_work_group(ishmem_team_t team, T *dest, const T *s
                 req.dst = dest;
                 req.nelems = nreduce;
                 req.op = OP;
-                req.type = ishmemi_proxy_get_base_type<T, true, true>();
-                req.team = myteam;
+                req.type = ishmemi_union_get_base_type<T, OP>();
+                req.team = team;
 
                 ret = ishmemi_proxy_blocking_request_status(req);
                 ret = sycl::group_broadcast(grp, ret, 0);
@@ -464,42 +312,6 @@ inline int ishmemi_sub_reduce_work_group(ishmem_team_t team, T *dest, const T *s
         }
     } else {
         /* Safe check and return; should never be reached */
-        return -1;
-    }
-}
-
-/* Reduce (work-group) - top-level reduce */
-/* TODO: figure out how to spread the available threads across all the remote PEs, so as to equalize
- * xe-link loading */
-template <typename T, ishmemi_op_t OP, typename Group>
-inline int ishmemi_reduce_work_group(T *dest, const T *source, size_t nreduce, const Group &grp)
-{
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if constexpr (enable_error_checking) {
-            if (grp.leader())
-                validate_parameters((void *) dest, (void *) source, nreduce * sizeof(T));
-        }
-        size_t max_nreduce = ISHMEM_REDUCE_BUFFER_SIZE / sizeof(T);
-        if (source == dest) {
-            while (nreduce > 0) {
-                size_t this_nreduce = (nreduce < max_nreduce) ? nreduce : max_nreduce;
-                T *temp_buffer = (T *) info->reduce.buffer;
-
-                vec_copy_work_group_push(temp_buffer, source, this_nreduce, grp);
-                int res =
-                    ishmemi_sub_reduce_work_group<T, OP>(dest, temp_buffer, this_nreduce, grp);
-                if (res != 0) return res;
-                dest += this_nreduce;
-                source += this_nreduce;
-                nreduce -= this_nreduce;
-            }
-            return 0;
-        }
-        vec_copy_work_group_push(dest, source, nreduce, grp);
-        return ishmemi_sub_reduce_work_group<T, OP>(dest, source, nreduce, grp);
-    } else {
-        ISHMEM_ERROR_MSG("ISHMEMX_REDUCE_WORK_GROUP routines are not callable from host\n");
         return -1;
     }
 }
@@ -519,7 +331,7 @@ inline int ishmemi_reduce_work_group(ishmem_team_t team, T *dest, const T *sourc
         if (source == dest) {
             while (nreduce > 0) {
                 size_t this_nreduce = (nreduce < max_nreduce) ? nreduce : max_nreduce;
-                T *temp_buffer = (T *) info->team_pool[team]->buffer;
+                T *temp_buffer = (T *) info->team_device_pool[team].buffer;
 
                 vec_copy_work_group_push(temp_buffer, source, this_nreduce, grp);
                 int res = ishmemi_sub_reduce_work_group<T, OP>(team, dest, temp_buffer,
@@ -532,11 +344,21 @@ inline int ishmemi_reduce_work_group(ishmem_team_t team, T *dest, const T *sourc
             return 0;
         }
         vec_copy_work_group_push(dest, source, nreduce, grp);
-        return ishmemi_sub_reduce_work_group<T, OP>(dest, source, nreduce, grp);
+        return ishmemi_sub_reduce_work_group<T, OP>(team, dest, source, nreduce, grp);
     } else {
         ISHMEM_ERROR_MSG("ISHMEMX_REDUCE_WORK_GROUP routines are not callable from host\n");
         return -1;
     }
+}
+
+/* Reduce (work-group) - top-level reduce */
+/* TODO: figure out how to spread the available threads across all the remote PEs, so as to equalize
+ * xe-link loading */
+template <typename T, ishmemi_op_t OP, typename Group>
+inline int ishmemi_reduce_work_group(T *dest, const T *source, size_t nreduce, const Group &grp)
+{
+    int ret = ishmemi_reduce_work_group<T, OP>(ISHMEM_TEAM_WORLD, dest, source, nreduce, grp);
+    return ret;
 }
 
 /* And Reduce */
@@ -551,6 +373,54 @@ template <typename T>
 int ishmem_and_reduce(ishmem_team_t team, T *dest, const T *src, size_t nreduce)
 {
     return ishmemi_reduce<T, AND_REDUCE>(team, dest, src, nreduce);
+}
+
+template <typename T, ishmemi_op_t OP>
+sycl::event ishmemi_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, size_t nreduce,
+                                    int *ret, sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    bool entry_already_exists = true;
+    const std::lock_guard<std::mutex> lock(ishmemi_on_queue_events_map.map_mtx);
+    auto iter = ishmemi_on_queue_events_map.get_entry_info(q, entry_already_exists);
+
+    ishmemi_team_host_t *myteam = &ishmemi_cpu_info->team_host_pool[team];
+    auto e = q.submit([&](sycl::handler &cgh) {
+        set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
+        if ((nreduce != 0) && (myteam->only_intra)) {
+            size_t max_work_group_size = iter->second->max_work_group_size;
+            size_t range_size = (nreduce < max_work_group_size) ? nreduce : max_work_group_size;
+            cgh.parallel_for(
+                sycl::nd_range<1>(sycl::range<1>(range_size), sycl::range<1>(range_size)),
+                [=](sycl::nd_item<1> it) {
+                    int tmp_ret =
+                        ishmemi_reduce_work_group<T, OP>(team, dest, src, nreduce, it.get_group());
+                    if (ret) *ret = tmp_ret;
+                });
+        } else {
+            cgh.host_task([=]() {
+                int tmp_ret = ishmemi_reduce<T, OP>(team, dest, src, nreduce);
+                if (ret) *ret = tmp_ret;
+            });
+        }
+    });
+    ishmemi_on_queue_events_map[&q]->event = e;
+    return e;
+}
+
+template <typename T>
+sycl::event ishmemx_and_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, size_t nreduce,
+                                        int *ret, sycl::queue &q,
+                                        const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, AND_REDUCE>(team, dest, src, nreduce, ret, q, deps);
+}
+
+template <typename T>
+sycl::event ishmemx_and_reduce_on_queue(T *dest, const T *src, size_t nreduce, int *ret,
+                                        sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, AND_REDUCE>(ISHMEM_TEAM_WORLD, dest, src, nreduce, ret, q,
+                                                  deps);
 }
 
 template <typename T, typename Group>
@@ -574,7 +444,7 @@ int ishmemx_and_reduce_work_group(ishmem_team_t team, T *dest, const T *src, siz
     template int ishmemx_##TYPENAME##_and_reduce_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp); \
     template <typename Group> int ishmemx_##TYPENAME##_and_reduce_work_group(TYPE *dest, const TYPE *src, size_t nreduce, const Group &grp) { return ishmemx_and_reduce_work_group(dest, src, nreduce, grp); }
 
-#define ISHMEMI_API_IMPL_TEAM_AND_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                         \
+#define ISHMEMI_API_IMPL_TEAM_AND_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                                        \
     template int ishmemx_##TYPENAME##_and_reduce_work_group<sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);   \
     template int ishmemx_##TYPENAME##_and_reduce_work_group<sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);   \
     template int ishmemx_##TYPENAME##_and_reduce_work_group<sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);   \
@@ -626,6 +496,22 @@ int ishmem_or_reduce(ishmem_team_t team, T *dest, const T *src, size_t nreduce)
     return ishmemi_reduce<T, OR_REDUCE>(team, dest, src, nreduce);
 }
 
+template <typename T>
+sycl::event ishmemx_or_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, size_t nreduce,
+                                       int *ret, sycl::queue &q,
+                                       const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, OR_REDUCE>(team, dest, src, nreduce, ret, q, deps);
+}
+
+template <typename T>
+sycl::event ishmemx_or_reduce_on_queue(T *dest, const T *src, size_t nreduce, int *ret,
+                                       sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, OR_REDUCE>(ISHMEM_TEAM_WORLD, dest, src, nreduce, ret, q,
+                                                 deps);
+}
+
 template <typename T, typename Group>
 int ishmemx_or_reduce_work_group(T *dest, const T *src, size_t nreduce, const Group &grp)
 {
@@ -640,18 +526,18 @@ int ishmemx_or_reduce_work_group(ishmem_team_t team, T *dest, const T *src, size
 }
 
 /* clang-format off */
-#define ISHMEMI_API_IMPL_OR_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                          \
-    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<1>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);    \
-    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<2>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);    \
-    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);    \
-    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp);  \
+#define ISHMEMI_API_IMPL_OR_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                         \
+    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<1>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);   \
+    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<2>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);   \
+    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);   \
+    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp); \
     template <typename Group> int ishmemx_##TYPENAME##_or_reduce_work_group(TYPE *dest, const TYPE *src, size_t nreduce, const Group &grp) { return ishmemx_or_reduce_work_group(dest, src, nreduce, grp); }
 
-#define ISHMEMI_API_IMPL_TEAM_OR_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                          \
-    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);    \
-    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);    \
-    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);    \
-    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::sub_group>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp);  \
+#define ISHMEMI_API_IMPL_TEAM_OR_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                                        \
+    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);   \
+    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);   \
+    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);   \
+    template int ishmemx_##TYPENAME##_or_reduce_work_group<sycl::sub_group>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp); \
     template <typename Group> int ishmemx_##TYPENAME##_or_reduce_work_group(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const Group &grp) { return ishmemx_or_reduce_work_group(team, dest, src, nreduce, grp); }
 /* clang-format on */
 
@@ -699,6 +585,22 @@ int ishmem_xor_reduce(ishmem_team_t team, T *dest, const T *src, size_t nreduce)
     return ishmemi_reduce<T, XOR_REDUCE>(team, dest, src, nreduce);
 }
 
+template <typename T>
+sycl::event ishmemx_xor_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, size_t nreduce,
+                                        int *ret, sycl::queue &q,
+                                        const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, XOR_REDUCE>(team, dest, src, nreduce, ret, q, deps);
+}
+
+template <typename T>
+sycl::event ishmemx_xor_reduce_on_queue(T *dest, const T *src, size_t nreduce, int *ret,
+                                        sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, XOR_REDUCE>(ISHMEM_TEAM_WORLD, dest, src, nreduce, ret, q,
+                                                  deps);
+}
+
 template <typename T, typename Group>
 int ishmemx_xor_reduce_work_group(T *dest, const T *src, size_t nreduce, const Group &grp)
 {
@@ -720,7 +622,7 @@ int ishmemx_xor_reduce_work_group(ishmem_team_t team, T *dest, const T *src, siz
     template int ishmemx_##TYPENAME##_xor_reduce_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp); \
     template <typename Group> int ishmemx_##TYPENAME##_xor_reduce_work_group(TYPE *dest, const TYPE *src, size_t nreduce, const Group &grp) { return ishmemx_xor_reduce_work_group(dest, src, nreduce, grp); }
 
-#define ISHMEMI_API_IMPL_TEAM_XOR_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                         \
+#define ISHMEMI_API_IMPL_TEAM_XOR_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                                        \
     template int ishmemx_##TYPENAME##_xor_reduce_work_group<sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);   \
     template int ishmemx_##TYPENAME##_xor_reduce_work_group<sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);   \
     template int ishmemx_##TYPENAME##_xor_reduce_work_group<sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);   \
@@ -772,6 +674,22 @@ int ishmem_max_reduce(ishmem_team_t team, T *dest, const T *src, size_t nreduce)
     return ishmemi_reduce<T, MAX_REDUCE>(team, dest, src, nreduce);
 }
 
+template <typename T>
+sycl::event ishmemx_max_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, size_t nreduce,
+                                        int *ret, sycl::queue &q,
+                                        const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, MAX_REDUCE>(team, dest, src, nreduce, ret, q, deps);
+}
+
+template <typename T>
+sycl::event ishmemx_max_reduce_on_queue(T *dest, const T *src, size_t nreduce, int *ret,
+                                        sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, MAX_REDUCE>(ISHMEM_TEAM_WORLD, dest, src, nreduce, ret, q,
+                                                  deps);
+}
+
 template <typename T, typename Group>
 int ishmemx_max_reduce_work_group(T *dest, const T *src, size_t nreduce, const Group &grp)
 {
@@ -793,7 +711,7 @@ int ishmemx_max_reduce_work_group(ishmem_team_t team, T *dest, const T *src, siz
     template int ishmemx_##TYPENAME##_max_reduce_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp); \
     template <typename Group> int ishmemx_##TYPENAME##_max_reduce_work_group(TYPE *dest, const TYPE *src, size_t nreduce, const Group &grp) { return ishmemx_max_reduce_work_group(dest, src, nreduce, grp); }
 
-#define ISHMEMI_API_IMPL_TEAM_MAX_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                         \
+#define ISHMEMI_API_IMPL_TEAM_MAX_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                                        \
     template int ishmemx_##TYPENAME##_max_reduce_work_group<sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);   \
     template int ishmemx_##TYPENAME##_max_reduce_work_group<sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);   \
     template int ishmemx_##TYPENAME##_max_reduce_work_group<sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);   \
@@ -863,6 +781,22 @@ int ishmem_min_reduce(ishmem_team_t team, T *dest, const T *src, size_t nreduce)
     return ishmemi_reduce<T, MIN_REDUCE>(team, dest, src, nreduce);
 }
 
+template <typename T>
+sycl::event ishmemx_min_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, size_t nreduce,
+                                        int *ret, sycl::queue &q,
+                                        const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, MIN_REDUCE>(team, dest, src, nreduce, ret, q, deps);
+}
+
+template <typename T>
+sycl::event ishmemx_min_reduce_on_queue(T *dest, const T *src, size_t nreduce, int *ret,
+                                        sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, MIN_REDUCE>(ISHMEM_TEAM_WORLD, dest, src, nreduce, ret, q,
+                                                  deps);
+}
+
 template <typename T, typename Group>
 int ishmemx_min_reduce_work_group(T *dest, const T *src, size_t nreduce, const Group &grp)
 {
@@ -884,7 +818,7 @@ int ishmemx_min_reduce_work_group(ishmem_team_t team, T *dest, const T *src, siz
     template int ishmemx_##TYPENAME##_min_reduce_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp); \
     template <typename Group> int ishmemx_##TYPENAME##_min_reduce_work_group(TYPE *dest, const TYPE *src, size_t nreduce, const Group &grp) { return ishmemx_min_reduce_work_group(dest, src, nreduce, grp); }
 
-#define ISHMEMI_API_IMPL_TEAM_MIN_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                         \
+#define ISHMEMI_API_IMPL_TEAM_MIN_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                                        \
     template int ishmemx_##TYPENAME##_min_reduce_work_group<sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);   \
     template int ishmemx_##TYPENAME##_min_reduce_work_group<sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);   \
     template int ishmemx_##TYPENAME##_min_reduce_work_group<sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);   \
@@ -954,6 +888,22 @@ int ishmem_sum_reduce(ishmem_team_t team, T *dest, const T *src, size_t nreduce)
     return ishmemi_reduce<T, SUM_REDUCE>(team, dest, src, nreduce);
 }
 
+template <typename T>
+sycl::event ishmemx_sum_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, size_t nreduce,
+                                        int *ret, sycl::queue &q,
+                                        const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, SUM_REDUCE>(team, dest, src, nreduce, ret, q, deps);
+}
+
+template <typename T>
+sycl::event ishmemx_sum_reduce_on_queue(T *dest, const T *src, size_t nreduce, int *ret,
+                                        sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, SUM_REDUCE>(ISHMEM_TEAM_WORLD, dest, src, nreduce, ret, q,
+                                                  deps);
+}
+
 template <typename T, typename Group>
 int ishmemx_sum_reduce_work_group(T *dest, const T *src, size_t nreduce, const Group &grp)
 {
@@ -975,7 +925,7 @@ int ishmemx_sum_reduce_work_group(ishmem_team_t team, T *dest, const T *src, siz
     template int ishmemx_##TYPENAME##_sum_reduce_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp); \
     template <typename Group> int ishmemx_##TYPENAME##_sum_reduce_work_group(TYPE *dest, const TYPE *src, size_t nreduce, const Group &grp) { return ishmemx_sum_reduce_work_group(dest, src, nreduce, grp); }
 
-#define ISHMEMI_API_IMPL_TEAM_SUM_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                         \
+#define ISHMEMI_API_IMPL_TEAM_SUM_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                                        \
     template int ishmemx_##TYPENAME##_sum_reduce_work_group<sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);   \
     template int ishmemx_##TYPENAME##_sum_reduce_work_group<sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);   \
     template int ishmemx_##TYPENAME##_sum_reduce_work_group<sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);   \
@@ -1045,6 +995,22 @@ int ishmem_prod_reduce(ishmem_team_t team, T *dest, const T *src, size_t nreduce
     return ishmemi_reduce<T, PROD_REDUCE>(team, dest, src, nreduce);
 }
 
+template <typename T>
+sycl::event ishmemx_prod_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, size_t nreduce,
+                                         int *ret, sycl::queue &q,
+                                         const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, PROD_REDUCE>(team, dest, src, nreduce, ret, q, deps);
+}
+
+template <typename T>
+sycl::event ishmemx_prod_reduce_on_queue(T *dest, const T *src, size_t nreduce, int *ret,
+                                         sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemi_reduce_on_queue<T, PROD_REDUCE>(ISHMEM_TEAM_WORLD, dest, src, nreduce, ret, q,
+                                                   deps);
+}
+
 template <typename T, typename Group>
 int ishmemx_prod_reduce_work_group(T *dest, const T *src, size_t nreduce, const Group &grp)
 {
@@ -1059,18 +1025,18 @@ int ishmemx_prod_reduce_work_group(ishmem_team_t team, T *dest, const T *src, si
 }
 
 /* clang-format off */
-#define ISHMEMI_API_IMPL_PROD_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                          \
-    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<1>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);    \
-    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<2>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);    \
-    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);    \
-    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp);  \
+#define ISHMEMI_API_IMPL_PROD_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                         \
+    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<1>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);   \
+    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<2>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);   \
+    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<3>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);   \
+    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp); \
     template <typename Group> int ishmemx_##TYPENAME##_prod_reduce_work_group(TYPE *dest, const TYPE *src, size_t nreduce, const Group &grp) { return ishmemx_prod_reduce_work_group(dest, src, nreduce, grp); }
 
-#define ISHMEMI_API_IMPL_TEAM_PROD_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                          \
-    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);    \
-    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);    \
-    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);    \
-    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::sub_group>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp);  \
+#define ISHMEMI_API_IMPL_TEAM_PROD_REDUCE_WORK_GROUP(TYPENAME, TYPE)                                                                                                        \
+    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);   \
+    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);   \
+    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);   \
+    template int ishmemx_##TYPENAME##_prod_reduce_work_group<sycl::sub_group>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp); \
     template <typename Group> int ishmemx_##TYPENAME##_prod_reduce_work_group(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const Group &grp) { return ishmemx_prod_reduce_work_group(team, dest, src, nreduce, grp); }
 /* clang-format on */
 

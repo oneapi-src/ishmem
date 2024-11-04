@@ -1,40 +1,43 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "ishmem/err.h"
-#include "sync_impl.h"
 #include "proxy_impl.h"
 #include "collectives.h"
+#include "runtime.h"
+#include "on_queue.h"
 
 void ishmem_barrier_all()
 {
-    static_assert(ishmemi_sync_algorithm == SYNC_ALGORITHM_ATOMIC_EXCHANGE ||
-                  ishmemi_sync_algorithm == SYNC_ALGORITHM_BITMAP ||
-                  ishmemi_sync_algorithm == SYNC_ALGORITHM_ATOMIC_ADD ||
-                  ishmemi_sync_algorithm == SYNC_ALGORITHM_STORE);
-
     ishmemi_request_t req;
+    req.type = NONE;
     req.op = BARRIER;
-    req.type = MEM;
 #ifdef __SYCL_DEVICE_ONLY__
     ishmemi_info_t *info = global_info;
     if (info->only_intra_node) req.op = QUIET;
     ishmemi_proxy_blocking_request(req);
     if (info->only_intra_node) {
-        if constexpr (ishmemi_sync_algorithm == SYNC_ALGORITHM_ATOMIC_EXCHANGE) {
-            ISHMEMI_SYNC_LOCAL_PES_ATOMIC_EXCHANGE_DEVICE(barrier);
-        } else if constexpr (ishmemi_sync_algorithm == SYNC_ALGORITHM_BITMAP) {
-            ISHMEMI_SYNC_LOCAL_PES_BITMAP_DEVICE(barrier);
-        } else if constexpr (ishmemi_sync_algorithm == SYNC_ALGORITHM_ATOMIC_ADD) {
-            ISHMEMI_SYNC_LOCAL_PES_ATOMIC_ADD_DEVICE(barrier);
-        } else if constexpr (ishmemi_sync_algorithm == SYNC_ALGORITHM_STORE) {
-            ISHMEMI_SYNC_LOCAL_PES_STORE_DEVICE(barrier);
-        }
+        ishmem_team_sync(ISHMEM_TEAM_WORLD);
     }
 #else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
+    ishmemi_drain_ring();
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
+}
+
+sycl::event ishmemx_barrier_all_on_queue(sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    bool entry_already_exists = true;
+    const std::lock_guard<std::mutex> lock(ishmemi_on_queue_events_map.map_mtx);
+    auto iter = ishmemi_on_queue_events_map.get_entry_info(q, entry_already_exists);
+
+    auto e = q.submit([&](sycl::handler &cgh) {
+        set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
+        cgh.host_task([=]() { ishmem_barrier_all(); });
+    });
+    ishmemi_on_queue_events_map[&q]->event = e;
+    return e;
 }
 
 template void ishmemx_barrier_all_work_group<sycl::group<1>>(const sycl::group<1> &grp);

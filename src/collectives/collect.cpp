@@ -15,11 +15,30 @@ int ishmem_collectmem(ishmem_team_t team, void *dest, const void *src, size_t ne
     return ishmem_collect(team, (uint8_t *) dest, (uint8_t *) src, nelems);
 }
 
+sycl::event ishmemx_collectmem_on_queue(void *dest, const void *src, size_t nelems, int *ret,
+                                        sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemx_collect_on_queue((uint8_t *) dest, (uint8_t *) src, nelems, ret, q, deps);
+}
+
+sycl::event ishmemx_collectmem_on_queue(ishmem_team_t team, void *dest, const void *src,
+                                        size_t nelems, int *ret, sycl::queue &q,
+                                        const std::vector<sycl::event> &deps)
+{
+    return ishmemx_collect_on_queue(team, (uint8_t *) dest, (uint8_t *) src, nelems, ret, q, deps);
+}
+
 /* clang-format off */
-#define ISHMEMI_API_IMPL_COLLECT(TYPENAME, TYPE)  \
-    int ishmem_##TYPENAME##_collect(TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_collect(dest, src, nelems); }
-#define ISHMEMI_API_IMPL_TEAM_COLLECT(TYPENAME, TYPE)  \
-    int ishmem_##TYPENAME##_collect(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_collect(team, dest, src, nelems); }
+#define ISHMEMI_API_IMPL_COLLECT(TYPENAME, TYPE)                                                                                                                    \
+    int ishmem_##TYPENAME##_collect(TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_collect(dest, src, nelems); }                                       \
+    sycl::event ishmemx_##TYPENAME##_collect_on_queue(TYPE *dest, const TYPE *src, size_t nelems, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) { \
+		return ishmemx_collect_on_queue(dest, src, nelems, ret, q, deps);                                                                                           \
+	}
+#define ISHMEMI_API_IMPL_TEAM_COLLECT(TYPENAME, TYPE)                                                                                                                                   \
+    int ishmem_##TYPENAME##_collect(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_collect(team, dest, src, nelems); }                                 \
+    sycl::event ishmemx_##TYPENAME##_collect_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) { \
+		return ishmemx_collect_on_queue(team, dest, src, nelems, ret, q, deps);                                                                                                         \
+	}
 /* clang-format on */
 
 ISHMEMI_API_IMPL_COLLECT(float, float)
@@ -81,11 +100,30 @@ int ishmem_fcollectmem(ishmem_team_t team, void *dest, const void *src, size_t n
     return ishmem_fcollect(team, (uint8_t *) dest, (uint8_t *) src, nelems);
 }
 
+sycl::event ishmemx_fcollectmem_on_queue(void *dest, const void *src, size_t nelems, int *ret,
+                                         sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemx_fcollect_on_queue((uint8_t *) dest, (uint8_t *) src, nelems, ret, q, deps);
+}
+
+sycl::event ishmemx_fcollectmem_on_queue(ishmem_team_t team, void *dest, const void *src,
+                                         size_t nelems, int *ret, sycl::queue &q,
+                                         const std::vector<sycl::event> &deps)
+{
+    return ishmemx_fcollect_on_queue(team, (uint8_t *) dest, (uint8_t *) src, nelems, ret, q, deps);
+}
+
 /* clang-format off */
-#define ISHMEMI_API_IMPL_FCOLLECT(TYPENAME, TYPE) \
-    int ishmem_##TYPENAME##_fcollect(TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_fcollect(dest, src, nelems); }
-#define ISHMEMI_API_IMPL_TEAM_FCOLLECT(TYPENAME, TYPE) \
-    int ishmem_##TYPENAME##_fcollect(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_fcollect(team, dest, src, nelems); }
+#define ISHMEMI_API_IMPL_FCOLLECT(TYPENAME, TYPE)                                                                                                                    \
+    int ishmem_##TYPENAME##_fcollect(TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_fcollect(dest, src, nelems); }                                      \
+    sycl::event ishmemx_##TYPENAME##_fcollect_on_queue(TYPE *dest, const TYPE *src, size_t nelems, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) { \
+        return ishmemx_fcollect_on_queue(dest, src, nelems, ret, q, deps);                                                                                           \
+    }
+#define ISHMEMI_API_IMPL_TEAM_FCOLLECT(TYPENAME, TYPE)                                                                                                                                   \
+    int ishmem_##TYPENAME##_fcollect(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_fcollect(team, dest, src, nelems); }                                \
+    sycl::event ishmemx_##TYPENAME##_fcollect_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) { \
+        return ishmemx_fcollect_on_queue(team, dest, src, nelems, ret, q, deps);                                                                                                         \
+    }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_FCOLLECT(float, float)

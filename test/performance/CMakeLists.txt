@@ -1,39 +1,71 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
+
+cmake_minimum_required(VERSION 3.17)
 
 file(GLOB TEST_SOURCE_FILES *.cpp)
 
+set(PROJECT_NAME "ishmem performance tests")
+set(PROJECT_FULL_NAME "Intel® SHMEM performance tests")
+
+project(${PROJECT_NAME})
+
+# -------------------------------------------------------------------
+# Perform common test setup
+
+set(ISHMEM_ROOT_DIR "${PROJECT_SOURCE_DIR}/../..")
+set(ISHMEM_TEST_ROOT_DIR "${PROJECT_SOURCE_DIR}/..")
+
+include(${ISHMEM_TEST_ROOT_DIR}/cmake/common.cmake)
+
+# -------------------------------------------------------------------
+# Setup the common source files
+
+add_library(ishmem-test-common-performance STATIC ${TEST_COMMON_SOURCE_FILES})
+target_include_directories(ishmem-test-common-performance PUBLIC ${ISHMEM_TEST_INCLUDE_DIRS})
+target_link_libraries(ishmem-test-common-performance PUBLIC ${ISHMEM_TEST_LINK_LIBS})
+
+# -------------------------------------------------------------------
+# Setup default test values
+
+set(ISHMEM_PE_COUNTS_PERF_TESTS "2" CACHE STRING "Number of PEs to use for each test")
+set(ISHMEM_PERF_TEST_COMMON_ARGS "--csv -m 512 --test_modes device")
+
+enable_testing()
+
+# -------------------------------------------------------------------
+# Show build summary
+message(STATUS "\n=== Performance tests summary ===")
+message(STATUS "Build type:                  ${CMAKE_BUILD_TYPE_CASE_INSENSITIVE}")
+message(STATUS "PE count(s):                 ${ISHMEM_PE_COUNTS_PERF_TESTS}")
+message(STATUS "CTest launcher:              ${CTEST_LAUNCHER}")
+message(STATUS "Enable AOT compilation:      ${ENABLE_AOT_COMPILATION}")
+if (ENABLE_AOT_COMPILATION)
+    message(STATUS "    AOT Device type(s): ${ISHMEM_AOT_DEVICE_TYPES}")
+endif()
+message(STATUS "Enable OpenSHMEM support:    ${ENABLE_OPENSHMEM}")
+message(STATUS "Enable MPI support:          ${ENABLE_MPI}")
+message(STATUS "==================================\n")
+
+# -------------------------------------------------------------------
+# Set build properties for all tests
+
 foreach(TEST_SOURCE_FILE ${TEST_SOURCE_FILES})
-    get_filename_component(TEST_EXE_FILE ${TEST_SOURCE_FILE} NAME_WE)
-    add_executable(${TEST_EXE_FILE} ${TEST_SOURCE_FILE})
-    set_target_properties(${TEST_EXE_FILE} PROPERTIES OUTPUT_NAME ${TEST_EXE_FILE})
-    target_include_directories(${TEST_EXE_FILE}
-               PUBLIC "${CMAKE_SOURCE_DIR}/src"
-               PUBLIC ${EXTRA_INCS})
-    target_link_libraries(${TEST_EXE_FILE} ${EXTRA_LIBS} ishmem-static)
+    get_filename_component(EXE ${TEST_SOURCE_FILE} NAME_WE)
+    add_executable(${EXE} ${TEST_SOURCE_FILE})
+    set_target_properties(${EXE} PROPERTIES ENABLE_EXPORTS TRUE)
+    target_link_libraries(${EXE} PRIVATE ishmem-test-common-performance)
 endforeach()
 
-set(BWARGS "--csv -m 512 --test_modes device ")
-add_test(NAME alltoall_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/alltoall_bw ${BWARGS} COMMAND_EXPAND_LISTS)
-set_tests_properties(alltoall_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+# -------------------------------------------------------------------
+# Add ctests
 
-add_test(NAME amo_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/amo_bw ${BWARGS} COMMAND_EXPAND_LISTS)
-set_tests_properties(amo_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+foreach(TEST_SOURCE_FILE ${TEST_SOURCE_FILES})
+    get_filename_component(EXE ${TEST_SOURCE_FILE} NAME_WE)
 
-add_test(NAME broadcast_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/broadcast_bw ${BWARGS} COMMAND_EXPAND_LISTS)
-set_tests_properties(broadcast_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
-
-add_test(NAME collect_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/collect_bw ${BWARGS} COMMAND_EXPAND_LISTS)
-set_tests_properties(collect_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
-
-add_test(NAME fcollect_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/fcollect_bw ${BWARGS} COMMAND_EXPAND_LISTS)
-set_tests_properties(fcollect_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
-
-add_test(NAME get_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/get_bw ${BWARGS} COMMAND_EXPAND_LISTS)
-set_tests_properties(get_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
-
-add_test(NAME put_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/put_bw ${BWARGS} COMMAND_EXPAND_LISTS)
-set_tests_properties(put_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
-
-add_test(NAME reduce_bw-2-gpu COMMAND ${CTEST_WRAPPER} 2 ${ISHMRUN_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/reduce_bw ${BWARGS} COMMAND_EXPAND_LISTS)
-set_tests_properties(reduce_bw-2-gpu PROPERTIES ENVIRONMENT SYCL_DEVICE_FILTER=:gpu)
+    # These are standard tests
+    foreach (N ${ISHMEM_PE_COUNTS_PERF_TESTS})
+        add_test(NAME ${EXE}-${N} COMMAND ${CTEST_WRAPPER} ${N} ${ISHMEM_RUN_SCRIPT}
+            ./${EXE} ${ISHMEM_PERF_TEST_COMMON_ARGS} COMMAND_EXPAND_LISTS)
+    endforeach()
+endforeach()

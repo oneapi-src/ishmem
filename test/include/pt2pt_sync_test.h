@@ -23,6 +23,23 @@
     TEST_HOST_FN(testname, suffix, LONGLONG, longlong, long long, op, opname)                      \
     TEST_HOST_FN(testname, suffix, PTRDIFF, ptrdiff, ptrdiff_t, op, opname)
 
+#ifdef GEN_ON_QUEUE_FNS
+#undef GEN_ON_QUEUE_FNS
+#endif
+#define GEN_ON_QUEUE_FNS(testname, suffix, op, opname)                                             \
+    TEST_ON_QUEUE_FN(testname, suffix, UINT, uint, unsigned int, op, opname)                       \
+    TEST_ON_QUEUE_FN(testname, suffix, ULONG, ulong, unsigned long, op, opname)                    \
+    TEST_ON_QUEUE_FN(testname, suffix, ULONGLONG, ulonglong, unsigned long long, op, opname)       \
+    TEST_ON_QUEUE_FN(testname, suffix, INT32, int32, int32_t, op, opname)                          \
+    TEST_ON_QUEUE_FN(testname, suffix, INT64, int64, int64_t, op, opname)                          \
+    TEST_ON_QUEUE_FN(testname, suffix, UINT32, uint32, uint32_t, op, opname)                       \
+    TEST_ON_QUEUE_FN(testname, suffix, UINT64, uint64, uint64_t, op, opname)                       \
+    TEST_ON_QUEUE_FN(testname, suffix, SIZE, size, size_t, op, opname)                             \
+    TEST_ON_QUEUE_FN(testname, suffix, INT, int, int, op, opname)                                  \
+    TEST_ON_QUEUE_FN(testname, suffix, LONG, long, long, op, opname)                               \
+    TEST_ON_QUEUE_FN(testname, suffix, LONGLONG, longlong, long long, op, opname)                  \
+    TEST_ON_QUEUE_FN(testname, suffix, PTRDIFF, ptrdiff, ptrdiff_t, op, opname)
+
 #ifdef GEN_SINGLE_FNS
 #undef GEN_SINGLE_FNS
 #endif

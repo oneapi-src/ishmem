@@ -34,7 +34,7 @@ extern ze_command_queue_handle_t ishmemi_ze_cmd_queue;
 extern ze_command_queue_handle_t ishmemi_ze_all_cmd_queue;
 
 /* ishmemi_ze_link_cmd_queue are the bandwidth link copy engines */
-#ifdef USE_REDUCED_LINK_ENGINE_SET
+#ifdef ENABLE_REDUCED_LINK_ENGINES
 constexpr int NUM_LINK_QUEUE = 2;
 #else
 constexpr int NUM_LINK_QUEUE = 3;
@@ -43,11 +43,9 @@ extern unsigned int ishmemi_link_engine_index;
 extern ze_command_queue_handle_t ishmemi_ze_link_cmd_queue[NUM_LINK_QUEUE];
 extern unsigned int ishmemi_link_engine[NUM_LINK_QUEUE];
 
-/* used for garbage collecting nbi cmd lists on synchronize */
-/* pre-size this according to ishmem_nbi_count environment, with default 1000 */
-/* then auto-cleanup on synchronize or when the number gets to the limit */
-extern std::vector<ze_command_list_handle_t> ishmemi_ze_link_cmd_lists[NUM_LINK_QUEUE];
-extern std::vector<ze_command_list_handle_t> ishmemi_ze_cmd_lists;
+extern ishmemi_thread_safe_vector<ze_command_list_handle_t> ishmemi_ze_cmd_lists;
+extern ishmemi_thread_safe_vector<ze_command_list_handle_t>
+    ishmemi_ze_link_cmd_lists[NUM_LINK_QUEUE];
 extern ze_event_pool_handle_t ishmemi_ze_event_pool;
 extern uint32_t ishmemi_gpu_driver_idx;
 

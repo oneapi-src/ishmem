@@ -59,7 +59,7 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmemx_print(const char *file, long int line, con
     req.dest_pe = msg_type;
     req.src = m;
     req.op = PRINT;
-    req.type = MEM;
+    req.type = NONE;
 
     /* Initiate request */
     ishmemi_proxy_blocking_request(req);

@@ -36,6 +36,7 @@ ishmemi_message_t *ishmemi_msg_queue;                    /* messages to print fr
 
 void ishmemi_cpu_ring::poll(size_t mwait_burst)
 {
+    int ret = 0;
     int lockwasbusy = atomic_lock.exchange(1);
 
     ishmemi_ringcompletion_t comp;
@@ -47,7 +48,7 @@ void ishmemi_cpu_ring::poll(size_t mwait_burst)
 #if USE_POLL_AVX == 1
         __m512i req = _mm512_load_epi64((uint64_t *) mp);
         _mm512_store_epi64((uint64_t *) &msg, req);
-        if ((uin16_t) msg.sequence == matchvalue) {
+        if ((uint16_t) msg.sequence == matchvalue) {
 #else
         if ((uint16_t) mp->sequence == matchvalue) {
             _mm_mfence();
@@ -55,11 +56,12 @@ void ishmemi_cpu_ring::poll(size_t mwait_burst)
 #endif
             completion_index = next_receive & (RING_SIZE - 1);
             comp.completion.sequence = next_receive & 0xffff;
-            next_receive = next_receive + 1;
+            mp->op = UNDEFINED;        // These put the message into exclusive state
+            mp->type = NONE;           // but doesn't seem to hurt performance
             atomic_lock.store(0);      // release lock
             comp.completion.lock = 1;  // it should stay locked until freed at the device
             if (msg.op > DEBUG_TEST) msg.op = DEBUG_TEST;
-            if (msg.type == ISHMEMI_TYPE_END) msg.type = MEM;
+            if (msg.type >= ISHMEMI_TYPE_END) msg.type = NONE;
             // TODO - Enable this with a build flag
             if (0) {
                 fprintf(stderr, "[PE %d] proxy seq %d op %s type %s comp %d pe %d\n", ishmemi_my_pe,
@@ -73,10 +75,18 @@ void ishmemi_cpu_ring::poll(size_t mwait_burst)
                         msg.type, (void *) (&ishmemi_upcall_funcs[msg.op][msg.type]));
                 fflush(stderr);
             }
-            ishmemi_upcall_funcs[msg.op][msg.type](&msg, &comp);
+            ret = ishmemi_upcall_funcs[msg.op][msg.type](&msg, &comp);
+            if (ret) [[unlikely]] {
+                ishmemi_cpu_info->proxy_state = EXIT;
+                ISHMEM_ERROR_MSG("ishmemi_upcall_funcs[%s][%s] failed\n",
+                                 ishmemi_op_str[(int) msg.op], ishmemi_type_str[(int) msg.type]);
+                ishmemi_runtime->abort(ret, "Exiting application");
+            }
+            next_receive = next_receive + 1;
             _movdir64b((void *) &ishmemi_ring_host_completions[completion_index], &comp);
         } else {
             atomic_lock.store(0);  // release lock
+            ishmemi_runtime->progress();
             if (mwait_burst) {
                 _umonitor(mp);
                 long unsigned when = _rdtsc() + 10000L;
@@ -125,12 +135,12 @@ int ishmemi_proxy_init()
 
     ishmemi_mmap_gpu_info->messages = ishmemi_msg_queue;
 
-    memset(ishmemi_ring_host_sendbuf, 0, RING_SIZE * sizeof(ishmemi_request_t));
+    ::memset(ishmemi_ring_host_sendbuf, 0, RING_SIZE * sizeof(ishmemi_request_t));
     for (int i = 0; i < RING_SIZE; i += 1) {
         ishmemi_ring_host_sendbuf[i].op = G;
     }
     ishmemi_ring_host_completions = &ishmemi_mmap_gpu_info->completions[0];
-    memset(ishmemi_ring_host_completions, 0, (RING_SIZE * 2) * sizeof(ishmemi_ringcompletion_t));
+    ::memset(ishmemi_ring_host_completions, 0, (RING_SIZE * 2) * sizeof(ishmemi_ringcompletion_t));
 
     /* Initialize the gpu ring object.  This is a weird operation, calling the ring constructor on
      * the host with a host mmapped pointer, for an object in device memory that will be used only
@@ -159,7 +169,7 @@ int ishmemi_proxy_init()
     /* Initialized the cpu ring object */
     ishmemi_cpu_info->ring.init(ishmemi_ring_host_sendbuf, RING_SIZE);
 
-    /* Initialize the upcall table.  This is a version of ishmemi_proxy_funcs
+    /* Initialize the upcall table.  This is a version of ishmemi_runtime->proxy_funcs
      * that has cutover functions replaced by new implementations
      * and also upcall functions that are not implemented by the runtime at all
      */

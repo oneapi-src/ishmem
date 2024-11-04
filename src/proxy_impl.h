@@ -18,6 +18,10 @@
 
 constexpr int RING_SIZE = 4096;
 
+/* Max number of retries to get two consecutive, identical reads of next_send from mmap'd variable
+ * in call to ishmemi_drain_ring */
+constexpr unsigned int DRAIN_RING_THRESHOLD = 10;
+
 /* For flow control backchannel */
 constexpr uint16_t UPDATE_RECEIVE_INTERVAL_MASK = 0x7f;
 
@@ -33,7 +37,7 @@ constexpr uint16_t UPDATE_RECEIVE_INTERVAL_MASK = 0x7f;
  * complete
  *
  * The built-in completion sequence numbers are also used for ring flow control.  Before a ring slot
- * can be used for a new message, its previous use must be marked complete, witht he sequence field
+ * can be used for a new message, its previous use must be marked complete, with the sequence field
  * set to the previous sequence number with bit 31 clear (which means any return values in the
  * completion have been read.)
  *
@@ -139,6 +143,8 @@ class ishmemi_cpu_ring {
     {
         return next_receive;
     }
+
+    friend void ishmemi_drain_ring();
 
   private:
     ishmemi_request_t *recvbuf;
@@ -247,21 +253,18 @@ class ishmemi_gpu_ring {
         return next_send;
     }
 
+    friend void ishmemi_drain_ring();
+
   private:
     ishmemi_request_t *sendbuf; /* located in host memory */
     unsigned int next_send;
     ishmemi_completion_t *completions; /* location in device memory for completion array */
 };
 
-/* Host side data structure used for collectives on an implied world team */
-struct ishmemi_host_team_t {
-    void *source;  // bounce buffer for internode
-    void *dest;    // bounce buffer for internode
-};
-
 /* Info objects */
 typedef struct ishmemi_cpu_info_t {
     /* Basic variables */
+    bool is_initialized = false;
     int my_pe;
     int n_pes;
     bool use_ipc;
@@ -271,8 +274,9 @@ typedef struct ishmemi_cpu_info_t {
     ishmemi_cpu_ring ring;
 
     /* Other variables */
+    size_t n_teams;
+    ishmemi_team_host_t *team_host_pool;
     ishmemx_attr_t *attr;
-    ishmemi_host_team_t reduce;
 } ishmemi_cpu_info_t;
 
 extern ishmemi_cpu_info_t *ishmemi_cpu_info;
@@ -288,24 +292,9 @@ typedef struct ishmemi_info_t {
     bool is_initialized = false;
     int my_pe;
     int n_pes;
-
-    /* Collectives variables */
-    int local_rank;
-    int n_local_pes;
-    long *psync_pool;
-    long *psync_barrier_pool;
-    /* for implied world team APIs */
-    long *barrier_all_psync[ISHMEM_SYNC_NUM_PSYNC_ARRS];
-    long *sync_all_psync[ISHMEM_SYNC_NUM_PSYNC_ARRS];
-    int sync_index;
-    int barrier_index;
-    ishmemi_team_t reduce;
-    size_t *collect_mynelems; /* symmetric, for local collect size */
-    size_t *collect_nelems;   /* symmetric, size of MAX_LOCAL_PEs */
-
     /* Teams variables */
     size_t n_teams;
-    ishmemi_team_t **team_pool;
+    ishmemi_team_device_t *team_device_pool;
 
     /* IPC variables */
     void *heap_base;
@@ -327,133 +316,30 @@ typedef struct ishmemi_info_t {
     uint8_t local_pes[MAX_LOCAL_PES] __attribute__((aligned(64)));
 } ishmemi_info_t;
 
+inline void ishmemi_drain_ring()
+{
+    std::atomic<unsigned int> next_send_checkpoint(ishmemi_mmap_gpu_info->ring.next_send);
+    std::atomic<unsigned int> temp(ishmemi_mmap_gpu_info->ring.next_send);
+    unsigned int iteration = 0;
+    while (next_send_checkpoint != temp) {
+        if (++iteration > DRAIN_RING_THRESHOLD) {
+            ISHMEM_WARN_MSG(
+                "Could not obtain consistent read of next_send. Runtime cannot guarantee the "
+                "current quiet operation will wait for completion of previously issued ISHMEM "
+                "calls on the upcall ring buffer.\n");
+            return;
+        }
+
+        next_send_checkpoint.store(temp);
+        temp.store(ishmemi_mmap_gpu_info->ring.next_send);
+    }
+    while ((int) next_send_checkpoint - (int) ishmemi_cpu_info->ring.next_receive > 0) {
+    }
+}
+
 ISHMEM_DEVICE_ATTRIBUTES inline int ishmemi_proxy_get_status(const ishmemi_union_type &field)
 {
     return field.i;
-}
-
-template <typename T, bool SIGN_MATTERS = false, bool FP_MATTERS = false>
-ISHMEM_DEVICE_ATTRIBUTES inline void ishmemi_proxy_set_field_value(ishmemi_union_type &field,
-                                                                   const T val)
-{
-    /* Floating-point types */
-    if constexpr (FP_MATTERS) {
-        if constexpr (std::is_floating_point_v<T>) {
-            if constexpr (std::is_same_v<T, float>) {
-                field.f = static_cast<float>(val);
-                return;
-            } else if constexpr (std::is_same_v<T, double>) {
-                field.ld = static_cast<double>(val);
-                return;
-            } else static_assert(false, "Unknown or unsupported type");
-        }
-    }
-
-    /* Signed types */
-    if constexpr (SIGN_MATTERS) {
-        if constexpr (std::is_signed_v<T>) {
-            if constexpr (sizeof(T) == sizeof(int8_t)) {
-                field.i8 = static_cast<int8_t>(val);
-                return;
-            } else if constexpr (sizeof(T) == sizeof(int16_t)) {
-                field.i16 = static_cast<int16_t>(val);
-                return;
-            } else if constexpr (sizeof(T) == sizeof(int32_t)) {
-                field.i32 = static_cast<int32_t>(val);
-                return;
-            } else if constexpr (sizeof(T) == sizeof(int64_t)) {
-                field.i64 = static_cast<int64_t>(val);
-                return;
-            } else if constexpr (sizeof(T) == sizeof(long long)) {
-                field.ull = static_cast<long long>(val);
-                return;
-            } else static_assert(false, "Unknown or unsupported type");
-        }
-    }
-
-    /* Unsigned types */
-    if constexpr (sizeof(T) == sizeof(uint8_t)) {
-        field.ui8 = static_cast<uint8_t>(val);
-        return;
-    } else if constexpr (sizeof(T) == sizeof(uint16_t)) {
-        field.ui16 = static_cast<uint16_t>(val);
-        return;
-    } else if constexpr (sizeof(T) == sizeof(uint32_t)) {
-        field.ui32 = static_cast<uint32_t>(val);
-        return;
-    } else if constexpr (sizeof(T) == sizeof(uint64_t)) {
-        field.ui64 = static_cast<uint64_t>(val);
-        return;
-    } else if constexpr (sizeof(T) == sizeof(unsigned long long)) {
-        field.ull = static_cast<unsigned long long>(val);
-        return;
-    } else static_assert(false, "Unknown or unsupported type");
-}
-
-template <typename T, bool SIGN_MATTERS = false, bool FP_MATTERS = false>
-ISHMEM_DEVICE_ATTRIBUTES inline T ishmemi_proxy_get_field_value(const ishmemi_union_type &field)
-{
-    /* Floating-point types */
-    if constexpr (FP_MATTERS) {
-        if constexpr (std::is_floating_point_v<T>) {
-            if constexpr (std::is_same_v<T, float>) return static_cast<T>(field.f);
-            else if constexpr (std::is_same_v<T, double>) return static_cast<T>(field.ld);
-            else static_assert(false, "Unknown or unsupported type");
-        }
-    }
-
-    /* Signed types */
-    if constexpr (SIGN_MATTERS) {
-        if constexpr (std::is_signed_v<T>) {
-            if constexpr (sizeof(T) == sizeof(int8_t)) return static_cast<T>(field.i8);
-            else if constexpr (sizeof(T) == sizeof(int16_t)) return static_cast<T>(field.i16);
-            else if constexpr (sizeof(T) == sizeof(int32_t)) return static_cast<T>(field.i32);
-            else if constexpr (sizeof(T) == sizeof(int64_t)) return static_cast<T>(field.i64);
-            else if constexpr (sizeof(T) == sizeof(long long)) return static_cast<T>(field.ull);
-            else static_assert(false, "Unknown or unsupported type");
-        }
-    }
-
-    /* Unsigned types */
-    if constexpr (sizeof(T) == sizeof(uint8_t)) return static_cast<T>(field.ui8);
-    else if constexpr (sizeof(T) == sizeof(uint16_t)) return static_cast<T>(field.ui16);
-    else if constexpr (sizeof(T) == sizeof(uint32_t)) return static_cast<T>(field.ui32);
-    else if constexpr (sizeof(T) == sizeof(uint64_t)) return static_cast<T>(field.ui64);
-    else if constexpr (sizeof(T) == sizeof(unsigned long long)) return static_cast<T>(field.ull);
-    else static_assert(false, "Unknown or unsupported type");
-}
-
-template <typename T, bool SIGN_MATTERS = false, bool FP_MATTERS = false>
-ISHMEM_DEVICE_ATTRIBUTES inline ishmemi_type_t ishmemi_proxy_get_base_type()
-{
-    /* Floating-point types */
-    if constexpr (FP_MATTERS) {
-        if constexpr (std::is_floating_point_v<T>) {
-            if constexpr (std::is_same_v<T, float>) return FLOAT;
-            else if constexpr (std::is_same_v<T, double>) return DOUBLE;
-            else static_assert(false, "Unknown or unsupported type");
-        }
-    }
-
-    /* Signed types */
-    if constexpr (SIGN_MATTERS) {
-        if constexpr (std::is_signed_v<T>) {
-            if constexpr (sizeof(T) == sizeof(int8_t)) return INT8;
-            else if constexpr (sizeof(T) == sizeof(int16_t)) return INT16;
-            else if constexpr (sizeof(T) == sizeof(int32_t)) return INT32;
-            else if constexpr (sizeof(T) == sizeof(int64_t)) return INT64;
-            else if constexpr (sizeof(T) == sizeof(long long)) return LONGLONG;
-            else static_assert(false, "Unknown or unsupported type");
-        }
-    }
-
-    /* Unsigned types */
-    if constexpr (sizeof(T) == sizeof(uint8_t)) return UINT8;
-    else if constexpr (sizeof(T) == sizeof(uint16_t)) return UINT16;
-    else if constexpr (sizeof(T) == sizeof(uint32_t)) return UINT32;
-    else if constexpr (sizeof(T) == sizeof(uint64_t)) return UINT64;
-    else if constexpr (sizeof(T) == sizeof(unsigned long long)) return ULONGLONG;
-    else static_assert(false, "Unknown or unsupported type");
 }
 
 ISHMEM_DEVICE_ATTRIBUTES inline void ishmemi_proxy_blocking_request(ishmemi_request_t &req)
@@ -476,7 +362,7 @@ ISHMEM_DEVICE_ATTRIBUTES inline int ishmemi_proxy_blocking_request_status(ishmem
     return ret;
 }
 
-template <typename T>
+template <typename T, ishmemi_op_t OP>
 ISHMEM_DEVICE_ATTRIBUTES inline T ishmemi_proxy_blocking_request_return(ishmemi_request_t &req)
 {
     T ret = static_cast<T>(0);
@@ -485,8 +371,7 @@ ISHMEM_DEVICE_ATTRIBUTES inline T ishmemi_proxy_blocking_request_return(ishmemi_
     uint32_t sequence = info->ring.send(req);
     uint32_t completion_index = sequence & (RING_SIZE - 1);
     info->completion.wait(completion_index, static_cast<uint16_t>(sequence));
-    ret = ishmemi_proxy_get_field_value<T, true, true>(
-        info->completions[completion_index].completion.ret);
+    ret = ishmemi_union_get_field_value<T, OP>(info->completions[completion_index].completion.ret);
     /* The purpose of this is to clear the 0x80000000 bit, to mark the completion as free */
     info->completions[completion_index].completion.sequence = sequence;
     return ret;
@@ -498,7 +383,7 @@ ISHMEM_DEVICE_ATTRIBUTES inline void ishmemi_proxy_nonblocking_request(ishmemi_r
     info->ring.send(req);
 }
 
-#define ISHMEMI_RUNTIME_REQUEST_HELPER(T, TYPENAME)                                                \
+#define ISHMEMI_RUNTIME_REQUEST_HELPER(T, OP)                                                      \
     /* Basic arguments */                                                                          \
     T *dest __attribute__((unused)) = static_cast<T *>(msg->dst);                                  \
     T *fetch __attribute__((unused)) = static_cast<T *>(msg->fetch);                               \
@@ -510,20 +395,23 @@ ISHMEM_DEVICE_ATTRIBUTES inline void ishmemi_proxy_nonblocking_request(ishmemi_r
     ptrdiff_t sst __attribute__((unused)) = msg->src_stride;                                       \
     size_t bsize __attribute__((unused)) = msg->bsize;                                             \
     /* AMO/p arguments */                                                                          \
-    T val __attribute__((unused)) = static_cast<T>(msg->value.TYPENAME);                           \
-    T cond __attribute__((unused)) = static_cast<T>(msg->cond.TYPENAME);                           \
+    T val __attribute__((unused)) = ishmemi_union_get_field_value<T, OP>(msg->value);              \
+    T cond __attribute__((unused)) = ishmemi_union_get_field_value<T, OP>(msg->cond);              \
     /* Signaling arguments */                                                                      \
     uint64_t *sig_addr __attribute__((unused)) = msg->sig_addr;                                    \
     uint64_t signal __attribute__((unused)) = msg->signal;                                         \
     int sig_op __attribute__((unused)) = msg->sig_op;                                              \
     /* Synchronization arguments */                                                                \
     int cmp __attribute__((unused)) = msg->cmp;                                                    \
-    T cmp_value __attribute__((unused)) = msg->cmp_value.TYPENAME;                                 \
+    T cmp_value __attribute__((unused)) = ishmemi_union_get_field_value<T, OP>(msg->cmp_value);    \
+    const T *cmp_values __attribute__((unused)) = static_cast<const T *>(msg->cmp_values);         \
     const int *status __attribute__((unused)) = msg->status;                                       \
     size_t *indices __attribute__((unused)) = msg->indices;                                        \
     /* Broadcast argument */                                                                       \
     int root __attribute__((unused)) = msg->root;                                                  \
     /* Teams/collectives args */                                                                   \
-    ishmemi_team_t *team __attribute__((unused)) = msg->team;
+    ishmem_team_t team __attribute__((unused)) = msg->team;                                        \
+    ishmemi_team_host_t *team_ptr __attribute__((unused)) =                                        \
+        &ishmemi_cpu_info->team_host_pool[msg->team];
 
 #endif /* ISHMEM_PROXY_IMPL_H */

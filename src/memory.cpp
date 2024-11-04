@@ -2,8 +2,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "ishmem/err.h"
 #include "memory.h"
-#include "env_utils.h"
+#include "ishmem/env_utils.h"
 #include "accelerator.h"
 #include "runtime.h"
 
@@ -54,7 +55,7 @@ int ishmemi_memory_init()
         if (ishmemi_mmap_heap_base == nullptr) {
             RAISE_ERROR_MSG("Unable to mmap GPU symmetric heap\n");
         }
-        memset(ishmemi_mmap_heap_base, 0, ishmemi_heap_length);
+        ::memset(ishmemi_mmap_heap_base, 0, ishmemi_heap_length);
         ishmemi_heap_last = (uintptr_t) pointer_offset(ishmemi_heap_base, ishmemi_heap_length - 1);
     } else {
         /* Shared memory alloc */
@@ -96,12 +97,12 @@ int ishmemi_memory_init()
     if (ishmemi_mmap_gpu_info == nullptr) {
         RAISE_ERROR_MSG("Unable to mmap GPU info object\n");
     }
-    memset(ishmemi_mmap_gpu_info, 0, ishmemi_info_size);
+    ::memset(ishmemi_mmap_gpu_info, 0, ishmemi_info_size);
 
     if (ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
         ishmemi_mspace = create_mspace_with_base(ishmemi_heap_base, ishmemi_heap_length, 0);
     } else {
-#ifdef USE_DLMALLOC
+#ifdef ENABLE_DLMALLOC
         ishmemi_mspace = create_mspace_with_base(ishmemi_mmap_heap_base, ishmemi_heap_length, 0);
 #endif
     }
@@ -170,12 +171,13 @@ void *ishmemi_get_next(size_t incr, size_t alignment)
 
 void *ishmem_malloc(size_t size)
 {
+    if constexpr (enable_error_checking) validate_init();
     void *ret;
     if (size == 0) return (nullptr);
 
     // TODO: internal barrier, dlmalloc, thread-safety
     if (!ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
-#ifndef USE_DLMALLOC
+#ifndef ENABLE_DLMALLOC
         ret = ishmemi_get_next(size);
 #else
         void *host_ret = mspace_memalign(ishmemi_mspace, ISHMEMI_ALLOC_ALIGN, size);
@@ -191,7 +193,7 @@ void *ishmem_malloc(size_t size)
                               "Unable to allocate %zu bytes in symmetric space\n", size);
     }
 
-    ishmemi_runtime_barrier_all();
+    ishmemi_runtime->barrier_all();
     return ret;
 
 fn_fail:
@@ -200,6 +202,7 @@ fn_fail:
 
 void *ishmem_align(size_t alignment, size_t size)
 {
+    if constexpr (enable_error_checking) validate_init();
     void *ret;
 
     if (size == 0) return nullptr;
@@ -207,7 +210,7 @@ void *ishmem_align(size_t alignment, size_t size)
     if (alignment == 0 || (alignment & (alignment - 1)) != 0) return nullptr;
 
     if (!ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
-#ifndef USE_DLMALLOC
+#ifndef ENABLE_DLMALLOC
         ret = ishmemi_get_next(size, alignment);
 #else
         void *host_ret = mspace_memalign(ishmemi_mspace, alignment, size);
@@ -223,7 +226,7 @@ void *ishmem_align(size_t alignment, size_t size)
                               "Unable to allocate %zu bytes in symmetric space\n", size);
     }
 
-    ishmemi_runtime_barrier_all();
+    ishmemi_runtime->barrier_all();
     return ret;
 
 fn_fail:
@@ -232,12 +235,18 @@ fn_fail:
 
 void *ishmem_calloc(size_t count, size_t size)
 {
+    if constexpr (enable_error_checking) validate_init();
+    return ishmemi_calloc(count, size);
+}
+
+void *ishmemi_calloc(size_t count, size_t size)
+{
     void *ptr;
     if (count == 0 || size == 0) return (nullptr);
 
     // TODO: internal barrier, dlmalloc, thread-safety
     if (!ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
-#ifndef USE_DLMALLOC
+#ifndef ENABLE_DLMALLOC
         ptr = ishmemi_get_next(size * count);
 #else
         void *host_ret = mspace_memalign(ishmemi_mspace, ISHMEMI_ALLOC_ALIGN, count * size);
@@ -274,7 +283,7 @@ void *ishmem_calloc(size_t count, size_t size)
         ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
     }
 
-    ishmemi_runtime_barrier_all();
+    ishmemi_runtime->barrier_all();
 
     return ptr;
 
@@ -284,15 +293,15 @@ fn_fail:
 
 void ishmem_free(void *ptr)
 {
-    // TODO
-    ishmemi_runtime_barrier_all();
+    if constexpr (enable_error_checking) validate_init();
+    ishmemi_runtime->barrier_all();
     if (ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP) {
         if (ptr != nullptr) {
             mspace_free(ishmemi_mspace, ptr);
         }
     } else {
         if (ptr != nullptr) {
-#ifdef USE_DLMALLOC
+#ifdef ENABLE_DLMALLOC
             void *host_ptr = (void *) (((uintptr_t) ptr - (uintptr_t) ishmemi_heap_base) +
                                        (uintptr_t) ishmemi_mmap_heap_base);
             mspace_free(ishmemi_mspace, host_ptr);
@@ -301,7 +310,7 @@ void ishmem_free(void *ptr)
     }
 }
 
-void *ishmem_copy(void *dst, void *src, size_t size)
+void *ishmem_copy(void *dst, const void *src, size_t size)
 {
     int ret = 0;
     ze_memory_type_t dst_type, src_type;
@@ -319,4 +328,44 @@ void *ishmem_copy(void *dst, void *src, size_t size)
 
 fn_fail:
     return nullptr;
+}
+
+void *ishmem_zero(void *dst, size_t size)
+{
+    ze_command_list_handle_t cmd_list = {};
+    uint32_t zero = 0;
+    int ret = 0;
+    ze_command_queue_desc_t cmd_queue_desc = {.stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
+                                              .pNext = nullptr,
+                                              .ordinal = 1,
+                                              .index = 0,
+                                              .flags = 0,
+                                              .mode = ZE_COMMAND_QUEUE_MODE_SYNCHRONOUS,
+                                              .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL};
+    ZE_CHECK(zeCommandListCreateImmediate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_queue_desc,
+                                          &cmd_list));
+    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+    ZE_CHECK(zeCommandListAppendMemoryFill(cmd_list, dst, &zero, 1, size, nullptr, 0, nullptr));
+    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+    ZE_CHECK(zeCommandListDestroy(cmd_list));
+    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+    return dst;
+fn_fail:
+    return nullptr;
+}
+
+void *ishmem_ptr(const void *dest, int pe)
+{
+    if constexpr (enable_error_checking) validate_parameters(pe);
+    return ishmemi_ptr(dest, pe);
+}
+
+void *ishmemi_ptr(const void *dest, int pe)
+{
+    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+    if (local_index != 0) {
+        return ISHMEMI_ADJUST_PTR(void, local_index, dest);
+    } else {
+        return nullptr;
+    }
 }

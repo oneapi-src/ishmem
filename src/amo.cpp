@@ -1,811 +1,213 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "ishmem/err.h"
-#include "proxy_impl.h"
-#include "runtime.h"
-#include "memory.h"
+#include "amo_impl.h"
 
-/* Atomic fetch */
+/* Blocking AMOs */
 template <typename T>
 T ishmem_atomic_fetch(T *src, int pe)
 {
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) src, sizeof(T));
-    }
+    return amo_impl_return<T, AMO_FETCH>(src, 0, 0, pe);
+}
 
-    T ret = static_cast<T>(0);
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+template <typename T>
+T ishmem_atomic_compare_swap(T *dest, T cond, T val, int pe)
+{
+    return amo_impl_return<T, AMO_COMPARE_SWAP>(dest, cond, val, pe);
+}
 
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, src);
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            ret = atomic_p.load();
-            return ret;
-        }
-    }
+template <typename T>
+T ishmem_atomic_swap(T *dest, T val, int pe)
+{
+    return amo_impl_return<T, AMO_SWAP>(dest, 0, val, pe);
+}
 
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.src = src;
-    req.op = AMO_FETCH;
-    req.type = ishmemi_proxy_get_base_type<T, true, true>();
+template <typename T>
+T ishmem_atomic_fetch_inc(T *dest, int pe)
+{
+    return amo_impl_return<T, AMO_FETCH_INC>(dest, 0, 0, pe);
+}
 
-#if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(req);
-#else
-    ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    ret = ishmemi_proxy_get_field_value<T, true, true>(comp.completion.ret);
-#endif
-    return ret;
+template <typename T>
+T ishmem_atomic_fetch_add(T *dest, T val, int pe)
+{
+    return amo_impl_return<T, AMO_FETCH_ADD>(dest, 0, val, pe);
+}
+
+template <typename T>
+T ishmem_atomic_fetch_and(T *dest, T val, int pe)
+{
+    return amo_impl_return<T, AMO_FETCH_AND>(dest, 0, val, pe);
+}
+
+template <typename T>
+T ishmem_atomic_fetch_or(T *dest, T val, int pe)
+{
+    return amo_impl_return<T, AMO_FETCH_OR>(dest, 0, val, pe);
+}
+
+template <typename T>
+T ishmem_atomic_fetch_xor(T *dest, T val, int pe)
+{
+    return amo_impl_return<T, AMO_FETCH_XOR>(dest, 0, val, pe);
+}
+
+template <typename T>
+void ishmem_atomic_set(T *dest, T val, int pe)
+{
+    amo_impl<T, AMO_SET>(dest, val, pe);
+}
+
+template <typename T>
+void ishmem_atomic_inc(T *dest, int pe)
+{
+    amo_impl<T, AMO_INC>(dest, 0, pe);
+}
+
+template <typename T>
+void ishmem_atomic_add(T *dest, T val, int pe)
+{
+    amo_impl<T, AMO_ADD>(dest, val, pe);
+}
+
+template <typename T>
+void ishmem_atomic_and(T *dest, T val, int pe)
+{
+    amo_impl<T, AMO_AND>(dest, val, pe);
+}
+
+template <typename T>
+void ishmem_atomic_or(T *dest, T val, int pe)
+{
+    amo_impl<T, AMO_OR>(dest, val, pe);
+}
+
+template <typename T>
+void ishmem_atomic_xor(T *dest, T val, int pe)
+{
+    amo_impl<T, AMO_XOR>(dest, val, pe);
 }
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_ATOMIC_FETCH(TYPENAME, TYPE) \
-    TYPE ishmem_##TYPENAME##_atomic_fetch(TYPE *src, int pe) { return ishmem_atomic_fetch(src, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_FETCH(float, float)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(double, double)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(int, int)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(long, long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(longlong, long long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(uint64, uint64_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(size, size_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH(ptrdiff, ptrdiff_t)
-
-/* Atomic set */
-template <typename T>
-void ishmem_atomic_set(T *dest, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            atomic_p = val;
-            return;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_SET;
-    req.type = ishmemi_proxy_get_base_type<T, true, true>();
-
-    ishmemi_proxy_set_field_value<T, true, true>(req.value, val);
-
-#if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(req);
-#else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
-#endif
-}
-
-/* clang-format off */
-#define ISHMEMI_API_IMPL_ATOMIC_SET(TYPE, TYPENAME) \
-    void ishmem_##TYPE##_atomic_set(TYPENAME *dest, TYPENAME val, int pe) { ishmem_atomic_set(dest, val, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_SET(float, float)
-ISHMEMI_API_IMPL_ATOMIC_SET(double, double)
-ISHMEMI_API_IMPL_ATOMIC_SET(int, int)
-ISHMEMI_API_IMPL_ATOMIC_SET(long, long)
-ISHMEMI_API_IMPL_ATOMIC_SET(longlong, long long)
-ISHMEMI_API_IMPL_ATOMIC_SET(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_SET(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_SET(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_SET(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_SET(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_SET(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_SET(uint64, uint64_t)
-ISHMEMI_API_IMPL_ATOMIC_SET(size, size_t)
-ISHMEMI_API_IMPL_ATOMIC_SET(ptrdiff, ptrdiff_t)
-
-/* Atomic compare & swap */
-template <typename T>
-T ishmem_atomic_compare_swap(T *dest, T cond, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    T ret = cond;
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            atomic_p.compare_exchange_strong(ret, val, sycl::memory_order::seq_cst,
-                                             sycl::memory_scope::system);
-            return ret;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_COMPARE_SWAP;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-    ishmemi_proxy_set_field_value<T, true>(req.value, val);
-    ishmemi_proxy_set_field_value<T, true>(req.cond, cond);
-
-#if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(req);
-#else
-    ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    ret = ishmemi_proxy_get_field_value<T, true>(comp.completion.ret);
-#endif
-    return ret;
-}
-
-/* clang-format off */
-#define ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(TYPENAME, TYPE)  \
-    TYPE ishmem_##TYPENAME##_atomic_compare_swap(TYPE *dest, TYPE cond, TYPE val, int pe) { return ishmem_atomic_compare_swap(dest, cond, val, pe); }
-/* clang-format on */
-
-/* Atomic Compare & Swap */
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(int, int)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(long, long)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(longlong, long long)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(uint64, uint64_t)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(size, size_t)
-ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(ptrdiff, ptrdiff_t)
-
-/* Atomic swap */
-template <typename T>
-T ishmem_atomic_swap(T *dest, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    T ret = static_cast<T>(0);
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            ret = atomic_p.exchange(val, sycl::memory_order::seq_cst, sycl::memory_scope::system);
-            return ret;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_SWAP;
-    req.type = ishmemi_proxy_get_base_type<T, true, true>();
-
-    ishmemi_proxy_set_field_value<T, true, true>(req.value, val);
-
-#if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(req);
-#else
-    ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    ret = ishmemi_proxy_get_field_value<T, true, true>(comp.completion.ret);
-#endif
-    return ret;
-}
-
-/* clang-format off */
-#define ISHMEMI_API_IMPL_ATOMIC_SWAP(TYPENAME, TYPE)  \
-    TYPE ishmem_##TYPENAME##_atomic_swap(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_swap(dest, val, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_SWAP(float, float)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(double, double)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(int, int)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(long, long)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(longlong, long long)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(uint64, uint64_t)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(size, size_t)
-ISHMEMI_API_IMPL_ATOMIC_SWAP(ptrdiff, ptrdiff_t)
-
-/* Atomic fetch increment */
-template <typename T>
-T ishmem_atomic_fetch_inc(T *dest, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    T ret = static_cast<T>(0);
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            ret = atomic_p.fetch_add((T) 1);
-            return ret;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_FETCH_INC;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-#if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(req);
-#else
-    ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    ret = ishmemi_proxy_get_field_value<T, true>(comp.completion.ret);
-#endif
-    return ret;
-}
-
-/* clang-format off */
+    TYPE ishmem_##TYPENAME##_atomic_fetch(TYPE *src, int pe) { return ishmem_atomic_fetch<TYPE>(src, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP(TYPENAME, TYPE) \
+    TYPE ishmem_##TYPENAME##_atomic_compare_swap(TYPE *dest, TYPE cond, TYPE val, int pe) { return ishmem_atomic_compare_swap<TYPE>(dest, cond, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_SWAP(TYPENAME, TYPE) \
+    TYPE ishmem_##TYPENAME##_atomic_swap(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_swap<TYPE>(dest, val, pe); }
 #define ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(TYPENAME, TYPE) \
-    TYPE ishmem_##TYPENAME##_atomic_fetch_inc(TYPE *dest, int pe) { return ishmem_atomic_fetch_inc(dest, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(int, int)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(long, long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(longlong, long long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(uint64, uint64_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(size, size_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_INC(ptrdiff, ptrdiff_t)
-
-/* Atomic increment */
-template <typename T>
-void ishmem_atomic_inc(T *dest, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            atomic_p += 1;
-            return;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_INC;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-#if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(req);
-#else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
-#endif
-}
-
-/* clang-format off */
-#define ISHMEMI_API_IMPL_ATOMIC_INC(TYPENAME, TYPE) \
-    void ishmem_##TYPENAME##_atomic_inc(TYPE *dest, int pe) { ishmem_atomic_inc(dest, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_INC(int, int)
-ISHMEMI_API_IMPL_ATOMIC_INC(long, long)
-ISHMEMI_API_IMPL_ATOMIC_INC(longlong, long long)
-ISHMEMI_API_IMPL_ATOMIC_INC(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_INC(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_INC(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_INC(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_INC(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_INC(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_INC(uint64, uint64_t)
-ISHMEMI_API_IMPL_ATOMIC_INC(size, size_t)
-ISHMEMI_API_IMPL_ATOMIC_INC(ptrdiff, ptrdiff_t)
-
-/* Atomic fetch add */
-template <typename T>
-T ishmem_atomic_fetch_add(T *dest, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    T ret = static_cast<T>(0);
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            ret = atomic_p.fetch_add(val);
-            return ret;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_FETCH_ADD;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-    ishmemi_proxy_set_field_value<T, true>(req.value, val);
-
-#if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(req);
-#else
-    ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    ret = ishmemi_proxy_get_field_value<T, true>(comp.completion.ret);
-#endif
-    return ret;
-}
-
-/* clang-format off */
+    TYPE ishmem_##TYPENAME##_atomic_fetch_inc(TYPE *dest, int pe) { return ishmem_atomic_fetch_inc<TYPE>(dest, pe); }
 #define ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(TYPENAME, TYPE) \
-    TYPE ishmem_##TYPENAME##_atomic_fetch_add(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_fetch_add(dest, val, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(int, int)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(long, long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(longlong, long long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(uint64, uint64_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(size, size_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD(ptrdiff, ptrdiff_t)
-
-/* Atomic add */
-template <typename T>
-void ishmem_atomic_add(T *dest, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            atomic_p += val;
-            return;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_ADD;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-    ishmemi_proxy_set_field_value<T, true>(req.value, val);
-
-#if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(req);
-#else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
-#endif
-}
-
-/* clang-format off */
-#define ISHMEMI_API_IMPL_ATOMIC_ADD(TYPENAME, TYPE) \
-    void ishmem_##TYPENAME##_atomic_add(TYPE *dest, TYPE val, int pe) { ishmem_atomic_add(dest, val, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_ADD(int, int)
-ISHMEMI_API_IMPL_ATOMIC_ADD(long, long)
-ISHMEMI_API_IMPL_ATOMIC_ADD(longlong, long long)
-ISHMEMI_API_IMPL_ATOMIC_ADD(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_ADD(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_ADD(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_ADD(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_ADD(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_ADD(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_ADD(uint64, uint64_t)
-ISHMEMI_API_IMPL_ATOMIC_ADD(size, size_t)
-ISHMEMI_API_IMPL_ATOMIC_ADD(ptrdiff, ptrdiff_t)
-
-/* Atomic fetch and */
-template <typename T>
-T ishmem_atomic_fetch_and(T *dest, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    T ret = static_cast<T>(0);
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            ret = atomic_p.fetch_and(val);
-            return ret;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_FETCH_AND;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-    ishmemi_proxy_set_field_value<T, true>(req.value, val);
-
-#if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(req);
-#else
-    ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    ret = ishmemi_proxy_get_field_value<T, true>(comp.completion.ret);
-#endif
-    return ret;
-}
-
-/* clang-format off */
+    TYPE ishmem_##TYPENAME##_atomic_fetch_add(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_fetch_add<TYPE>(dest, val, pe); }
 #define ISHMEMI_API_IMPL_ATOMIC_FETCH_AND(TYPENAME, TYPE) \
-    TYPE ishmem_##TYPENAME##_atomic_fetch_and(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_fetch_and(dest, val, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_FETCH_AND(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_AND(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_AND(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_AND(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_AND(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_AND(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_AND(uint64, uint64_t)
-
-/* Atomic and */
-template <typename T>
-void ishmem_atomic_and(T *dest, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            atomic_p &= val;
-            return;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_AND;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-    ishmemi_proxy_set_field_value<T, true>(req.value, val);
-
-#if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(req);
-#else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
-#endif
-}
-
-/* clang-format off */
-#define ISHMEMI_API_IMPL_ATOMIC_AND(TYPENAME, TYPE) \
-    void ishmem_##TYPENAME##_atomic_and(TYPE *dest, TYPE val, int pe) { ishmem_atomic_and(dest, val, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_AND(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_AND(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_AND(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_AND(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_AND(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_AND(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_AND(uint64, uint64_t)
-
-/* Atomic fetch or */
-template <typename T>
-T ishmem_atomic_fetch_or(T *dest, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    T ret = static_cast<T>(0);
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            ret = atomic_p.fetch_or(val);
-            return ret;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_FETCH_OR;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-    ishmemi_proxy_set_field_value<T, true>(req.value, val);
-
-#if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(req);
-#else
-    ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    ret = ishmemi_proxy_get_field_value<T, true>(comp.completion.ret);
-#endif
-    return ret;
-}
-
-/* clang-format off */
-#define ISHMEMI_API_IMPL_ATOMIC_FETCH_OR(TYPENAME, TYPE)  \
-    TYPE ishmem_##TYPENAME##_atomic_fetch_or(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_fetch_or(dest, val, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_FETCH_OR(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_OR(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_OR(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_OR(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_OR(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_OR(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_OR(uint64, uint64_t)
-
-/* Atomic or */
-template <typename T>
-void ishmem_atomic_or(T *dest, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            atomic_p |= val;
-            return;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_OR;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-    ishmemi_proxy_set_field_value<T, true>(req.value, val);
-
-#if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(req);
-#else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
-#endif
-}
-
-/* clang-format off */
-#define ISHMEMI_API_IMPL_ATOMIC_OR(TYPENAME, TYPE)  \
-    void ishmem_##TYPENAME##_atomic_or(TYPE *dest, TYPE val, int pe) { ishmem_atomic_or(dest, val, pe); }
-/* clang-format on */
-
-ISHMEMI_API_IMPL_ATOMIC_OR(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_OR(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_OR(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_OR(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_OR(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_OR(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_OR(uint64, uint64_t)
-
-/* Atomic fetch xor */
-template <typename T>
-T ishmem_atomic_fetch_xor(T *dest, T val, int pe)
-{
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
-
-    T ret = static_cast<T>(0);
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            ret = atomic_p.fetch_xor(val);
-            return ret;
-        }
-    }
-
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_FETCH_XOR;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
-
-    ishmemi_proxy_set_field_value<T, true>(req.value, val);
-
-#if __SYCL_DEVICE_ONLY__
-    ret = ishmemi_proxy_blocking_request_return<T>(req);
-#else
-    ishmemi_ringcompletion_t comp;
-    ishmemi_proxy_funcs[req.op][req.type](&req, &comp);
-    ret = ishmemi_proxy_get_field_value<T, true>(comp.completion.ret);
-#endif
-    return ret;
-}
-
-/* clang-format off */
+    TYPE ishmem_##TYPENAME##_atomic_fetch_and(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_fetch_and<TYPE>(dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_FETCH_OR(TYPENAME, TYPE) \
+    TYPE ishmem_##TYPENAME##_atomic_fetch_or(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_fetch_or<TYPE>(dest, val, pe); }
 #define ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR(TYPENAME, TYPE) \
-    TYPE ishmem_##TYPENAME##_atomic_fetch_xor(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_fetch_xor(dest, val, pe); }
+    TYPE ishmem_##TYPENAME##_atomic_fetch_xor(TYPE *dest, TYPE val, int pe) { return ishmem_atomic_fetch_xor<TYPE>(dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_SET(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_set(TYPE *dest, TYPE val, int pe) { ishmem_atomic_set<TYPE>(dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_INC(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_inc(TYPE *dest, int pe) { ishmem_atomic_inc<TYPE>(dest, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_ADD(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_add(TYPE *dest, TYPE val, int pe) { ishmem_atomic_add<TYPE>(dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_AND(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_and(TYPE *dest, TYPE val, int pe) { ishmem_atomic_and<TYPE>(dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_OR(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_or(TYPE *dest, TYPE val, int pe) { ishmem_atomic_or<TYPE>(dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_XOR(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_xor(TYPE *dest, TYPE val, int pe) { ishmem_atomic_xor<TYPE>(dest, val, pe); }
 /* clang-format on */
 
-ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR(uint64, uint64_t)
+ISHMEMI_API_GENERATE_AMO_EXT_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH)
+ISHMEMI_API_GENERATE_AMO_STD_TYPES(ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP)
+ISHMEMI_API_GENERATE_AMO_EXT_TYPES(ISHMEMI_API_IMPL_ATOMIC_SWAP)
+ISHMEMI_API_GENERATE_AMO_STD_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_INC)
+ISHMEMI_API_GENERATE_AMO_STD_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD)
+ISHMEMI_API_GENERATE_AMO_BIT_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_AND)
+ISHMEMI_API_GENERATE_AMO_BIT_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_OR)
+ISHMEMI_API_GENERATE_AMO_BIT_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR)
+ISHMEMI_API_GENERATE_AMO_EXT_TYPES(ISHMEMI_API_IMPL_ATOMIC_SET)
+ISHMEMI_API_GENERATE_AMO_STD_TYPES(ISHMEMI_API_IMPL_ATOMIC_INC)
+ISHMEMI_API_GENERATE_AMO_STD_TYPES(ISHMEMI_API_IMPL_ATOMIC_ADD)
+ISHMEMI_API_GENERATE_AMO_BIT_TYPES(ISHMEMI_API_IMPL_ATOMIC_AND)
+ISHMEMI_API_GENERATE_AMO_BIT_TYPES(ISHMEMI_API_IMPL_ATOMIC_OR)
+ISHMEMI_API_GENERATE_AMO_BIT_TYPES(ISHMEMI_API_IMPL_ATOMIC_XOR)
 
-/* Atomic xor */
+/* Non-Blocking AMOs */
 template <typename T>
-void ishmem_atomic_xor(T *dest, T val, int pe)
+void ishmem_atomic_fetch_nbi(T *fetch, T *src, int pe)
 {
-    if constexpr (enable_error_checking) {
-        validate_parameters(pe, (void *) dest, sizeof(T));
-    }
+    amo_nbi_impl<T, AMO_FETCH_NBI>(fetch, src, 0, 0, pe);
+}
 
-    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+template <typename T>
+void ishmem_atomic_compare_swap_nbi(T *fetch, T *dest, T cond, T val, int pe)
+{
+    amo_nbi_impl<T, AMO_COMPARE_SWAP_NBI>(fetch, dest, cond, val, pe);
+}
 
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
-            T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
-            sycl::atomic_ref<T, sycl::memory_order::relaxed, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_p(*p);
-            atomic_p ^= val;
-            return;
-        }
-    }
+template <typename T>
+void ishmem_atomic_swap_nbi(T *fetch, T *dest, T val, int pe)
+{
+    amo_nbi_impl<T, AMO_SWAP_NBI>(fetch, dest, 0, val, pe);
+}
 
-    /* Otherwise */
-    ishmemi_request_t req;
-    req.dest_pe = pe;
-    req.dst = dest;
-    req.op = AMO_XOR;
-    req.type = ishmemi_proxy_get_base_type<T, true>();
+template <typename T>
+void ishmem_atomic_fetch_inc_nbi(T *fetch, T *dest, int pe)
+{
+    amo_nbi_impl<T, AMO_FETCH_INC_NBI>(fetch, dest, 0, 0, pe);
+}
 
-    ishmemi_proxy_set_field_value<T, true>(req.value, val);
+template <typename T>
+void ishmem_atomic_fetch_add_nbi(T *fetch, T *dest, T val, int pe)
+{
+    amo_nbi_impl<T, AMO_FETCH_ADD_NBI>(fetch, dest, 0, val, pe);
+}
 
-#if __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(req);
-#else
-    ishmemi_proxy_funcs[req.op][req.type](&req, nullptr);
-#endif
+template <typename T>
+void ishmem_atomic_fetch_and_nbi(T *fetch, T *dest, T val, int pe)
+{
+    amo_nbi_impl<T, AMO_FETCH_AND_NBI>(fetch, dest, 0, val, pe);
+}
+
+template <typename T>
+void ishmem_atomic_fetch_or_nbi(T *fetch, T *dest, T val, int pe)
+{
+    amo_nbi_impl<T, AMO_FETCH_OR_NBI>(fetch, dest, 0, val, pe);
+}
+
+template <typename T>
+void ishmem_atomic_fetch_xor_nbi(T *fetch, T *dest, T val, int pe)
+{
+    amo_nbi_impl<T, AMO_FETCH_XOR_NBI>(fetch, dest, 0, val, pe);
 }
 
 /* clang-format off */
-#define ISHMEMI_API_IMPL_ATOMIC_XOR(TYPENAME, TYPE) \
-    void ishmem_##TYPENAME##_atomic_xor(TYPE *dest, TYPE val, int pe) { ishmem_atomic_xor(dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_FETCH_NBI(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_fetch_nbi(TYPE *fetch, TYPE *src, int pe) { ishmem_atomic_fetch_nbi<TYPE>(fetch, src, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP_NBI(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_compare_swap_nbi(TYPE *fetch, TYPE *dest, TYPE cond, TYPE val, int pe) { ishmem_atomic_compare_swap_nbi<TYPE>(fetch, dest, cond, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_SWAP_NBI(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_swap_nbi(TYPE *fetch, TYPE *dest, TYPE val, int pe) { ishmem_atomic_swap_nbi<TYPE>(fetch, dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_FETCH_INC_NBI(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_fetch_inc_nbi(TYPE *fetch, TYPE *dest, int pe) { ishmem_atomic_fetch_inc_nbi<TYPE>(fetch, dest, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD_NBI(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_fetch_add_nbi(TYPE *fetch, TYPE *dest, TYPE val, int pe) { ishmem_atomic_fetch_add_nbi<TYPE>(fetch, dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_FETCH_AND_NBI(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_fetch_and_nbi(TYPE *fetch, TYPE *dest, TYPE val, int pe) { ishmem_atomic_fetch_and_nbi<TYPE>(fetch, dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_FETCH_OR_NBI(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_fetch_or_nbi(TYPE *fetch, TYPE *dest, TYPE val, int pe) { ishmem_atomic_fetch_or_nbi<TYPE>(fetch, dest, val, pe); }
+#define ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR_NBI(TYPENAME, TYPE) \
+    void ishmem_##TYPENAME##_atomic_fetch_xor_nbi(TYPE *fetch, TYPE *dest, TYPE val, int pe) { ishmem_atomic_fetch_xor_nbi<TYPE>(fetch, dest, val, pe); }
 /* clang-format on */
 
-ISHMEMI_API_IMPL_ATOMIC_XOR(uint, unsigned int)
-ISHMEMI_API_IMPL_ATOMIC_XOR(ulong, unsigned long)
-ISHMEMI_API_IMPL_ATOMIC_XOR(ulonglong, unsigned long long)
-ISHMEMI_API_IMPL_ATOMIC_XOR(int32, int32_t)
-ISHMEMI_API_IMPL_ATOMIC_XOR(int64, int64_t)
-ISHMEMI_API_IMPL_ATOMIC_XOR(uint32, uint32_t)
-ISHMEMI_API_IMPL_ATOMIC_XOR(uint64, uint64_t)
+ISHMEMI_API_GENERATE_AMO_EXT_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_NBI)
+ISHMEMI_API_GENERATE_AMO_STD_TYPES(ISHMEMI_API_IMPL_ATOMIC_COMPARE_SWAP_NBI)
+ISHMEMI_API_GENERATE_AMO_EXT_TYPES(ISHMEMI_API_IMPL_ATOMIC_SWAP_NBI)
+ISHMEMI_API_GENERATE_AMO_STD_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_INC_NBI)
+ISHMEMI_API_GENERATE_AMO_STD_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_ADD_NBI)
+ISHMEMI_API_GENERATE_AMO_BIT_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_AND_NBI)
+ISHMEMI_API_GENERATE_AMO_BIT_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_OR_NBI)
+ISHMEMI_API_GENERATE_AMO_BIT_TYPES(ISHMEMI_API_IMPL_ATOMIC_FETCH_XOR_NBI)

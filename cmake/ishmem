@@ -1,0 +1,80 @@
+#%Module1.0
+##############################################################################
+
+# Copyright (c) 2024, Intel Corporation
+# SPDX-License-Identifier: BSD-3-Clause
+
+##############################################################################
+
+# Get full pathname for this script
+set scriptpath "${ModulesCurrentModulefile}"
+
+# If this script is a symlink, resolve it
+if { "[file type "$scriptpath"]" eq "link" } {
+    set scriptpath "[file readlink "$scriptpath"]"
+}
+
+# If the full path contains links, resolve them
+set scriptpath "[file normalize "$scriptpath"]"
+
+# Get the directory for this script
+set modulefileroot "[file dirname "$scriptpath"]"
+
+# Get the name of this script
+set modulefilename "[file tail "$scriptpath"]"
+
+# Determine the version for this script
+set modulefilever "[file dirname "$modulefileroot"]"
+set modulefilever "[file tail "$modulefilever"]"
+
+# Point to component root folder
+set componentroot "[file dirname "$modulefileroot"]"
+set componentroot "[file dirname "$componentroot"]"
+
+# Get component folder name
+set componentname "[file tail "$componentroot"]"
+
+# Get oneAPI top-level root folder
+# get oneAPI top-level root folder
+set oneapiroot "[file dirname "$componentroot"]"
+
+# Disallow loading multiple versions of this modulefile
+# Disallow loading multiple architectures of this modulefile
+# If only 64-bit architecture exists the test still works
+set mname32 $modulefilename
+set mname64 [string trimright $mname32 "32"]
+if { [string equal "$mname32" "$mname64"] } {
+      append mname32 "32"
+}
+conflict $mname32
+conflict $mname64
+
+# On load print component name and version being loaded
+if { [ module-info mode load ] } {
+    puts stderr "Loading $modulefilename"
+}
+
+# On `module unload` print component module name and version being removed
+# Include `module list` message only if this modulefile loads dependent modules
+if { [ module-info mode ] == "unload" || [ module-info mode ] == "remove" } {
+    puts stderr "Removing $modulefilename"
+    puts stderr "Use `module list` to view any remaining dependent modules."
+}
+
+# define componentroot, modulefilepath, modulefilename and modulefilever
+set modulefilename "[file tail [file dirname "${scriptpath}"]]"
+set modulefilever "[file tail "${scriptpath}"]"
+set modulefilepath "${scriptpath}"
+set componentroot "[file dirname [file dirname [file dirname [file dirname "${scriptpath}"]]]]"
+
+##############################################################################
+# Component-specific environment variable setup
+# Define environment variables needed for an isolated component install.
+
+module-whatis "Name: Intel® SHMEM"
+
+set             topdir              "$componentroot/$modulefilever"
+setenv          ISHMEM_ROOT         "$topdir"
+prepend-path    LD_LIBRARY_PATH     "$topdir/lib"
+prepend-path    LIBRARY_PATH        "$topdir/lib"
+prepend-path    CPATH               "$topdir/include"

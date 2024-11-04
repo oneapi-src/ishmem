@@ -15,11 +15,30 @@ int ishmem_alltoallmem(ishmem_team_t team, void *dest, const void *src, size_t n
     return ishmem_alltoall(team, (uint8_t *) dest, (uint8_t *) src, nelems);
 }
 
+sycl::event ishmemx_alltoallmem_on_queue(void *dest, const void *src, size_t nelems, int *ret,
+                                         sycl::queue &q, const std::vector<sycl::event> &deps)
+{
+    return ishmemx_alltoall_on_queue((uint8_t *) dest, (uint8_t *) src, nelems, ret, q, deps);
+}
+
+sycl::event ishmemx_alltoallmem_on_queue(ishmem_team_t team, void *dest, const void *src,
+                                         size_t nelems, int *ret, sycl::queue &q,
+                                         const std::vector<sycl::event> &deps)
+{
+    return ishmemx_alltoall_on_queue(team, (uint8_t *) dest, (uint8_t *) src, nelems, ret, q, deps);
+}
+
 /* clang-format off */
-#define ISHMEMI_API_IMPL_ALLTOALL(TYPENAME, TYPE) \
-    int ishmem_##TYPENAME##_alltoall(TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_alltoall(dest, src, nelems); }
-#define ISHMEMI_API_IMPL_TEAM_ALLTOALL(TYPENAME, TYPE) \
-    int ishmem_##TYPENAME##_alltoall(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_alltoall(team, dest, src, nelems); }
+#define ISHMEMI_API_IMPL_ALLTOALL(TYPENAME, TYPE)                                                                               \
+    int ishmem_##TYPENAME##_alltoall(TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_alltoall(dest, src, nelems); } \
+    sycl::event ishmemx_##TYPENAME##_alltoall_on_queue(TYPE *dest, const TYPE *src, size_t nelems, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {         \
+        return ishmemx_alltoall_on_queue(dest, src, nelems, ret, q, deps);                                                                   \
+    }
+#define ISHMEMI_API_IMPL_TEAM_ALLTOALL(TYPENAME, TYPE)                                                                                                    \
+    int ishmem_##TYPENAME##_alltoall(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems) { return ishmem_alltoall(team, dest, src, nelems); } \
+    sycl::event ishmemx_##TYPENAME##_alltoall_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nelems, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {               \
+        return ishmemx_alltoall_on_queue(team, dest, src, nelems, ret, q, deps);                                                                                       \
+    }
 /* clang-format on */
 
 ISHMEMI_API_IMPL_ALLTOALL(float, float)

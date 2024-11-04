@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -6,12 +6,12 @@
 
 #define BW_TEST_FUNCTION                                                                           \
     for (int i = 0; i < iterations; i += 1) {                                                      \
-        ishmem_sync_all();                                                                         \
+        ishmem_team_sync(ISHMEM_TEAM_WORLD);                                                       \
     }
 
 #define BW_TEST_FUNCTION_WORK_GROUP                                                                \
     for (int i = 0; i < iterations; i += 1) {                                                      \
-        ishmemx_sync_all_work_group(grp);                                                          \
+        ishmemx_team_sync_work_group(ISHMEM_TEAM_WORLD, grp);                                      \
     }
 #include "ishmem_tester.h"
 
@@ -19,7 +19,7 @@ STUB_UNIT_TESTS
 
 int main(int argc, char **argv)
 {
-    class ishmem_tester t(argc, argv);
+    class ishmem_tester t(argc, argv, true);
     t.max_nelems = 1;
     size_t bufsize = (t.max_nelems * sizeof(uint64_t)) + 4096;
     t.alloc_memory(bufsize);

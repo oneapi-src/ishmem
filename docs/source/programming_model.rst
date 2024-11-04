@@ -181,6 +181,129 @@ An overview of the Intel® SHMEM routines is described below:
         releases it.
 
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The ``on_queue`` APIs Overview
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In addition to the standard RMA and collective routines, Intel®
+SHMEM also provides corresponding ``on_queue`` API extensions
+such as ``ishmemx_put_on_queue`` and
+``ishmemx_barrier_all_on_queue``.
+All ``on_queue`` APIs take a SYCL queue as an argument and, optionally, a list
+of SYCL events.
+For any ``on_queue`` API, it is the implementation's choice to either execute
+the operation on the provided queue as a device kernel or to execute the
+operation as a host kernel.
+Additionally, the implementation will ensure that the operation is executed
+only after any SYCL events in the provided event list are complete and after
+kernels submitted to the provided queue via previously invoked ``on_queue``
+operations are complete.
+The ``on_queue`` APIs are only callable from the host.
+However, ``on_queue`` APIs support global or static variables as valid
+arguments only to read-only, scalar parameters that are copied by-value to the
+device.
+Additionally, such global or static variables must have been declared with the
+``const`` modifier.
+
+.. _on_queue_api_completion_semantics:
+
+**on_queue API Completion Semantics**
+To guarantee completion of an operation launched via an ``on_queue`` API,
+the user must do one of the following:
+
+  - Call ``ishmem_quiet`` on the host after calling ``wait`` or
+    ``wait_and_throw`` on the SYCL event returned by the ``on_queue`` API.
+  - Call ``ishmem_quiet`` or ``ishmemx_quiet_work_group`` on the device after
+    calling ``wait`` or ``wait_and_throw`` on the SYCL event returned by the
+    ``on_queue`` API.
+    Then, ``wait`` or ``wait_and_throw`` must be called on the SYCL event
+    returned by the kernel that initiated the ``ishmem_quiet`` or
+    ``ishmemx_quiet_work_group``.
+  - Call ``ishmemx_quiet_on_queue`` and then call ``wait`` or
+    ``wait_and_throw`` on the SYCL event returned by the
+    ``ishmemx_quiet_on_queue`` API.
+    If the SYCL queue passed to the ``ishmemx_quiet_on_queue`` call is not the
+    same as the one passed to the ``on_queue`` API that the user wishes to
+    ensure completion of, then the event returned by the original ``on_queue``
+    API must be included in the **deps** parameter passed to the
+    ``ishmemx_quiet_on_queue`` call.
+
+**NOTE:** For every occasion in the table above where the user is instructed to
+call ``wait`` or ``wait_and_throw`` on a SYCL event, the user may also call
+``wait`` or ``wait_and_throw`` on the SYCL queue that generated the event.
+
+The following is a complete list of the ``on_queue`` APIs provided by
+Intel® SHMEM.
+TYPENAME corresponds to the types specified by Table
+:ref:`Standard RMA Types<stdrmatypes>`, OP corresponds to the relevant
+operations specified by Table :ref:`Reduction Types, Names, and Supporting
+Operations<reducetypes>`, and SIZE is one of 8, 16, 32, 64, or 128:
+
+  - ``ishmemx_put_on_queue``
+  - ``ishmemx_TYPENAME_put_on_queue``
+  - ``ishmemx_putmem_on_queue``
+  - ``ishmemx_putSIZE_on_queue``
+  - ``ishmemx_iput_on_queue``
+  - ``ishmemx_TYPENAME_iput_on_queue``
+  - ``ishmemx_iputSIZE_on_queue``
+  - ``ishmemx_ibput_on_queue``
+  - ``ishmemx_TYPENAME_ibput_on_queue``
+  - ``ishmemx_ibputSIZE_on_queue``
+  - ``ishmemx_get_on_queue``
+  - ``ishmemx_TYPENAME_get_on_queue``
+  - ``ishmemx_getmem_on_queue``
+  - ``ishmemx_getSIZE_on_queue``
+  - ``ishmemx_iget_on_queue``
+  - ``ishmemx_TYPENAME_iget_on_queue``
+  - ``ishmemx_igetSIZE_on_queue``
+  - ``ishmemx_ibget_on_queue``
+  - ``ishmemx_TYPENAME_ibget_on_queue``
+  - ``ishmemx_ibgetSIZE_on_queue``
+  - ``ishmemx_put_nbi_on_queue``
+  - ``ishmemx_TYPENAME_put_nbi_on_queue``
+  - ``ishmemx_putmem_nbi_on_queue``
+  - ``ishmemx_putSIZE_nbi_on_queue``
+  - ``ishmemx_get_nbi_on_queue``
+  - ``ishmemx_TYPENAME_get_nbi_on_queue``
+  - ``ishmemx_getmem_nbi_on_queue``
+  - ``ishmemx_getSIZE_nbi_on_queue``
+  - ``ishmemx_put_signal_on_queue``
+  - ``ishmemx_TYPENAME_put_signal_on_queue``
+  - ``ishmemx_putmem_signal_on_queue``
+  - ``ishmemx_putSIZE_signal_on_queue``
+  - ``ishmemx_put_signal_nbi_on_queue``
+  - ``ishmemx_TYPENAME_put_signal_nbi_on_queue``
+  - ``ishmemx_putmem_signal_nbi_on_queue``
+  - ``ishmemx_putSIZE_signal_nbi_on_queue``
+  - ``ishmemx_barrier_all_on_queue``
+  - ``ishmemx_sync_all_on_queue``
+  - ``ishmemx_team_sync_on_queue``
+  - ``ishmemx_quiet_on_queue``
+  - ``ishmemx_alltoall_on_queue``
+  - ``ishmemx_TYPENAME_alltoall_on_queue``
+  - ``ishmemx_alltoallmem_on_queue``
+  - ``ishmemx_broadcast_on_queue``
+  - ``ishmemx_TYPENAME_broadcast_on_queue``
+  - ``ishmemx_broadcastmem_on_queue``
+  - ``ishmemx_fcollect_on_queue``
+  - ``ishmemx_TYPENAME_fcollect_on_queue``
+  - ``ishmemx_fcollectmem_on_queue``
+  - ``ishmemx_collect_on_queue``
+  - ``ishmemx_TYPENAME_collect_on_queue``
+  - ``ishmemx_collectmem_on_queue``
+  - ``ishmemx_OP_reduce_work_group``
+  - ``ishmemx_TYPENAME_OP_reduce_on_queue``
+  - ``ishmemx_wait_until_on_queue``
+  - ``ishmemx_TYPENAME_wait_until_on_queue``
+  - ``ishmemx_wait_until_all_on_queue``
+  - ``ishmemx_TYPENAME_wait_until_all_on_queue``
+  - ``ishmemx_wait_until_any_on_queue``
+  - ``ishmemx_TYPENAME_wait_until_any_on_queue``
+  - ``ishmemx_wait_until_some_on_queue``
+  - ``ishmemx_TYPENAME_wait_until_some_on_queue``
+  - ``ishmemx_signal_wait_until_on_queue``
+
+
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The ``work_group`` APIs Overview
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -248,14 +371,20 @@ threads across different `work-groups`.
 The following is a complete list of the ``work_group`` APIs provided by
 Intel® SHMEM.
 TYPENAME corresponds to the types specified by Table
-:ref:`Standard RMA Types<stdrmatypes>` and OP corresponds to the relevant
+:ref:`Standard RMA Types<stdrmatypes>`, OP corresponds to the relevant
 operations specified by Table :ref:`Reduction Types, Names, and Supporting
-Operations<reducetypes>`:
+Operations<reducetypes>`, and SIZE is one of 8, 16, 32, 64, or 128:
 
   - ``ishmemx_put_work_group``
   - ``ishmemx_TYPENAME_put_work_group``
   - ``ishmemx_putmem_work_group``
   - ``ishmemx_putSIZE_work_group``
+  - ``ishmemx_iput_work_group``
+  - ``ishmemx_TYPENAME_iput_work_group``
+  - ``ishmemx_iputSIZE_work_group``
+  - ``ishmemx_ibput_work_group``
+  - ``ishmemx_TYPENAME_ibput_work_group``
+  - ``ishmemx_ibputSIZE_work_group``
   - ``ishmemx_get_work_group``
   - ``ishmemx_TYPENAME_get_work_group``
   - ``ishmemx_getmem_work_group``
@@ -268,6 +397,12 @@ Operations<reducetypes>`:
   - ``ishmemx_TYPENAME_get_nbi_work_group``
   - ``ishmemx_getmem_nbi_work_group``
   - ``ishmemx_getSIZE_nbi_work_group``
+  - ``ishmemx_iget_work_group``
+  - ``ishmemx_TYPENAME_iget_work_group``
+  - ``ishmemx_igetSIZE_work_group``
+  - ``ishmemx_ibget_work_group``
+  - ``ishmemx_TYPENAME_ibget_work_group``
+  - ``ishmemx_ibgetSIZE_work_group``
   - ``ishmemx_put_signal_work_group``
   - ``ishmemx_TYPENAME_put_signal_work_group``
   - ``ishmemx_putmem_signal_work_group``
@@ -278,9 +413,21 @@ Operations<reducetypes>`:
   - ``ishmemx_putSIZE_signal_nbi_work_group``
   - ``ishmemx_barrier_all_work_group``
   - ``ishmemx_sync_all_work_group``
+  - ``ishmemx_team_sync_work_group``
+  - ``ishmemx_fence_work_group``
+  - ``ishmemx_quiet_work_group``
+  - ``ishmemx_alltoall_work_group``
+  - ``ishmemx_TYPENAME_alltoall_work_group``
+  - ``ishmemx_alltoallmem_work_group``
   - ``ishmemx_broadcast_work_group``
+  - ``ishmemx_TYPENAME_broadcast_work_group``
+  - ``ishmemx_broadcastmem_work_group``
   - ``ishmemx_collect_work_group``
+  - ``ishmemx_TYPENAME_collect_work_group``
+  - ``ishmemx_collectmem_work_group``
   - ``ishmemx_fcollect_work_group``
+  - ``ishmemx_TYPENAME_fcollect_work_group``
+  - ``ishmemx_fcollectmem_work_group``
   - ``ishmemx_OP_reduce_work_group``
   - ``ishmemx_TYPENAME_OP_reduce_work_group``
   - ``ishmemx_wait_until_work_group``

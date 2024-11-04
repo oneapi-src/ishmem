@@ -853,12 +853,12 @@ extern "C" {
 /* ------------------- Declarations of public routines ------------------- */
 
 #ifndef USE_DL_PREFIX
-#define dlcalloc               calloc
-#define dlfree                 free
-#define dlmalloc               malloc
-#define dlmemalign             memalign
+#define dlcalloc               ::calloc
+#define dlfree                 ::free
+#define dlmalloc               ::malloc
+#define dlmemalign             ::memalign
 #define dlposix_memalign       posix_memalign
-#define dlrealloc              realloc
+#define dlrealloc              ::realloc
 #define dlrealloc_in_place     realloc_in_place
 #define dlvalloc               valloc
 #define dlpvalloc              pvalloc
@@ -4834,7 +4834,7 @@ void* dlcalloc(size_t n_elements, size_t elem_size) {
   }
   mem = dlmalloc(req);
   if (mem != 0 && calloc_must_clear(mem2chunk(mem)))
-    memset(mem, 0, req);
+    ::memset(mem, 0, req);
   return mem;
 }
 
@@ -5071,7 +5071,7 @@ static void** ialloc(mstate m,
   assert(!is_mmapped(p));
 
   if (opts & 0x2) {       /* optionally clear the elements */
-    memset((size_t*)mem, 0, remainder_size - SIZE_T_SIZE - array_size);
+    ::memset((size_t*)mem, 0, remainder_size - SIZE_T_SIZE - array_size);
   }
 
   /* If not provided, allocate the pointer array as final part of chunk */
@@ -5436,7 +5436,7 @@ static mstate init_user_mstate(char* tbase, size_t tsize) {
   mchunkptr mn;
   mchunkptr msp = align_as_chunk(tbase);
   mstate m = (mstate)(chunk2mem(msp));
-  memset(m, 0, msize);
+  ::memset(m, 0, msize);
   (void)INITIAL_LOCK(&m->mutex);
   msp->head = (msize|INUSE_BITS);
   m->seg.base = m->least_addr = tbase;
@@ -5763,7 +5763,7 @@ void* mspace_calloc(mspace msp, size_t n_elements, size_t elem_size) {
   }
   mem = internal_malloc(ms, req);
   if (mem != 0 && calloc_must_clear(mem2chunk(mem)))
-    memset(mem, 0, req);
+    ::memset(mem, 0, req);
   return mem;
 }
 

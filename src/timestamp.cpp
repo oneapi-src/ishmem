@@ -13,7 +13,7 @@ void ishmemx_timestamp(ishmemx_ts_handle_t dst)
     ishmemi_request_t req;
     req.dst = (void *) dst;
     req.op = TIMESTAMP;
-    req.type = MEM;
+    req.type = NONE;
 
     ishmemi_proxy_blocking_request(req);
 #else
@@ -27,7 +27,7 @@ void ishmemx_timestamp_nbi(ishmemx_ts_handle_t dst)
     ishmemi_request_t req;
     req.dst = (void *) dst;
     req.op = TIMESTAMP;
-    req.type = MEM;
+    req.type = NONE;
 
     ishmemi_proxy_nonblocking_request(req);
 #else

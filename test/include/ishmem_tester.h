@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <map>
 #include <ishmem/types.h>
+#include <ishmem/err.h>
 
 constexpr size_t x_size = 16;
 constexpr size_t y_size = 2;
@@ -102,7 +103,8 @@ class Iterator {
  * host_device_host - host initiated, destination in host memory, source in device memory
  * host_host_device - host initiated, destination in device memory, source in host memory
  * host_device_device - host initiated, destination in device memory, source in device memory
- * device - single thread, device initiated, destination and source in device memory
+ * on_queue - host initiated, submits device kernel, destination in device memory, source in device
+ * memory device - single thread, device initiated, destination and source in device memory
  * device_subgroup - collective device call from a SYCL subgroup
  * device_grp1 - collective call from a 1D SYCL nd_range
  * device_grp2 - collective call from a 2D SYCL nd_range
@@ -114,6 +116,7 @@ typedef enum MODE {
     host_host_device,
     host_device_host,
     host_device_device,
+    on_queue,
     device,
     device_subgroup,
     device_grp1,
@@ -126,7 +129,7 @@ typedef enum MODE {
 typedef Iterator<testmode_t, testmode_t::host_host_host, testmode_t::device_multi_wg>
     testmode_t_Iterator;
 
-typedef Iterator<ishmemi_type_t, ishmemi_type_t::MEM, ishmemi_type_t::PTRDIFF>
+typedef Iterator<ishmemi_type_t, ishmemi_type_t::MEM, ishmemi_type_t::SIZE128>
     ishmemi_type_t_Iterator;
 
 typedef Iterator<ishmemi_op_t, ishmemi_op_t::PUT, ishmemi_op_t::DEBUG_TEST> ishmemi_op_t_Iterator;
@@ -150,13 +153,15 @@ struct CMD {
 
 sycl::property_list prop_list{sycl::property::queue::enable_profiling()};
 
-typedef void (*ishmem_test_fn_t)(sycl::queue q, int *res, void *dest, void *src, size_t nelems);
+typedef void (*ishmem_test_fn_t)(sycl::queue q, ishmem_team_t *p_wg_teams, int *res, void *dest,
+                                 void *src, size_t nelems);
 
 class ishmem_tester {
   protected:  // intended for use by subclasses
     double tsc_frequency;
     char *testname;                 /* from argv[0] */
     int enable_ipc;                 /* from ishmemi_params.ENABLE_GPU_IPC */
+    size_t buffer_size;             /* passed in from user */
     long *aligned_source = nullptr; /* source pattern, 64 bit aligned */
     long *aligned_dest = nullptr;   /* destination pattern, 64 bit aligned */
     long *host_source = nullptr;    /* operation source, if in host memory */
@@ -171,15 +176,19 @@ class ishmem_tester {
     struct CMD *devcmd; /* a copy in the device heap */
     bool use_runtime_collectives = true;
     long int *psync; /* used to synchronize PEs */
+    bool has_on_queue_implementation = false;
     testmode_t test_modes[(int) TESTMODE_END];
     int num_test_modes = 0;
     ishmemi_type_t test_types[(int) ISHMEMI_TYPE_END];
     int num_test_types = 0;
     ishmemi_op_t test_ops[(int) ISHMEMI_OP_END];
     int num_test_ops = 0;
+    uint8_t guard[4096];
 
     template <typename T>
     size_t tcheck(T *expected, T *actual, size_t nelems);
+    bool check_guard(void *p);
+
     bool source_is_device(testmode_t mode);
     bool dest_is_device(testmode_t mode);
     void print_bw_header();
@@ -204,9 +213,10 @@ class ishmem_tester {
     size_t work_group_size = 1024;     // max and default value, override on command line
     size_t max_groups =
         4;  // max and default value, override on command line, applies to device_multi_wg only
-    int patterndebugflag = 0;  // print patterns, set with command line --patterndebug
-    int verboseflag = 0;       // verbose, set with command line --verbose
-    int csvflag = 0;           // csv mode, set with command line --csv
+    ishmem_team_t global_wg_teams[max_wg];  //
+    int patterndebugflag = 0;               // print patterns, set with command line --patterndebug
+    int verboseflag = 0;                    // verbose, set with command line --verbose
+    int csvflag = 0;                        // csv mode, set with command line --csv
     bool test_modes_set = false;
     bool test_types_set = false;
     bool test_ops_set = false;
@@ -223,6 +233,7 @@ class ishmem_tester {
 
     /* filled in with objects having overloaded operators to call from test kernels */
     std::map<std::pair<ishmemi_type_t, ishmemi_op_t>, ishmem_test_fn_t> test_map_fns_host;
+    std::map<std::pair<ishmemi_type_t, ishmemi_op_t>, ishmem_test_fn_t> test_map_fns_on_queue;
     std::map<std::pair<ishmemi_type_t, ishmemi_op_t>, ishmem_test_fn_t> test_map_fns_single;
     std::map<std::pair<ishmemi_type_t, ishmemi_op_t>, ishmem_test_fn_t> test_map_fns_grp1;
     std::map<std::pair<ishmemi_type_t, ishmemi_op_t>, ishmem_test_fn_t> test_map_fns_grp2;
@@ -232,12 +243,15 @@ class ishmem_tester {
 
     sycl::queue q;
 
-    ishmem_tester(int argc, char *argv[]) : q(prop_list)
+    ishmem_tester(int argc, char *argv[], bool has_on_queue_impl = false)
+        : has_on_queue_implementation{has_on_queue_impl}, q(prop_list)
     {
-        ishmemx_attr_t attr = {};
-        test_init_attr(&attr);
-        ishmemx_init_attr(&attr);
+        ishmem_init();
+        validate_runtime();
 
+        for (size_t i = 0; i < 4096; i++) {
+            guard[i] = (uint8_t) ((i + 1) % 256);
+        }
         for (size_t i = 0; i < ISHMEMI_TYPE_END; i++) {
             test_types[i] = ISHMEMI_TYPE_END;
         }
@@ -246,6 +260,12 @@ class ishmem_tester {
         }
 
         testname = basename(argv[0]);
+        for (size_t i = 0; i < ISHMEMI_TYPE_END; i++) {
+            test_types[i] = ISHMEMI_TYPE_END;
+        }
+        for (size_t i = 0; i < ISHMEMI_OP_END; i++) {
+            test_ops[i] = ISHMEMI_OP_END;
+        }
         parse_tester_args(argc, argv);
         /* If there was no testmode list on the command line, use a subset */
         if (num_test_modes == 0) {
@@ -262,15 +282,21 @@ class ishmem_tester {
             else if (strcasecmp("0", ipc_env_val) == 0) enable_ipc = false;
         }
         tsc_frequency = measure_tsc_frequency();
-        cmd = (struct CMD *) runtime_calloc(2L, sizeof(struct CMD));
+        cmd = (struct CMD *) ishmemi_test_runtime->calloc(2L, sizeof(struct CMD));
         assert(cmd != nullptr);
         devcmd = (struct CMD *) ishmem_calloc(2L, sizeof(struct CMD));
         assert(devcmd != nullptr);
-        psync = (long int *) runtime_calloc((size_t) n_pes, sizeof(long int));
+        psync = (long int *) ishmemi_test_runtime->calloc((size_t) n_pes, sizeof(long int));
         assert(psync != nullptr);
         setbuf(stdout, NULL); /* turn off buffering */
         setbuf(stderr, NULL);
         ishmem_sync_all();
+        /* Create clones of TEAM_WORLD for use by device_multi_wg tests */
+        for (size_t wg = 0; wg < max_groups; wg += 1) {
+            int res __attribute__((unused)) = ishmem_team_split_strided(
+                ISHMEM_TEAM_WORLD, 0, 1, n_pes, NULL, 0, &global_wg_teams[wg]);
+            assert(res == 0);
+        }
         printf("[%d] pe %d of %d %d\n", my_pe, my_pe, n_pes, getpid());
     }
     ~ishmem_tester();
@@ -365,6 +391,28 @@ SYCL_EXTERNAL int do_test_work_group(ishmemi_type_t t, ishmemi_op_t op, void *de
     {                                                                                              \
         returnvar switch (t)                                                                       \
         {                                                                                          \
+            case MEM:                                                                              \
+                memcase;                                                                           \
+            case UINT8:                                                                            \
+                ISHMEM_TYPE_BRANCH(UINT8, uint8, uint8_t)                                          \
+            case UINT16:                                                                           \
+                ISHMEM_TYPE_BRANCH(UINT16, uint16, uint16_t)                                       \
+            case UINT32:                                                                           \
+                ISHMEM_TYPE_BRANCH(UINT32, uint32, uint32_t)                                       \
+            case UINT64:                                                                           \
+                ISHMEM_TYPE_BRANCH(UINT64, uint64, uint64_t)                                       \
+            case ULONGLONG:                                                                        \
+                ISHMEM_TYPE_BRANCH(ULONGLONG, ulonglong, unsigned long long)                       \
+            case INT8:                                                                             \
+                ISHMEM_TYPE_BRANCH(INT8, int8, int8_t)                                             \
+            case INT16:                                                                            \
+                ISHMEM_TYPE_BRANCH(INT16, int16, int16_t)                                          \
+            case INT32:                                                                            \
+                ISHMEM_TYPE_BRANCH(INT32, int32, int32_t)                                          \
+            case INT64:                                                                            \
+                ISHMEM_TYPE_BRANCH(INT64, int64, int64_t)                                          \
+            case LONGLONG:                                                                         \
+                ISHMEM_TYPE_BRANCH(LONGLONG, longlong, long long)                                  \
             case FLOAT:                                                                            \
                 ISHMEM_TYPE_BRANCH(FLOAT, float, float)                                            \
             case DOUBLE:                                                                           \
@@ -381,8 +429,6 @@ SYCL_EXTERNAL int do_test_work_group(ishmemi_type_t t, ishmemi_op_t op, void *de
                 ISHMEM_TYPE_BRANCH(INT, int, int)                                                  \
             case LONG:                                                                             \
                 ISHMEM_TYPE_BRANCH(LONG, long, long)                                               \
-            case LONGLONG:                                                                         \
-                ISHMEM_TYPE_BRANCH(LONGLONG, longlong, long long)                                  \
             case UCHAR:                                                                            \
                 ISHMEM_TYPE_BRANCH(UCHAR, uchar, unsigned char)                                    \
             case USHORT:                                                                           \
@@ -391,30 +437,22 @@ SYCL_EXTERNAL int do_test_work_group(ishmemi_type_t t, ishmemi_op_t op, void *de
                 ISHMEM_TYPE_BRANCH(UINT, uint, unsigned int)                                       \
             case ULONG:                                                                            \
                 ISHMEM_TYPE_BRANCH(ULONG, ulong, unsigned long)                                    \
-            case ULONGLONG:                                                                        \
-                ISHMEM_TYPE_BRANCH(ULONGLONG, ulonglong, unsigned long long)                       \
-            case INT8:                                                                             \
-                ISHMEM_TYPE_BRANCH(INT8, int8, int8_t)                                             \
-            case INT16:                                                                            \
-                ISHMEM_TYPE_BRANCH(INT16, int16, int16_t)                                          \
-            case INT32:                                                                            \
-                ISHMEM_TYPE_BRANCH(INT32, int32, int32_t)                                          \
-            case INT64:                                                                            \
-                ISHMEM_TYPE_BRANCH(INT64, int64, int64_t)                                          \
-            case UINT8:                                                                            \
-                ISHMEM_TYPE_BRANCH(UINT8, uint8, uint8_t)                                          \
-            case UINT16:                                                                           \
-                ISHMEM_TYPE_BRANCH(UINT16, uint16, uint16_t)                                       \
-            case UINT32:                                                                           \
-                ISHMEM_TYPE_BRANCH(UINT32, uint32, uint32_t)                                       \
-            case UINT64:                                                                           \
-                ISHMEM_TYPE_BRANCH(UINT64, uint64, uint64_t)                                       \
             case SIZE:                                                                             \
                 ISHMEM_TYPE_BRANCH(SIZE, size, size_t)                                             \
             case PTRDIFF:                                                                          \
                 ISHMEM_TYPE_BRANCH(PTRDIFF, ptrdiff, ptrdiff_t);                                   \
-            case MEM:                                                                              \
-                memcase default : return (res);                                                    \
+            case SIZE8:                                                                            \
+                ISHMEM_TYPE_BRANCH(SIZE8, 8, uint8_t)                                              \
+            case SIZE16:                                                                           \
+                ISHMEM_TYPE_BRANCH(SIZE16, 16, uint16_t)                                           \
+            case SIZE32:                                                                           \
+                ISHMEM_TYPE_BRANCH(SIZE32, 32, uint32_t)                                           \
+            case SIZE64:                                                                           \
+                ISHMEM_TYPE_BRANCH(SIZE64, 64, uint64_t)                                           \
+            case SIZE128:                                                                          \
+                ISHMEM_TYPE_BRANCH(SIZE128, 128, __uint128_t)                                      \
+            default:                                                                               \
+                assert(0);                                                                         \
         }                                                                                          \
         return (res);                                                                              \
     }
@@ -432,6 +470,8 @@ SYCL_EXTERNAL int do_test_work_group(ishmemi_type_t t, ishmemi_op_t op, void *de
                 ISHMEM_MODE_BRANCH(host_device_host)                                               \
             case host_device_device:                                                               \
                 ISHMEM_MODE_BRANCH(host_device_device)                                             \
+            case on_queue:                                                                         \
+                ISHMEM_MODE_BRANCH(on_queue)                                                       \
             case device:                                                                           \
                 ISHMEM_MODE_BRANCH(device)                                                         \
             case device_subgroup:                                                                  \
@@ -486,6 +526,9 @@ SYCL_EXTERNAL int do_test_work_group(ishmemi_type_t t, ishmemi_op_t op, void *de
 #ifndef BW_TEST_FUNCTION
 #define BW_TEST_FUNCTION
 #endif
+#ifndef BW_TEST_FUNCTION_ON_QUEUE
+#define BW_TEST_FUNCTION_ON_QUEUE
+#endif
 #ifndef BW_TEST_FUNCTION_WORK_GROUP
 #define BW_TEST_FUNCTION_WORK_GROUP
 #endif
@@ -513,6 +556,8 @@ size_t ishmem_tester::typesize(ishmemi_type_t t) noexcept
 {
     size_t res = 0;
     switch (t) {
+        case NONE:
+            break;
         case FLOAT:
             res = sizeof(float);
             break;
@@ -598,7 +643,7 @@ size_t ishmem_tester::typesize(ishmemi_type_t t) noexcept
             res = sizeof(uint64_t);
             break;
         case SIZE128:
-            res = sizeof(uint64_t) * 2;
+            res = sizeof(__uint128_t);
             break;
         case MEM:
             res = 1;
@@ -698,6 +743,12 @@ static bool tester_isPowerOfTwo(unsigned long n)
 
 bool ishmem_tester::add_test_mode(testmode_t mode)
 {
+    if (mode == testmode_t::on_queue && !has_on_queue_implementation) {
+        std::cerr << "Error: There is no \"on_queue\" variation of the function under test."
+                  << std::endl;
+        exit(1);
+    }
+
     if (num_test_modes >= TESTMODE_END) return false;
     test_modes[num_test_modes++] = mode;
     test_modes_set = true;
@@ -762,8 +813,11 @@ bool ishmem_tester::parse_test_modes(char *arg)
     test_modes_set = true;
     if (strcmp("all", arg) == 0) {
         num_test_modes = 0;
-        for (testmode_t mode : testmode_t_Iterator())
-            add_test_mode(mode);
+        for (testmode_t mode : testmode_t_Iterator()) {
+            if (!(mode == testmode_t::on_queue && !has_on_queue_implementation)) {
+                add_test_mode(mode);
+            }
+        }
         return true;
     }
     char *saveptr;
@@ -962,54 +1016,76 @@ void ishmem_tester::parse_tester_args(int argc, char *argv[])
     }
 }
 
+#define check_alloc(x)                                                                             \
+    {                                                                                              \
+        ISHMEM_DEBUG_MSG("[%d] %s=%p\n", my_pe, #x, x);                                            \
+        assert(x != nullptr);                                                                      \
+        memcpy((void *) (((uintptr_t) x) + buffer_size), guard, 4096);                             \
+    }
+
 void ishmem_tester::alloc_memory(size_t bufsize)
 {
+    buffer_size = bufsize;
+    bufsize += 4096; /* create a guard band */
     /* allocate host memory */
     aligned_source = (long *) malloc(bufsize); /* data pattern */
-    assert(aligned_source != nullptr);
+    check_alloc(aligned_source);
     aligned_dest = (long *) malloc(bufsize); /* data pattern */
-    assert(aligned_dest != nullptr);
+    check_alloc(aligned_dest);
 
     host_check = (long *) malloc(bufsize); /* expected data */
-    assert(host_check != nullptr);
-    host_source = (long *) runtime_malloc(bufsize); /* source data for this PE */
-    assert(host_source != nullptr);
-    host_dest = (long *) runtime_malloc(bufsize); /* source data for this PE */
-    assert(host_dest != nullptr);
+    check_alloc(host_check);
+    host_source = (long *) ishmemi_test_runtime->malloc(bufsize); /* source data for this PE */
+    check_alloc(host_source);
+    host_dest = (long *) ishmemi_test_runtime->malloc(bufsize); /* source data for this PE */
+    check_alloc(host_dest);
     host_result = (long *) malloc(bufsize); /* used to read back actual data */
-    assert(host_result != nullptr);
+    check_alloc(host_result);
     /* allocate GPU memory for source and destination */
     /* the extra 1024 is for the larger offsets, shouldn't be needed */
     device_source = (long *) ishmem_malloc(bufsize); /* gpu source, if used */
+    //  cannot use guards in gpu memory check_alloc(device_source);
     assert(device_source != nullptr);
     device_dest = (long *) ishmem_malloc(bufsize); /* gpu destination, if used */
-    assert(device_dest != nullptr);
+    // check_alloc(device_dest);
+    assert(device_source != nullptr);
 
     test_return = sycl::malloc_host<int>(1, q);
     assert(test_return != nullptr);
 }
 
+#define check_free(fn, x)                                                                          \
+    {                                                                                              \
+        ISHMEM_DEBUG_MSG("[%d] %s=%p\n", my_pe, #x, x);                                            \
+        assert(x);                                                                                 \
+        assert(check_guard(x));                                                                    \
+        fn(x);                                                                                     \
+        x = nullptr;                                                                               \
+    }
+
 ishmem_tester::~ishmem_tester()
 {
-    free(aligned_source);
-    free(aligned_dest);
-    free(host_check);
-    free(host_result);
-    runtime_free(cmd);
-    runtime_free(host_source);
-    runtime_free(host_dest);
-    runtime_free(psync);
+    check_free(free, aligned_source);
+    check_free(free, aligned_dest);
+    check_free(free, host_check);
+    check_free(free, host_result);
+    ishmemi_test_runtime->free(cmd);
+    check_free(ishmemi_test_runtime->free, host_source);
+    check_free(ishmemi_test_runtime->free, host_dest);
+    ishmemi_test_runtime->free(psync);
     ishmem_free(devcmd);
     ishmem_free(device_source);
     ishmem_free(device_dest);
+    assert(test_return);
     sycl::free(test_return, q);
+    test_return = nullptr;
     ishmem_finalize();
 }
 
 void ishmem_tester::sync_all()
 {
     if (use_runtime_collectives) {
-        runtime_sync_all();
+        ishmemi_test_runtime->sync();
     } else {
         q.single_task([=]() { ishmem_sync_all(); }).wait_and_throw();
     }
@@ -1018,8 +1094,8 @@ void ishmem_tester::sync_all()
 void ishmem_tester::broadcastcmd()
 {
     if (use_runtime_collectives) {
-        runtime_sync_all();
-        runtime_broadcast(&cmd[1], &cmd[0], sizeof(struct CMD), 0);
+        ishmemi_test_runtime->sync();
+        ishmemi_test_runtime->broadcast(&cmd[1], &cmd[0], sizeof(struct CMD), 0);
     } else {
         struct CMD *ldevcmd = devcmd;
         if (my_pe == 0) {
@@ -1089,6 +1165,11 @@ bool ishmem_tester::dest_is_device(testmode_t mode)
     }
 }
 
+bool ishmem_tester::check_guard(void *p)
+{
+    return (memcmp((void *) (((uintptr_t) p) + buffer_size), guard, 4096) == 0);
+}
+
 size_t ishmem_tester::do_test(ishmemi_type_t t, ishmemi_op_t op, testmode_t mode, size_t nelems,
                               unsigned long source_offset, unsigned long dest_offset)
 {
@@ -1098,8 +1179,11 @@ size_t ishmem_tester::do_test(ishmemi_type_t t, ishmemi_op_t op, testmode_t mode
 
     size_t check_size = create_check_pattern(t, op, mode, nelems);
     memset(aligned_dest, 128 + my_pe, check_size);
+    assert(check_size <= buffer_size);
+    assert(check_guard(aligned_dest));
     size_t source_size = create_source_pattern(t, op, mode, nelems);
-
+    assert(source_size <= buffer_size);
+    assert(check_guard(aligned_source));
     /* at this point, aligned_source is correct, we will copy to device_source if needed */
     test_source = (void *) (((uintptr_t) test_source) + source_offset);
     test_dest = (void *) (((uintptr_t) test_dest) + dest_offset);
@@ -1115,46 +1199,59 @@ size_t ishmem_tester::do_test(ishmemi_type_t t, ishmemi_op_t op, testmode_t mode
         memcpy(test_dest, aligned_dest, check_size); /* prefill destination */
     }
     ishmem_test_fn_t fnp_host = test_map_fns_host[std::make_pair(t, op)];
+    ishmem_test_fn_t fnp_on_queue = test_map_fns_on_queue[std::make_pair(t, op)];
     ishmem_test_fn_t fnp_single = test_map_fns_single[std::make_pair(t, op)];
     ishmem_test_fn_t fnp_grp1 = test_map_fns_grp1[std::make_pair(t, op)];
     ishmem_test_fn_t fnp_grp2 = test_map_fns_grp2[std::make_pair(t, op)];
     ishmem_test_fn_t fnp_grp3 = test_map_fns_grp3[std::make_pair(t, op)];
     ishmem_test_fn_t fnp_subgroup = test_map_fns_subgroup[std::make_pair(t, op)];
     ishmem_test_fn_t fnp_multi_wg = test_map_fns_multi_wg[std::make_pair(t, op)];
-
     switch (mode) {
         case host_host_host:
         case host_host_device:
         case host_device_host:
         case host_device_device: {
-            if (fnp_host != NULL) fnp_host(q, local_test_return, test_dest, test_source, nelems);
+            if (fnp_host != NULL)
+                fnp_host(q, &global_wg_teams[0], local_test_return, test_dest, test_source, nelems);
+            break;
+        }
+        case on_queue: {
+            if (fnp_on_queue != NULL)
+                fnp_on_queue(q, &global_wg_teams[0], local_test_return, test_dest, test_source,
+                             nelems);
             break;
         }
         case device: {
             if (fnp_single != NULL)
-                fnp_single(q, local_test_return, test_dest, test_source, nelems);
+                fnp_single(q, &global_wg_teams[0], local_test_return, test_dest, test_source,
+                           nelems);
             break;
         }
         case device_subgroup: {
             if (fnp_subgroup != NULL)
-                fnp_subgroup(q, local_test_return, test_dest, test_source, nelems);
+                fnp_subgroup(q, &global_wg_teams[0], local_test_return, test_dest, test_source,
+                             nelems);
             break;
         }
         case device_grp1: {
-            if (fnp_grp1 != NULL) fnp_grp1(q, local_test_return, test_dest, test_source, nelems);
+            if (fnp_grp1 != NULL)
+                fnp_grp1(q, &global_wg_teams[0], local_test_return, test_dest, test_source, nelems);
             break;
         }
         case device_grp2: {
-            if (fnp_grp2 != NULL) fnp_grp2(q, local_test_return, test_dest, test_source, nelems);
+            if (fnp_grp2 != NULL)
+                fnp_grp2(q, &global_wg_teams[0], local_test_return, test_dest, test_source, nelems);
             break;
         }
         case device_grp3: {
-            if (fnp_grp3 != NULL) fnp_grp3(q, local_test_return, test_dest, test_source, nelems);
+            if (fnp_grp3 != NULL)
+                fnp_grp3(q, &global_wg_teams[0], local_test_return, test_dest, test_source, nelems);
             break;
         }
         case device_multi_wg: {
             if (fnp_multi_wg != NULL)
-                fnp_multi_wg(q, local_test_return, test_dest, test_source, nelems);
+                fnp_multi_wg(q, &global_wg_teams[0], local_test_return, test_dest, test_source,
+                             nelems);
             break;
         }
         default:
@@ -1201,6 +1298,18 @@ double ishmem_tester::do_test_bw(ishmemi_type_t t, ishmemi_op_t op, testmode_t m
             BW_TEST_FUNCTION;
             unsigned long stop = rdtsc();
             duration = ((double) (stop - start)) / tsc_frequency;
+            break;
+        }
+        case on_queue: {
+            void *src __attribute__((unused)) = lsrc;
+            void *dest __attribute__((unused)) = ldest;
+            unsigned long start = rdtsc();
+            BW_TEST_FUNCTION_ON_QUEUE;
+            q.wait_and_throw();
+            ishmem_quiet();
+            unsigned long stop = rdtsc();
+            duration = ((double) (stop - start)) / tsc_frequency;
+            break;
             break;
         }
         case device: {
@@ -1376,6 +1485,7 @@ void ishmem_tester::run_bw_tests(ishmemi_type_t t, ishmemi_op_t op, testmode_t m
         case host_host_device:
         case host_device_host:
         case host_device_device:
+        case on_queue:
         case device: {
             max_threads = 1L;
             maximum_groups = 1L;
@@ -1486,7 +1596,7 @@ int ishmem_tester::finalize_and_report(size_t errors)
 {
     /* reduce() errors in order to return from the job */
     my_errors = errors;
-    runtime_uint64_sum_reduce(&global_errors, &my_errors, 1);
+    ishmemi_test_runtime->uint64_sum_reduce(&global_errors, &my_errors, 1);
     if (my_pe == 0) printf("[%d] errors %zu, global_errors %lu\n", my_pe, errors, global_errors);
     printf("[%d] %s\n", my_pe, (global_errors) ? "Test FAILED\n" : "Test PASSED\n");
     return (global_errors != 0);
@@ -1498,6 +1608,7 @@ const char *ishmem_tester::mode_to_desc(testmode_t mode)
     if (mode == testmode_t::host_host_device) return ("host from host to device memory");
     if (mode == testmode_t::host_device_host) return ("host from device to host memory");
     if (mode == testmode_t::host_device_device) return ("host from device to device memory");
+    if (mode == testmode_t::on_queue) return ("on queue with device memory");
     if (mode == testmode_t::device) return ("device with device memory");
     if (mode == testmode_t::device_grp1) return ("device group<1> with device memory");
     if (mode == testmode_t::device_grp2) return ("device group<2> with device memory");
