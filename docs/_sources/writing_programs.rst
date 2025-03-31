@@ -4,9 +4,8 @@
 Writing Intel® SHMEM Programs
 ========================================
 
-Intel® SHMEM Programs require including the following header files::
+Intel® SHMEM Programs require including the following header file::
 
-#include <CL/sycl.hpp>
 #include <ishmem.h>
 
 Here is how to :ref:`initialize<library_setup_exit_query_routines>` the
