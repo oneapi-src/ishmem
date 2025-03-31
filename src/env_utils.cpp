@@ -146,7 +146,7 @@ static int set_env(std::string name,
 
             iter->second = std::make_pair(value, true);
         } else if (std::holds_alternative<std::string>(ishmemi_env[name].first)) {
-            iter->second = std::make_pair(std::move(env_value), true);
+            iter->second = std::pair<std::string, bool>(std::move(env_value), true);
         } else {
             ISHMEM_CHECK_GOTO_MSG(true, fn_fail, "Could not determine type of ishmemi_env[%s]\n",
                                   name.c_str());

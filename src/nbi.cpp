@@ -66,6 +66,7 @@ void ishmemx_putmem_nbi_work_group(void *dest, const void *src, size_t nelems, i
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_PUT_NBI(TYPENAME, TYPE)                                                                                                                  \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                     \
     void ishmem_##TYPENAME##_put_nbi(TYPE *dest, const TYPE *src, size_t nelems, int pe) { ishmem_put_nbi(dest, src, nelems, pe); }                               \
     sycl::event ishmemx_##TYPENAME##_put_nbi_on_queue(TYPE *dest, const TYPE *src, size_t nelems, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_put_nbi_on_queue(dest, src, nelems, pe, q, deps);                                                                                          \
@@ -86,8 +87,8 @@ void ishmemx_putmem_nbi_work_group(void *dest, const void *src, size_t nelems, i
     template void ishmemx_put##SIZE##_nbi_work_group<sycl::group<3>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<3> &grp);                                             \
     template void ishmemx_put##SIZE##_nbi_work_group<sycl::sub_group>(void *dest, const void *src, size_t nelems, int pe, const sycl::sub_group &grp);                                           \
     template <typename Group> void ishmemx_put##SIZE##_nbi_work_group(void *dest, const void *src, size_t nelems, int pe, const Group &grp) { ishmemx_put_nbi_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmem_put_nbi(TYPE *, const TYPE *, size_t, int)
 ISHMEMI_API_IMPL_PUT_NBI(float, float)
 ISHMEMI_API_IMPL_PUT_NBI(double, double)
 ISHMEMI_API_IMPL_PUT_NBI(char, char)
@@ -116,6 +117,8 @@ ISHMEMI_API_IMPL_PUTSIZE_NBI(16, 16)
 ISHMEMI_API_IMPL_PUTSIZE_NBI(32, 32)
 ISHMEMI_API_IMPL_PUTSIZE_NBI(64, 64)
 ISHMEMI_API_IMPL_PUTSIZE_NBI(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* Non-blocking Get */
 template <typename T>
@@ -174,6 +177,7 @@ void ishmemx_getmem_nbi_work_group(void *dest, const void *src, size_t nelems, i
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_GET_NBI(TYPENAME, TYPE)                                                                                                                  \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                     \
     void ishmem_##TYPENAME##_get_nbi(TYPE *dest, const TYPE *src, size_t nelems, int pe) { ishmem_get_nbi(dest, src, nelems, pe); }                               \
     sycl::event ishmemx_##TYPENAME##_get_nbi_on_queue(TYPE *dest, const TYPE *src, size_t nelems, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_get_nbi_on_queue(dest, src, nelems, pe, q, deps);                                                                                          \
@@ -194,8 +198,8 @@ void ishmemx_getmem_nbi_work_group(void *dest, const void *src, size_t nelems, i
     template void ishmemx_get##SIZE##_nbi_work_group<sycl::group<3>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<3> &grp);                                             \
     template void ishmemx_get##SIZE##_nbi_work_group<sycl::sub_group>(void *dest, const void *src, size_t nelems, int pe, const sycl::sub_group &grp);                                           \
     template <typename Group> void ishmemx_get##SIZE##_nbi_work_group(void *dest, const void *src, size_t nelems, int pe, const Group &grp) { ishmemx_get_nbi_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmem_get_nbi(TYPE *, const TYPE *, size_t, int)
 ISHMEMI_API_IMPL_GET_NBI(float, float)
 ISHMEMI_API_IMPL_GET_NBI(double, double)
 ISHMEMI_API_IMPL_GET_NBI(char, char)
@@ -224,3 +228,5 @@ ISHMEMI_API_IMPL_GETSIZE_NBI(16, 16)
 ISHMEMI_API_IMPL_GETSIZE_NBI(32, 32)
 ISHMEMI_API_IMPL_GETSIZE_NBI(64, 64)
 ISHMEMI_API_IMPL_GETSIZE_NBI(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */

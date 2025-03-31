@@ -6,7 +6,6 @@
  * files in the top level directory of this distribution.
  */
 
-#include <CL/sycl.hpp>
 #include <common.h>
 #include <stdio.h>
 #include <stdlib.h>

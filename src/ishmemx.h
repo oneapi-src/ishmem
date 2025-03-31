@@ -5,7 +5,6 @@
 #ifndef I_SHMEMX_H
 #define I_SHMEMX_H
 
-#include <CL/sycl.hpp>
 #include "ishmem.h"
 #define ISHMEM_DEVICE_ATTRIBUTES SYCL_EXTERNAL
 

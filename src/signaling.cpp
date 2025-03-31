@@ -278,9 +278,10 @@ void ishmemx_putmem_signal_work_group(void *dest, const void *src, size_t nelems
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_PUT_SIGNAL(TYPENAME, TYPE)                                                                                                                                                                            \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                                                  \
     void ishmem_##TYPENAME##_put_signal(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe) { return ishmem_put_signal(dest, src, nelems, sig_addr, signal, sig_op, pe); }    \
-    sycl::event ishmemx_##TYPENAME##_put_signal_on_queue(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                        \
-        return ishmemx_put_signal_on_queue(dest, src, nelems, sig_addr, signal, sig_op, pe, q, deps);                                                                                                                                       \
+    sycl::event ishmemx_##TYPENAME##_put_signal_on_queue(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {          \
+        return ishmemx_put_signal_on_queue(dest, src, nelems, sig_addr, signal, sig_op, pe, q, deps);                                                                                                                          \
     }                                                                                                                                                                                                                          \
     template void ishmemx_##TYPENAME##_put_signal_work_group<sycl::group<1>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<1> &grp);                  \
     template void ishmemx_##TYPENAME##_put_signal_work_group<sycl::group<2>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<2> &grp);                  \
@@ -290,16 +291,16 @@ void ishmemx_putmem_signal_work_group(void *dest, const void *src, size_t nelems
 
 #define ISHMEMI_API_IMPL_PUTSIZE_SIGNAL(SIZE, ELEMSIZE)                                                                                                                                                                                                                                   \
     void ishmem_put##SIZE##_signal(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe) { return ishmem_put_signal((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe); }  \
-    sycl::event ishmemx_put##SIZE##_signal_on_queue(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                                                                                        \
-        return ishmemx_put_signal_on_queue((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe, q, deps);                                                                                                                                \
+    sycl::event ishmemx_put##SIZE##_signal_on_queue(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                                          \
+        return ishmemx_put_signal_on_queue((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe, q, deps);                                                                                                                   \
     }                                                                                                                                                                                                                                                                                     \
     template void ishmemx_put##SIZE##_signal_work_group<sycl::group<1>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<1> &grp);                                                                                  \
     template void ishmemx_put##SIZE##_signal_work_group<sycl::group<2>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<2> &grp);                                                                                  \
     template void ishmemx_put##SIZE##_signal_work_group<sycl::group<3>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<3> &grp);                                                                                  \
     template void ishmemx_put##SIZE##_signal_work_group<sycl::sub_group>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::sub_group &grp);                                                                                \
     template <typename Group> void ishmemx_put##SIZE##_signal_work_group(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, const Group &grp) { ishmemx_put_signal_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmem_put_signal(TYPE *, const TYPE *, size_t, uint64_t *, uint64_t, int, int)
 ISHMEMI_API_IMPL_PUT_SIGNAL(float, float)
 ISHMEMI_API_IMPL_PUT_SIGNAL(double, double)
 ISHMEMI_API_IMPL_PUT_SIGNAL(char, char)
@@ -328,6 +329,8 @@ ISHMEMI_API_IMPL_PUTSIZE_SIGNAL(16, 16)
 ISHMEMI_API_IMPL_PUTSIZE_SIGNAL(32, 32)
 ISHMEMI_API_IMPL_PUTSIZE_SIGNAL(64, 64)
 ISHMEMI_API_IMPL_PUTSIZE_SIGNAL(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* Non-blocking Put with signal */
 template <typename T>
@@ -605,9 +608,10 @@ void ishmemx_putmem_signal_nbi_work_group(void *dest, const void *src, size_t ne
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_PUT_SIGNAL_NBI(TYPENAME, TYPE)                                                                                                                                                                                \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                                                          \
     void ishmem_##TYPENAME##_put_signal_nbi(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe) { return ishmem_put_signal_nbi(dest, src, nelems, sig_addr, signal, sig_op, pe); }    \
-    sycl::event ishmemx_##TYPENAME##_put_signal_nbi_on_queue(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                            \
-        return ishmemx_put_signal_nbi_on_queue(dest, src, nelems, sig_addr, signal, sig_op, pe, q, deps);                                                                                                                                           \
+    sycl::event ishmemx_##TYPENAME##_put_signal_nbi_on_queue(TYPE *dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {              \
+        return ishmemx_put_signal_nbi_on_queue(dest, src, nelems, sig_addr, signal, sig_op, pe, q, deps);                                                                                                                              \
     }                                                                                                                                                                                                                                  \
     template void ishmemx_##TYPENAME##_put_signal_nbi_work_group<sycl::group<1>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<1> &grp);                      \
     template void ishmemx_##TYPENAME##_put_signal_nbi_work_group<sycl::group<2>>(TYPE * dest, const TYPE *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<2> &grp);                      \
@@ -617,16 +621,16 @@ void ishmemx_putmem_signal_nbi_work_group(void *dest, const void *src, size_t ne
 
 #define ISHMEMI_API_IMPL_PUTSIZE_SIGNAL_NBI(SIZE, ELEMSIZE)                                                                                                                                                                                                                                       \
     void ishmem_put##SIZE##_signal_nbi(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe) { return ishmem_put_signal_nbi((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe); }  \
-    sycl::event ishmemx_put##SIZE##_signal_nbi_on_queue(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                                                                                            \
-        return ishmemx_put_signal_nbi_on_queue((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe, q, deps);                                                                                                                                        \
+    sycl::event ishmemx_put##SIZE##_signal_nbi_on_queue(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) {                                                                              \
+        return ishmemx_put_signal_nbi_on_queue((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe, q, deps);                                                                                                                       \
     }                                                                                                                                                                                                                                                                                             \
     template void ishmemx_put##SIZE##_signal_nbi_work_group<sycl::group<1>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<1> &grp);                                                                                      \
     template void ishmemx_put##SIZE##_signal_nbi_work_group<sycl::group<2>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<2> &grp);                                                                                      \
     template void ishmemx_put##SIZE##_signal_nbi_work_group<sycl::group<3>>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::group<3> &grp);                                                                                      \
     template void ishmemx_put##SIZE##_signal_nbi_work_group<sycl::sub_group>(void * dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal,int sig_op, int pe, const sycl::sub_group &grp);                                                                                    \
     template <typename Group> void ishmemx_put##SIZE##_signal_nbi_work_group(void *dest, const void *src, size_t nelems, uint64_t *sig_addr, uint64_t signal, int sig_op, int pe, const Group &grp) { ishmemx_put_signal_nbi_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), sig_addr, signal, sig_op, pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmem_put_signal_nbi(TYPE *, const TYPE *, size_t, uint64_t *, uint64_t, int, int)
 ISHMEMI_API_IMPL_PUT_SIGNAL_NBI(float, float)
 ISHMEMI_API_IMPL_PUT_SIGNAL_NBI(double, double)
 ISHMEMI_API_IMPL_PUT_SIGNAL_NBI(char, char)
@@ -655,6 +659,8 @@ ISHMEMI_API_IMPL_PUTSIZE_SIGNAL_NBI(16, 16)
 ISHMEMI_API_IMPL_PUTSIZE_SIGNAL_NBI(32, 32)
 ISHMEMI_API_IMPL_PUTSIZE_SIGNAL_NBI(64, 64)
 ISHMEMI_API_IMPL_PUTSIZE_SIGNAL_NBI(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* Signal fetch */
 uint64_t ishmem_signal_fetch(uint64_t *sig_addr)

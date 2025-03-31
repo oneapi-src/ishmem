@@ -3,7 +3,6 @@
  */
 
 #include <iostream>
-#include <CL/sycl.hpp>
 #include <string.h>
 #include <common.h>
 

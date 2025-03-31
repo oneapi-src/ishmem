@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <CL/sycl.hpp>
 #include <ishmem.h>
 #include <ishmemx.h>
+#include <cmath>
 
 constexpr int array_size = 10; /* num_threads = array_size / chunk_size */
 constexpr int chunk_size = 2;  /* data partition/chunk size per thread */

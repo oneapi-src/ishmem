@@ -12,7 +12,6 @@
  * checked for consistency and correctness.
  */
 
-#include <CL/sycl.hpp>
 #include <ishmem.h>
 #include <ishmemx.h>
 #include <stdio.h>

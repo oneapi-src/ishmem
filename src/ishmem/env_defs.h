@@ -36,5 +36,5 @@ ISHMEMI_ENV_DEF(TEAM_SHARED_ONLY_SELF, bool, false,
                 "Include only the self PE in ISHMEM_TEAM_SHARED")
 
 /* Runtime definitions */
-ISHMEMI_ENV_DEF(RUNTIME, std::string, "OPENSHMEM", "The runtime to use for the test suite")
+ISHMEMI_ENV_DEF(RUNTIME, std::string, "OPENSHMEM", "The runtime to use for scale-out communication")
 ISHMEMI_ENV_DEF(RUNTIME_USE_OSHMPI, bool, false, "Specify the OpenSHMEM backend as OSHMPI")
