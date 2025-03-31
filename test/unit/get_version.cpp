@@ -3,7 +3,6 @@
  */
 
 #include <iostream>
-#include <CL/sycl.hpp>
 #include <common.h>
 
 using std::cerr, std::endl;

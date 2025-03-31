@@ -13,6 +13,7 @@
 #include "collectives.h"
 #include "collectives/reduce_impl.h"
 #include "accelerator.h"
+#include <cmath>
 
 #define ISHMEMI_TEAMS_MIN   3 /* The number of pre-defined teams */
 #define ISHMEMI_DIAG_STRLEN 1024

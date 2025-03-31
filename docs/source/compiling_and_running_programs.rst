@@ -44,3 +44,29 @@ Intel® SHMEM build configuration::
 
 See section :ref:`Library Constants<library_constants>` for more information
 about these variables.
+
+Selecting SPIR-V Compilation Targets
+------------------------------------
+
+On some systems, you may encounter an error in which the correct SPIR-V targets
+are not successfully selected when linking with Intel® SHMEM.  This may result in
+problems when using device-initiated communication including compilation
+warnings: ::
+
+    icpx: warning: linked binaries do not contain expected 'spir64-unknown-unknown' target; found targets: 'spir64_gen-unknown-unknown' [-Wsycl-target]
+
+as well as runtime errors: ::
+
+    terminate called after throwing an instance of 'sycl::_V1::compile_program_error'
+      what():  The program was built for 1 devices
+    Build program log for 'Intel(R) Data Center GPU Max 1550':
+    Module <0x29941d0>:  Unresolved Symbol <_Z13ishmem_putmemPvPKvmi>
+    Module <0x29941d0>:  Unresolved Symbol <_Z13ishmem_putmemPvPKvmi>
+    Module <0x29941d0>:  Unresolved Symbol <_Z13ishmem_putmemPvPKvmi>
+    Module <0x29941d0>:  Unresolved Symbol <_Z13ishmem_putmemPvPKvmi> -11 (PI_ERROR_BUILD_PROGRAM_FAILURE)
+
+This error can be resolved by indicating the desired target at compile time. To
+compile with the appropriate target for a Intel® Data Center GPU Max 1550 (PVC)
+GPU, add the following flags when linking: ::
+
+    -fsycl-targets=spir64_gen --start-no-unused-arguments -Xs "-device pvc" --end-no-unused-arguments --start-no-unused-arguments -Xsycl-target-backend "-q" --end-no-unused-arguments

@@ -35,7 +35,6 @@
 #include <algorithm>
 #include <sstream>
 #include <vector>
-#include <CL/sycl.hpp>
 #include "common.h"
 #include <ishmem.h>
 #include <ishmemx.h>

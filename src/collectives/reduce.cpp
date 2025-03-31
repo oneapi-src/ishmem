@@ -6,36 +6,43 @@
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_AND_REDUCE(TYPENAME, TYPE)                                                                                                                      \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                            \
     int ishmem_##TYPENAME##_and_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_and_reduce(dest, src, nreduce); }                                    \
     sycl::event ishmemx_##TYPENAME##_and_reduce_on_queue(TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_and_reduce_on_queue(dest, src, nreduce, ret, q, deps);                                                                                            \
     }
 #define ISHMEMI_API_IMPL_OR_REDUCE(TYPENAME, TYPE)                                                                                                                       \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                            \
     int ishmem_##TYPENAME##_or_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_or_reduce(dest, src, nreduce); }                                      \
     sycl::event ishmemx_##TYPENAME##_or_reduce_on_queue(TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {   \
         return ishmemx_or_reduce_on_queue(dest, src, nreduce, ret, q, deps);                                                                                             \
     }
 #define ISHMEMI_API_IMPL_XOR_REDUCE(TYPENAME, TYPE)                                                                                                                      \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                            \
     int ishmem_##TYPENAME##_xor_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_xor_reduce(dest, src, nreduce); }                                    \
     sycl::event ishmemx_##TYPENAME##_xor_reduce_on_queue(TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_xor_reduce_on_queue(dest, src, nreduce, ret, q, deps);                                                                                            \
     }
 #define ISHMEMI_API_IMPL_MAX_REDUCE(TYPENAME, TYPE)                                                                                                                      \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                            \
     int ishmem_##TYPENAME##_max_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_max_reduce(dest, src, nreduce); }                                    \
     sycl::event ishmemx_##TYPENAME##_max_reduce_on_queue(TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_max_reduce_on_queue(dest, src, nreduce, ret, q, deps);                                                                                            \
     }
 #define ISHMEMI_API_IMPL_MIN_REDUCE(TYPENAME, TYPE)                                                                                                                      \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                            \
     int ishmem_##TYPENAME##_min_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_min_reduce(dest, src, nreduce); }                                    \
     sycl::event ishmemx_##TYPENAME##_min_reduce_on_queue(TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_min_reduce_on_queue(dest, src, nreduce, ret, q, deps);                                                                                            \
     }
 #define ISHMEMI_API_IMPL_SUM_REDUCE(TYPENAME, TYPE)                                                                                                                      \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                            \
     int ishmem_##TYPENAME##_sum_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_sum_reduce(dest, src, nreduce); }                                    \
     sycl::event ishmemx_##TYPENAME##_sum_reduce_on_queue(TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_sum_reduce_on_queue(dest, src, nreduce, ret, q, deps);                                                                                            \
     }
 #define ISHMEMI_API_IMPL_PROD_REDUCE(TYPENAME, TYPE)                                                                                                                     \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                            \
     int ishmem_##TYPENAME##_prod_reduce(TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_prod_reduce(dest, src, nreduce); }                                  \
     sycl::event ishmemx_##TYPENAME##_prod_reduce_on_queue(TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_prod_reduce_on_queue(dest, src, nreduce, ret, q, deps);                                                                                           \
@@ -43,43 +50,50 @@
 
 /* Teams variants */
 #define ISHMEMI_API_IMPL_AND_TEAM_REDUCE(TYPENAME, TYPE)                                                                                                                                     \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                \
     int ishmem_##TYPENAME##_and_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_and_reduce(team, dest, src, nreduce); }                              \
     sycl::event ishmemx_##TYPENAME##_and_reduce_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_and_reduce_on_queue(team, dest, src, nreduce, ret, q, deps);                                                                                                          \
     }
 #define ISHMEMI_API_IMPL_OR_TEAM_REDUCE(TYPENAME, TYPE)                                                                                                                                      \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                \
     int ishmem_##TYPENAME##_or_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_or_reduce(team, dest, src, nreduce); }                                \
     sycl::event ishmemx_##TYPENAME##_or_reduce_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {   \
         return ishmemx_or_reduce_on_queue(team, dest, src, nreduce, ret, q, deps);                                                                                                           \
     }
 #define ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(TYPENAME, TYPE)                                                                                                                                     \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                \
     int ishmem_##TYPENAME##_xor_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_xor_reduce(team, dest, src, nreduce); }                              \
     sycl::event ishmemx_##TYPENAME##_xor_reduce_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_xor_reduce_on_queue(team, dest, src, nreduce, ret, q, deps);                                                                                                          \
     }
 #define ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(TYPENAME, TYPE)                                                                                                                                     \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                \
     int ishmem_##TYPENAME##_max_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_max_reduce(team, dest, src, nreduce); }                              \
     sycl::event ishmemx_##TYPENAME##_max_reduce_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_max_reduce_on_queue(team, dest, src, nreduce, ret, q, deps);                                                                                                          \
     }
 #define ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(TYPENAME, TYPE)                                                                                                                                     \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                \
     int ishmem_##TYPENAME##_min_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_min_reduce(team, dest, src, nreduce); }                              \
     sycl::event ishmemx_##TYPENAME##_min_reduce_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_min_reduce_on_queue(team, dest, src, nreduce, ret, q, deps);                                                                                                          \
     }
 #define ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(TYPENAME, TYPE)                                                                                                                                     \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                \
     int ishmem_##TYPENAME##_sum_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_sum_reduce(team, dest, src, nreduce); }                              \
     sycl::event ishmemx_##TYPENAME##_sum_reduce_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) {  \
         return ishmemx_sum_reduce_on_queue(team, dest, src, nreduce, ret, q, deps);                                                                                                          \
     }
 #define ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(TYPENAME, TYPE)                                                                                                                                    \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                \
     int ishmem_##TYPENAME##_prod_reduce(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce) { return ishmem_prod_reduce(team, dest, src, nreduce); }                            \
     sycl::event ishmemx_##TYPENAME##_prod_reduce_on_queue(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, int *ret, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_prod_reduce_on_queue(team, dest, src, nreduce, ret, q, deps);                                                                                                         \
     }
-/* clang-format on */
 
 /* And Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_and_reduce(TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_AND_REDUCE(uchar, unsigned char)
 ISHMEMI_API_IMPL_AND_REDUCE(ushort, unsigned short)
 ISHMEMI_API_IMPL_AND_REDUCE(uint, unsigned int)
@@ -94,8 +108,10 @@ ISHMEMI_API_IMPL_AND_REDUCE(uint16, uint16_t)
 ISHMEMI_API_IMPL_AND_REDUCE(uint32, uint32_t)
 ISHMEMI_API_IMPL_AND_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_AND_REDUCE(size, size_t)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Or Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_or_reduce(TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_OR_REDUCE(uchar, unsigned char)
 ISHMEMI_API_IMPL_OR_REDUCE(ushort, unsigned short)
 ISHMEMI_API_IMPL_OR_REDUCE(uint, unsigned int)
@@ -110,8 +126,10 @@ ISHMEMI_API_IMPL_OR_REDUCE(uint16, uint16_t)
 ISHMEMI_API_IMPL_OR_REDUCE(uint32, uint32_t)
 ISHMEMI_API_IMPL_OR_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_OR_REDUCE(size, size_t)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Xor Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_xor_reduce(TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_XOR_REDUCE(uchar, unsigned char)
 ISHMEMI_API_IMPL_XOR_REDUCE(ushort, unsigned short)
 ISHMEMI_API_IMPL_XOR_REDUCE(uint, unsigned int)
@@ -126,8 +144,10 @@ ISHMEMI_API_IMPL_XOR_REDUCE(uint16, uint16_t)
 ISHMEMI_API_IMPL_XOR_REDUCE(uint32, uint32_t)
 ISHMEMI_API_IMPL_XOR_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_XOR_REDUCE(size, size_t)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Max Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_max_reduce(TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_MAX_REDUCE(char, char)
 ISHMEMI_API_IMPL_MAX_REDUCE(schar, signed char)
 ISHMEMI_API_IMPL_MAX_REDUCE(short, short)
@@ -151,8 +171,10 @@ ISHMEMI_API_IMPL_MAX_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_MAX_REDUCE(size, size_t)
 ISHMEMI_API_IMPL_MAX_REDUCE(float, float)
 ISHMEMI_API_IMPL_MAX_REDUCE(double, double)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Min Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_min_reduce(TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_MIN_REDUCE(char, char)
 ISHMEMI_API_IMPL_MIN_REDUCE(schar, signed char)
 ISHMEMI_API_IMPL_MIN_REDUCE(short, short)
@@ -176,8 +198,10 @@ ISHMEMI_API_IMPL_MIN_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_MIN_REDUCE(size, size_t)
 ISHMEMI_API_IMPL_MIN_REDUCE(float, float)
 ISHMEMI_API_IMPL_MIN_REDUCE(double, double)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Sum Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_sum_reduce(TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_SUM_REDUCE(char, char)
 ISHMEMI_API_IMPL_SUM_REDUCE(schar, signed char)
 ISHMEMI_API_IMPL_SUM_REDUCE(short, short)
@@ -201,8 +225,10 @@ ISHMEMI_API_IMPL_SUM_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_SUM_REDUCE(size, size_t)
 ISHMEMI_API_IMPL_SUM_REDUCE(float, float)
 ISHMEMI_API_IMPL_SUM_REDUCE(double, double)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Prod Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_prod_reduce(TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_PROD_REDUCE(char, char)
 ISHMEMI_API_IMPL_PROD_REDUCE(schar, signed char)
 ISHMEMI_API_IMPL_PROD_REDUCE(short, short)
@@ -226,8 +252,10 @@ ISHMEMI_API_IMPL_PROD_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_PROD_REDUCE(size, size_t)
 ISHMEMI_API_IMPL_PROD_REDUCE(float, float)
 ISHMEMI_API_IMPL_PROD_REDUCE(double, double)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Team And Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_and_reduce(ishmem_team_t, TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uchar, unsigned char)
 ISHMEMI_API_IMPL_AND_TEAM_REDUCE(ushort, unsigned short)
 ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uint, unsigned int)
@@ -242,8 +270,10 @@ ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uint16, uint16_t)
 ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uint32, uint32_t)
 ISHMEMI_API_IMPL_AND_TEAM_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_AND_TEAM_REDUCE(size, size_t)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Team Or Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_or_reduce(ishmem_team_t, TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uchar, unsigned char)
 ISHMEMI_API_IMPL_OR_TEAM_REDUCE(ushort, unsigned short)
 ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uint, unsigned int)
@@ -258,8 +288,10 @@ ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uint16, uint16_t)
 ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uint32, uint32_t)
 ISHMEMI_API_IMPL_OR_TEAM_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_OR_TEAM_REDUCE(size, size_t)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Team Xor Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_xor_reduce(ishmem_team_t, TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uchar, unsigned char)
 ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(ushort, unsigned short)
 ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uint, unsigned int)
@@ -274,8 +306,10 @@ ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uint16, uint16_t)
 ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uint32, uint32_t)
 ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_XOR_TEAM_REDUCE(size, size_t)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Team Max Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_max_reduce(ishmem_team_t, TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(char, char)
 ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(schar, signed char)
 ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(short, short)
@@ -299,8 +333,10 @@ ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(size, size_t)
 ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(float, float)
 ISHMEMI_API_IMPL_MAX_TEAM_REDUCE(double, double)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Team Min Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_min_reduce(ishmem_team_t, TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(char, char)
 ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(schar, signed char)
 ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(short, short)
@@ -324,8 +360,10 @@ ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(size, size_t)
 ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(float, float)
 ISHMEMI_API_IMPL_MIN_TEAM_REDUCE(double, double)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Team Sum Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_sum_reduce(ishmem_team_t, TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(char, char)
 ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(schar, signed char)
 ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(short, short)
@@ -349,8 +387,10 @@ ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(size, size_t)
 ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(float, float)
 ISHMEMI_API_IMPL_SUM_TEAM_REDUCE(double, double)
+#undef ISHMEM_INSTANTIATE_TYPE
 
 /* Team Prod Reduce */
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template int ishmem_prod_reduce(ishmem_team_t, TYPE *, const TYPE *, size_t)
 ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(char, char)
 ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(schar, signed char)
 ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(short, short)
@@ -374,3 +414,5 @@ ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(uint64, uint64_t)
 ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(size, size_t)
 ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(float, float)
 ISHMEMI_API_IMPL_PROD_TEAM_REDUCE(double, double)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */

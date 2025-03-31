@@ -1,0 +1,21 @@
+# Skip cmake files
+**/CMakeLists.txt
+**/cmake/*
+**/CMakeFiles/*
+
+# Skip non-source files/directories
+*.md
+LICENSE
+tags
+third-party-programs.txt
+.github/*
+.git/*
+docs/*
+maint/*
+scripts/*
+pkgconfig/*
+
+# Skip third-party files
+src/malloc.cpp
+src/uthash.h
+pmi-simple/*

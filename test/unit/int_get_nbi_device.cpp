@@ -2,7 +2,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <CL/sycl.hpp>
 #include <common.h>
 
 constexpr int array_size = 1 << 15;
@@ -59,6 +58,7 @@ int main(int argc, char **argv)
     /* Verify data */
     auto e_verify = q.submit([&](sycl::handler &h) {
         h.single_task([=]() {
+            ishmem_quiet();
             for (int i = 0; i < array_size; ++i) {
                 if (target[i] != (((my_pe + 1) % npes) << 16) + i) {
                     *errors = *errors + 1;

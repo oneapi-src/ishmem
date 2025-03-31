@@ -17,7 +17,68 @@
     ((((uintptr_t) p) >= ((uintptr_t) ishmemi_heap_base)) &&                                       \
      (((uintptr_t) p) < (((uintptr_t) ishmemi_heap_base) + ishmemi_heap_length)))
 
+/* Starting in oneAPI 2025.0, sycl::vec only supports fixed-width integer types */
+#define vector_reduce_helper(fn, d, s, n, ...)                                                     \
+    if constexpr (std::is_integral_v<T>) {                                                         \
+        if constexpr (std::is_signed_v<T>) {                                                       \
+            if constexpr (sizeof(T) == sizeof(int8_t))                                             \
+                fn<int8_t, OP>(reinterpret_cast<int8_t *>(d), reinterpret_cast<int8_t *>(s),       \
+                               n __VA_OPT__(, ) __VA_ARGS__);                                      \
+            else if constexpr (sizeof(T) == sizeof(int16_t))                                       \
+                fn<int16_t, OP>(reinterpret_cast<int16_t *>(d), reinterpret_cast<int16_t *>(s),    \
+                                n __VA_OPT__(, ) __VA_ARGS__);                                     \
+            else if constexpr (sizeof(T) == sizeof(int32_t))                                       \
+                fn<int32_t, OP>(reinterpret_cast<int32_t *>(d), reinterpret_cast<int32_t *>(s),    \
+                                n __VA_OPT__(, ) __VA_ARGS__);                                     \
+            else if constexpr (sizeof(T) == sizeof(int64_t))                                       \
+                fn<int64_t, OP>(reinterpret_cast<int64_t *>(d), reinterpret_cast<int64_t *>(s),    \
+                                n __VA_OPT__(, ) __VA_ARGS__);                                     \
+            else                                                                                   \
+                fn<int64_t, OP>(reinterpret_cast<int64_t *>(d), reinterpret_cast<int64_t *>(s),    \
+                                n * (sizeof(T) / sizeof(int64_t)) __VA_OPT__(, ) __VA_ARGS__);     \
+        } else {                                                                                   \
+            if constexpr (sizeof(T) == sizeof(uint8_t))                                            \
+                fn<uint8_t, OP>(reinterpret_cast<uint8_t *>(d), reinterpret_cast<uint8_t *>(s),    \
+                                n __VA_OPT__(, ) __VA_ARGS__);                                     \
+            else if constexpr (sizeof(T) == sizeof(uint16_t))                                      \
+                fn<uint16_t, OP>(reinterpret_cast<uint16_t *>(d), reinterpret_cast<uint16_t *>(s), \
+                                 n __VA_OPT__(, ) __VA_ARGS__);                                    \
+            else if constexpr (sizeof(T) == sizeof(uint32_t))                                      \
+                fn<uint32_t, OP>(reinterpret_cast<uint32_t *>(d), reinterpret_cast<uint32_t *>(s), \
+                                 n __VA_OPT__(, ) __VA_ARGS__);                                    \
+            else if constexpr (sizeof(T) == sizeof(uint64_t))                                      \
+                fn<uint64_t, OP>(reinterpret_cast<uint64_t *>(d), reinterpret_cast<uint64_t *>(s), \
+                                 n __VA_OPT__(, ) __VA_ARGS__);                                    \
+            else                                                                                   \
+                fn<uint64_t, OP>(reinterpret_cast<uint64_t *>(d), reinterpret_cast<uint64_t *>(s), \
+                                 n * (sizeof(T) / sizeof(uint64_t)) __VA_OPT__(, ) __VA_ARGS__);   \
+        }                                                                                          \
+    } else {                                                                                       \
+        fn<T, OP>(d, s, n __VA_OPT__(, ) __VA_ARGS__);                                             \
+    }
+
 /* Reduction operators */
+template <typename T, int N, ishmemi_op_t OP>
+inline void reduce_op(sycl::vec<T, N> &dest, const sycl::vec<T, N> &remote)
+{
+    if constexpr (std::is_floating_point_v<T>) {
+        if constexpr (OP == MAX_REDUCE) dest = sycl::fmax(dest, remote);
+        else if constexpr (OP == MIN_REDUCE) dest = sycl::fmin(dest, remote);
+        else if constexpr (OP == SUM_REDUCE) dest += remote;
+        else if constexpr (OP == PROD_REDUCE) dest *= remote;
+        else static_assert(false, "Unknown or unsupported reduction operator");
+    } else {
+        if constexpr (OP == AND_REDUCE) dest &= remote;
+        else if constexpr (OP == OR_REDUCE) dest |= remote;
+        else if constexpr (OP == XOR_REDUCE) dest ^= remote;
+        else if constexpr (OP == MAX_REDUCE) dest = sycl::max(dest, remote);
+        else if constexpr (OP == MIN_REDUCE) dest = sycl::min(dest, remote);
+        else if constexpr (OP == SUM_REDUCE) dest += remote;
+        else if constexpr (OP == PROD_REDUCE) dest *= remote;
+        else static_assert(false, "Unknown or unsupported reduction operator");
+    }
+}
+
 template <typename T, ishmemi_op_t OP>
 inline void reduce_op(T &dest, const T &remote)
 {
@@ -62,7 +123,7 @@ inline void vector_reduce(T *d, const T *s, size_t count)
     while (count >= 16) {
         vs.load(0, ds);
         vd.load(0, dd);
-        reduce_op<sycl::vec<T, 16>, OP>(vd, vs);
+        reduce_op<T, 16, OP>(vd, vs);
         vd.store(0, dd);
         ds += 16;
         dd += 16;
@@ -109,7 +170,7 @@ inline void vector_reduce_work_group(T *d, const T *s, size_t count, const Group
     while ((idx + ishmemi_vec_length) <= count) {
         vs.load(0, ds + idx);
         vd.load(0, dd + idx);
-        reduce_op<sycl::vec<T, 16>, OP>(vd, vs);
+        reduce_op<T, 16, OP>(vd, vs);
         vd.store(0, dd + idx);
         idx += vstride;
     }
@@ -185,7 +246,8 @@ inline int ishmemi_sub_reduce(ishmem_team_t team, T *dest, const T *source, size
     for (int pe = team_ptr->start; idx < team_ptr->size; pe += team_ptr->stride, idx++) {
         if (pe == my_world_pe) continue;
         T *remote = ISHMEMI_FAST_ADJUST(T, info, info->local_pes[pe], source);
-        vector_reduce<T, OP>(dest, remote, nreduce);
+
+        vector_reduce_helper(vector_reduce, dest, remote, nreduce);
     }
     ishmem_team_sync(team);
     return ret;
@@ -288,7 +350,8 @@ inline int ishmemi_sub_reduce_work_group(ishmem_team_t team, T *dest, const T *s
             for (int pe = team_ptr->start; idx < team_ptr->size; pe += team_ptr->stride, idx++) {
                 if (pe == my_world_pe) continue;
                 T *remote = ISHMEMI_FAST_ADJUST(T, info, info->local_pes[pe], source);
-                vector_reduce_work_group<T, OP>(dest, remote, nreduce, grp);
+
+                vector_reduce_helper(vector_reduce_work_group, dest, remote, nreduce, grp);
             }
             /* assure all threads have finished copies (group_barrier)
              * assure destination buffers complete and source buffers may be reused */

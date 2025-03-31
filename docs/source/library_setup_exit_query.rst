@@ -50,7 +50,7 @@ Callable from the **host**.
 Indicates which runtime is used to initialize Intel® SHMEM: either
 OpenSHMEM, MPI, or PMI.
 
-.. important:: As of Intel® SHMEM |version| only ISHMEM_RUNTIME_OPENSHMEM is supported.
+.. important:: As of Intel® SHMEM |version| only ISHMEM_RUNTIME_OPENSHMEM and ISHMEM_RUNTIME_MPI are supported.
 
 .. _ishmemx_attr_t:
 .. cpp:struct:: ishmemx_attr_t
@@ -58,16 +58,19 @@ OpenSHMEM, MPI, or PMI.
   .. c:var:: ishmemx_runtime_type_t runtime
   .. c:var:: bool initialize_runtime = true
   .. c:var:: bool gpu = true
+  .. c:var:: void *mpi_comm
 
 **Description:**
 A struct declaration describing attributes for initialization.
 A valid **runtime** enumeration value must be set by the user and must
 correspond to a runtime that is enabled within the build of the ``ishmem``
 library.
-By default, the parallel runtime is assumed to be initialized by the user
-(**initialize_runtime** default is ``false``).
+By default, the parallel runtime is initialized by Intel® SHMEM
+(**initialize_runtime** default is ``true``).
 The **gpu** boolean indicates whether to use GPU memory for the symmetric
-heap (default is ``false``).
+heap (default is ``true``). **mpi_comm** is a pointer to the corresponding
+MPI communicator for representing ``ISHMEM_TEAM_WORLD`` when used with
+``ISHMEM_RUNTIME_MPI`` (default is ``MPI_COMM_WORLD``).
 
 .. _ishmemx_init_attr:
 .. cpp:function:: void ishmemx_init_attr(ishmemx_attr_t * attr)

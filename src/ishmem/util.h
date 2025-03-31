@@ -14,7 +14,6 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <CL/sycl.hpp>
 
 #include "ishmem.h"
 #include "ishmemx.h"

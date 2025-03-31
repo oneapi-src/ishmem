@@ -2,7 +2,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <CL/sycl.hpp>
 #include <common.h>
 
 constexpr int array_size = 10; /* num_threads = array_size / chunk_size */

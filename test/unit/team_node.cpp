@@ -14,7 +14,6 @@
  *     2) leader PEs do not have a regular stride between them (e.g, for irregular PE numberings).
  */
 
-#include <CL/sycl.hpp>
 #include <common.h>
 #include <stdio.h>
 

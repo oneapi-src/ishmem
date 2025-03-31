@@ -11,7 +11,6 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <CL/sycl.hpp>
 
 /* Tuning Parameters
  * To tune for a system, run bandwidth tests with CUTOVER_NEVER and again with CUTOVER_ALWAYS. Use

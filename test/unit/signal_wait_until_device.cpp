@@ -2,7 +2,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <CL/sycl.hpp>
 #include <unistd.h>
 #include <common.h>
 

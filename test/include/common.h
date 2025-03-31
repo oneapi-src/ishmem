@@ -4,10 +4,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <CL/sycl.hpp>
 #include <getopt.h>
 #include <iomanip>
 #include <type_traits>
+#include <cmath>
 #include <ishmem.h>
 #include <ishmemx.h>
 #include <ishmem/config.h>

@@ -66,6 +66,7 @@ void ishmemx_putmem_work_group(void *dest, const void *src, size_t nelems, int p
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_PUT(TYPENAME, TYPE)                                                                                                                  \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                 \
     void ishmem_##TYPENAME##_put(TYPE *dest, const TYPE *src, size_t nelems, int pe) { ishmem_put(dest, src, nelems, pe); }                                   \
     sycl::event ishmemx_##TYPENAME##_put_on_queue(TYPE *dest, const TYPE *src, size_t nelems, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_put_on_queue(dest, src, nelems, pe, q, deps);                                                                                          \
@@ -86,8 +87,8 @@ void ishmemx_putmem_work_group(void *dest, const void *src, size_t nelems, int p
     template void ishmemx_put##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<3> &grp);                                       \
     template void ishmemx_put##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, size_t nelems, int pe, const sycl::sub_group &grp);                                     \
     template <typename Group> void ishmemx_put##SIZE##_work_group(void *dest, const void *src, size_t nelems, int pe, const Group &grp) { ishmemx_put_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmem_put(TYPE *, const TYPE *, size_t, int)
 ISHMEMI_API_IMPL_PUT(float, float)
 ISHMEMI_API_IMPL_PUT(double, double)
 ISHMEMI_API_IMPL_PUT(char, char)
@@ -116,6 +117,8 @@ ISHMEMI_API_IMPL_PUTSIZE(16, 16)
 ISHMEMI_API_IMPL_PUTSIZE(32, 32)
 ISHMEMI_API_IMPL_PUTSIZE(64, 64)
 ISHMEMI_API_IMPL_PUTSIZE(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* IPut */
 template <typename T>
@@ -224,6 +227,7 @@ void ishmemx_iput_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_IPUT(TYPENAME, TYPE)                                                                                                                                                \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                \
     void ishmem_##TYPENAME##_iput(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe) { ishmem_iput(dest, src, dst, sst, nelems, pe); }                        \
     sycl::event ishmemx_##TYPENAME##_iput_on_queue(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_iput_on_queue(dest, src, dst, sst, nelems, pe, q, deps);                                                                                                              \
@@ -244,8 +248,8 @@ void ishmemx_iput_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst
     template void ishmemx_iput##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<3> &grp);                                                  \
     template void ishmemx_iput##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::sub_group &grp);                                                \
     template <typename Group> void ishmemx_iput##SIZE##_work_group(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group &grp) { ishmemx_iput_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst, sst, nelems * (SIZE / ELEMSIZE), pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmem_iput(TYPE *, const TYPE *, ptrdiff_t, ptrdiff_t, size_t, int)
 ISHMEMI_API_IMPL_IPUT(float, float)
 ISHMEMI_API_IMPL_IPUT(double, double)
 ISHMEMI_API_IMPL_IPUT(char, char)
@@ -274,6 +278,8 @@ ISHMEMI_API_IMPL_IPUTSIZE(16, 16)
 ISHMEMI_API_IMPL_IPUTSIZE(32, 32)
 ISHMEMI_API_IMPL_IPUTSIZE(64, 64)
 ISHMEMI_API_IMPL_IPUTSIZE(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* IBPut */
 template <typename T>
@@ -387,6 +393,7 @@ void ishmemx_ibput_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t ss
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_IBPUT(TYPENAME, TYPE)                                                                                                                                                               \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                                \
     void ishmemx_##TYPENAME##_ibput(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe) { ishmemx_ibput(dest, src, dst, sst, bsize, nblocks, pe); }             \
     sycl::event ishmemx_##TYPENAME##_ibput_on_queue(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_ibput_on_queue(dest, src, dst, sst, bsize, nblocks, pe, q, deps);                                                                                                                     \
@@ -407,8 +414,8 @@ void ishmemx_ibput_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t ss
     template void ishmemx_ibput##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<3> &grp);                                                                                                     \
     template void ishmemx_ibput##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::sub_group &grp);                                                                                                   \
     template <typename Group> void ishmemx_ibput##SIZE##_work_group(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group &grp) { ishmemx_ibput_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst * (SIZE / ELEMSIZE), sst * (SIZE / ELEMSIZE), bsize * (SIZE / ELEMSIZE), nblocks, pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmemx_ibput(TYPE *, const TYPE *, ptrdiff_t, ptrdiff_t, size_t, size_t, int)
 ISHMEMI_API_IMPL_IBPUT(float, float)
 ISHMEMI_API_IMPL_IBPUT(double, double)
 ISHMEMI_API_IMPL_IBPUT(char, char)
@@ -437,6 +444,8 @@ ISHMEMI_API_IMPL_IBPUTSIZE(16, 16)
 ISHMEMI_API_IMPL_IBPUTSIZE(32, 32)
 ISHMEMI_API_IMPL_IBPUTSIZE(64, 64)
 ISHMEMI_API_IMPL_IBPUTSIZE(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* P */
 template <typename T>
@@ -476,10 +485,11 @@ void ishmem_p(T *dest, T val, int pe)
 }
 
 /* clang-format off */
-#define ISHMEMI_API_IMPL_P(TYPENAME, TYPE)  \
+#define ISHMEMI_API_IMPL_P(TYPENAME, TYPE)    \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE); \
     void ishmem_##TYPENAME##_p(TYPE *dest, TYPE val, int pe) { ishmem_p(dest, val, pe); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmem_p(TYPE *, TYPE, int)
 ISHMEMI_API_IMPL_P(float, float)
 ISHMEMI_API_IMPL_P(double, double)
 ISHMEMI_API_IMPL_P(char, char)
@@ -503,6 +513,8 @@ ISHMEMI_API_IMPL_P(uint32, uint32_t)
 ISHMEMI_API_IMPL_P(uint64, uint64_t)
 ISHMEMI_API_IMPL_P(size, size_t)
 ISHMEMI_API_IMPL_P(ptrdiff, ptrdiff_t)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* Get */
 template <typename T>
@@ -560,6 +572,7 @@ void ishmemx_getmem_work_group(void *dest, const void *src, size_t nelems, int p
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_GET(TYPENAME, TYPE)                                                                                                                  \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                 \
     void ishmem_##TYPENAME##_get(TYPE *dest, const TYPE *src, size_t nelems, int pe) { ishmem_get(dest, src, nelems, pe); }                                   \
     sycl::event ishmemx_##TYPENAME##_get_on_queue(TYPE *dest, const TYPE *src, size_t nelems, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_get_on_queue(dest, src, nelems, pe, q, deps);                                                                                          \
@@ -580,8 +593,8 @@ void ishmemx_getmem_work_group(void *dest, const void *src, size_t nelems, int p
     template void ishmemx_get##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, size_t nelems, int pe, const sycl::group<3> &grp);                                       \
     template void ishmemx_get##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, size_t nelems, int pe, const sycl::sub_group &grp);                                     \
     template <typename Group> void ishmemx_get##SIZE##_work_group(void *dest, const void *src, size_t nelems, int pe, const Group &grp) { ishmemx_get_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, nelems * (SIZE / ELEMSIZE), pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmem_get(TYPE *, const TYPE *, size_t, int)
 ISHMEMI_API_IMPL_GET(float, float)
 ISHMEMI_API_IMPL_GET(double, double)
 ISHMEMI_API_IMPL_GET(char, char)
@@ -610,6 +623,8 @@ ISHMEMI_API_IMPL_GETSIZE(16, 16)
 ISHMEMI_API_IMPL_GETSIZE(32, 32)
 ISHMEMI_API_IMPL_GETSIZE(64, 64)
 ISHMEMI_API_IMPL_GETSIZE(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* IGet */
 template <typename T>
@@ -718,6 +733,7 @@ void ishmemx_iget_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_IGET(TYPENAME, TYPE)                                                                                                                                                \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                \
     void ishmem_##TYPENAME##_iget(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe) { ishmem_iget(dest, src, dst, sst, nelems, pe); }                        \
     sycl::event ishmemx_##TYPENAME##_iget_on_queue(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_iget_on_queue(dest, src, dst, sst, nelems, pe, q, deps);                                                                                                              \
@@ -738,8 +754,8 @@ void ishmemx_iget_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t sst
     template void ishmemx_iget##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::group<3> &grp);                                                  \
     template void ishmemx_iget##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const sycl::sub_group &grp);                                                \
     template <typename Group> void ishmemx_iget##SIZE##_work_group(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t nelems, int pe, const Group &grp) { ishmemx_iget_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst, sst, nelems * (SIZE / ELEMSIZE), pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmem_iget(TYPE *, const TYPE *, ptrdiff_t, ptrdiff_t, size_t, int)
 ISHMEMI_API_IMPL_IGET(float, float)
 ISHMEMI_API_IMPL_IGET(double, double)
 ISHMEMI_API_IMPL_IGET(char, char)
@@ -768,6 +784,8 @@ ISHMEMI_API_IMPL_IGETSIZE(16, 16)
 ISHMEMI_API_IMPL_IGETSIZE(32, 32)
 ISHMEMI_API_IMPL_IGETSIZE(64, 64)
 ISHMEMI_API_IMPL_IGETSIZE(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* IBGet */
 template <typename T>
@@ -881,6 +899,7 @@ void ishmemx_ibget_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t ss
 
 /* clang-format off */
 #define ISHMEMI_API_IMPL_IBGET(TYPENAME, TYPE)                                                                                                                                                               \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE);                                                                                                                                                                \
     void ishmemx_##TYPENAME##_ibget(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe) { ishmemx_ibget(dest, src, dst, sst, bsize, nblocks, pe); }             \
     sycl::event ishmemx_##TYPENAME##_ibget_on_queue(TYPE *dest, const TYPE *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, sycl::queue &q, const std::vector<sycl::event> &deps) { \
         return ishmemx_ibget_on_queue(dest, src, dst, sst, bsize, nblocks, pe, q, deps);                                                                                                                     \
@@ -901,8 +920,8 @@ void ishmemx_ibget_work_group(T *dest, const T *src, ptrdiff_t dst, ptrdiff_t ss
     template void ishmemx_ibget##SIZE##_work_group<sycl::group<3>>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::group<3> &grp);                                                                                                     \
     template void ishmemx_ibget##SIZE##_work_group<sycl::sub_group>(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const sycl::sub_group &grp);                                                                                                   \
     template <typename Group> void ishmemx_ibget##SIZE##_work_group(void *dest, const void *src, ptrdiff_t dst, ptrdiff_t sst, size_t bsize, size_t nblocks, int pe, const Group &grp) { ishmemx_ibget_work_group((uint##ELEMSIZE##_t *) dest, (uint##ELEMSIZE##_t *) src, dst * (SIZE / ELEMSIZE), sst * (SIZE / ELEMSIZE), bsize * (SIZE / ELEMSIZE), nblocks, pe, grp); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template void ishmemx_ibget(TYPE *, const TYPE *, ptrdiff_t, ptrdiff_t, size_t, size_t, int)
 ISHMEMI_API_IMPL_IBGET(float, float)
 ISHMEMI_API_IMPL_IBGET(double, double)
 ISHMEMI_API_IMPL_IBGET(char, char)
@@ -931,6 +950,8 @@ ISHMEMI_API_IMPL_IBGETSIZE(16, 16)
 ISHMEMI_API_IMPL_IBGETSIZE(32, 32)
 ISHMEMI_API_IMPL_IBGETSIZE(64, 64)
 ISHMEMI_API_IMPL_IBGETSIZE(128, 64)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */
 
 /* G */
 template <typename T>
@@ -974,10 +995,11 @@ T ishmem_g(T *src, int pe)
 }
 
 /* clang-format off */
-#define ISHMEMI_API_IMPL_G(TYPENAME, TYPE)  \
+#define ISHMEMI_API_IMPL_G(TYPENAME, TYPE)    \
+    ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE); \
     TYPE ishmem_##TYPENAME##_g(TYPE *dest, int pe) { return ishmem_g(dest, pe); }
-/* clang-format on */
 
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template TYPE ishmem_g(TYPE *, int)
 ISHMEMI_API_IMPL_G(float, float)
 ISHMEMI_API_IMPL_G(double, double)
 ISHMEMI_API_IMPL_G(char, char)
@@ -1001,3 +1023,5 @@ ISHMEMI_API_IMPL_G(uint32, uint32_t)
 ISHMEMI_API_IMPL_G(uint64, uint64_t)
 ISHMEMI_API_IMPL_G(size, size_t)
 ISHMEMI_API_IMPL_G(ptrdiff, ptrdiff_t)
+#undef ISHMEM_INSTANTIATE_TYPE
+/* clang-format on */

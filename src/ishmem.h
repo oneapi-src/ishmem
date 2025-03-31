@@ -5,7 +5,11 @@
 #ifndef I_SHMEM_H
 #define I_SHMEM_H
 
+#if __INTEL_CLANG_COMPILER >= 20250000
+#include <sycl/sycl.hpp>
+#else
 #include <CL/sycl.hpp>
+#endif
 
 #define ISHMEM_DEVICE_ATTRIBUTES SYCL_EXTERNAL
 
