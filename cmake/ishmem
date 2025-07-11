@@ -1,7 +1,7 @@
 #%Module1.0
 ##############################################################################
 
-# Copyright (c) 2024, Intel Corporation
+# Copyright (c) 2025, Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 ##############################################################################
@@ -77,4 +77,7 @@ set             topdir              "$componentroot/$modulefilever"
 setenv          ISHMEM_ROOT         "$topdir"
 prepend-path    LD_LIBRARY_PATH     "$topdir/lib"
 prepend-path    LIBRARY_PATH        "$topdir/lib"
-prepend-path    CPATH               "$topdir/include"
+prepend-path    C_INCLUDE_PATH      "$topdir/include"
+prepend-path    CPLUS_INCLUDE_PATH  "$topdir/include"
+prepend-path    PKG_CONFIG_PATH     "$topdir/lib/pkgconfig"
+prepend-path    CMAKE_PREFIX_PATH   "$topdir/lib/cmake/ishmem"

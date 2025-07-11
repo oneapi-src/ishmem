@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -955,7 +955,7 @@ ISHMEMI_API_IMPL_IBGETSIZE(128, 64)
 
 /* G */
 template <typename T>
-T ishmem_g(T *src, int pe)
+T ishmem_g(const T *src, int pe)
 {
     if constexpr (enable_error_checking) {
         validate_parameters(pe, (void *) src, sizeof(T));
@@ -984,7 +984,7 @@ T ishmem_g(T *src, int pe)
     ret = ishmemi_proxy_blocking_request_return<T, G>(req);
 #else
     int retval = 1;
-    if (local_index != 0) retval = ishmemi_ipc_get(src, &ret, 1, pe);
+    if (local_index != 0) retval = ishmemi_ipc_get(&ret, src, 1, pe);
     if (retval != 0) {
         ishmemi_ringcompletion_t comp;
         ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
@@ -997,9 +997,9 @@ T ishmem_g(T *src, int pe)
 /* clang-format off */
 #define ISHMEMI_API_IMPL_G(TYPENAME, TYPE)    \
     ISHMEM_INSTANTIATE_TYPE_##TYPENAME(TYPE); \
-    TYPE ishmem_##TYPENAME##_g(TYPE *dest, int pe) { return ishmem_g(dest, pe); }
+    TYPE ishmem_##TYPENAME##_g(const TYPE *dest, int pe) { return ishmem_g(dest, pe); }
 
-#define ISHMEM_INSTANTIATE_TYPE(TYPE) template TYPE ishmem_g(TYPE *, int)
+#define ISHMEM_INSTANTIATE_TYPE(TYPE) template TYPE ishmem_g(const TYPE *, int)
 ISHMEMI_API_IMPL_G(float, float)
 ISHMEMI_API_IMPL_G(double, double)
 ISHMEMI_API_IMPL_G(char, char)

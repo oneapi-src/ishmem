@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -45,10 +45,8 @@ int main(int argc, char **argv)
     /* Perform put operation */
     auto e1 = q.submit([&](sycl::handler &h) {
         h.single_task([=]() {
-            int my_dev_pe = ishmem_my_pe();
-            int my_dev_npes = ishmem_n_pes();
-
-            ishmem_int_put_nbi(target, source, array_size, (my_dev_pe + 1) % my_dev_npes);
+            ishmem_int_put_nbi(target, source, array_size, (my_pe + 1) % npes);
+            ishmem_quiet();
         });
     });
     e1.wait_and_throw();
@@ -58,9 +56,8 @@ int main(int argc, char **argv)
     /* Verify data */
     auto e_verify = q.submit([&](sycl::handler &h) {
         h.single_task([=]() {
-            ishmem_quiet();
+            int source_pe = (my_pe > 0) ? (my_pe - 1) : (npes - 1);
             for (int i = 0; i < array_size; ++i) {
-                int source_pe = (my_pe > 0) ? (my_pe - 1) : (npes - 1);
                 if (target[i] != (source_pe << 16) + i) {
                     *errors = *errors + 1;
                 }

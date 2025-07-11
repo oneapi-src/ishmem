@@ -1,0 +1,7 @@
+/* Copyright (C) 2025 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#cmakedefine ENABLE_MPI
+#cmakedefine ENABLE_OPENSHMEM
+#cmakedefine ENABLE_PMI

@@ -1,7 +1,13 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # CMake utility functions
+
+# Require pkgconfig for finding Level Zero and OpenSHMEM libraries
+find_package(PkgConfig REQUIRED)
+
+# Require compiler with SYCL library installed
+find_package(IntelSYCL REQUIRED)
 
 include(CheckCXXCompilerFlag)
 
@@ -19,34 +25,12 @@ function(setup_compiler_options)
     set(CMAKE_CXX_STANDARD 17 PARENT_SCOPE)
     set(CMAKE_CXX_STANDARD_REQUIRED ON PARENT_SCOPE)
 
-    # This option is mostly for forward-compatibility (i.e. icpx name changes from IntelLLVM in future CMake versions)
-    option(SKIP_COMPILER_CHECK "Skips compiler validation (NOT RECOMMENDED)" FALSE)
-
-    # Check the provided compiler (requires icpx with SYCL enabled)
-    if (NOT ${SKIP_COMPILER_CHECK})
-        if (NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM")
-            message(FATAL_ERROR
-                "Unsupported compiler!\n"
-                "Only the Intel LLVM-Based compiler (icpx) is supported\n"
-                "If you believe you are receiving this message in error, proceed with '-DSKIP_COMPILER_CHECK=ON'")
-        elseif (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "2024.0")
-            message(FATAL_ERROR
-                "Unsupported compiler!\n"
-                "Only the Intel LLVM-Based compiler (icpx) version 2024.0 or newer is supported\n"
-                "If you believe you are receiving this message in error, proceed with '-DSKIP_COMPILER_CHECK=ON'")
-        endif()
-    endif()
-
     # Check compiler support for required flags
-    check_compiler_flag(-fsycl COMPILER_FLAG_SYCL TRUE)
     check_compiler_flag(-mmovdir64b COMPILER_FLAG_MOVDIR64B TRUE)
     check_compiler_flag(-mavx512f COMPILER_FLAG_AVX512F TRUE)
     check_compiler_flag(-mwaitpkg COMPILER_FLAG_WAITPKG TRUE)
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsycl")
-
-    # Check the compiler version
-    set(ICPX_MIN_SUPPORTED "")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SYCL_FLAGS}")
 
     # Set compiler settings
     set(COMPILER_WARN_FLAGS "-Werror -Wuninitialized -Wunused-variable")
@@ -70,33 +54,25 @@ function(setup_compiler_options)
 endfunction(setup_compiler_options)
 
 function(setup_dependencies)
-    # Check for valid Level Zero installation
-    if (NOT EXISTS "${LEVEL_ZERO_DIR}/include/level_zero/ze_api.h" OR
-        NOT EXISTS "${LEVEL_ZERO_DIR}/include/level_zero/zet_api.h")
-        message(FATAL_ERROR
-                "Cannot find level zero Headers!\n"
-                "Provided (LEVEL_ZERO_DIR): ${LEVEL_ZERO_DIR}\n"
-                "Required headers:\n"
-                "    level_zero/ze_api.h\n"
-                "    level_zero/zet_api.h")
+    # Keep support for LEVEL_ZERO_DIR for backward-compatibility
+    if (EXISTS ${LEVEL_ZERO_DIR})
+        set(ENV{PKG_CONFIG_PATH} ${LEVEL_ZERO_DIR}/lib64/pkgconfig:$ENV{PKG_CONFIG_PATH})
     endif()
 
-    set(LEVEL_ZERO_INC_DIR "${LEVEL_ZERO_DIR}/include" PARENT_SCOPE)
+    # Search for Level Zero using pkgconfig
+    pkg_check_modules(LEVEL_ZERO REQUIRED IMPORTED_TARGET level-zero)
+    pkg_get_variable(_LEVEL_ZERO_PCFILEDIR level-zero pcfiledir)
 
-    if (EXISTS "${LEVEL_ZERO_DIR}/lib64/libze_loader.so")
-        list(APPEND EXTRA_LIBS "-L${LEVEL_ZERO_DIR}/lib64 -lze_loader")
-    elseif (EXISTS "${LEVEL_ZERO_DIR}/lib/libze_loader.so")
-        list(APPEND EXTRA_LIBS "-L${LEVEL_ZERO_DIR}/lib -lze_loader")
-    elseif (EXISTS "${LEVEL_ZERO_DIR}/lib/x86_64-linux-gnu/libze_loader.so")
-        list(APPEND EXTRA_LIBS "-L${LEVEL_ZERO_DIR}/lib/x86_64-linux-gnu -lze_loader")
-    else()
-        message(FATAL_ERROR
-                "Cannot find level zero library!\n"
-                "Provided (LEVEL_ZERO_DIR): ${LEVEL_ZERO_DIR}\n"
-                "Required Headers:\n"
-                "    libze_loader.so")
-endif()
+    if (LEVEL_ZERO_VERSION LESS 1.20)
+        # Incorrect pkgconfig prefix - need to fix defined variables
+        get_filename_component(_LEVEL_ZERO_PCFILEDIR_PARENT ${_LEVEL_ZERO_PCFILEDIR} DIRECTORY)
+        get_filename_component(LEVEL_ZERO_DIR ${_LEVEL_ZERO_PCFILEDIR_PARENT} DIRECTORY)
 
+        string(REPLACE "/usr" "${LEVEL_ZERO_DIR}" LEVEL_ZERO_INCLUDEDIR "${LEVEL_ZERO_INCLUDEDIR}")
+        string(REPLACE "/usr" "${LEVEL_ZERO_DIR}" LEVEL_ZERO_LIBDIR "${LEVEL_ZERO_LIBDIR}")
+    endif()
+
+    list(APPEND EXTRA_LIBS "-L${LEVEL_ZERO_LIBDIR}")
 endfunction(setup_dependencies)
 
 function(setup_runtime_backends)
@@ -109,39 +85,39 @@ function(setup_runtime_backends)
     endif()
 
     if (ENABLE_OPENSHMEM)
-        if (NOT EXISTS "${SHMEM_DIR}/include/shmem.h" OR
-            NOT EXISTS "${SHMEM_DIR}/include/shmemx.h")
-            message(FATAL_ERROR
-                    "Cannot find OpenSHMEM headers!\n"
-                    "Provided (SHMEM_DIR): ${SHMEM_DIR}\n"
-                    "Required headers:\n"
-                    "    shmem.h\n"
-                    "    shmemx.h")
+        # Keep support for SHMEM_DIR for backward-compatibility
+        if (EXISTS ${SHMEM_DIR})
+            set(ENV{PKG_CONFIG_PATH} ${SHMEM_DIR}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
         endif()
 
-        if (EXISTS "${SHMEM_DIR}/bin/oshc++")
-            execute_process(COMMAND ${SHMEM_DIR}/bin/oshc++ -showlibs OUTPUT_VARIABLE SHMEM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
-            set(SHMEM_LIBS ${SHMEM_LIBS} PARENT_SCOPE)
-        else()
-            message(FATAL_ERROR
-                    "Cannot find OpenSHMEM library!\n"
-                    "Provided (SHMEM_DIR): ${SHMEM_DIR}\n"
-                    "Required files:\n"
-                    "    oshc++")
-        endif()
+        # Currently only support Sandia OpenSHMEM
+        pkg_check_modules(SANDIA_OPENSHMEM REQUIRED IMPORTED_TARGET sandia-openshmem>=1.5.3)
+        pkg_get_variable(_SANDIA_OPENSHMEM_PCFILEDIR sandia-openshmem pcfiledir)
 
-        set(SHMEM_INC_DIR "${SHMEM_DIR}/include" PARENT_SCOPE)
+        # Incorrect pkgconfig prefix - need to fix defined variables
+        get_filename_component(_SANDIA_OPENSHMEM_PCFILEDIR_PARENT ${_SANDIA_OPENSHMEM_PCFILEDIR} DIRECTORY)
+        get_filename_component(SANDIA_OPENSHMEM_DIR ${_SANDIA_OPENSHMEM_PCFILEDIR_PARENT} DIRECTORY)
+
+        string(REPLACE "${SANDIA_OPENSHMEM_PREFIX}" "${SANDIA_OPENSHMEM_DIR}" SANDIA_OPENSHMEM_INCLUDE_DIRS "${SANDIA_OPENSHMEM_INCLUDE_DIRS}")
+
+        set(OPENSHMEM_INCLUDE_DIRS "${SANDIA_OPENSHMEM_INCLUDE_DIRS}" PARENT_SCOPE)
     endif()
 
     if (ENABLE_MPI)
-        if (NOT EXISTS "${MPI_DIR}/include/mpi.h")
-            message(FATAL_ERROR
-                    "Cannot find MPI header!\n"
-                    "Provided (MPI_DIR): ${MPI_DIR}\n"
-                    "Required header:\n"
-                    "    mpi.h")
+        if (EXISTS ${MPI_DIR})
+            set(ENV{MPI_HOME} ${MPI_DIR})
+            if (DEFINED ENV{I_MPI_ROOT} AND NOT "$ENV{I_MPI_ROOT}" STREQUAL "")
+                if (NOT ENV{I_MPI_ROOT} STREQUAL MPI_DIR)
+                    message(WARNING " \${MPI_DIR} is set but does not match \${I_MPI_ROOT}.\n"
+                                    " FindMPI will likely select \${I_MPI_ROOT} over \${MPI_DIR}.\n"
+                                    " To ensure \${MPI_DIR} is used, please remove \${I_MPI_ROOT} from your environment.\n"
+                                    " MPI_DIR=${MPI_DIR}\n"
+                                    " I_MPI_ROOT=$ENV{I_MPI_ROOT}")
+                endif()
+            endif()
         endif()
 
-        set(MPI_INC_DIR "${MPI_DIR}/include" PARENT_SCOPE)
+        set(MPI_CXX_SKIP_MPICXX TRUE)
+        find_package(MPI COMPONENTS REQUIRED CXX)
     endif()
 endfunction(setup_runtime_backends)

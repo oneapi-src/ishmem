@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -7,6 +7,12 @@
 
 #include <ishmem.h>
 #include <vector>
+
+/* Ensure the test suite config options take precedence over the ishmem install options */
+#undef ENABLE_OPENSHMEM
+#undef ENABLE_MPI
+#undef ENABLE_PMI
+#include "ishmem_test_config.h"
 
 /* Runtime class */
 class ishmemi_test_runtime_type {

@@ -1,6 +1,23 @@
 # Release Notes <!-- omit in toc -->
 This document contains a list of new features and known limitations of Intel® SHMEM releases.
 
+## Release 1.4.0
+
+### New Features and Enhancements
+- Dependency check improvements during CMake configuration.
+- CMake config file for adding Intel® SHMEM as a project dependency.
+- Bug fixes improving functionality.
+
+### Known Limitations
+- Only [Sandia OpenSHMEM](https://github.com/Sandia-OpenSHMEM/SOS) and [Intel® MPI Library](https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library.html) are currently supported as the host back-end.
+- Not all APIs from OpenSHMEM standard are supported. Please refer to [Supported/Unsupported Features](https://oneapi-src.github.io/ishmem/supported_features.html) to get a complete view.
+- Intel® SHMEM requires a one-to-one mapping of PEs to SYCL devices. This implies that Intel® SHMEM executions must launch with a number of processes on each compute node that is no more than the number of available SYCL devices on each one of those nodes. By default, the Intel® SHMEM runtime considers each individual device tile to make up a single SYCL device and assigns a tile per PE.
+- All collective operations within a kernel must complete before invoking subsequent kernel-initiated collective operation.
+- To run Intel® SHMEM with SOS enabling the Slingshot provider in OFI, environment variable `FI_CXI_OPTIMIZED_MRS=0` must be used. It is also recommended to use `FI_CXI_DEFAULT_CQ_SIZE=131072`.
+- To run Intel® SHMEM with SOS enabling the verbs provider, environment variable `MLX5_SCATTER_TO_CQE=0` must be used.
+- To run Intel® SHMEM with Intel® MPI Library, environment variable `I_MPI_OFFLOAD=1` must be used. Additionally, `I_MPI_OFFLOAD_RDMA=1` may be necessary for GPU RDMA depending on the OFI provider. Please refer to the [reference guide](https://www.intel.com/content/www/us/en/docs/mpi-library/developer-reference-linux/2021-14/gpu-buffers-support.html) for further details.
+- Inter-node communication in Intel® SHMEM requires [dma-buf](https://www.kernel.org/doc/html/latest/driver-api/dma-buf.html) support in the Linux kernel. Inter-node functionality in Intel® SHMEM Release 1.4.0 is tested with SUSE Linux Enterprise Server 15 SP4.
+
 ## Release 1.3.0
 
 ### New Features and Enhancements
