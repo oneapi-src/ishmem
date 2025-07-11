@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Common CMakeLists.txt to build ishmem, tests, examples
@@ -12,11 +12,11 @@ set(PROJECT_NAME "ishmem")
 set(PROJECT_FULL_NAME "Intel® SHMEM")
 
 set(ISHMEM_MAJOR_VERSION "1")
-set(ISHMEM_MINOR_VERSION "3")
+set(ISHMEM_MINOR_VERSION "4")
 set(ISHMEM_PATCH_VERSION "0")
 set(PROJECT_VERSION "${ISHMEM_MAJOR_VERSION}.${ISHMEM_MINOR_VERSION}.${ISHMEM_PATCH_VERSION}")
 
-project(${PROJECT_NAME} VERSION ${PROJECT_VERSION})
+project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
 
 set(COMMON_CMAKE_DIR "${PROJECT_SOURCE_DIR}/cmake")
 include(${COMMON_CMAKE_DIR}/utils.cmake)
@@ -62,6 +62,12 @@ endif()
 string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_CASE_INSENSITIVE)
 
 # -------------------------------------------------------------------
+# Setup dependencies and runtimes
+
+setup_dependencies()
+setup_runtime_backends()
+
+# -------------------------------------------------------------------
 # Show build summary
 message(STATUS "\n========== Build summary ==========")
 message(STATUS "Installation directory:      ${CMAKE_INSTALL_PREFIX}")
@@ -100,26 +106,13 @@ set(ISHMEM_INSTALL_LICENSE "${ISHMEM_INSTALL_SHARE}/doc/ishmem/licensing")
 set(ISHMEM_INSTALL_TESTS "${CMAKE_INSTALL_PREFIX}/tests")
 set(ISHMEM_INSTALL_EXAMPLES "${ISHMEM_INSTALL_SHARE}/doc/ishmem/examples")
 set(ISHMEM_INSTALL_MODULE "${ISHMEM_INSTALL_ETC}/modulefiles")
-
-# -------------------------------------------------------------------
-# Setup dependencies and runtimes
-
-# Set default paths
-set(LEVEL_ZERO_DIR "/usr" CACHE PATH "Path to oneAPI Level Zero installation")
-set(SHMEM_DIR "/usr" CACHE PATH "Path to OpenSHMEM installation")
-set(MPI_DIR "/usr" CACHE PATH "Path to MPI installation")
-
-setup_dependencies()
-setup_runtime_backends()
+set(ISHMEM_INSTALL_CMAKE "${ISHMEM_INSTALL_LIB}/cmake/ishmem")
 
 # -------------------------------------------------------------------
 # Misc project settings
 
 set(ISHMEM_BUILD_ROOT "${CMAKE_CURRENT_BINARY_DIR}")
 set(ISHMEM_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/src")
-
-# This is set to cover building tests with the source. It can be set by users in case the tests are built stand-alone
-set(ISHMEM_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "Path to Intel SHMEM installation")
 
 # -------------------------------------------------------------------
 # Generate and install files
@@ -139,7 +132,21 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/examples/ DESTINATION ${ISHMEM_INSTALL_E
                        PATTERN "build" EXCLUDE)
 
 if (BUILD_CMAKE_CONFIG)
-    # TODO
+    # Setup default values
+    set(ISHMEM_ENABLE_SPIRV_COMPILATION ${ENABLE_AOT_COMPILATION})
+    set(ISHMEM_SPIRV_COMPILATION_TARGETS ${ISHMEM_AOT_DEVICE_TYPES})
+    set(ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT ${ENABLE_AOT_COMPILATION})
+
+    # Generate cmake config files
+    configure_file("cmake/templates/ISHMEMConfig.cmake.in"
+                   "${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/ishmem/ISHMEMConfig.cmake"
+                   @ONLY)
+    configure_file("cmake/templates/ISHMEMConfigVersion.cmake.in"
+                   "${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/ishmem/ISHMEMConfigVersion.cmake"
+                   @ONLY)
+
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/ishmem/ISHMEMConfig.cmake DESTINATION ${ISHMEM_INSTALL_CMAKE})
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/ishmem/ISHMEMConfigVersion.cmake DESTINATION ${ISHMEM_INSTALL_CMAKE})
 endif()
 
 # -------------------------------------------------------------------

@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -13,12 +13,8 @@
     if (my_pe % 2) {                                                                               \
         *ret = ishmem_signal_wait_until(sig_addr, cmp, cmp_values[cmp - 1]);                       \
     } else {                                                                                       \
-        q.submit([&](sycl::handler &h) {                                                           \
-             h.single_task([=]() {                                                                 \
-                 ishmem_int_put_signal(source, dest, 1, sig_addr, trigger[cmp - 1],                \
-                                       ISHMEM_SIGNAL_SET, my_pe + 1);                              \
-             });                                                                                   \
-         }).wait_and_throw();                                                                      \
+        ishmem_int_put_signal(source, dest, 1, sig_addr, trigger[cmp - 1], ISHMEM_SIGNAL_SET,      \
+                              my_pe + 1);                                                          \
     }                                                                                              \
     if (my_pe % 2) {                                                                               \
         /* Verify data */                                                                          \

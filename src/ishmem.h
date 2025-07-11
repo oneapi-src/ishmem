@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -14,7 +14,7 @@
 #define ISHMEM_DEVICE_ATTRIBUTES SYCL_EXTERNAL
 
 #define ISHMEM_MAJOR_VERSION 1
-#define ISHMEM_MINOR_VERSION 3
+#define ISHMEM_MINOR_VERSION 4
 #define ISHMEM_MAX_NAME_LEN  256
 #define ISHMEM_VENDOR_STRING "Intel® SHMEM"
 
@@ -237,30 +237,30 @@ ISHMEM_DEVICE_ATTRIBUTES void ishmem_iget64(void *, const void *, ptrdiff_t, ptr
 ISHMEM_DEVICE_ATTRIBUTES void ishmem_iget128(void *, const void *, ptrdiff_t, ptrdiff_t, size_t, int);
 
 /* g */
-template <typename T> ISHMEM_DEVICE_ATTRIBUTES T ishmem_g(T *, int);
-ISHMEM_DEVICE_ATTRIBUTES float ishmem_float_g(float *, int);
-ISHMEM_DEVICE_ATTRIBUTES double ishmem_double_g(double *, int);
-ISHMEM_DEVICE_ATTRIBUTES char ishmem_char_g(char *, int);
-ISHMEM_DEVICE_ATTRIBUTES signed char ishmem_schar_g(signed char *, int);
-ISHMEM_DEVICE_ATTRIBUTES short ishmem_short_g(short *, int);
-ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_g(int *, int);
-ISHMEM_DEVICE_ATTRIBUTES long ishmem_long_g(long *, int);
-ISHMEM_DEVICE_ATTRIBUTES long long ishmem_longlong_g(long long *, int);
-ISHMEM_DEVICE_ATTRIBUTES unsigned char ishmem_uchar_g(unsigned char *, int);
-ISHMEM_DEVICE_ATTRIBUTES unsigned short ishmem_ushort_g(unsigned short *, int);
-ISHMEM_DEVICE_ATTRIBUTES unsigned int ishmem_uint_g(unsigned int *, int);
-ISHMEM_DEVICE_ATTRIBUTES unsigned long ishmem_ulong_g(unsigned long *, int);
-ISHMEM_DEVICE_ATTRIBUTES unsigned long long ishmem_ulonglong_g(unsigned long long *, int);
-ISHMEM_DEVICE_ATTRIBUTES int8_t ishmem_int8_g(int8_t *, int);
-ISHMEM_DEVICE_ATTRIBUTES int16_t ishmem_int16_g(int16_t *, int);
-ISHMEM_DEVICE_ATTRIBUTES int32_t ishmem_int32_g(int32_t *, int);
-ISHMEM_DEVICE_ATTRIBUTES int64_t ishmem_int64_g(int64_t *, int);
-ISHMEM_DEVICE_ATTRIBUTES uint8_t ishmem_uint8_g(uint8_t *, int);
-ISHMEM_DEVICE_ATTRIBUTES uint16_t ishmem_uint16_g(uint16_t *, int);
-ISHMEM_DEVICE_ATTRIBUTES uint32_t ishmem_uint32_g(uint32_t *, int);
-ISHMEM_DEVICE_ATTRIBUTES uint64_t ishmem_uint64_g(uint64_t *, int);
-ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_size_g(size_t *, int);
-ISHMEM_DEVICE_ATTRIBUTES ptrdiff_t ishmem_ptrdiff_g(ptrdiff_t *, int);
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES T ishmem_g(const T *, int);
+ISHMEM_DEVICE_ATTRIBUTES float ishmem_float_g(const float *, int);
+ISHMEM_DEVICE_ATTRIBUTES double ishmem_double_g(const double *, int);
+ISHMEM_DEVICE_ATTRIBUTES char ishmem_char_g(const char *, int);
+ISHMEM_DEVICE_ATTRIBUTES signed char ishmem_schar_g(const signed char *, int);
+ISHMEM_DEVICE_ATTRIBUTES short ishmem_short_g(const short *, int);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_g(const int *, int);
+ISHMEM_DEVICE_ATTRIBUTES long ishmem_long_g(const long *, int);
+ISHMEM_DEVICE_ATTRIBUTES long long ishmem_longlong_g(const long long *, int);
+ISHMEM_DEVICE_ATTRIBUTES unsigned char ishmem_uchar_g(const unsigned char *, int);
+ISHMEM_DEVICE_ATTRIBUTES unsigned short ishmem_ushort_g(const unsigned short *, int);
+ISHMEM_DEVICE_ATTRIBUTES unsigned int ishmem_uint_g(const unsigned int *, int);
+ISHMEM_DEVICE_ATTRIBUTES unsigned long ishmem_ulong_g(const unsigned long *, int);
+ISHMEM_DEVICE_ATTRIBUTES unsigned long long ishmem_ulonglong_g(const unsigned long long *, int);
+ISHMEM_DEVICE_ATTRIBUTES int8_t ishmem_int8_g(const int8_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES int16_t ishmem_int16_g(const int16_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES int32_t ishmem_int32_g(const int32_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES int64_t ishmem_int64_g(const int64_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES uint8_t ishmem_uint8_g(const uint8_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES uint16_t ishmem_uint16_g(const uint16_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES uint32_t ishmem_uint32_g(const uint32_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES uint64_t ishmem_uint64_g(const uint64_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES size_t ishmem_size_g(const size_t *, int);
+ISHMEM_DEVICE_ATTRIBUTES ptrdiff_t ishmem_ptrdiff_g(const ptrdiff_t *, int);
 
 /* put_nbi */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES void ishmem_put_nbi(T *, const T *, size_t, int);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Portions derived from Sandia OpenSHMEM (https://github.com/Sandia-OpenSHMEM/SOS)
@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <string>
 #include <map>
+#include <unordered_set>
 #include <variant>
 #include "ishmem/config.h"
 #include "ishmemx.h"

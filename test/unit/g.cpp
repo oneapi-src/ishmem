@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -98,6 +98,37 @@ constexpr int N = 5;
         sycl::free(errors, q);                                                                     \
     } while (false)
 
+#define TEST_SHMEM_G_HOST(TYPE, TYPENAME)                                                          \
+    do {                                                                                           \
+        TYPE *remote = (TYPE *) ishmem_malloc(N * sizeof(TYPE));                                   \
+        CHECK_ALLOC(remote);                                                                       \
+        TYPE local[N];                                                                             \
+        int errors = 0;                                                                            \
+        auto e_init = q.submit([&](sycl::handler &h) {                                             \
+            h.parallel_for(sycl::nd_range<1>{N, N}, [=](sycl::nd_item<1> idx) {                    \
+                size_t i = idx.get_global_id()[0];                                                 \
+                remote[i] = (TYPE) (i + 1);                                                        \
+            });                                                                                    \
+        });                                                                                        \
+        e_init.wait_and_throw();                                                                   \
+        ishmem_barrier_all();                                                                      \
+        for (int i = 0; i < N; i++)                                                                \
+            local[i] = ishmem_##TYPENAME##_g(remote + i, (mype + 1) % npes);                       \
+        ishmem_barrier_all();                                                                      \
+        for (int i = 0; i < N; i++) {                                                              \
+            if (local[i] != (TYPE) (i + 1)) {                                                      \
+                errors = errors + 1;                                                               \
+            }                                                                                      \
+        }                                                                                          \
+        ishmem_barrier_all();                                                                      \
+        if (errors > 0) {                                                                          \
+            rc = EXIT_FAILURE;                                                                     \
+            std::cerr << "[ERROR] host-initiated validation check(s) failed for type " << #TYPE    \
+                      << ": " << errors << std::endl;                                              \
+        }                                                                                          \
+        ishmem_free(remote);                                                                       \
+    } while (false)
+
 int main(int argc, char *argv[])
 {
     ishmem_init();
@@ -163,6 +194,30 @@ int main(int argc, char *argv[])
     TEST_SHMEM_G_PARALLEL_FOR(uint64_t, uint64);
     TEST_SHMEM_G_PARALLEL_FOR(size_t, size);
     TEST_SHMEM_G_PARALLEL_FOR(ptrdiff_t, ptrdiff);
+
+    TEST_SHMEM_G_HOST(float, float);
+    TEST_SHMEM_G_HOST(double, double);
+    TEST_SHMEM_G_HOST(char, char);
+    TEST_SHMEM_G_HOST(signed char, schar);
+    TEST_SHMEM_G_HOST(short, short);
+    TEST_SHMEM_G_HOST(int, int);
+    TEST_SHMEM_G_HOST(long, long);
+    TEST_SHMEM_G_HOST(long long, longlong);
+    TEST_SHMEM_G_HOST(unsigned char, uchar);
+    TEST_SHMEM_G_HOST(unsigned short, ushort);
+    TEST_SHMEM_G_HOST(unsigned int, uint);
+    TEST_SHMEM_G_HOST(unsigned long, ulong);
+    TEST_SHMEM_G_HOST(unsigned long long, ulonglong);
+    TEST_SHMEM_G_HOST(int8_t, int8);
+    TEST_SHMEM_G_HOST(int16_t, int16);
+    TEST_SHMEM_G_HOST(int32_t, int32);
+    TEST_SHMEM_G_HOST(int64_t, int64);
+    TEST_SHMEM_G_HOST(uint8_t, uint8);
+    TEST_SHMEM_G_HOST(uint16_t, uint16);
+    TEST_SHMEM_G_HOST(uint32_t, uint32);
+    TEST_SHMEM_G_HOST(uint64_t, uint64);
+    TEST_SHMEM_G_HOST(size_t, size);
+    TEST_SHMEM_G_HOST(ptrdiff_t, ptrdiff);
 
     ishmem_finalize();
     if (rc) std::cout << mype << ": Test Failed" << std::endl;

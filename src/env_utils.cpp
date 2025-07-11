@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Portions derived from Sandia OpenSHMEM (https://github.com/Sandia-OpenSHMEM/SOS)
@@ -16,6 +16,8 @@
 
 struct ishmemi_params_s ishmemi_params;
 std::map<std::string, std::pair<ishmemi_env_val, bool>> ishmemi_env;
+
+std::unordered_set<std::string> env_ignore = {"ROOT"};
 
 extern char **environ;
 
@@ -185,6 +187,9 @@ int ishmemi_parse_env(void)
         if (eq_pos != std::string::npos) {
             env = env.substr(0, eq_pos);
         }
+
+        /* Check if the environment variable should be ignored */
+        if (env_ignore.find(env) != env_ignore.end()) continue;
 
         /* Check that ISHMEM environment variable is defined */
         auto iter = ishmemi_env.find(env);

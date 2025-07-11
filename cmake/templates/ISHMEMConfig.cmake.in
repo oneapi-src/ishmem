@@ -1,0 +1,215 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: BSD-3-Clause
+
+#==============================================
+# CMake Config file for Intel(R) SHMEM (ishmem)
+#==============================================
+
+#===============================================================================
+# Input parameters
+#=================
+# ISHMEM_ROOT
+#     ishmem root directory (May be required for non-standard install).
+# ISHMEM_ENABLE_SPIRV_COMPILATION
+#     Whether or not to compile with ahead-of-time compilation.
+#     default: @ISHMEM_ENABLE_SPIRV_COMPILATION@ (determined at ishmem build time)
+# ISHMEM_SPIRV_COMPILATION_TARGETS
+#     The target devices for SPIR-V compilation.
+#     default: @ISHMEM_SPIRV_COMPILATION_TARGETS@ (determined at ishmem build time)
+# ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT
+#     Whether or not to suppress `Compilation from IR - skipping loading of FCL`
+#     default: @ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT@ (determined at ishmem build time)
+#==================
+# Output parameters
+#==================
+# ISHMEM_FOUND
+#     Whether or not ishmem was found.
+# ISHMEM_ROOT
+#     ishmem root directory.
+# ISHMEM_INCLUDE
+#     ishmem include directory.
+# ISHMEM_LIBRARY_DIR
+#     ishmem lib directory.
+# ISHMEM_FLAGS
+#     ishmem compilation flags.
+# ISHMEM_LINK_FLAGS
+#     ishmem link flags.
+# ISHMEM_LIBRARY
+#     ishmem library path.
+#
+# The below INTERFACE target provides full compilation/link interfaces for
+# direct use.
+# Example:
+#      target_link_options(<my_target> PUBLIC ISHMEM::ISHMEM)
+#
+# ISHMEM::ISHMEM
+#     Target for using ishmem. The following properties are defined for the
+#     target: INTERFACE_INCLUDE_DIRECTORIES, INTERFACE_LINK_DIRECTORIES,
+#     INTERFACE_COMPILE_OPTIONS, INTERFACE_LINK_OPTIONS, and
+#     INTERFACE_LINK_LIBRARIES
+#
+#===============================================================================
+
+include_guard()
+
+if (NOT TARGET ISHMEM::ISHMEM)
+
+function(ishmem_message MSG_MODE MSG_TEXT)
+    if (MSG_MODE STREQUAL "FATAL_ERROR")
+        message(${MSG_MODE} ${MSG_TEXT})
+    else()
+        if (NOT ISHMEM_FIND_QUIETLY)
+            message(${MSG_MODE} ${MSG_TEXT})
+        endif()
+    endif()
+endfunction()
+
+macro(ishmem_not_found_return NOT_FOUND_MSG)
+    set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE "${NOT_FOUND_MSG}")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+    return()
+endmacro()
+
+macro(ishmem_check_required_vars)
+    foreach (var IN ITEMS ${ARGV})
+        if (NOT ${var})
+            ishmem_not_found_return("The required variable ${var} has an invalid value \"${${var}}\".")
+        endif()
+    endforeach()
+endmacro()
+
+macro(ishmem_set_default_var var value)
+    if (NOT DEFINED ${var})
+        set(${var} ${value})
+    endif()
+endmacro()
+
+if (CMAKE_VERSION VERSION_LESS "3.17")
+    ishmem_not_found_return("The minimum support CMake version is 3.17. You are running version ${CMAKE_VERSION}.")
+endif()
+
+# Set CMake policies for well-defined behavior
+cmake_policy(SET CMP0011 NEW)
+cmake_policy(SET CMP0057 NEW)
+
+# Default input values
+option(ISHMEM_ENABLE_SPIRV_COMPILATION          "Enables SPIR-V compilation"           @ISHMEM_ENABLE_SPIRV_COMPILATION@)
+option(ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT "Suppress SPIR-V compilation messages" @ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT@)
+
+ishmem_set_default_var(ISHMEM_SPIRV_COMPILATION_TARGETS "@ISHMEM_SPIRV_COMPILATION_TARGETS@")
+
+# Compiler checks
+include(CheckCXXSourceCompiles)
+find_package(IntelSYCL REQUIRED QUIET)
+find_package(PkgConfig REQUIRED QUIET) # For finding Level Zero
+
+if (NOT IntelSYCL_FOUND)
+    ishmem_not_found_return("SYCL compatibility is required for ishmem.")
+endif()
+
+# Validate ISHMEM_ROOT
+if (NOT DEFINED ISHMEM_ROOT)
+    if (DEFINED ENV{ISHMEM_ROOT})
+        set(ISHMEM_ROOT $ENV{ISHMEM_ROOT})
+    else()
+        # Default installation path is <ISHMEM_ROOT>/lib/cmake/ishmem/
+        get_filename_component(_realpath_ishmem "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
+        get_filename_component(ISHMEM_ROOT "${_realpath_ishmem}/../../../" ABSOLUTE)
+        unset(_realpath_ishmem)
+    endif()
+endif()
+
+ishmem_check_required_vars(ISHMEM_ROOT)
+
+find_file(ISHMEM_H ishmem.h
+    HINTS ${ISHMEM_ROOT}
+    PATH_SUFFIXES include
+    NO_DEFAULT_PATH)
+
+# Validate version
+ishmem_check_required_vars(ISHMEM_H)
+file(READ ${ISHMEM_H} ISHMEM_H_CONTENT)
+string(REGEX MATCH "ISHMEM_MAJOR_VERSION +([0-9]+)" ISHMEM_VERSION_INFO ${ISHMEM_H_CONTENT})
+set(ISHMEM_ROOT_MAJOR_VERSION ${CMAKE_MATCH_1})
+string(REGEX MATCH "ISHMEM_MINOR_VERSION +([0-9]+)" ISHMEM_VERSION_INFO ${ISHMEM_H_CONTENT})
+set(ISHMEM_ROOT_MINOR_VERSION ${CMAKE_MATCH_1})
+string(REGEX MATCH "ISHMEM_PATCH_VERSION +([0-9]+)" ISHMEM_VERSION_INFO ${ISHMEM_H_CONTENT})
+set(ISHMEM_ROOT_PATCH_VERSION ${CMAKE_MATCH_1})
+
+if (ISHMEM_ROOT_PATCH_VERSION STREQUAL "")
+    set(ISHMEM_ROOT_PATCH_VERSION "0")
+endif()
+
+set(ISHMEM_ROOT_VERSION ${ISHMEM_ROOT_MAJOR_VERSION}.${ISHMEM_ROOT_MINOR_VERSION}.${ISHMEM_ROOT_PATCH_VERSION})
+unset(ISHMEM_ROOT_MAJOR_VERSION)
+unset(ISHMEM_ROOT_MINOR_VERSION)
+unset(ISHMEM_ROOT_PATCH_VERSION)
+unset(ISHMEM_H_CONTENT)
+unset(ISHMEM_H)
+
+if (NOT ISHMEM_ROOT_VERSION VERSION_EQUAL ${CMAKE_FIND_PACKAGE_NAME}_VERSION)
+    ishmem_not_found_return("ishmem ${ISHMEM_ROOT_VERSION} specified by the environment variable ISHMEM_ROOT \
+                             mismatches the found version ${${CMAKE_FIND_PACKAGE_NAME}_VERSION} \
+                             indicated by ${CMAKE_CURRENT_LIST_DIR}/ISHMEMConfigVersion.cmake")
+endif()
+
+# Notification of version and root directory
+ishmem_message(STATUS "${CMAKE_FIND_PACKAGE_NAME}_VERSION: ${${CMAKE_FIND_PACKAGE_NAME}_VERSION}")
+ishmem_message(STATUS "ISHMEM_ROOT: ${ISHMEM_ROOT}")
+
+# Define properties
+add_library(ISHMEM::ISHMEM STATIC IMPORTED)
+
+get_filename_component(ISHMEM_INCLUDE "${ISHMEM_ROOT}/include" ABSOLUTE)
+set_property(TARGET ISHMEM::ISHMEM PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES ${ISHMEM_INCLUDE})
+
+get_filename_component(ISHMEM_LIBRARY_DIR "${ISHMEM_ROOT}/lib" ABSOLUTE)
+get_filename_component(ISHMEM_LIBRARY "${ISHMEM_LIBRARY_DIR}/libishmem.a" ABSOLUTE)
+set(ISHMEM_LINK_LIBRARIES ${ISHMEM_LIBRARY})
+
+set(ISHMEM_FLAGS ${SYCL_FLAGS})
+set(ISHMEM_LINK_FLAGS ${SYCL_LINK_FLAGS})
+
+if (ISHMEM_ENABLE_SPIRV_COMPILATION)
+    list(APPEND _ISHMEM_SPIRV_ARGS -fsycl-targets=spir64_gen --start-no-unused-arguments -Xs "-device @ISHMEM_SPIRV_COMPILATION_TARGETS@" --end-no-unused-arguments)
+    if (ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT)
+        list(APPEND _ISHMEM_SPIRV_ARGS --start-no-unused-arguments -Xsycl-target-backend "-q" --end-no-unused-arguments)
+    endif()
+    list(APPEND ISHMEM_FLAGS ${_ISHMEM_SPIRV_ARGS})
+    list(APPEND ISHMEM_LINK_FLAGS ${_ISHMEM_SPIRV_ARGS})
+    unset(_ISHMEM_SPIRV_ARGS)
+endif()
+
+set_property(TARGET ISHMEM::ISHMEM PROPERTY
+    INTERFACE_COMPILE_OPTIONS ${ISHMEM_FLAGS})
+set_property(TARGET ISHMEM::ISHMEM PROPERTY
+    INTERFACE_LINK_OPTIONS ${ISHMEM_LINK_FLAGS})
+
+
+if (EXISTS ${LEVEL_ZERO_DIR})
+    set(ENV{PKG_CONFIG_PATH} ${LEVEL_ZERO_DIR}/lib64/pkgconfig:$ENV{PKG_CONFIG_PATH})
+endif()
+
+# Search for Level Zero using pkgconfig
+pkg_check_modules(LEVEL_ZERO REQUIRED QUIET IMPORTED_TARGET level-zero)
+pkg_get_variable(_LEVEL_ZERO_PCFILEDIR level-zero pcfiledir)
+
+if (LEVEL_ZERO_VERSION LESS 1.20)
+    # Incorrect pkgconfig prefix - need to fix defined variables
+    get_filename_component(_LEVEL_ZERO_PCFILEDIR_PARENT ${_LEVEL_ZERO_PCFILEDIR} DIRECTORY)
+    get_filename_component(LEVEL_ZERO_DIR ${_LEVEL_ZERO_PCFILEDIR_PARENT} DIRECTORY)
+
+    string(REPLACE "/usr" "${LEVEL_ZERO_DIR}" LEVEL_ZERO_INCLUDEDIR "${LEVEL_ZERO_INCLUDEDIR}")
+    string(REPLACE "/usr" "${LEVEL_ZERO_DIR}" LEVEL_ZERO_LIBDIR "${LEVEL_ZERO_LIBDIR}")
+endif()
+
+# Add ishmem link dependencies
+list(APPEND ISHMEM_LINK_LIBRARIES ${CMAKE_DL_LIBS} pthread ${LEVEL_ZERO_LIBRARIES})
+
+set_property(TARGET ISHMEM::ISHMEM PROPERTY
+    INTERFACE_LINK_LIBRARIES ${ISHMEM_LINK_LIBRARIES})
+set_property(TARGET ISHMEM::ISHMEM PROPERTY
+    IMPORTED_LOCATION ${ISHMEM_LIBRARY})
+
+endif() # ISHMEM::ISHMEM

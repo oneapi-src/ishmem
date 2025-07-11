@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 # Setup source compiler options
@@ -13,26 +13,27 @@ set(ISHMEM_SRC_EXTRAS)
 
 list(APPEND ISHMEM_SRC_LINK_LIBS
     ${CMAKE_DL_LIBS}
-    ze_loader
+    ${LEVEL_ZERO_LIBRARIES}
     pthread)
 
 list(APPEND ISHMEM_SRC_INCLUDE_DIRS
+    "${SYCL_INCLUDE_SYCL_DIR}"
+    "${LEVEL_ZERO_INCLUDEDIR}"
     "${ISHMEM_BUILD_ROOT}/include"
-    "${PROJECT_SOURCE_DIR}/src"
-    "${LEVEL_ZERO_INC_DIR}")
+    "${PROJECT_SOURCE_DIR}/src")
 
 if (ENABLE_OPENSHMEM)
     list(APPEND ISHMEM_SRC_EXTRAS
         runtime/runtime_openshmem.cpp
         runtime/wrapper_openshmem.cpp)
-    list(APPEND ISHMEM_SRC_INCLUDE_DIRS "${SHMEM_INC_DIR}")
+    list(APPEND ISHMEM_SRC_INCLUDE_DIRS "${OPENSHMEM_INCLUDE_DIRS}")
 endif()
 
 if (ENABLE_MPI)
     list(APPEND ISHMEM_SRC_EXTRAS
         runtime/runtime_mpi.cpp
         runtime/wrapper_mpi.cpp)
-    list(APPEND ISHMEM_SRC_INCLUDE_DIRS "${MPI_INC_DIR}")
+    list(APPEND ISHMEM_SRC_INCLUDE_DIRS "${MPI_CXX_INCLUDE_DIRS}")
 endif()
 
 if (ENABLE_PMI)
