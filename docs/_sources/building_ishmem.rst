@@ -41,8 +41,10 @@ libraries:
 - |oshmpi_url| - please use this |oshmpi_branch|.
 
 The OpenSHMEM back-end is enabled by default and is controlled via the
-``ENABLE_OPENSHMEM`` CMake option, and the installation path is set via the
-``SHMEM_DIR`` option, for example::
+``ENABLE_OPENSHMEM`` CMake option. The installation path is discovered via
+``pkg-config``. This can be specified either by adding OpenSHMEM to the
+``PKG_CONFIG_PATH`` environment variable, or by using the ``SHMEM_DIR``
+CMake option. For example::
 
     CC=icx CXX=icpx cmake .. -DSHMEM_DIR=<shmem_dir> -DCMAKE_INSTALL_PREFIX=<ishmem_install_dir>
 
@@ -91,13 +93,16 @@ Enabling the MPI back-end
 
 As of version |release|, Intel® SHMEM supports the following MPI libraries:
 
-- |impi_url| - please use the ``2021.14.0`` release.
+- |impi_url| - please use the ``2021.14.0`` release or newer.
 
 .. |impi_url| raw:: html
 
    <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library-download.html" target="_blank">Intel® MPI Library</a>
 
-To enable the MPI back-end and disable the OpenSHMEM back-end::
+The MPI installation path is discovered via CMake's ``find_package``. Depending on the
+CMake version, it is typically not necessary to include any extra CMake options. However,
+``MPI_DIR`` may be provided to hint at the MPI installation path. For example, to enable
+the MPI back-end and disable the OpenSHMEM back-end::
 
     CC=icx CXX=icpx cmake .. -DENABLE_OPENSHMEM=OFF -DENABLE_MPI=ON -DMPI_DIR=<impi_install_dir> -DCMAKE_INSTALL_PREFIX=<ishmem_install_dir>
 

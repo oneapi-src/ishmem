@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="_static/documentation_options.js?v=27de968b"></script>
+    <script src="_static/documentation_options.js?v=bc4b15cc"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -378,15 +378,17 @@ OpenSHMEM</span></a> and <a class="reference internal" href="#enabling-mpi"><spa
 respectively.</p>
 <section id="enabling-the-openshmem-back-end">
 <span id="enabling-openshmem"></span><h2>Enabling the OpenSHMEM back-end<a class="headerlink" href="#enabling-the-openshmem-back-end" title="Link to this heading">#</a></h2>
-<p>As of version 1.3.0, Intel® SHMEM supports the following OpenSHMEM
+<p>As of version 1.4.0, Intel® SHMEM supports the following OpenSHMEM
 libraries:</p>
 <ul class="simple">
 <li><p><a href="https://github.com/Sandia-OpenSHMEM/SOS.git" target="_blank">Sandia OpenSHMEM</a> - please use the <code class="docutils literal notranslate"><span class="pre">v1.5.3</span></code> release.</p></li>
 <li><p><a href="https://github.com/pmodels/oshmpi.git" target="_blank">OSHMPI</a> - please use this <a href="https://github.com/davidozog/oshmpi/tree/wip/ishmem" target="_blank">experimental branch</a>.</p></li>
 </ul>
 <p>The OpenSHMEM back-end is enabled by default and is controlled via the
-<code class="docutils literal notranslate"><span class="pre">ENABLE_OPENSHMEM</span></code> CMake option, and the installation path is set via the
-<code class="docutils literal notranslate"><span class="pre">SHMEM_DIR</span></code> option, for example:</p>
+<code class="docutils literal notranslate"><span class="pre">ENABLE_OPENSHMEM</span></code> CMake option. The installation path is discovered via
+<code class="docutils literal notranslate"><span class="pre">pkg-config</span></code>. This can be specified either by adding OpenSHMEM to the
+<code class="docutils literal notranslate"><span class="pre">PKG_CONFIG_PATH</span></code> environment variable, or by using the <code class="docutils literal notranslate"><span class="pre">SHMEM_DIR</span></code>
+CMake option. For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CC</span><span class="o">=</span><span class="n">icx</span> <span class="n">CXX</span><span class="o">=</span><span class="n">icpx</span> <span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">DSHMEM_DIR</span><span class="o">=&lt;</span><span class="n">shmem_dir</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">DCMAKE_INSTALL_PREFIX</span><span class="o">=&lt;</span><span class="n">ishmem_install_dir</span><span class="o">&gt;</span>
 </pre></div>
 </div>
@@ -408,7 +410,7 @@ setting the following environment variables are required for execution:</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Enabling the OSHMPI back-end in Intel® SHMEM version 1.3.0 may
+<p>Enabling the OSHMPI back-end in Intel® SHMEM version 1.4.0 may
 require setting environment variable <code class="docutils literal notranslate"><span class="pre">OSHMPI_TEAM_SHARED_ONLY_SELF=1</span></code> if the
 <code class="docutils literal notranslate"><span class="pre">ISHMEM_TEAM_SHARED</span></code> team does not properly match <code class="docutils literal notranslate"><span class="pre">SHMEM_TEAM_SHARED</span></code>. This
 is likely the case if the following warning is encountered:
@@ -418,11 +420,14 @@ is likely the case if the following warning is encountered:
 </section>
 <section id="enabling-the-mpi-back-end">
 <span id="enabling-mpi"></span><h2>Enabling the MPI back-end<a class="headerlink" href="#enabling-the-mpi-back-end" title="Link to this heading">#</a></h2>
-<p>As of version 1.3.0, Intel® SHMEM supports the following MPI libraries:</p>
+<p>As of version 1.4.0, Intel® SHMEM supports the following MPI libraries:</p>
 <ul class="simple">
-<li><p><a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library-download.html" target="_blank">Intel® MPI Library</a> - please use the <code class="docutils literal notranslate"><span class="pre">2021.14.0</span></code> release.</p></li>
+<li><p><a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library-download.html" target="_blank">Intel® MPI Library</a> - please use the <code class="docutils literal notranslate"><span class="pre">2021.14.0</span></code> release or newer.</p></li>
 </ul>
-<p>To enable the MPI back-end and disable the OpenSHMEM back-end:</p>
+<p>The MPI installation path is discovered via CMake’s <code class="docutils literal notranslate"><span class="pre">find_package</span></code>. Depending on the
+CMake version, it is typically not necessary to include any extra CMake options. However,
+<code class="docutils literal notranslate"><span class="pre">MPI_DIR</span></code> may be provided to hint at the MPI installation path. For example, to enable
+the MPI back-end and disable the OpenSHMEM back-end:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CC</span><span class="o">=</span><span class="n">icx</span> <span class="n">CXX</span><span class="o">=</span><span class="n">icpx</span> <span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">DENABLE_OPENSHMEM</span><span class="o">=</span><span class="n">OFF</span> <span class="o">-</span><span class="n">DENABLE_MPI</span><span class="o">=</span><span class="n">ON</span> <span class="o">-</span><span class="n">DMPI_DIR</span><span class="o">=&lt;</span><span class="n">impi_install_dir</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">DCMAKE_INSTALL_PREFIX</span><span class="o">=&lt;</span><span class="n">ishmem_install_dir</span><span class="o">&gt;</span>
 </pre></div>
 </div>
@@ -575,7 +580,7 @@ By Intel Corporation
 
   <p class="copyright">
     
-      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2025 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>
