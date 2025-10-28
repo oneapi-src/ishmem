@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="_static/documentation_options.js?v=bc4b15cc"></script>
+    <script src="_static/documentation_options.js?v=40912020"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -358,26 +358,29 @@ document.write(`
                   
   <section id="compiling-and-running-programs">
 <span id="id1"></span><h1>Compiling and Running Programs<a class="headerlink" href="#compiling-and-running-programs" title="Link to this heading">#</a></h1>
-<p>Let’s consider the simple example program from Section <a class="reference internal" href="writing_programs.html#writing-programs"><span class="std std-ref">Writing Intel®
-SHMEM Programs</span></a> and assume the code is in a file called
+<p>Consider the simple example program from Section <a class="reference internal" href="writing_programs.html#writing-programs"><span class="std std-ref">Writing Intel® SHMEM
+Programs</span></a> and assume the code is in a file called
 <code class="docutils literal notranslate"><span class="pre">ishmem_example.cpp</span></code>.</p>
-<p>To compile the program, we must pass the necessary flags to the Intel®
-oneAPI DPC++/C++ Compiler.
-For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ icpx -I${ISHMEM_INSTALL_DIR}/include -L${ISHMEM_INSTALL_DIR}/lib -fsycl -std=gnu++1z ishmem_example.cpp -o ishmem_example -lsma -lpmi -lze_loader -ldl
+<p>To compile the program, the necessary flags must be passed to the Intel®
+oneAPI DPC++/C++ Compiler. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ icpx -I${ISHMEM_INSTALL_DIR}/include -fsycl -std=gnu++1z ishmem_example.cpp ${ISHMEM_INSTALL_DIR}/lib/libishmem.a -o ishmem_example -lpthread -lze_loader
 </pre></div>
 </div>
-<p>where <code class="docutils literal notranslate"><span class="pre">ISHMEM_INSTALL_DIR</span></code> is the path to the Intel® SHMEM
-installation directory.</p>
-<p>While building Intel® SHMEM with the <code class="docutils literal notranslate"><span class="pre">ENABLE_OPENSHMEM</span></code> CMake option enabled, it
-may be convenient to use the <code class="docutils literal notranslate"><span class="pre">oshc++</span></code> compiler wrapper (instead of <code class="docutils literal notranslate"><span class="pre">icpx</span></code>
-directly) to easily include the necessary compilation flags that enable the host
-OpenSHMEM back-end.</p>
-<p>Intel® SHMEM provides a launcher script, <code class="docutils literal notranslate"><span class="pre">ishmrun</span></code> that
-assigns the environment variable <strong>ZE_AFFINITY_MASK</strong> so that each PE is
-assigned a single SYCL device.
-To invoke the <code class="docutils literal notranslate"><span class="pre">ishmrun</span></code> script, pass it as the first argument to your
-process launcher.
+<p>where <code class="docutils literal notranslate"><span class="pre">ISHMEM_INSTALL_DIR</span></code> is the path to the Intel® SHMEM installation
+directory.</p>
+<p>Alternatively, when building with CMake, the <code class="docutils literal notranslate"><span class="pre">find_package</span></code> command may be
+used to define all necessary compiler flags. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_package</span><span class="p">(</span><span class="n">ISHMEM</span> <span class="n">REQUIRED</span><span class="p">)</span>
+<span class="n">add_executable</span><span class="p">(</span><span class="n">ishmem_example</span> <span class="n">ishmem_example</span><span class="o">.</span><span class="n">cpp</span><span class="p">)</span>
+<span class="n">target_link_libraries</span><span class="p">(</span><span class="n">ishmem_example</span> <span class="n">PRIVATE</span> <span class="n">ISHMEM</span><span class="p">::</span><span class="n">ISHMEM</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If Intel® SHMEM is not sourced via the installed environment script, it may
+be necessary to prepend the installation path to <code class="docutils literal notranslate"><span class="pre">CMAKE_PREFIX_PATH</span></code>.</p>
+<p>Intel® SHMEM provides a launcher script, <code class="docutils literal notranslate"><span class="pre">ishmrun</span></code>, that sets CPU and GPU
+affinity so that each PE is assigned a single SYCL device and a corresponding
+set of CPU cores with close affinity. To invoke the <code class="docutils literal notranslate"><span class="pre">ishmrun</span></code> script, pass it
+as the first argument to your process launcher.
 The following example assumes the <code class="docutils literal notranslate"><span class="pre">ISHMEM_INSTALL_DIR/bin</span></code> directory is
 on your user path and use of the Portable Batch System launcher:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ aprun -N 12 -n 6 ishmrun ishmem_example
@@ -388,6 +391,7 @@ on your user path and use of the Portable Batch System launcher:</p>
 following environment variables may be required for execution, depending on the
 Intel® SHMEM build configuration:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ISHMEM_RUNTIME</span>
+<span class="n">ISHMEM_MPI_LIB_NAME</span>
 <span class="n">ISHMEM_SHMEM_LIB_NAME</span>
 <span class="n">ISHMEM_RUNTIME_USE_OSHMPI</span>
 </pre></div>
@@ -397,7 +401,7 @@ about these variables.</p>
 <section id="selecting-spir-v-compilation-targets">
 <h2>Selecting SPIR-V Compilation Targets<a class="headerlink" href="#selecting-spir-v-compilation-targets" title="Link to this heading">#</a></h2>
 <p>On some systems, you may encounter an error in which the correct SPIR-V targets
-are not successfully selected when linking with Intel® SHMEM.  This may result in
+are not successfully selected when linking with Intel® SHMEM. This may result in
 problems when using device-initiated communication including compilation
 warnings:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">icpx</span><span class="p">:</span> <span class="n">warning</span><span class="p">:</span> <span class="n">linked</span> <span class="n">binaries</span> <span class="n">do</span> <span class="ow">not</span> <span class="n">contain</span> <span class="n">expected</span> <span class="s1">&#39;spir64-unknown-unknown&#39;</span> <span class="n">target</span><span class="p">;</span> <span class="n">found</span> <span class="n">targets</span><span class="p">:</span> <span class="s1">&#39;spir64_gen-unknown-unknown&#39;</span> <span class="p">[</span><span class="o">-</span><span class="n">Wsycl</span><span class="o">-</span><span class="n">target</span><span class="p">]</span>
@@ -413,12 +417,17 @@ warnings:</p>
 <span class="n">Module</span> <span class="o">&lt;</span><span class="mh">0x29941d0</span><span class="o">&gt;</span><span class="p">:</span>  <span class="n">Unresolved</span> <span class="n">Symbol</span> <span class="o">&lt;</span><span class="n">_Z13ishmem_putmemPvPKvmi</span><span class="o">&gt;</span> <span class="o">-</span><span class="mi">11</span> <span class="p">(</span><span class="n">PI_ERROR_BUILD_PROGRAM_FAILURE</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This error can be resolved by indicating the desired target at compile time. To
-compile with the appropriate target for a Intel® Data Center GPU Max 1550 (PVC)
-GPU, add the following flags when linking:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">fsycl</span><span class="o">-</span><span class="n">targets</span><span class="o">=</span><span class="n">spir64_gen</span> <span class="o">--</span><span class="n">start</span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">unused</span><span class="o">-</span><span class="n">arguments</span> <span class="o">-</span><span class="n">Xs</span> <span class="s2">&quot;-device pvc&quot;</span> <span class="o">--</span><span class="n">end</span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">unused</span><span class="o">-</span><span class="n">arguments</span> <span class="o">--</span><span class="n">start</span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">unused</span><span class="o">-</span><span class="n">arguments</span> <span class="o">-</span><span class="n">Xsycl</span><span class="o">-</span><span class="n">target</span><span class="o">-</span><span class="n">backend</span> <span class="s2">&quot;-q&quot;</span> <span class="o">--</span><span class="n">end</span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">unused</span><span class="o">-</span><span class="n">arguments</span>
+<p>These errors can be resolved by ensuring the desired target(s) match those
+compiled into the Intel® SHMEM library. The target(s) are specified at
+Intel® SHMEM’s configure time using <code class="docutils literal notranslate"><span class="pre">-DISHMEM_AOT_DEVICE_TYPES</span></code>. The default
+value is <code class="docutils literal notranslate"><span class="pre">xe-hpc,xe2</span></code> to target Intel® Data Center Max and Intel® Arc™
+B-Series GPUs, respectively. Below is an example set of flags to add to the
+linking process for adding these target devices:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">fsycl</span><span class="o">-</span><span class="n">targets</span><span class="o">=</span><span class="n">spir64_gen</span> <span class="o">--</span><span class="n">start</span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">unused</span><span class="o">-</span><span class="n">arguments</span> <span class="o">-</span><span class="n">Xs</span> <span class="s2">&quot;-device xe-hpc,xe2&quot;</span> <span class="o">--</span><span class="n">end</span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">unused</span><span class="o">-</span><span class="n">arguments</span> <span class="o">--</span><span class="n">start</span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">unused</span><span class="o">-</span><span class="n">arguments</span> <span class="o">-</span><span class="n">Xsycl</span><span class="o">-</span><span class="n">target</span><span class="o">-</span><span class="n">backend</span> <span class="s2">&quot;-q&quot;</span> <span class="o">--</span><span class="n">end</span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">unused</span><span class="o">-</span><span class="n">arguments</span>
 </pre></div>
 </div>
+<p>When building with CMake, the <code class="docutils literal notranslate"><span class="pre">ISHMEM::ISHMEM</span></code> interface automatically adds
+the corresponding target devices to the compilation command.</p>
 </section>
 </section>
 
@@ -492,7 +501,7 @@ By Intel Corporation
 
   <p class="copyright">
     
-      © Copyright 2025 Intel Corporation licensed under Creative Commons BY 4.0.
+      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
       <br/>
     
   </p>
