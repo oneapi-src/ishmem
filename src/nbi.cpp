@@ -31,7 +31,7 @@ sycl::event ishmemx_put_nbi_on_queue(T *dest, const T *src, size_t nelems, int p
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.host_task([=]() { ishmem_put_nbi(dest, src, nelems, pe); });
+        cgh.single_task([=]() { ishmem_put_nbi(dest, src, nelems, pe); });
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -142,7 +142,7 @@ sycl::event ishmemx_get_nbi_on_queue(T *dest, const T *src, size_t nelems, int p
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.host_task([=]() { ishmem_get_nbi(dest, src, nelems, pe); });
+        cgh.single_task([=]() { ishmem_get_nbi(dest, src, nelems, pe); });
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;

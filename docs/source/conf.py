@@ -16,7 +16,7 @@ import datetime
 project = u'Intel® SHMEM'
 copyright = u'2024 Intel Corporation licensed under Creative Commons BY 4.0'
 author = u'Intel Corporation'
-release = u'1.3.0'
+release = u'1.5.0'
 version = release
 
 # -- General configuration ---------------------------------------------------

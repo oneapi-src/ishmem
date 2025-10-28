@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -14,61 +14,71 @@
 #include <ext/oneapi/backend/level_zero.hpp>
 #endif
 
-ze_driver_handle_t *all_drivers = nullptr;
-ze_device_handle_t **all_devices = nullptr;
-uint32_t driver_count = 0;
-bool ishmemi_accelerator_preinitialized = false;
-bool ishmemi_accelerator_initialized = false;
+namespace {
+    /* L0 driver */
+    ze_driver_handle_t *all_drivers = nullptr;
+    ze_device_handle_t **all_devices = nullptr;
+    uint32_t driver_count = 0;
+    uint32_t driver_idx = 0;
+    bool driver_found = false;
 
-ze_driver_handle_t ishmemi_gpu_driver = nullptr;
-ze_driver_handle_t ishmemi_fpga_driver = nullptr;
-ze_device_handle_t ishmemi_gpu_device = nullptr;
-ze_device_handle_t ishmemi_fpga_device = nullptr;
+    /* L0 device */
+    ze_device_properties_t device_properties = {};
 
+    /* L0 queues */
+    uint32_t link_queue_count = 0;
+    std::atomic<uint64_t> link_index = 0; /* Used for round-robining link engines */
+    ze_command_queue_handle_t compute_queue = {};
+    ze_command_queue_handle_t copy_queue = {};
+    ze_command_queue_handle_t *link_queues = nullptr;
+    uint32_t compute_ordinal = 0;
+    uint32_t copy_ordinal = 0;
+    uint32_t link_ordinal = 0;
+
+    /* L0 lists */
+    ishmemi_thread_safe_vector<ze_command_list_handle_t> compute_lists;
+    ishmemi_thread_safe_vector<ze_command_list_handle_t> copy_lists;
+    ishmemi_thread_safe_vector<ze_command_list_handle_t> *link_lists;
+
+    /* Misc */
+    bool ishmemi_accelerator_preinitialized = false;
+    bool ishmemi_accelerator_initialized = false;
+}  // namespace
+
+/* L0 Context */
 ze_context_handle_t ishmemi_ze_context = nullptr;
 ze_context_desc_t ishmemi_ze_context_desc = {};
+
+/* L0 device */
+ze_driver_handle_t ishmemi_gpu_driver = nullptr;
+ze_device_handle_t ishmemi_gpu_device = nullptr;
+
+/* L0 events */
 ze_event_pool_handle_t ishmemi_ze_event_pool;
-
-unsigned int ishmemi_link_engine_index = 0;
-#ifdef ENABLE_REDUCED_LINK_ENGINES
-unsigned int ishmemi_link_engine[NUM_LINK_QUEUE] = {2, 4};
-#else
-unsigned int ishmemi_link_engine[NUM_LINK_QUEUE] = {2, 4, 6};
-#endif
-
-ze_command_queue_handle_t ishmemi_ze_cmd_queue;
-ze_command_queue_handle_t ishmemi_ze_all_cmd_queue;
-ze_command_queue_handle_t ishmemi_ze_link_cmd_queue[NUM_LINK_QUEUE];
-ishmemi_thread_safe_vector<ze_command_list_handle_t> ishmemi_ze_cmd_lists;
-ishmemi_thread_safe_vector<ze_command_list_handle_t> ishmemi_ze_link_cmd_lists[NUM_LINK_QUEUE];
-
-uint32_t ishmemi_gpu_driver_idx = 0;
-uint32_t ishmemi_fpga_driver_idx = 0;
-bool ishmemi_gpu_driver_found = false;
-bool ishmemi_fpga_driver_found = false;
 
 /* this should be thread safe because we query the size, then sync
  * then destroy the first size items, then erase them from the list
  */
-static int ishmemi_sync_cmd_queue(ze_command_queue_handle_t &queue,
-                                  ishmemi_thread_safe_vector<ze_command_list_handle_t> &cmd_lists)
+static int sync_cq(ze_command_queue_handle_t &queue,
+                   ishmemi_thread_safe_vector<ze_command_list_handle_t> &cmd_lists)
 {
+    static std::atomic<size_t> size;
     size_t cur_size = 0;
+    int ret = 0;
+    std::vector<ze_command_list_handle_t>::iterator first, last;
 
     cmd_lists.mtx.lock();
-    int ret = 0;
-    static std::atomic<size_t> size;
     size.store(cmd_lists.size());
     cmd_lists.mtx.unlock();
-    std::vector<ze_command_list_handle_t>::iterator first, last;
 
     ZE_CHECK(zeCommandQueueSynchronize(queue, UINT64_MAX));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
     cmd_lists.mtx.lock();
     cur_size = size.load();
-    for (size_t i = 0; i < cur_size; i += 1)
+    for (size_t i = 0; i < cur_size; ++i) {
         ZE_CHECK(zeCommandListDestroy(cmd_lists[i]));
+    }
 
     first = cmd_lists.begin();
     last = first + static_cast<long>(cur_size);
@@ -77,6 +87,12 @@ static int ishmemi_sync_cmd_queue(ze_command_queue_handle_t &queue,
 
 fn_exit:
     return ret;
+}
+
+static inline uint32_t get_next_link_index()
+{
+    uint32_t index = link_index.fetch_add(1, std::memory_order_relaxed) % link_queue_count;
+    return index;
 }
 
 int ishmemi_accelerator_preinit()
@@ -125,31 +141,27 @@ int ishmemi_accelerator_preinit()
         ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
         if (device_count == 0) continue;
 
-        // Only a single device will be returned because of setting in ishmrun launcher
+        /* Ensure a single device is detected */
         ISHMEM_CHECK_GOTO_MSG(device_count != 1, fn_fail, "Detected more than one device\n");
         all_devices[i] = (ze_device_handle_t *) ::malloc(device_count * sizeof(ze_device_handle_t));
         ISHMEM_CHECK_GOTO_MSG(all_devices == nullptr, fn_fail,
                               "Allocation of all_drivers[%d] failed\n", i);
 
         ZE_CHECK(zeDeviceGet(all_drivers[i], &device_count, all_devices[i]));
+        ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
 
-        ze_device_properties_t device_properties;
         ZE_CHECK(zeDeviceGetProperties(all_devices[i][0], &device_properties));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
-        /* Storing gpu and fpga devices only for now */
-        if (ZE_DEVICE_TYPE_GPU == device_properties.type && !ishmemi_gpu_driver_found) {
+
+        if (ZE_DEVICE_TYPE_GPU == device_properties.type && !driver_found) {
             ishmemi_gpu_driver = all_drivers[i];
-            ishmemi_gpu_driver_idx = i;
-            ishmemi_gpu_driver_found = true;
-        } else if (ZE_DEVICE_TYPE_FPGA == device_properties.type && !ishmemi_fpga_driver_found) {
-            ishmemi_fpga_driver = all_drivers[i];
-            ishmemi_fpga_driver_idx = i;
-            ishmemi_fpga_driver_found = true;
+            driver_idx = i;
+            driver_found = true;
         }
     }
 
-    if (!ishmemi_gpu_driver_found && !ishmemi_fpga_driver_found) {
-        ISHMEM_ERROR_MSG("No ZE driver found for GPU or FPGA\n");
+    if (!driver_found) {
+        ISHMEM_ERROR_MSG("No ZE driver found for GPU\n");
         ret = ISHMEMI_NO_DEVICES;
         goto fn_fail;
     }
@@ -171,110 +183,104 @@ fn_fail:
 
 int ishmemi_accelerator_init()
 {
-    uint32_t device_count = 0;
-    uint32_t i, j;
     int ret = 0;
-    ze_command_queue_desc_t cmdq_desc;
+    uint32_t i, j;
+    uint32_t cq_group_count = 0;
     ze_event_pool_desc_t event_pool_desc;
+    ze_command_queue_group_properties_t *cq_group_prop = nullptr;
 
     ret = ishmemi_accelerator_preinit();
-    if (ret != 0) goto fn_exit;
-    /* set default interval for cmd_list garbage collection */
-    ishmemi_ze_cmd_lists.reserve(ishmemi_params.NBI_COUNT);
-    for (int i = 0; i < NUM_LINK_QUEUE; i += 1) {
-        ishmemi_ze_link_cmd_lists[i].reserve(ishmemi_params.NBI_COUNT);
-    }
+    ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
-    if (ishmemi_gpu_driver_found) {
-        /* TODO: Make default device assignment topology-aware instead of round-robin */
-        /* Set the default device for GPU */
-        /* TODO: This currently assumes all devices for the driver are GPU devices */
-        ishmemi_gpu_device = all_devices[ishmemi_gpu_driver_idx][0];
-    }
+    if (driver_found) {
+        /* Set the default GPU */
+        ishmemi_gpu_device = all_devices[driver_idx][0];
 
-    if (ishmemi_fpga_driver_found) {
-        /* Set the default device for FPGA */
-        /* TODO: This currently assumes all devices for the driver are FPGA devices */
-        ishmemi_fpga_device = all_devices[ishmemi_fpga_driver_idx][0];
-    }
+        /* Discover command queue groups */
+        ZE_CHECK(
+            zeDeviceGetCommandQueueGroupProperties(ishmemi_gpu_device, &cq_group_count, nullptr));
+        ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
 
-    if (ishmemi_gpu_driver_found) {
-        /* Get P2P properties between the local device and each GPU device */
-        for (i = 0; i < driver_count; i++) {
-            device_count = 0;
-            ZE_CHECK(zeDeviceGet(all_drivers[i], &device_count, nullptr));
-            ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
-            if (device_count == 0) continue;
+        cq_group_prop = (ze_command_queue_group_properties_t *) ::malloc(
+            cq_group_count * sizeof(ze_command_queue_group_properties_t));
+        ISHMEM_CHECK_GOTO_MSG(cq_group_prop == nullptr, fn_fail,
+                              "Allocation of cq_group_prop failed\n");
 
-            for (j = 0; j < device_count; j++) {
-                ze_device_properties_t device_properties;
-                ZE_CHECK(zeDeviceGetProperties(all_devices[i][j], &device_properties));
+        for (i = 0; i < cq_group_count; ++i) {
+            cq_group_prop[i] = {
+                .stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_GROUP_PROPERTIES,
+                .pNext = nullptr,
+                .flags = 0,
+                .maxMemoryFillPatternSize = 0,
+                .numQueues = 0,
+            };
+        }
+
+        ZE_CHECK(zeDeviceGetCommandQueueGroupProperties(ishmemi_gpu_device, &cq_group_count,
+                                                        cq_group_prop));
+        ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+
+        /* Setup all command queues */
+        for (i = 0; i < cq_group_count; ++i) {
+            ze_command_queue_desc_t desc = {
+                .stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
+                .pNext = nullptr,
+                .ordinal = i,
+                .index = 0,
+                .flags = 0,
+                .mode = ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS,
+                .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL,
+            };
+
+            if (cq_group_prop[i].flags & ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COMPUTE) {
+                ZE_CHECK(zeCommandQueueCreate(ishmemi_ze_context, ishmemi_gpu_device, &desc,
+                                              &compute_queue));
                 ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+
+                compute_ordinal = i;
+            } else if (cq_group_prop[i].flags & ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COPY &&
+                       cq_group_prop[i].numQueues == 1) {
+                ZE_CHECK(zeCommandQueueCreate(ishmemi_ze_context, ishmemi_gpu_device, &desc,
+                                              &copy_queue));
+                ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+
+                copy_ordinal = i;
+            } else if (cq_group_prop[i].flags & ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COPY &&
+                       cq_group_prop[i].numQueues > 1) {
+                link_queues = (ze_command_queue_handle_t *) ::malloc(
+                    cq_group_prop[i].numQueues * sizeof(ze_command_queue_handle_t));
+                ISHMEM_CHECK_GOTO_MSG(link_queues == nullptr, fn_fail,
+                                      "Allocation of link_queues failed\n");
+
+                for (j = 0; j < cq_group_prop[i].numQueues; ++j) {
+                    desc.index = j;
+                    ZE_CHECK(zeCommandQueueCreate(ishmemi_ze_context, ishmemi_gpu_device, &desc,
+                                                  &link_queues[j]));
+                    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+                }
+
+                link_ordinal = i;
             }
         }
-    }
 
-    if (ishmemi_params.DEBUG) {
-        ze_device_properties_t device_properties;
-
-        if (ishmemi_gpu_driver_found) {
-            ZE_CHECK(zeDeviceGetProperties(ishmemi_gpu_device, &device_properties));
-            ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
-            ishmemi_print_device_properties(device_properties);
-        }
-
-        if (ishmemi_fpga_driver_found) {
-            ZE_CHECK(zeDeviceGetProperties(ishmemi_fpga_device, &device_properties));
-            ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+        if (ishmemi_params.DEBUG) {
             ishmemi_print_device_properties(device_properties);
         }
     }
 
-    /* Create the ZE command queue */
-    cmdq_desc = {
-        .stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
-        .pNext = nullptr,
-        .ordinal = 1,
-        .index = 0,
-        .flags = 0,
-        .mode = ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS,
-        .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL,
-    };
-    ZE_CHECK(zeCommandQueueCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmdq_desc,
-                                  &ishmemi_ze_cmd_queue));
-    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
-
-    /* create link queue for group command lists */
-    cmdq_desc = {
-        .stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
-        .pNext = nullptr,
-        .ordinal = 2,
-        .index = 0,
-        .flags = 0,
-        .mode = ZE_COMMAND_QUEUE_MODE_SYNCHRONOUS,
-        .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL,
-    };
-    ZE_CHECK(zeCommandQueueCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmdq_desc,
-                                  &ishmemi_ze_all_cmd_queue));
-    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
-
-    for (uint32_t i = 0; i < NUM_LINK_QUEUE; i += 1) {
-        cmdq_desc = {
-            .stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
-            .pNext = nullptr,
-            .ordinal = 2,
-            .index = 2U + (i * 2),  // 2 4 6
-            .flags = ZE_COMMAND_QUEUE_FLAG_EXPLICIT_ONLY,
-            .mode = ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS,
-            .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL,
-        };
-        ZE_CHECK(zeCommandQueueCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmdq_desc,
-                                      &ishmemi_ze_link_cmd_queue[i]));
-        ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+    /* Set the default interval for garbage collection for lists */
+    compute_lists.reserve(ishmemi_params.NBI_COUNT);
+    copy_lists.reserve(ishmemi_params.NBI_COUNT);
+    link_lists = (ishmemi_thread_safe_vector<ze_command_list_handle_t> *) ::malloc(
+        link_queue_count * sizeof(ishmemi_thread_safe_vector<ze_command_list_handle_t>));
+    for (i = 0; i < link_queue_count; ++i) {
+        link_lists[i].reserve(ishmemi_params.NBI_COUNT);
     }
+
     /* Create the ZE event pool */
     event_pool_desc = {
         .stype = ZE_STRUCTURE_TYPE_EVENT_POOL_DESC,
+        .pNext = nullptr,
         .flags = 0,
         .count = 1,
     };
@@ -294,36 +300,37 @@ int ishmemi_accelerator_fini(void)
 {
     int ret = 0;
 
-    if (ishmemi_ze_cmd_queue) {
-        ishmemi_sync_cmd_queue(ishmemi_ze_cmd_queue, ishmemi_ze_cmd_lists);
-        ZE_CHECK(zeCommandQueueDestroy(ishmemi_ze_cmd_queue));
-        ishmemi_ze_cmd_queue = nullptr;
+    if (compute_queue) {
+        sync_cq(compute_queue, compute_lists);
+        ZE_CHECK(zeCommandQueueDestroy(compute_queue));
+        compute_queue = {};
     }
 
-    if (ishmemi_ze_all_cmd_queue) {
-        ZE_CHECK(zeCommandQueueDestroy(ishmemi_ze_all_cmd_queue));
-        ishmemi_ze_all_cmd_queue = nullptr;
+    if (copy_queue) {
+        sync_cq(copy_queue, copy_lists);
+        ZE_CHECK(zeCommandQueueDestroy(copy_queue));
+        copy_queue = {};
     }
 
-    for (int i = 0; i < NUM_LINK_QUEUE; i += 1) {
-        if (ishmemi_ze_link_cmd_queue[i]) {
-            ishmemi_sync_cmd_queue(ishmemi_ze_link_cmd_queue[i], ishmemi_ze_link_cmd_lists[i]);
-            ZE_CHECK(zeCommandQueueDestroy(ishmemi_ze_link_cmd_queue[i]));
+    for (uint32_t i = 0; i < link_queue_count; ++i) {
+        if (link_queues[i]) {
+            sync_cq(link_queues[i], link_lists[i]);
+            ZE_CHECK(zeCommandQueueDestroy(link_queues[i]));
+            link_queues[i] = {};
         }
-        ishmemi_ze_link_cmd_queue[i] = nullptr;
     }
+    ISHMEMI_FREE(::free, link_queues);
+    link_queues = nullptr;
 
-    for (int i = 0; i < driver_count; i++)
+    for (size_t i = 0; i < driver_count; i++)
         ISHMEMI_FREE(::free, all_devices[i]);
     ISHMEMI_FREE(::free, all_devices);
     ISHMEMI_FREE(::free, all_drivers);
 
     ishmemi_accelerator_preinitialized = false;
     ishmemi_accelerator_initialized = false;
-    ishmemi_gpu_driver_found = false;
-    ishmemi_fpga_driver_found = false;
-    ishmemi_gpu_driver_idx = 0;
-    ishmemi_fpga_driver_idx = 0;
+    driver_found = false;
+    driver_idx = 0;
     driver_count = 0;
 
     if (ishmemi_ze_context) {
@@ -335,6 +342,189 @@ int ishmemi_accelerator_fini(void)
 
 fn_exit:
     return ret;
+}
+
+int ishmemi_create_command_list(ishmemi_queue_type_t queue_type, bool immediate,
+                                ze_command_list_handle_t *list, ze_command_list_flags_t flags)
+{
+    int ret = 0;
+    uint32_t ordinal = 0;
+    uint32_t index = 0;
+    ze_command_list_desc_t list_desc = {};
+    ze_command_queue_desc_t queue_desc = {};
+
+    ISHMEM_CHECK_GOTO_MSG(list == nullptr, fn_fail,
+                          "Failed to create command list - nullptr provided\n");
+
+    switch (queue_type) {
+        case COMPUTE_QUEUE:
+            ordinal = compute_ordinal;
+            break;
+        case COPY_QUEUE:
+            ordinal = copy_ordinal;
+            break;
+        case LINK_QUEUE:
+            if (link_queue_count == 0) {
+                ordinal = copy_ordinal;
+            } else {
+                if (link_queue_count > 1) {
+                    index = get_next_link_index();
+                }
+                ordinal = link_ordinal;
+            }
+            break;
+        default:
+            ISHMEM_CHECK_GOTO_MSG(
+                true, fn_fail, "Failed to create command list - undefined queue type provided\n");
+            break;
+    }
+
+    if (immediate) {
+        /* Currently only use synchronous and normal priority - may need to extend later */
+        queue_desc = {
+            .stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
+            .pNext = nullptr,
+            .ordinal = ordinal,
+            .index = index,
+            .flags = 0,
+            .mode = ZE_COMMAND_QUEUE_MODE_SYNCHRONOUS,
+            .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL,
+        };
+
+        ZE_CHECK(zeCommandListCreateImmediate(ishmemi_ze_context, ishmemi_gpu_device, &queue_desc,
+                                              list));
+        ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+    } else {
+        list_desc = {
+            .stype = ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,
+            .pNext = nullptr,
+            .commandQueueGroupOrdinal = ordinal,
+            .flags = flags,
+        };
+
+        ZE_CHECK(zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &list_desc, list));
+        ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+    }
+
+fn_exit:
+    return ret;
+fn_fail:
+    ret = 1;
+    goto fn_exit;
+}
+
+int ishmemi_create_command_list_nbi(ishmemi_queue_type_t queue_type, ze_command_list_handle_t *list,
+                                    ze_command_list_flags_t flags)
+{
+    int ret = 0;
+    uint32_t ordinal = 0;
+    uint32_t index = 0;
+    ze_command_list_desc_t list_desc = {};
+
+    ISHMEM_CHECK_GOTO_MSG(list == nullptr, fn_fail,
+                          "Failed to create command list - nullptr provided\n");
+
+    switch (queue_type) {
+        case COMPUTE_QUEUE:
+            ordinal = compute_ordinal;
+            break;
+        case COPY_QUEUE:
+            ordinal = copy_ordinal;
+            break;
+        case LINK_QUEUE:
+            if (link_queue_count == 0) {
+                ordinal = copy_ordinal;
+            } else {
+                if (link_queue_count > 1) {
+                    index = get_next_link_index();
+                }
+                ordinal = link_ordinal;
+            }
+            break;
+        default:
+            ISHMEM_CHECK_GOTO_MSG(
+                true, fn_fail, "Failed to create command list - undefined queue type provided\n");
+            break;
+    }
+
+    list_desc = {
+        .stype = ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,
+        .pNext = nullptr,
+        .commandQueueGroupOrdinal = ordinal,
+        .flags = flags,
+    };
+
+    ZE_CHECK(zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &list_desc, list));
+    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+
+    switch (queue_type) {
+        case COMPUTE_QUEUE:
+            compute_lists.push_back_thread_safe(*list);
+            break;
+        case COPY_QUEUE:
+            copy_lists.push_back_thread_safe(*list);
+            break;
+        case LINK_QUEUE:
+            if (link_queue_count == 0) {
+                copy_lists.push_back_thread_safe(*list);
+            } else {
+                link_lists[index].push_back_thread_safe(*list);
+            }
+            break;
+        default:
+            ISHMEM_CHECK_GOTO_MSG(true, fn_fail,
+                                  "Failed to store command list - undefined queue type provided\n");
+            break;
+    }
+
+fn_exit:
+    return ret;
+fn_fail:
+    ret = 1;
+    goto fn_exit;
+}
+
+int ishmemi_execute_command_lists(ishmemi_queue_type_t queue_type, uint32_t list_count,
+                                  ze_command_list_handle_t *lists, ze_fence_handle_t fence)
+{
+    int ret = 0;
+    uint32_t index = 0;
+    ze_command_queue_handle_t queue = {};
+
+    ISHMEM_CHECK_GOTO_MSG(lists == nullptr, fn_fail,
+                          "Failed to execute command list - nullptr provided\n");
+
+    switch (queue_type) {
+        case COMPUTE_QUEUE:
+            queue = compute_queue;
+            break;
+        case COPY_QUEUE:
+            queue = copy_queue;
+            break;
+        case LINK_QUEUE:
+            if (link_queue_count == 0) {
+                queue = copy_queue;
+            } else {
+                if (link_queue_count > 1) {
+                    index = get_next_link_index();
+                }
+                queue = link_queues[index];
+            }
+            break;
+        default:
+            ISHMEM_CHECK_GOTO_MSG(
+                true, fn_fail, "Failed to execute command list - undefined queue type provided\n");
+            break;
+    }
+
+    ZE_CHECK(zeCommandQueueExecuteCommandLists(queue, list_count, lists, fence));
+    ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
+
+fn_exit:
+    return ret;
+fn_fail:
+    ret = 1;
+    goto fn_exit;
 }
 
 int ishmemi_get_memory_type(const void *ptr, ze_memory_type_t *type)
@@ -355,9 +545,10 @@ fn_exit:
 
 void ishmemi_level_zero_sync()
 {
-    ishmemi_sync_cmd_queue(ishmemi_ze_cmd_queue, ishmemi_ze_cmd_lists);
-    for (int i = 0; i < NUM_LINK_QUEUE; i += 1) {
-        ishmemi_sync_cmd_queue(ishmemi_ze_link_cmd_queue[i], ishmemi_ze_link_cmd_lists[i]);
+    sync_cq(compute_queue, compute_lists);
+    sync_cq(copy_queue, copy_lists);
+    for (uint32_t i = 0; i < link_queue_count; ++i) {
+        sync_cq(link_queues[i], link_lists[i]);
     }
 }
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -172,7 +172,7 @@ int ishmemi_ipc_init()
 
     ipc_data.ipc_fd[0] = ipc_data.ipc_fd[1] = -1;
 
-    for (int i = 0; i < nfds; ++i) {
+    for (size_t i = 0; i < nfds; ++i) {
         memcpy(&ipc_data.ipc_fd[i], &ipc_handle[i], sizeof(int));
         memcpy(&ipc_data.ipc_handle[i], &ipc_handle[i], sizeof(ze_ipc_mem_handle_t));
     }
@@ -306,7 +306,7 @@ static int ipc_init_pidfd()
 
     /* Gather the info from other PEs */
     ishmemi_runtime->node_fcollect(heap_data, local_heap_data, sizeof(ipc_data_t));
-    ishmem_copy(local_data, heap_data, static_cast<size_t>(local_size) * sizeof(ipc_data_t));
+    ishmemi_copy(local_data, heap_data, static_cast<size_t>(local_size) * sizeof(ipc_data_t));
 
     /* Validate that every pid can be opened locally */
     for (int i = 0; i < local_size; ++i) {
@@ -428,7 +428,7 @@ static int ipc_init_sockets()
 
     /* Gather pids from other PEs */
     ishmemi_runtime->node_fcollect(heap_pids, local_heap_pid, sizeof(pid_t));
-    ishmem_copy(local_pids, heap_pids, static_cast<size_t>(local_size) * sizeof(pid_t));
+    ishmemi_copy(local_pids, heap_pids, static_cast<size_t>(local_size) * sizeof(pid_t));
 
     for (int i = 0; i < local_size; ++i) {
         ISHMEM_DEBUG_MSG("heap_pids[%d] = %d (%d)\n", i, heap_pids[i], local_pids[i]);

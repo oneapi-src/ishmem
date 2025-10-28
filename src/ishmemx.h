@@ -5,7 +5,7 @@
 #ifndef I_SHMEMX_H
 #define I_SHMEMX_H
 
-#include "ishmem.h"
+#include <ishmem.h>
 #define ISHMEM_DEVICE_ATTRIBUTES SYCL_EXTERNAL
 
 #define ISHMEMX_TEAM_NODE 2
@@ -19,8 +19,8 @@ typedef enum : uint8_t {
 } ishmemx_runtime_type_t;
 
 typedef struct ishmemx_attr_t {
-    /* By default, the runtime is assumed to be OpenSHMEM */
-    ishmemx_runtime_type_t runtime = ISHMEMX_RUNTIME_OPENSHMEM;
+    /* By default, the runtime is assumed to be MPI */
+    ishmemx_runtime_type_t runtime = ISHMEM_DEFAULT_RUNTIME;
     /* By default, runtimes are assumed to be initialized by ISHMEM */
     bool initialize_runtime = true;
     /* By default, gpu is used */
@@ -1800,6 +1800,108 @@ template <typename Group> ISHMEM_DEVICE_ATTRIBUTES int ishmemx_uint32_prod_reduc
 template <typename Group> ISHMEM_DEVICE_ATTRIBUTES int ishmemx_uint64_prod_reduce_work_group(ishmem_team_t, uint64_t *, const uint64_t *, size_t, const Group &);
 template <typename Group> ISHMEM_DEVICE_ATTRIBUTES int ishmemx_size_prod_reduce_work_group(ishmem_team_t, size_t *, const size_t *, size_t, const Group &);
 template <typename Group> ISHMEM_DEVICE_ATTRIBUTES int ishmemx_ptrdiff_prod_reduce_work_group(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t, const Group &);
+
+/* scan_on_queue (prefix sum) */
+template <typename T> sycl::event ishmemx_sum_inscan_on_queue(T *, const T *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_float_sum_inscan_on_queue(float *, const float *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_double_sum_inscan_on_queue(double *, const double *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_char_sum_inscan_on_queue(char *, const char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_schar_sum_inscan_on_queue(signed char *, const signed char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_short_sum_inscan_on_queue(short *, const short *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int_sum_inscan_on_queue(int *, const int *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_long_sum_inscan_on_queue(long *, const long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_longlong_sum_inscan_on_queue(long long *, const long long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uchar_sum_inscan_on_queue(unsigned char *, const unsigned char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ushort_sum_inscan_on_queue(unsigned short *, const unsigned short *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint_sum_inscan_on_queue(unsigned int *, const unsigned int *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ulong_sum_inscan_on_queue(unsigned long *, const unsigned long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ulonglong_sum_inscan_on_queue(unsigned long long *, const unsigned long long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int8_sum_inscan_on_queue(int8_t *, const int8_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int16_sum_inscan_on_queue(int16_t *, const int16_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int32_sum_inscan_on_queue(int32_t *, const int32_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int64_sum_inscan_on_queue(int64_t *, const int64_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint8_sum_inscan_on_queue(uint8_t *, const uint8_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint16_sum_inscan_on_queue(uint16_t *, const uint16_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint32_sum_inscan_on_queue(uint32_t *, const uint32_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint64_sum_inscan_on_queue(uint64_t *, const uint64_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_size_sum_inscan_on_queue(size_t *, const size_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ptrdiff_sum_inscan_on_queue(ptrdiff_t *, const ptrdiff_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+
+template <typename T> sycl::event ishmemx_sum_exscan_on_queue(T *, const T *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_float_sum_exscan_on_queue(float *, const float *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_double_sum_exscan_on_queue(double *, const double *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_char_sum_exscan_on_queue(char *, const char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_schar_sum_exscan_on_queue(signed char *, const signed char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_short_sum_exscan_on_queue(short *, const short *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int_sum_exscan_on_queue(int *, const int *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_long_sum_exscan_on_queue(long *, const long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_longlong_sum_exscan_on_queue(long long *, const long long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uchar_sum_exscan_on_queue(unsigned char *, const unsigned char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ushort_sum_exscan_on_queue(unsigned short *, const unsigned short *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint_sum_exscan_on_queue(unsigned int *, const unsigned int *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ulong_sum_exscan_on_queue(unsigned long *, const unsigned long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ulonglong_sum_exscan_on_queue(unsigned long long *, const unsigned long long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int8_sum_exscan_on_queue(int8_t *, const int8_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int16_sum_exscan_on_queue(int16_t *, const int16_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int32_sum_exscan_on_queue(int32_t *, const int32_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int64_sum_exscan_on_queue(int64_t *, const int64_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint8_sum_exscan_on_queue(uint8_t *, const uint8_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint16_sum_exscan_on_queue(uint16_t *, const uint16_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint32_sum_exscan_on_queue(uint32_t *, const uint32_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint64_sum_exscan_on_queue(uint64_t *, const uint64_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_size_sum_exscan_on_queue(size_t *, const size_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ptrdiff_sum_exscan_on_queue(ptrdiff_t *, const ptrdiff_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+
+/* scan_on_queue (prefix sum) on a team */
+template <typename T> sycl::event ishmemx_sum_inscan_on_queue(ishmem_team_t, T *, const T *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_float_sum_inscan_on_queue(ishmem_team_t, float *, const float *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_double_sum_inscan_on_queue(ishmem_team_t, double *, const double *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_char_sum_inscan_on_queue(ishmem_team_t, char *, const char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_schar_sum_inscan_on_queue(ishmem_team_t, signed char *, const signed char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_short_sum_inscan_on_queue(ishmem_team_t, short *, const short *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int_sum_inscan_on_queue(ishmem_team_t, int *, const int *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_long_sum_inscan_on_queue(ishmem_team_t, long *, const long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_longlong_sum_inscan_on_queue(ishmem_team_t, long long *, const long long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uchar_sum_inscan_on_queue(ishmem_team_t, unsigned char *, const unsigned char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ushort_sum_inscan_on_queue(ishmem_team_t, unsigned short *, const unsigned short *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint_sum_inscan_on_queue(ishmem_team_t, unsigned int *, const unsigned int *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ulong_sum_inscan_on_queue(ishmem_team_t, unsigned long *, const unsigned long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ulonglong_sum_inscan_on_queue(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int8_sum_inscan_on_queue(ishmem_team_t, int8_t *, const int8_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int16_sum_inscan_on_queue(ishmem_team_t, int16_t *, const int16_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int32_sum_inscan_on_queue(ishmem_team_t, int32_t *, const int32_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int64_sum_inscan_on_queue(ishmem_team_t, int64_t *, const int64_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint8_sum_inscan_on_queue(ishmem_team_t, uint8_t *, const uint8_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint16_sum_inscan_on_queue(ishmem_team_t, uint16_t *, const uint16_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint32_sum_inscan_on_queue(ishmem_team_t, uint32_t *, const uint32_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint64_sum_inscan_on_queue(ishmem_team_t, uint64_t *, const uint64_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_size_sum_inscan_on_queue(ishmem_team_t, size_t *, const size_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ptrdiff_sum_inscan_on_queue(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+
+template <typename T> sycl::event ishmemx_sum_exscan_on_queue(ishmem_team_t, T *, const T *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_float_sum_exscan_on_queue(ishmem_team_t, float *, const float *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_double_sum_exscan_on_queue(ishmem_team_t, double *, const double *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_char_sum_exscan_on_queue(ishmem_team_t, char *, const char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_schar_sum_exscan_on_queue(ishmem_team_t, signed char *, const signed char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_short_sum_exscan_on_queue(ishmem_team_t, short *, const short *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int_sum_exscan_on_queue(ishmem_team_t, int *, const int *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_long_sum_exscan_on_queue(ishmem_team_t, long *, const long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_longlong_sum_exscan_on_queue(ishmem_team_t, long long *, const long long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uchar_sum_exscan_on_queue(ishmem_team_t, unsigned char *, const unsigned char *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ushort_sum_exscan_on_queue(ishmem_team_t, unsigned short *, const unsigned short *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint_sum_exscan_on_queue(ishmem_team_t, unsigned int *, const unsigned int *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ulong_sum_exscan_on_queue(ishmem_team_t, unsigned long *, const unsigned long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ulonglong_sum_exscan_on_queue(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int8_sum_exscan_on_queue(ishmem_team_t, int8_t *, const int8_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int16_sum_exscan_on_queue(ishmem_team_t, int16_t *, const int16_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int32_sum_exscan_on_queue(ishmem_team_t, int32_t *, const int32_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_int64_sum_exscan_on_queue(ishmem_team_t, int64_t *, const int64_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint8_sum_exscan_on_queue(ishmem_team_t, uint8_t *, const uint8_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint16_sum_exscan_on_queue(ishmem_team_t, uint16_t *, const uint16_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint32_sum_exscan_on_queue(ishmem_team_t, uint32_t *, const uint32_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_uint64_sum_exscan_on_queue(ishmem_team_t, uint64_t *, const uint64_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_size_sum_exscan_on_queue(ishmem_team_t, size_t *, const size_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
+sycl::event ishmemx_ptrdiff_sum_exscan_on_queue(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t, int *, sycl::queue &, const std::vector<sycl::event> & = {});
 
 /* test_work_group */
 template <typename T, typename Group> ISHMEM_DEVICE_ATTRIBUTES int ishmemx_test_work_group(T *, int, T, const Group &);

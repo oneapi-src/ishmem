@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Portions derived from Sandia OpenSHMEM (https://github.com/Sandia-OpenSHMEM/SOS)
@@ -267,6 +267,14 @@ ISHMEM_DEVICE_ATTRIBUTES constexpr bool ishmemi_op_is_reduction()
 }
 
 template <ishmemi_op_t OP>
+ISHMEM_DEVICE_ATTRIBUTES constexpr bool ishmemi_op_is_scan()
+{
+    if constexpr (OP == INSCAN) return true;
+    else if constexpr (OP == EXSCAN) return true;
+    else return false;
+}
+
+template <ishmemi_op_t OP>
 ISHMEM_DEVICE_ATTRIBUTES constexpr bool ishmemi_op_is_standard_amo()
 {
     if constexpr (OP == AMO_COMPARE_SWAP) return true;
@@ -340,6 +348,7 @@ template <ishmemi_op_t OP>
 ISHMEM_DEVICE_ATTRIBUTES constexpr bool ishmemi_op_floating_point_matters()
 {
     if constexpr (ishmemi_op_is_value_reduction<OP>()) return true;
+    else if constexpr (ishmemi_op_is_scan<OP>()) return true;
     else if constexpr (ishmemi_op_is_extended_amo<OP>()) return true;
     else if constexpr (OP == P) return true;
     else if constexpr (OP == G) return true;
@@ -350,6 +359,7 @@ template <ishmemi_op_t OP>
 ISHMEM_DEVICE_ATTRIBUTES constexpr bool ishmemi_op_sign_matters()
 {
     if constexpr (ishmemi_op_is_reduction<OP>()) return true;
+    else if constexpr (ishmemi_op_is_scan<OP>()) return true;
     else if constexpr (ishmemi_op_is_amo<OP>()) return true;
     else if constexpr (OP == SIGNAL_WAIT_UNTIL) return false;
     else if constexpr (ishmemi_op_is_sync<OP>()) return true;
@@ -472,6 +482,7 @@ template <ishmemi_op_t OP>
 ISHMEM_DEVICE_ATTRIBUTES constexpr bool ishmemi_op_uses_team()
 {
     if constexpr (ishmemi_op_is_reduction<OP>()) return true;
+    else if constexpr (ishmemi_op_is_scan<OP>()) return true;
     else if constexpr (OP == ALLTOALL) return true;
     else if constexpr (OP == BCAST) return true;
     else if constexpr (OP == COLLECT) return true;

@@ -8,3 +8,8 @@
 #cmakedefine ENABLE_ERROR_CHECKING
 #cmakedefine ENABLE_REDUCED_LINK_ENGINES
 #cmakedefine ENABLE_DLMALLOC
+
+/* clang-format off */
+#define ISHMEM_DEFAULT_RUNTIME     @ISHMEM_DEFAULT_RUNTIME_VAL@
+#define ISHMEM_DEFAULT_RUNTIME_STR "@ISHMEM_DEFAULT_RUNTIME_STR@"
+/* clang-format on */

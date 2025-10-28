@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -6,6 +6,7 @@
 #define COLLECTIVES_BROADCAST_IMPL_H
 
 #include "collectives.h"
+#include "sync_impl.h"
 #include "runtime.h"
 #include "rma_impl.h"
 #include "on_queue.h"
@@ -41,7 +42,8 @@ int ishmem_broadcast(ishmem_team_t team, T *dest, const T *src, size_t nelems, i
                 int idx = 0;
                 for (int pe = team_ptr->start; idx < team_ptr->size;
                      pe += team_ptr->stride, idx++) {
-                    ptr[idx] = ISHMEMI_ADJUST_PTR(T, (pe + 1), dest);
+                    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+                    ptr[idx] = ISHMEMI_ADJUST_PTR(T, local_index, dest);
                 }
                 /* The idea for the inner loop being over local PEs is that the outstanding stores
                  * will use different links.
@@ -54,13 +56,13 @@ int ishmem_broadcast(ishmem_team_t team, T *dest, const T *src, size_t nelems, i
                     }
                 }
             }
-            ishmem_team_sync(team); /* assure destination buffers complete */
+            ishmemi_team_sync(team); /* assure destination buffers complete */
             return ret;
 #else  // BROADCAST_PULL
-            ishmem_team_sync(team); /* make sure that PE_root's source buffer is ready for use */
+            ishmemi_team_sync(team); /* make sure that PE_root's source buffer is ready for use */
             ishmem_internal_get(dest, src, nelems,
                                 ishmem_team_translate_pe(team, PE_root, ISHMEM_TEAM_WORLD));
-            ishmem_team_sync(team); /* sync after to let PE_root know we are done */
+            ishmemi_team_sync(team); /* sync after to let PE_root know we are done */
             return ret;
 #endif
         }
@@ -93,18 +95,18 @@ int ishmem_broadcast(ishmem_team_t team, T *dest, const T *src, size_t nelems, i
             ISHMEM_CHECK_GOTO_MSG(ret, fn_fail, "ishmemi_ipc_put_v within team broadcast failed\n");
         }
     fn_fail:
-        ishmem_team_sync(team); /* assure all destination buffers complete */
+        ishmemi_team_sync(team); /* assure all destination buffers complete */
         return ret;
     }
 #else
     if (team_ptr->only_intra && ISHMEMI_HOST_IN_HEAP(src)) {
-        ishmem_team_sync(team); /* assure PE_root source buffer is ready for use */
+        ishmemi_team_sync(team); /* assure PE_root source buffer is ready for use */
         ret = ishmem_team_translate_pe(team, PE_root, ISHMEM_TEAM_WORLD);
         ISHMEM_CHECK_GOTO_MSG((ret < 0), fn_fail,
                               "ishmem_team_translate_pe within team broadcast failed\n");
         ret = ishmemi_ipc_get(dest, src, nelems, ret);
     fn_fail:
-        ishmem_team_sync(team); /* assure PE_root can reuse source buffer */
+        ishmemi_team_sync(team); /* assure PE_root can reuse source buffer */
         return ret;
     }
 #endif
@@ -139,7 +141,7 @@ sycl::event ishmemx_broadcast_on_queue(ishmem_team_t team, T *dest, const T *src
                     if (ret) *ret = tmp_ret;
                 });
         } else {
-            cgh.host_task([=]() {
+            cgh.single_task([=]() {
                 int tmp_ret = ishmem_broadcast(team, dest, src, nelems, PE_root);
                 if (ret) *ret = tmp_ret;
             });
@@ -186,7 +188,8 @@ int ishmemx_broadcast_work_group(ishmem_team_t team, T *dest, const T *src, size
                 int idx = 0;
                 for (int pe = team_ptr->start; idx < team_ptr->size;
                      pe += team_ptr->stride, idx++) {
-                    ptr[idx] = ISHMEMI_ADJUST_PTR(T, (pe + 1), dest);
+                    uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+                    ptr[idx] = ISHMEMI_ADJUST_PTR(T, local_index, dest);
                 }
                 for (size_t offset = work_item_start_idx;
                      offset < work_item_start_idx + my_nelems_work_item; offset += 1) {

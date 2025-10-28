@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -746,6 +746,27 @@ int ishmemi_openshmem_reduce(ishmemi_request_t *msg, ishmemi_ringcompletion_t *c
     return comp->completion.ret.i;
 }
 
+/* Scan */
+template <typename T>
+int ishmemi_openshmem_inscan(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
+{
+    ISHMEMI_RUNTIME_REQUEST_HELPER(T, INSCAN);
+    auto wrapper = ishmemi_openshmem_wrappers::inscan<T>();
+    comp->completion.ret.i =
+        wrapper(ishmemi_openshmem_wrappers::SHMEM_TEAM_WORLD, dest, src, nelems);
+    return comp->completion.ret.i;
+}
+
+template <typename T>
+int ishmemi_openshmem_exscan(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
+{
+    ISHMEMI_RUNTIME_REQUEST_HELPER(T, EXSCAN);
+    auto wrapper = ishmemi_openshmem_wrappers::exscan<T>();
+    comp->completion.ret.i =
+        wrapper(ishmemi_openshmem_wrappers::SHMEM_TEAM_WORLD, dest, src, nelems);
+    return comp->completion.ret.i;
+}
+
 /* Point-to-Point Synchronization */
 template <typename T, bool OSHMPI>
 int ishmemi_openshmem_test(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
@@ -1086,10 +1107,10 @@ void ishmemi_runtime_openshmem::funcptr_init()
     /* Initialize every function with the "unsupported op" function */
     /* Note: KILL operation is covered inside the proxy directly - it is the same for all backends
      * currently */
-    for (int i = 0; i < ISHMEMI_OP_END; ++i) {
+    for (size_t i = 0; i < ISHMEMI_OP_END; ++i) {
         proxy_funcs[i] = (ishmemi_runtime_proxy_func_t *) ::malloc(
             sizeof(ishmemi_runtime_proxy_func_t) * ishmemi_runtime_type::proxy_func_num_types);
-        for (int j = 0; j < ishmemi_runtime_type::proxy_func_num_types; ++j) {
+        for (size_t j = 0; j < ishmemi_runtime_type::proxy_func_num_types; ++j) {
             proxy_funcs[i][j] = ishmemi_runtime_type::unsupported;
         }
     }
@@ -1401,6 +1422,37 @@ void ishmemi_runtime_openshmem::funcptr_init()
     proxy_funcs[SUM_REDUCE][DOUBLE] = ishmemi_openshmem_reduce<double, SUM_REDUCE>;
     proxy_funcs[PROD_REDUCE][DOUBLE] = ishmemi_openshmem_reduce<double, PROD_REDUCE>;
 
+    /* Scan */
+    if (ishmemi_openshmem_wrappers::inscan_exists) {
+        proxy_funcs[INSCAN][UINT8] = ishmemi_openshmem_inscan<uint8_t>;
+        proxy_funcs[INSCAN][UINT16] = ishmemi_openshmem_inscan<uint16_t>;
+        proxy_funcs[INSCAN][UINT32] = ishmemi_openshmem_inscan<uint32_t>;
+        proxy_funcs[INSCAN][UINT64] = ishmemi_openshmem_inscan<uint64_t>;
+        proxy_funcs[INSCAN][ULONGLONG] = ishmemi_openshmem_inscan<unsigned long long>;
+        proxy_funcs[INSCAN][INT8] = ishmemi_openshmem_inscan<int8_t>;
+        proxy_funcs[INSCAN][INT16] = ishmemi_openshmem_inscan<int16_t>;
+        proxy_funcs[INSCAN][INT32] = ishmemi_openshmem_inscan<int32_t>;
+        proxy_funcs[INSCAN][INT64] = ishmemi_openshmem_inscan<int64_t>;
+        proxy_funcs[INSCAN][LONGLONG] = ishmemi_openshmem_inscan<long long>;
+        proxy_funcs[INSCAN][FLOAT] = ishmemi_openshmem_inscan<float>;
+        proxy_funcs[INSCAN][DOUBLE] = ishmemi_openshmem_inscan<double>;
+    }
+
+    if (ishmemi_openshmem_wrappers::exscan_exists) {
+        proxy_funcs[EXSCAN][UINT8] = ishmemi_openshmem_exscan<uint8_t>;
+        proxy_funcs[EXSCAN][UINT16] = ishmemi_openshmem_exscan<uint16_t>;
+        proxy_funcs[EXSCAN][UINT32] = ishmemi_openshmem_exscan<uint32_t>;
+        proxy_funcs[EXSCAN][UINT64] = ishmemi_openshmem_exscan<uint64_t>;
+        proxy_funcs[EXSCAN][ULONGLONG] = ishmemi_openshmem_exscan<unsigned long long>;
+        proxy_funcs[EXSCAN][INT8] = ishmemi_openshmem_exscan<int8_t>;
+        proxy_funcs[EXSCAN][INT16] = ishmemi_openshmem_exscan<int16_t>;
+        proxy_funcs[EXSCAN][INT32] = ishmemi_openshmem_exscan<int32_t>;
+        proxy_funcs[EXSCAN][INT64] = ishmemi_openshmem_exscan<int64_t>;
+        proxy_funcs[EXSCAN][LONGLONG] = ishmemi_openshmem_exscan<long long>;
+        proxy_funcs[EXSCAN][FLOAT] = ishmemi_openshmem_exscan<float>;
+        proxy_funcs[EXSCAN][DOUBLE] = ishmemi_openshmem_exscan<double>;
+    }
+
     /* Point-to-Point Synchronization */
     if (oshmpi) {
         proxy_funcs[TEST][INT32] = ishmemi_openshmem_test<int32_t, true>;
@@ -1650,8 +1702,8 @@ fn_exit:
 
 void ishmemi_runtime_openshmem::funcptr_fini()
 {
-    for (int i = 0; i < ISHMEMI_OP_END; ++i) {
-        for (int j = 0; j < ishmemi_runtime_type::proxy_func_num_types; ++j) {
+    for (size_t i = 0; i < ISHMEMI_OP_END; ++i) {
+        for (size_t j = 0; j < ishmemi_runtime_type::proxy_func_num_types; ++j) {
             proxy_funcs[i][j] = ishmemi_runtime_type::unsupported;
         }
         ISHMEMI_FREE(::free, proxy_funcs[i]);

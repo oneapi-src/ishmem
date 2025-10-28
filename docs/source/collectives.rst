@@ -1242,3 +1242,129 @@ All threads in **group** must call the routine with identical arguments.
    reduction may not be the same across all participating PEs, so the results
    for floating point datatypes may differ slightly. This is because floating
    addition and multiplication are not associative operations.
+
+
+.. _ishmem_inscan:
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEM_INSCAN, ISHMEM_EXSCAN
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performs inclusive or exclusive prefix sum operations.
+
+In the functions below, TYPE is one of the integer or real types supported for
+the SUM reduction operation and has a corresponding TYPENAME specified by Table
+:ref:`Reduction Types, Names, and Supporting Operations<reducetypes>`.
+
+.. cpp:function:: template<typename TYPE> int ishmem_sum_inscan(TYPE* dest, const TYPE* source, size_t nelems)
+
+.. cpp:function:: template<typename TYPE> int ishmem_sum_inscan(ishmem_team_t team, TYPE* dest, const TYPE* source, size_t nelems)
+
+.. cpp:function:: template<typename TYPE> int ishmem_sum_exscan(TYPE* dest, const TYPE* source, size_t nelems)
+
+.. cpp:function:: template<typename TYPE> int ishmem_sum_exscan(ishmem_team_t team, TYPE* dest, const TYPE* source, size_t nelems)
+
+.. cpp:function:: int ishmem_TYPENAME_sum_inscan(TYPE* dest, const TYPE* source, size_t nelems)
+
+.. cpp:function:: int ishmem_TYPENAME_sum_inscan(ishmem_team_t team, TYPE* dest, const TYPE* source, size_t nelems)
+
+.. cpp:function:: int ishmem_TYPENAME_sum_exscan(TYPE* dest, const TYPE* source, size_t nelems)
+
+.. cpp:function:: int ishmem_TYPENAME_sum_exscan(ishmem_team_t team, TYPE* dest, const TYPE* source, size_t nelems)
+
+  :param dest: Symmetric address of an array, of length **nelems** elements, to receive the result of the scan operation. The type of **dest** should match the TYPE and TYPENAME according to the supported integer or real types for the SUM operation described in table :ref:`Reduction Types<reducetypes>`.
+  :param source: Symmetric address of an array, of length **nelems** elements, that contains one element for each separate scan operation. The type of **source** should match the TYPE and TYPENAME according to the supported integer or real types for the SUM operation described in table :ref:`Reduction Types<reducetypes>`.
+  :param nelems: The number of elements in the **dest** and **source** arrays. **nelems** must be of type **size_t** and have the same value across all PEs.
+  :param team: A valid ``ishmem`` team handle to a team.
+  :returns: Zero on successful local completion. Nonzero otherwise.
+
+Callable from the **host** and **device**.
+
+**Description:**
+The ``ishmem_sum_inscan`` and ``ishmem_sum_exscan`` routines compute one or
+more collective scan (or prefix sum) operations across symmetric arrays on
+multiple PEs. The operations are performed with the **SUM** operator.
+
+
+The **nelems** argument specifies the number of separate scan operations to
+perform. The **source** array provides one element for each scan operation.
+The result of the scan operations are placed in **dest** on all participating
+PEs.
+
+The same **dest** and **source** arrays must be passed by all PEs that
+participate in the operation. Additionally, The **source** and **dest**
+arguments must either be the same symmetric address, or two different
+symmetric addresses corresponding to buffers that do not overlap in memory.
+That is, they must be completely overlapping or completely disjoint.
+
+If no **team** argument is passed to either ``ishmem_sum_inscan`` or
+``ishmem_sum_exscan``, then all PEs in the world team must participate in the
+collective.
+Inclusive and exclusive scan routines that accept a **team** argument operate
+over all PEs in the provided team.
+All PEs in the provided team must participate in the collective.
+If **team** compares equal to ``ISHMEM_TEAM_INVALID`` or is otherwise invalid,
+the behavior is undefined.
+
+Upon return from a collective routine, the following are true for the local
+PE:
+
+* The **dest** array is updated and the **source** array may be safely
+  reused.
+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ISHMEMX_SUM_INSCAN_ON_QUEUE, ISHMEMX_SUM_EXSCAN_ON_QUEUE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performs inclusive or exclusive prefix sum operations.
+
+In the functions below, TYPE is one of the integer or real types supported for
+the SUM reduction operation and has a corresponding TYPENAME specified by Table
+:ref:`Reduction Types, Names, and Supporting Operations<reducetypes>`.
+
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_sum_inscan_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_sum_inscan_on_queue(ishmem_team_t team, TYPE* dest, const TYPE* source, size_t nelems, int* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_sum_exscan_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: template<typename TYPE> sycl::event ishmemx_sum_exscan_on_queue(ishmem_team_t team, TYPE* dest, const TYPE* source, size_t nelems, int* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_sum_inscan_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_sum_inscan_on_queue(ishmem_team_t team, TYPE* dest, const TYPE* source, size_t nelems, int* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_sum_exscan_on_queue(TYPE* dest, const TYPE* source, size_t nelems, int* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+.. cpp:function:: sycl::event ishmemx_TYPENAME_sum_exscan_on_queue(ishmem_team_t team, TYPE* dest, const TYPE* source, size_t nelems, int* ret, sycl::queue& q, const std::vector<sycl::event>& deps)
+
+
+  :param dest: Symmetric address of an array, of length **nelems** elements, to receive the result of the scan operation. The type of **dest** should match the TYPE and TYPENAME according to the supported integer or real types for the SUM operation described in table :ref:`Reduction Types<reducetypes>`.
+  :param source: Symmetric address of an array, of length **nelems** elements, that contains one element for each separate scan operation. The type of **source** should match the TYPE and TYPENAME according to the supported integer or real types for the SUM operation described in table :ref:`Reduction Types<reducetypes>`.
+  :param nelems: The number of elements in the **dest** and **source** arrays. **nelems** must be of type **size_t** and have the same value across all PEs.
+  :param ret: A pointer whose contents will be set to zero on successful local completion; otherwise, nonzero. **ret** must be accessible from both the host and the device.
+  :param q: The SYCL queue on which to execute the operation. **q** must be mapped to the GPU tile assigned to the calling PE.
+  :param deps: An optional vector of SYCL events that the operation depends on.
+  :param team: A valid ``ishmem`` team handle to a team.
+  :returns: The SYCL event created upon submitting the operation to the SYCL runtime.
+
+Callable from the **host**.
+
+**Description:**
+The ``ishmemx_sum_inscan_on_queue`` and ``ishmemx_sum_exscan_on_queue``
+routines have similar semantics and requirements as the ``ishmem_sum_inscan``
+and ``ishmem_sum_exscan`` routines, respectively.
+If no **team** argument is passed, then all PEs in the world team must
+participate in the collective.
+Inclusive and exclusive scan routines that accept a **team** argument operate
+over all PEs in the provided team.
+All PEs in the provided team must participate in the collective.
+If **team** compares equal to ``ISHMEM_TEAM_INVALID`` or is otherwise invalid,
+the behavior is undefined.
+
+To ensure the contents of **dest** and **ret** are valid, refer to the
+:ref:`on_queue API Completion Semantics<on_queue_api_completion_semantics>`
+section.
+

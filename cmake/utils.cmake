@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # CMake utility functions
@@ -33,12 +33,14 @@ function(setup_compiler_options)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SYCL_FLAGS}")
 
     # Set compiler settings
-    set(COMPILER_WARN_FLAGS "-Werror -Wuninitialized -Wunused-variable")
+    set(COMPILER_WARN_FLAGS "-Wall -Wextra -Wconversion -Wno-unused-parameter -Wformat -Wformat-security")
 
     set(COMPILER_DEFAULT_FLAGS "-D_GNU_SOURCE -fvisibility=internal")
     set(COMPILER_DEBUG_FLAGS "-g -DENABLE_DEBUG -Rno-debug-disables-optimization")
     set(COMPILER_RELEASE_FLAGS "-O3")
     set(COMPILER_RELWITH_DEBINFO_FLAGS "-O2 -g")
+
+    set(LINKER_RELEASE_FLAGS "-Wl,-z,noexecstack -Wl,-z,nodlopen")
 
     if (ENABLE_AOT_COMPILATION)
         set(COMPILER_DEFAULT_FLAGS "${COMPILER_DEFAULT_FLAGS} -fsycl-targets=spir64_gen")
@@ -51,6 +53,8 @@ function(setup_compiler_options)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${COMPILER_DEBUG_FLAGS}" PARENT_SCOPE)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${COMPILER_RELEASE_FLAGS}" PARENT_SCOPE)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${COMPILER_RELWITHDEBINFO_FLAGS}" PARENT_SCOPE)
+
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} ${LINKER_RELEASE_FLAGS}" PARENT_SCOPE)
 endfunction(setup_compiler_options)
 
 function(setup_dependencies)
@@ -76,12 +80,16 @@ function(setup_dependencies)
 endfunction(setup_dependencies)
 
 function(setup_runtime_backends)
-    option(ENABLE_OPENSHMEM "Enable OpenSHMEM support" TRUE)
+    option(ENABLE_OPENSHMEM "Enable OpenSHMEM support" FALSE)
     option(ENABLE_MPI "Enable MPI support" FALSE)
 
     # At least one of the runtimes must be enabled
     if (NOT ENABLE_MPI AND NOT ENABLE_OPENSHMEM)
         message(FATAL_ERROR "At least one of 'ENABLE_OPENSHMEM' and 'ENABLE_MPI' must be enabled")
+    endif()
+
+    if (DEFINED ISHMEM_DEFAULT_RUNTIME)
+        string(TOUPPER "${ISHMEM_DEFAULT_RUNTIME}" ISHMEM_DEFAULT_RUNTIME_UPPER)
     endif()
 
     if (ENABLE_OPENSHMEM)
@@ -101,6 +109,15 @@ function(setup_runtime_backends)
         string(REPLACE "${SANDIA_OPENSHMEM_PREFIX}" "${SANDIA_OPENSHMEM_DIR}" SANDIA_OPENSHMEM_INCLUDE_DIRS "${SANDIA_OPENSHMEM_INCLUDE_DIRS}")
 
         set(OPENSHMEM_INCLUDE_DIRS "${SANDIA_OPENSHMEM_INCLUDE_DIRS}" PARENT_SCOPE)
+
+        if (NOT DEFINED ISHMEM_DEFAULT_RUNTIME_UPPER)
+            set(ISHMEM_DEFAULT_RUNTIME_UPPER "OPENSHMEM")
+        endif()
+        if ("${ISHMEM_DEFAULT_RUNTIME_UPPER}" STREQUAL "OPENSHMEM")
+            set(DEFAULT_CONFIRMED TRUE)
+            set(ISHMEM_DEFAULT_RUNTIME_STR "OPENSHMEM" PARENT_SCOPE)
+            set(ISHMEM_DEFAULT_RUNTIME_VAL ISHMEMX_RUNTIME_OPENSHMEM PARENT_SCOPE)
+        endif()
     endif()
 
     if (ENABLE_MPI)
@@ -119,5 +136,25 @@ function(setup_runtime_backends)
 
         set(MPI_CXX_SKIP_MPICXX TRUE)
         find_package(MPI COMPONENTS REQUIRED CXX)
+
+        if (NOT DEFINED ISHMEM_DEFAULT_RUNTIME_UPPER)
+            set(ISHMEM_DEFAULT_RUNTIME_UPPER "MPI")
+        endif()
+        if ("${ISHMEM_DEFAULT_RUNTIME_UPPER}" STREQUAL "MPI")
+            set(DEFAULT_CONFIRMED TRUE)
+            set(ISHMEM_DEFAULT_RUNTIME_STR "MPI" PARENT_SCOPE)
+            set(ISHMEM_DEFAULT_RUNTIME_VAL "ISHMEMX_RUNTIME_MPI" PARENT_SCOPE)
+        endif()
+    endif()
+
+    if (NOT DEFINED DEFAULT_CONFIRMED)
+        if (NOT ENABLE_OPENSHMEM AND "${ISHMEM_DEFAULT_RUNTIME}" STREQUAL "OPENSHMEM")
+            message(FATAL_ERROR "Attempted to set '${ISHMEM_DEFAULT_RUNTIME}' as default when ENABLE_OPENSHMEM is disabled.")
+        elseif (NOT ENABLE_MPI AND "${ISHMEM_DEFAULT_RUNTIME}" STREQUAL "MPI")
+            message(FATAL_ERROR "Attempted to set '${ISHMEM_DEFAULT_RUNTIME}' as default when ENABLE_MPI is disabled.")
+        else()
+            message(FATAL_ERROR " Attempted to set unknown runtime '${ISHMEM_DEFAULT_RUNTIME}' as default.\n"
+                                " Supported options: \"OPENSHMEM\", \"MPI\".\n")
+        endif()
     endif()
 endfunction(setup_runtime_backends)

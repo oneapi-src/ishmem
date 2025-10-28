@@ -10,11 +10,13 @@
 #else
 #include <CL/sycl.hpp>
 #endif
+#include <ishmem/config.h>
 
 #define ISHMEM_DEVICE_ATTRIBUTES SYCL_EXTERNAL
 
 #define ISHMEM_MAJOR_VERSION 1
-#define ISHMEM_MINOR_VERSION 4
+#define ISHMEM_MINOR_VERSION 5
+#define ISHMEM_PATCH_VERSION 0
 #define ISHMEM_MAX_NAME_LEN  256
 #define ISHMEM_VENDOR_STRING "Intel® SHMEM"
 
@@ -1233,6 +1235,108 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_prod_reduce(ishmem_team_t, uint32_t *
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_prod_reduce(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_prod_reduce(ishmem_team_t, size_t *, const size_t *, size_t);
 ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_prod_reduce(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
+
+/* scan (prefix sum) */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_sum_inscan(T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_sum_inscan(float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_sum_inscan(double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_sum_inscan(char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_sum_inscan(signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_sum_inscan(short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_sum_inscan(int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_sum_inscan(long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_sum_inscan(long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_sum_inscan(unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_sum_inscan(unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_sum_inscan(unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_sum_inscan(unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_sum_inscan(unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_sum_inscan(int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_sum_inscan(int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_sum_inscan(int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_sum_inscan(int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_sum_inscan(uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_sum_inscan(uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_sum_inscan(uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_sum_inscan(uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_sum_inscan(size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_sum_inscan(ptrdiff_t *, const ptrdiff_t *, size_t);
+
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_sum_exscan(T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_sum_exscan(float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_sum_exscan(double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_sum_exscan(char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_sum_exscan(signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_sum_exscan(short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_sum_exscan(int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_sum_exscan(long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_sum_exscan(long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_sum_exscan(unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_sum_exscan(unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_sum_exscan(unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_sum_exscan(unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_sum_exscan(unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_sum_exscan(int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_sum_exscan(int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_sum_exscan(int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_sum_exscan(int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_sum_exscan(uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_sum_exscan(uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_sum_exscan(uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_sum_exscan(uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_sum_exscan(size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_sum_exscan(ptrdiff_t *, const ptrdiff_t *, size_t);
+
+/* scan (prefix sum) on a team */
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_sum_inscan(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_sum_inscan(ishmem_team_t, float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_sum_inscan(ishmem_team_t, double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_sum_inscan(ishmem_team_t, char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_sum_inscan(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_sum_inscan(ishmem_team_t, short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_sum_inscan(ishmem_team_t, int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_sum_inscan(ishmem_team_t, long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_sum_inscan(ishmem_team_t, long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_sum_inscan(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_sum_inscan(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_sum_inscan(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_sum_inscan(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_sum_inscan(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_sum_inscan(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_sum_inscan(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_sum_inscan(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_sum_inscan(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_sum_inscan(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_sum_inscan(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_sum_inscan(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_sum_inscan(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_sum_inscan(ishmem_team_t, size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_sum_inscan(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
+
+template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_sum_exscan(ishmem_team_t, T *, const T *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_float_sum_exscan(ishmem_team_t, float *, const float *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_double_sum_exscan(ishmem_team_t, double *, const double *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_char_sum_exscan(ishmem_team_t, char *, const char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_schar_sum_exscan(ishmem_team_t, signed char *, const signed char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_short_sum_exscan(ishmem_team_t, short *, const short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int_sum_exscan(ishmem_team_t, int *, const int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_long_sum_exscan(ishmem_team_t, long *, const long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_longlong_sum_exscan(ishmem_team_t, long long *, const long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uchar_sum_exscan(ishmem_team_t, unsigned char *, const unsigned char *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ushort_sum_exscan(ishmem_team_t, unsigned short *, const unsigned short *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint_sum_exscan(ishmem_team_t, unsigned int *, const unsigned int *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulong_sum_exscan(ishmem_team_t, unsigned long *, const unsigned long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ulonglong_sum_exscan(ishmem_team_t, unsigned long long *, const unsigned long long *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int8_sum_exscan(ishmem_team_t, int8_t *, const int8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int16_sum_exscan(ishmem_team_t, int16_t *, const int16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int32_sum_exscan(ishmem_team_t, int32_t *, const int32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_int64_sum_exscan(ishmem_team_t, int64_t *, const int64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint8_sum_exscan(ishmem_team_t, uint8_t *, const uint8_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint16_sum_exscan(ishmem_team_t, uint16_t *, const uint16_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint32_sum_exscan(ishmem_team_t, uint32_t *, const uint32_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_uint64_sum_exscan(ishmem_team_t, uint64_t *, const uint64_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_size_sum_exscan(ishmem_team_t, size_t *, const size_t *, size_t);
+ISHMEM_DEVICE_ATTRIBUTES int ishmem_ptrdiff_sum_exscan(ishmem_team_t, ptrdiff_t *, const ptrdiff_t *, size_t);
 
 /* test */
 template <typename T> ISHMEM_DEVICE_ATTRIBUTES int ishmem_test(T *, int, T);

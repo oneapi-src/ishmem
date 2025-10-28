@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -65,6 +65,8 @@ namespace ishmemi_mpi_wrappers {
     int (*Allgatherv)(const void *, int, MPI_Datatype, void *, const int[], const int[],
                       MPI_Datatype, MPI_Comm);
     int (*Allreduce)(const void *, void *, int, MPI_Datatype, MPI_Op, MPI_Comm);
+    int (*Scan)(const void *, void *, int, MPI_Datatype, MPI_Op, MPI_Comm);
+    int (*Exscan)(const void *, void *, int, MPI_Datatype, MPI_Op, MPI_Comm);
     int (*Alltoall)(const void *, int, MPI_Datatype, void *, int, MPI_Datatype, MPI_Comm);
     int (*Barrier)(MPI_Comm);
     int (*Bcast)(void *, int, MPI_Datatype, int, MPI_Comm);
@@ -154,6 +156,8 @@ namespace ishmemi_mpi_wrappers {
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Allgather);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Allgatherv);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Allreduce);
+        ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Scan);
+        ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Exscan);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Alltoall);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Barrier);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Bcast);

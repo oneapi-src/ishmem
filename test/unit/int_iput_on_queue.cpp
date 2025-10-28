@@ -59,7 +59,7 @@ int main(int argc, char **argv)
         h.single_task([=]() {
             int source_pe = (my_pe > 0) ? (my_pe - 1) : (npes - 1);
             int source_idx = 0;
-            for (int i = 0; i < array_size; ++i) {
+            for (size_t i = 0; i < array_size; ++i) {
                 if (((i % dst) == 0) && (i < (dst * elems_to_copy))) {
                     if (target[i] != (source_pe << 16) + source_idx) {
                         *errors = *errors + 1;
@@ -82,16 +82,16 @@ int main(int argc, char **argv)
         q.memcpy(hosttarget, target, sizeof(int) * array_size).wait_and_throw();
         int source_pe = (my_pe > 0) ? (my_pe - 1) : (npes - 1);
         int source_idx = 0;
-        for (int i = 0; i < array_size; i += 1) {
+        for (size_t i = 0; i < array_size; i += 1) {
             if (((i % dst) == 0) && (i < (dst * elems_to_copy))) {
                 if (hosttarget[i] != (source_pe << 16) + source_idx) {
-                    fprintf(stdout, "[%d] index %d expected 0x%08x got 0x%08x\n", my_pe, i,
+                    fprintf(stdout, "[%d] index %ld expected 0x%08x got 0x%08x\n", my_pe, i,
                             (source_pe << 16) + source_idx, hosttarget[i]);
                 }
                 source_idx += sst;
             } else {
                 if (hosttarget[i] != ((my_pe << 16) + 0xface)) {
-                    fprintf(stdout, "[%d] index %d expected 0x%08x got 0x%08x\n", my_pe, i,
+                    fprintf(stdout, "[%d] index %ld expected 0x%08x got 0x%08x\n", my_pe, i,
                             ((my_pe << 16) + 0xface), hosttarget[i]);
                 }
             }

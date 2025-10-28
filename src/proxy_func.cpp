@@ -113,12 +113,12 @@ int ishmemi_proxy_func_init()
         sizeof(ishmemi_runtime_proxy_func_t *) * ISHMEMI_OP_END);
     ISHMEM_CHECK_GOTO_MSG(ishmemi_upcall_funcs == nullptr, fn_exit,
                           "Allocation of ishmemi_upcall_funcs failed\n");
-    for (int i = 0; i < ISHMEMI_OP_END; ++i) {
+    for (size_t i = 0; i < ISHMEMI_OP_END; ++i) {
         ishmemi_upcall_funcs[i] = (ishmemi_runtime_proxy_func_t *) ::malloc(
             sizeof(ishmemi_runtime_proxy_func_t) * ishmemi_runtime->proxy_func_num_types);
         ISHMEM_CHECK_GOTO_MSG(ishmemi_upcall_funcs[i] == nullptr, fn_exit,
                               "Allocation of ishmemi_upcall_funcs row failed\n");
-        for (int j = 0; j < ishmemi_runtime->proxy_func_num_types; ++j) {
+        for (size_t j = 0; j < ishmemi_runtime->proxy_func_num_types; ++j) {
             ishmemi_upcall_funcs[i][j] = ishmemi_runtime->proxy_funcs[i][j];
         }
     }
@@ -245,8 +245,8 @@ fn_exit:
 
 int ishmemi_proxy_func_fini()
 {
-    for (int i = 0; i < ISHMEMI_OP_END; ++i) {
-        for (int j = 0; j < ishmemi_runtime->proxy_func_num_types; ++j) {
+    for (size_t i = 0; i < ISHMEMI_OP_END; ++i) {
+        for (size_t j = 0; j < ishmemi_runtime->proxy_func_num_types; ++j) {
             ishmemi_upcall_funcs[i][j] = nullptr;
         }
         ::free(ishmemi_upcall_funcs[i]);

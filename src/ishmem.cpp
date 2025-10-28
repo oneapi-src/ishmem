@@ -229,7 +229,6 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
     int memory_initialized = 0;
     int ipc_initialized = 0;
     int teams_initialized = 0;
-    int collectives_initialized = 0;
     ishmemx_runtime_type_t env_runtime;
 
     ishmemi_init_op_str();
@@ -347,10 +346,6 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
     ISHMEM_CHECK_GOTO_MSG(ret, cleanup, "Teams initialization failed '%d'\n", ret);
     teams_initialized = 1;
 
-    ret = ishmemi_collectives_init();
-    ISHMEM_CHECK_GOTO_MSG(ret, cleanup, "Collectives initialization failed '%d'\n", ret);
-    collectives_initialized = 1;
-
     /* proxy_init will initialize ring data structures */
     ret = ishmemi_proxy_init();
     ISHMEM_CHECK_GOTO_MSG(ret, cleanup, "Proxy initialization failed '%d'\n", ret);
@@ -365,10 +360,6 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
     return;
 
 cleanup:
-    if (collectives_initialized) {
-        ishmemi_collectives_fini();
-    }
-
     if (teams_initialized) {
         ishmemi_team_fini();
     }
@@ -443,9 +434,6 @@ void ishmem_finalize()
 
     ret = ishmemi_team_fini();
     ISHMEM_CHECK_GOTO_MSG(ret, fail, "Teams finalize failed '%d'\n", ret);
-
-    ret = ishmemi_collectives_fini();
-    ISHMEM_CHECK_GOTO_MSG(ret, fail, "Collectives finalize failed '%d'\n", ret);
 
     if (ishmemi_cpu_info->use_ipc) {
         ret = ishmemi_ipc_fini();

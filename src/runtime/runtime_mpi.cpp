@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -63,6 +63,26 @@
 
 #define CALC_DISP(target, base) (intptr_t) target - (ptrdiff_t) base
 
+#define CONVERT_GPU_BUFFER(QUALIFIER, TYPE, var, size, constexpr_check)                            \
+    QUALIFIER TYPE *var##_host = var;                                                              \
+    bool var##_gpu = false;                                                                        \
+    ze_ipc_mem_handle_t var##_handle = {};                                                         \
+    if constexpr (constexpr_check) {                                                               \
+        if (ISHMEMI_HOST_IN_HEAP(var)) {                                                           \
+            var##_host = ISHMEMI_DEVICE_TO_MMAP_ADDR(TYPE, var);                                   \
+        } else if ((var##_gpu == is_gpu_buffer(var)) && var##_gpu) {                               \
+            var##_host = ishmemi_get_mmap_address(var, size, &var##_handle);                       \
+        }                                                                                          \
+    }
+
+#define CLEANUP_GPU_BUFFER(TYPE, var, size, constexpr_check)                                       \
+    if constexpr (constexpr_check) {                                                               \
+        if (var##_gpu) {                                                                           \
+            ret = ishmemi_close_mmap_address(var##_handle, (TYPE *) var##_host, size);             \
+            ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);                                                 \
+        }                                                                                          \
+    }
+
 /* Runtime generic implementations */
 namespace {
     template <typename T>
@@ -84,6 +104,23 @@ namespace {
             default:
                 return -1;
         }
+    }
+
+    template <typename T>
+    static inline bool is_gpu_buffer(const T *ptr)
+    {
+        int ret;
+        ze_memory_type_t type;
+
+        if (ptr == nullptr) return false;
+
+        ret = ishmemi_get_memory_type(ptr, &type);
+        ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to check memory type of pointer\n");
+
+        return (type == ZE_MEMORY_TYPE_DEVICE);
+
+    fn_exit:
+        return true;
     }
 
     inline int barrier_impl(MPI_Comm comm, MPI_Win win)
@@ -140,6 +177,100 @@ namespace {
 
     fn_exit:
         return ret;
+    }
+
+    template <typename T>
+    inline int test_multi_impl(T cmp_value, int cmp, MPI_Datatype dt, int rank, MPI_Aint start,
+                               size_t nelems, const int *status, size_t *indices, size_t &complete,
+                               MPI_Win win)
+    {
+        int ret = 0;
+        MPI_Op op = MPI_NO_OP;
+        MPI_Aint disp = start;
+        T *results = (T *) ::calloc(nelems, sizeof(T));
+        ISHMEM_CHECK_GOTO_MSG(results == nullptr, fn_fail, "Unable to allocate host memory\n");
+
+        for (size_t i = 0; i < nelems; ++i) {
+            if (status && status[i]) {
+                disp = disp + (MPI_Aint) sizeof(T);
+                continue;
+            }
+
+            MPI_CHECK_GOTO(fn_fail, ishmemi_mpi_wrappers::Fetch_and_op(nullptr, &results[i], dt,
+                                                                       rank, disp, op, win));
+
+            disp = disp + (MPI_Aint) sizeof(T);
+        }
+
+        MPI_CHECK_GOTO(fn_fail, ishmemi_mpi_wrappers::Win_flush_local(rank, win));
+
+        for (size_t i = 0; i < nelems; ++i) {
+            int tmp;
+            if (status && status[i]) {
+                continue;
+            }
+
+            tmp = compare(cmp, results[i], cmp_value);
+            ISHMEM_CHECK_GOTO_MSG(tmp == -1, fn_fail, "Unknown or unsupported comparison op\n");
+            if (tmp == 1) {
+                indices[complete] = i;
+                ++complete;
+            }
+        }
+
+    fn_exit:
+        ::free(results);
+        return ret;
+    fn_fail:
+        ret = -1;
+        goto fn_exit;
+    }
+
+    template <typename T>
+    inline int test_multi_impl(const T *cmp_values, int cmp, MPI_Datatype dt, int rank,
+                               MPI_Aint start, size_t nelems, const int *status, size_t *indices,
+                               size_t &complete, MPI_Win win)
+    {
+        int ret = 0;
+        MPI_Op op = MPI_NO_OP;
+        MPI_Aint disp = start;
+        T *results = (T *) ::calloc(nelems, sizeof(T));
+        ISHMEM_CHECK_GOTO_MSG(results == nullptr, fn_fail, "Unable to allocate host memory\n");
+
+        for (size_t i = 0; i < nelems; ++i) {
+            if (status && status[i]) {
+                disp = disp + (MPI_Aint) sizeof(T);
+                continue;
+            }
+
+            MPI_CHECK_GOTO(fn_fail, ishmemi_mpi_wrappers::Fetch_and_op(nullptr, &results[i], dt,
+                                                                       rank, disp, op, win));
+
+            disp = disp + (MPI_Aint) sizeof(T);
+        }
+
+        MPI_CHECK_GOTO(fn_fail, ishmemi_mpi_wrappers::Win_flush_local(rank, win));
+
+        for (size_t i = 0; i < nelems; ++i) {
+            int tmp;
+            if (status && status[i]) {
+                continue;
+            }
+
+            tmp = compare(cmp, results[i], cmp_values[i]);
+            ISHMEM_CHECK_GOTO_MSG(tmp == -1, fn_fail, "Unknown or unsupported comparison op\n");
+            if (tmp == 1) {
+                indices[complete] = i;
+                ++complete;
+            }
+        }
+
+    fn_exit:
+        ::free(results);
+        return ret;
+    fn_fail:
+        ret = -1;
+        goto fn_exit;
     }
 
     template <typename T>
@@ -344,7 +475,7 @@ namespace impl {
             bsize = 1;
         }
 
-        if (dst == bsize && sst == bsize) {
+        if (dst == (ptrdiff_t) bsize && sst == (ptrdiff_t) bsize) {
             put<T, OP>(msg, comp);
         } else {
             MPI_Datatype sdt = MPI_DATATYPE_NULL;
@@ -376,13 +507,13 @@ namespace impl {
             bsize = 1;
         }
 
-        if (dst == bsize && sst == bsize) {
+        if (dst == (ptrdiff_t) bsize && sst == (ptrdiff_t) bsize) {
             put<T, OP>(msg, comp);
         } else {
             T *src_offset = (T *) src;
             MPI_Aint disp_offset = disp;
 
-            for (int i = 0; i < nelems; ++i) {
+            for (size_t i = 0; i < nelems; ++i) {
                 MPI_CHECK_GOTO(
                     fn_exit, ishmemi_mpi_wrappers::Put(src_offset, (int) bsize, dt, pe, disp_offset,
                                                        (int) bsize, dt, win));
@@ -437,7 +568,7 @@ namespace impl {
             bsize = 1;
         }
 
-        if (dst == bsize && sst == bsize) {
+        if (dst == (ptrdiff_t) bsize && sst == (ptrdiff_t) bsize) {
             get<T, OP>(msg, comp);
         } else {
             MPI_Datatype sdt = MPI_DATATYPE_NULL;
@@ -469,13 +600,13 @@ namespace impl {
             bsize = 1;
         }
 
-        if (dst == bsize && sst == bsize) {
+        if (dst == (ptrdiff_t) bsize && sst == (ptrdiff_t) bsize) {
             get<T, OP>(msg, comp);
         } else {
             T *dest_offset = (T *) dest;
             MPI_Aint disp_offset = disp;
 
-            for (int i = 0; i < nelems; ++i) {
+            for (size_t i = 0; i < nelems; ++i) {
                 MPI_CHECK_GOTO(fn_exit,
                                ishmemi_mpi_wrappers::Get(dest_offset, (int) bsize, dt, pe,
                                                          disp_offset, (int) bsize, dt, win));
@@ -608,7 +739,7 @@ namespace impl {
         ISHMEMI_RUNTIME_MPI_REQUEST_HELPER(uint8_t, BCAST);
 
         if (rank == root) {
-            ishmem_copy(dest, src, nelems);
+            ishmemi_copy(dest, src, nelems);
         }
         MPI_CHECK(ishmemi_mpi_wrappers::Bcast(dest, (int) nelems, dt, root, comm));
         return ret;
@@ -625,7 +756,10 @@ namespace impl {
         int world_team_size = ishmemi_runtime_mpi::teams[ishmemi_runtime_mpi::world_team].size;
 
         recvcounts = (int *) ::malloc(sizeof(int) * (size_t) world_team_size);
+        ISHMEM_CHECK_GOTO_MSG(recvcounts == nullptr, fn_fail, "Unable to allocate host memory\n");
+
         displs = (int *) ::malloc(sizeof(int) * (size_t) world_team_size);
+        ISHMEM_CHECK_GOTO_MSG(displs == nullptr, fn_fail, "Unable to allocate host memory\n");
 
         /* Allgather nelems */
         MPI_CHECK_GOTO(fn_exit, ishmemi_mpi_wrappers::Allgather(&rcount, 1, MPI_INT, recvcounts, 1,
@@ -641,13 +775,16 @@ namespace impl {
         /* Perform the collect */
         MPI_CHECK_GOTO(fn_exit, ishmemi_mpi_wrappers::Allgatherv(src, (int) nelems, dt, dest,
                                                                  recvcounts, displs, dt, comm));
+    fn_exit:
         comp->completion.ret.i = ret;
 
-    fn_exit:
         ::free(displs);
         ::free(recvcounts);
 
         return ret;
+    fn_fail:
+        ret = -1;
+        goto fn_exit;
     }
 
     static int fcollect(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
@@ -670,6 +807,29 @@ namespace impl {
         MPI_Op op = get_reduction_op<OP>();
 
         MPI_CHECK(ishmemi_mpi_wrappers::Allreduce(src, dest, (int) nelems, dt, op, comm));
+        comp->completion.ret.i = ret;
+        return ret;
+    }
+
+    /* SCAN */
+    template <typename T>
+    int inscan(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
+    {
+        int ret = 0;
+        ISHMEMI_RUNTIME_MPI_REQUEST_HELPER(T, INSCAN);
+
+        MPI_CHECK(ishmemi_mpi_wrappers::Scan(src, dest, (int) nelems, dt, MPI_SUM, comm));
+        comp->completion.ret.i = ret;
+        return ret;
+    }
+
+    template <typename T>
+    int exscan(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
+    {
+        int ret = 0;
+        ISHMEMI_RUNTIME_MPI_REQUEST_HELPER(T, EXSCAN);
+
+        MPI_CHECK(ishmemi_mpi_wrappers::Exscan(src, dest, (int) nelems, dt, MPI_SUM, comm));
         comp->completion.ret.i = ret;
         return ret;
     }
@@ -698,14 +858,18 @@ namespace impl {
 
         if (nelems == 0) ret = 1;
 
-        for (int i = 0; i < nelems; ++i) {
-            if (status && status[i]) {
+        /* Get host buffers */
+        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
+        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+
+        for (size_t i = 0; i < nelems; ++i) {
+            if (status_host && status_host[i]) {
                 disp = disp + (MPI_Aint) sizeof(T);
                 continue;
             }
 
             if constexpr (VECTOR) {
-                ret = test_impl(cmp_values[i], cmp, dt, rank, disp, win);
+                ret = test_impl(cmp_values_host[i], cmp, dt, rank, disp, win);
             } else {
                 ret = test_impl(cmp_value, cmp, dt, rank, disp, win);
             }
@@ -714,6 +878,9 @@ namespace impl {
             if (ret == 0) break;
             disp = disp + (MPI_Aint) sizeof(T);
         }
+
+        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
+        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
 
         comp->completion.ret.i = ret;
         ret = 0;
@@ -729,25 +896,32 @@ namespace impl {
         int ret = 0;
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
 
-        for (int i = 0; i < nelems; ++i) {
-            if (status && status[i]) {
+        /* Get host buffers */
+        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
+        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+
+        for (size_t i = 0; i < nelems; ++i) {
+            if (status_host && status_host[i]) {
                 disp = disp + (MPI_Aint) sizeof(T);
                 continue;
             }
 
             if constexpr (VECTOR) {
-                ret = test_impl(cmp_values[i], cmp, dt, rank, disp, win);
+                ret = test_impl(cmp_values_host[i], cmp, dt, rank, disp, win);
             } else {
                 ret = test_impl(cmp_value, cmp, dt, rank, disp, win);
             }
 
             ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to execute test_any");
             if (ret == 1) {
-                complete = static_cast<size_t>(i);
+                complete = i;
                 break;
             }
             disp = disp + (MPI_Aint) sizeof(T);
         }
+
+        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
+        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
 
         comp->completion.ret.szt = complete;
         ret = 0;
@@ -763,25 +937,23 @@ namespace impl {
         int ret = 0;
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
 
-        for (int i = 0; i < nelems; ++i) {
-            if (status && status[i]) {
-                disp = disp + (MPI_Aint) sizeof(T);
-                continue;
-            }
+        /* Get host buffers */
+        CONVERT_GPU_BUFFER(, size_t, indices, sizeof(size_t) * nelems, true);
+        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
+        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
 
-            if constexpr (VECTOR) {
-                ret = test_impl(cmp_values[i], cmp, dt, rank, disp, win);
-            } else {
-                ret = test_impl(cmp_value, cmp, dt, rank, disp, win);
-            }
-
-            ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to execute test_some");
-            if (ret == 1) {
-                indices[complete] = static_cast<size_t>(i);
-                ++complete;
-            }
-            disp = disp + (MPI_Aint) sizeof(T);
+        if constexpr (VECTOR) {
+            ret = test_multi_impl(cmp_values_host, cmp, dt, rank, disp, nelems, status_host,
+                                  indices_host, complete, win);
+        } else {
+            ret = test_multi_impl(cmp_value, cmp, dt, rank, disp, nelems, status_host, indices_host,
+                                  complete, win);
         }
+        ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to run multiple test ops\n");
+
+        CLEANUP_GPU_BUFFER(size_t, indices, sizeof(size_t) * nelems, true);
+        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
+        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
 
         comp->completion.ret.szt = complete;
         ret = 0;
@@ -843,23 +1015,27 @@ namespace impl {
         int ret = 0;
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
 
-        int num_skip = 0;
-        if (status) {
-            for (int i = 0; i < nelems; ++i) {
-                num_skip += (status[i] == 0) ? 0 : 1;
+        /* Get host buffers */
+        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
+        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+
+        size_t num_skip = 0;
+        if (status_host) {
+            for (size_t i = 0; i < nelems; ++i) {
+                num_skip += (status_host[i] == 0) ? 0 : 1;
             }
         }
 
         if (num_skip < nelems) {
             /* Iteratively wait_until on each ivar */
-            for (int i = 0; i < nelems; ++i) {
-                if (status && status[i]) {
+            for (size_t i = 0; i < nelems; ++i) {
+                if (status_host && status_host[i]) {
                     disp = disp + (MPI_Aint) sizeof(T);
                     continue;
                 }
                 while (true) {
                     if constexpr (VECTOR) {
-                        ret = test_impl(cmp_values[i], cmp, dt, rank, disp, win);
+                        ret = test_impl(cmp_values_host[i], cmp, dt, rank, disp, win);
                     } else {
                         ret = test_impl(cmp_value, cmp, dt, rank, disp, win);
                     }
@@ -871,6 +1047,9 @@ namespace impl {
                 disp = disp + (MPI_Aint) sizeof(T);
             }
         }
+
+        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
+        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
 
         ret = 0;
 
@@ -886,31 +1065,35 @@ namespace impl {
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
         MPI_Aint tmp_disp = disp;
 
-        int num_skip = 0;
-        if (status) {
-            for (int i = 0; i < nelems; ++i) {
-                num_skip += (status[i] == 0) ? 0 : 1;
+        /* Get host buffers */
+        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
+        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+
+        size_t num_skip = 0;
+        if (status_host) {
+            for (size_t i = 0; i < nelems; ++i) {
+                num_skip += (status_host[i] == 0) ? 0 : 1;
             }
         }
 
         if (num_skip < nelems) {
             while (true) {
                 /* Iteratively test each ivar */
-                for (int i = 0; i < nelems; ++i) {
-                    if (status && status[i]) {
+                for (size_t i = 0; i < nelems; ++i) {
+                    if (status_host && status_host[i]) {
                         tmp_disp = tmp_disp + (MPI_Aint) sizeof(T);
                         continue;
                     }
 
                     if constexpr (VECTOR) {
-                        ret = test_impl(cmp_values[i], cmp, dt, rank, tmp_disp, win);
+                        ret = test_impl(cmp_values_host[i], cmp, dt, rank, tmp_disp, win);
                     } else {
                         ret = test_impl(cmp_value, cmp, dt, rank, tmp_disp, win);
                     }
 
                     ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to execute wait_until_any");
                     if (ret == 1) {
-                        complete = static_cast<size_t>(i);
+                        complete = i;
                         break;
                     }
                     tmp_disp = tmp_disp + (MPI_Aint) sizeof(T);
@@ -922,6 +1105,9 @@ namespace impl {
                 tmp_disp = disp;
             }
         }
+
+        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
+        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
 
         comp->completion.ret.szt = complete;
         ret = 0;
@@ -938,33 +1124,39 @@ namespace impl {
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
         MPI_Aint tmp_disp = disp;
 
-        int num_skip = 0;
-        if (status) {
-            for (int i = 0; i < nelems; ++i) {
-                num_skip += (status[i] == 0) ? 0 : 1;
+        /* Get host buffers */
+        CONVERT_GPU_BUFFER(, size_t, indices, sizeof(size_t) * nelems, true);
+        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
+        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+
+        size_t num_skip = 0;
+        if (status_host) {
+            for (size_t i = 0; i < nelems; ++i) {
+                num_skip += (status_host[i] == 0) ? 0 : 1;
             }
         }
 
         if (num_skip < nelems) {
             while (true) {
                 /* Iteratively test each ivar */
-                for (int i = 0; i < nelems; ++i) {
-                    if (status && status[i]) {
+                for (size_t i = 0; i < nelems; ++i) {
+                    if (status_host && status_host[i]) {
                         tmp_disp = tmp_disp + (MPI_Aint) sizeof(T);
                         continue;
                     }
 
                     if constexpr (VECTOR) {
-                        ret = test_impl(cmp_values[i], cmp, dt, rank, tmp_disp, win);
+                        ret = test_impl(cmp_values_host[i], cmp, dt, rank, tmp_disp, win);
                     } else {
                         ret = test_impl(cmp_value, cmp, dt, rank, tmp_disp, win);
                     }
 
                     ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to execute wait_until_some");
                     if (ret == 1) {
-                        indices[complete] = static_cast<size_t>(i);
+                        indices_host[complete] = i;
                         ++complete;
                     }
+
                     tmp_disp = tmp_disp + (MPI_Aint) sizeof(T);
                     force_progress(comm);
                 }
@@ -974,6 +1166,10 @@ namespace impl {
                 tmp_disp = disp;
             }
         }
+
+        CLEANUP_GPU_BUFFER(size_t, indices, sizeof(size_t) * nelems, true);
+        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
+        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
 
         comp->completion.ret.szt = complete;
         ret = 0;
@@ -1506,10 +1702,10 @@ void ishmemi_runtime_mpi::funcptr_init(void)
     /* Initialize every function with the "unsupported op" function */
     /* Note: KILL operation is covered inside the proxy directly - it is the same for all backends
      * currently */
-    for (int i = 0; i < ISHMEMI_OP_END; ++i) {
+    for (size_t i = 0; i < ISHMEMI_OP_END; ++i) {
         proxy_funcs[i] = (ishmemi_runtime_proxy_func_t *) ::malloc(
             sizeof(ishmemi_runtime_proxy_func_t) * ishmemi_runtime_type::proxy_func_num_types);
-        for (int j = 0; j < ishmemi_runtime_type::proxy_func_num_types; ++j) {
+        for (size_t j = 0; j < ishmemi_runtime_type::proxy_func_num_types; ++j) {
             proxy_funcs[i][j] = ishmemi_runtime_type::unsupported;
         }
     }
@@ -1851,6 +2047,33 @@ void ishmemi_runtime_mpi::funcptr_init(void)
     proxy_funcs[SUM_REDUCE][DOUBLE] = impl::reduce<double, SUM_REDUCE>;
     proxy_funcs[PROD_REDUCE][DOUBLE] = impl::reduce<double, PROD_REDUCE>;
 
+    /* Scan */
+    proxy_funcs[INSCAN][UINT8] = impl::inscan<uint8_t>;
+    proxy_funcs[INSCAN][UINT16] = impl::inscan<uint16_t>;
+    proxy_funcs[INSCAN][UINT32] = impl::inscan<uint32_t>;
+    proxy_funcs[INSCAN][UINT64] = impl::inscan<uint64_t>;
+    proxy_funcs[INSCAN][ULONGLONG] = impl::inscan<unsigned long long>;
+    proxy_funcs[INSCAN][INT8] = impl::inscan<int8_t>;
+    proxy_funcs[INSCAN][INT16] = impl::inscan<int16_t>;
+    proxy_funcs[INSCAN][INT32] = impl::inscan<int32_t>;
+    proxy_funcs[INSCAN][INT64] = impl::inscan<int64_t>;
+    proxy_funcs[INSCAN][LONGLONG] = impl::inscan<long long>;
+    proxy_funcs[INSCAN][FLOAT] = impl::inscan<float>;
+    proxy_funcs[INSCAN][DOUBLE] = impl::inscan<double>;
+
+    proxy_funcs[EXSCAN][UINT8] = impl::exscan<uint8_t>;
+    proxy_funcs[EXSCAN][UINT16] = impl::exscan<uint16_t>;
+    proxy_funcs[EXSCAN][UINT32] = impl::exscan<uint32_t>;
+    proxy_funcs[EXSCAN][UINT64] = impl::exscan<uint64_t>;
+    proxy_funcs[EXSCAN][ULONGLONG] = impl::exscan<unsigned long long>;
+    proxy_funcs[EXSCAN][INT8] = impl::exscan<int8_t>;
+    proxy_funcs[EXSCAN][INT16] = impl::exscan<int16_t>;
+    proxy_funcs[EXSCAN][INT32] = impl::exscan<int32_t>;
+    proxy_funcs[EXSCAN][INT64] = impl::exscan<int64_t>;
+    proxy_funcs[EXSCAN][LONGLONG] = impl::exscan<long long>;
+    proxy_funcs[EXSCAN][FLOAT] = impl::exscan<float>;
+    proxy_funcs[EXSCAN][DOUBLE] = impl::exscan<double>;
+
     /* Point-to-point Synchronization */
     proxy_funcs[TEST][INT32] = impl::test<int32_t, TEST>;
     proxy_funcs[TEST_ALL][INT32] = impl::test_all<int32_t, TEST_ALL, false>;
@@ -1959,8 +2182,8 @@ fn_exit:
 
 void ishmemi_runtime_mpi::funcptr_fini(void)
 {
-    for (int i = 0; i < ISHMEMI_OP_END; ++i) {
-        for (int j = 0; j < ishmemi_runtime_type::proxy_func_num_types; ++j) {
+    for (size_t i = 0; i < ISHMEMI_OP_END; ++i) {
+        for (size_t j = 0; j < ishmemi_runtime_type::proxy_func_num_types; ++j) {
             proxy_funcs[i][j] = ishmemi_runtime_type::unsupported;
         }
         ISHMEMI_FREE(::free, proxy_funcs[i]);

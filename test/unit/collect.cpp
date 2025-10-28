@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -87,11 +87,11 @@ size_t collect_tester::create_check_pattern(ishmemi_type_t t, ishmemi_op_t op, t
 {
     size_t test_size_per_pe = 0;
     size_t total_nelems = 0;
-    for (size_t from_pe = 0; from_pe < n_pes; from_pe += 1) {
-        test_size_per_pe = (size_t) collect_nelems_dest[from_pe] * typesize(t);
+    for (int from_pe = 0; from_pe < n_pes; from_pe += 1) {
+        test_size_per_pe = collect_nelems_dest[from_pe] * typesize(t);
         for (size_t idx = 0; idx < ((test_size_per_pe / sizeof(long)) + 1); idx += 1) {
-            host_source[idx] = (long) ((collect_nelems_dest[from_pe] << 48) +
-                                       ((0x80L + from_pe) << 40) + (0xffL << 32) + idx);
+            host_source[idx] = (long) ((long) (collect_nelems_dest[from_pe] << 48) +
+                                       ((0x80L + from_pe) << 40) + (0xffL << 32) + (long) idx);
         }
         memcpy((void *) (((uintptr_t) host_check) + (total_nelems * typesize(t))), host_source,
                test_size_per_pe);
@@ -118,7 +118,7 @@ size_t collect_tester::run_offset_tests(ishmemi_op_t op)
         for (int typeindex = 0; typeindex < num_test_types; typeindex += 1) {
             ishmemi_type_t t = test_types[typeindex];
             if (my_pe == 0) {
-                for (size_t i = 0; i < n_pes; ++i) {
+                for (int i = 0; i < n_pes; ++i) {
                     collect_nelems_source[i] = (size_t) rand() % max_nelems + 1;
                 }
             }

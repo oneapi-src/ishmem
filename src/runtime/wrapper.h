@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -8,6 +8,18 @@
 #include <vector>
 
 #define ISHMEMI_LINK_STRINGIFY(INPUT) #INPUT
+
+#define ISHMEMI_TRY_LINK_SYMBOL(lib_handle, prefix, suffix, exists)                                \
+    do {                                                                                           \
+        void **var_ptr = (void **) &suffix;                                                        \
+        void *tmp = (void *) dlsym(lib_handle, ISHMEMI_LINK_STRINGIFY(prefix##_##suffix));         \
+        if (tmp == nullptr) {                                                                      \
+            exists = false;                                                                        \
+        } else {                                                                                   \
+            *var_ptr = tmp;                                                                        \
+            wrapper_list.push_back(var_ptr);                                                       \
+        }                                                                                          \
+    } while (0);
 
 #define ISHMEMI_LINK_SYMBOL(lib_handle, prefix, suffix)                                            \
     do {                                                                                           \

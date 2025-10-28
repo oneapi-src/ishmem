@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -48,36 +48,27 @@ int ishmemi_ipc_put_immediate_cl(TYPENAME *dst, const TYPENAME *src, size_t nele
 {
     int ret = 0;
     size_t bytes = nelems * size_of<TYPENAME>();
-    ze_command_queue_desc_t cmd_queue_desc = {.stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
-                                              .pNext = nullptr,
-                                              .ordinal = 2,
-                                              .index = 0,
-                                              .flags = 0,
-                                              .mode = ZE_COMMAND_QUEUE_MODE_SYNCHRONOUS,
-                                              .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL};
 
     ze_command_list_handle_t cmd_list = {};
+    ishmemi_queue_type_t queue_type = UNDEFINED_QUEUE;
 
     if ((pe == ishmemi_my_pe) || (pe == (ishmemi_my_pe ^ 1))) {
-        // use main copy engine
-        cmd_queue_desc.ordinal = 1;
-        cmd_queue_desc.index = 0;
+        queue_type = COPY_QUEUE;
     } else {
-        // rotate through link copy engines
-        cmd_queue_desc.ordinal = 2;
-        cmd_queue_desc.index = ishmemi_link_engine[ishmemi_next_link_engine_index()];
+        queue_type = LINK_QUEUE;
     }
-    void *ipc_dst = get_ipc_buffer(pe, (void *) dst);
-    if (ipc_dst == nullptr) return (1); /* dest is not ipc-able */
 
-    ZE_CHECK(zeCommandListCreateImmediate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_queue_desc,
-                                          &cmd_list));
+    void *ipc_dst = get_ipc_buffer(pe, (void *) dst);
+    ISHMEMI_CHECK_RESULT((ipc_dst == nullptr), 0, fn_exit);
+
+    ret = ishmemi_create_command_list(queue_type, true, &cmd_list);
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
+
     ZE_CHECK(zeCommandListAppendMemoryCopy(cmd_list, ipc_dst, src, bytes, nullptr, 0, nullptr));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
+
     ZE_CHECK(zeCommandListDestroy(cmd_list));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
-    return (ret);
 
 fn_exit:
     return ret;
@@ -88,16 +79,11 @@ int ishmemi_ipc_put_regular_cl(TYPENAME *dst, const TYPENAME *src, size_t nelems
 {
     int ret = 0;
     size_t bytes = nelems * size_of<TYPENAME>();
-    ze_command_queue_handle_t cmd_queue;
-    ze_command_list_desc_t cmd_list_desc = {
-        .stype = ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,
-        .pNext = nullptr,
-        .commandQueueGroupOrdinal = 2,
-        .flags = ZE_COMMAND_QUEUE_FLAG_EXPLICIT_ONLY,
-    };
 
-    ze_command_list_handle_t cmd_list;
+    ze_command_list_handle_t cmd_list = {};
+    ishmemi_queue_type_t queue_type = UNDEFINED_QUEUE;
 
+    ze_event_handle_t event;
     ze_event_desc_t event_desc = {
         .stype = ZE_STRUCTURE_TYPE_EVENT_DESC,
         .pNext = nullptr,
@@ -105,26 +91,17 @@ int ishmemi_ipc_put_regular_cl(TYPENAME *dst, const TYPENAME *src, size_t nelems
         .signal = 0,
         .wait = 0,
     };
-    ze_event_handle_t event;
 
     void *ipc_dst = get_ipc_buffer(pe, (void *) dst);
-    if (ipc_dst == nullptr) return (1); /* dest is not ipc-able */
+    ISHMEMI_CHECK_RESULT((ipc_dst == nullptr), 0, fn_exit);
 
     if ((pe == ishmemi_my_pe) || (pe == (ishmemi_my_pe ^ 1))) {
-        // use main copy engine
-        cmd_queue = ishmemi_ze_cmd_queue;
-        cmd_list_desc.commandQueueGroupOrdinal = 1; /* main copy engine ordinal */
-        cmd_list_desc.flags = 0;
-        /* create command list for the main command queue */
+        queue_type = COPY_QUEUE;
     } else {
-        // rotate through link copy engines
-        unsigned int idx = ishmemi_next_link_engine_index();
-        cmd_queue = ishmemi_ze_link_cmd_queue[idx];
-        cmd_list_desc.commandQueueGroupOrdinal = 2; /* link engines ordinal */
-        cmd_list_desc.flags = ZE_COMMAND_QUEUE_FLAG_EXPLICIT_ONLY;
+        queue_type = LINK_QUEUE;
     }
-    ZE_CHECK(
-        zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
+
+    ret = ishmemi_create_command_list(queue_type, false, &cmd_list);
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
     ZE_CHECK(zeEventCreate(ishmemi_ze_event_pool, &event_desc, &event));
@@ -136,7 +113,7 @@ int ishmemi_ipc_put_regular_cl(TYPENAME *dst, const TYPENAME *src, size_t nelems
     ZE_CHECK(zeCommandListClose(cmd_list));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
-    ZE_CHECK(zeCommandQueueExecuteCommandLists(cmd_queue, 1, &cmd_list, nullptr));
+    ret = ishmemi_execute_command_lists(queue_type, 1, &cmd_list);
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
     ZE_CHECK(zeEventHostSynchronize(event, UINT64_MAX));
@@ -144,8 +121,6 @@ int ishmemi_ipc_put_regular_cl(TYPENAME *dst, const TYPENAME *src, size_t nelems
 
     ZE_CHECK(zeCommandListDestroy(cmd_list));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
-
-    return (ret);
 
 fn_exit:
     return ret;
@@ -165,44 +140,22 @@ template <typename TYPENAME>
 int ishmemi_ipc_put_nbi(TYPENAME *dst, const TYPENAME *src, size_t nelems, int pe)
 {
     int ret = 0;
-    size_t outstanding = 0;
     size_t bytes = nelems * size_of<TYPENAME>();
-    void *ipc_dst = get_ipc_buffer(pe, (void *) dst);
-    if (ipc_dst == nullptr) return (1); /* dest is not ipc-able */
-    /* Check if src is a GPU buffer */
-    ze_command_queue_handle_t cmd_queue;
+
     ze_command_list_handle_t cmd_list = {};
-    ze_command_list_desc_t cmd_list_desc = {
-        .stype = ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,
-        .pNext = nullptr,
-        .commandQueueGroupOrdinal = 2,
-        .flags = 0,
-    };
+    ishmemi_queue_type_t queue_type = UNDEFINED_QUEUE;
+
+    void *ipc_dst = get_ipc_buffer(pe, (void *) dst);
+    ISHMEMI_CHECK_RESULT((ipc_dst == nullptr), 0, fn_exit);
 
     if ((pe == ishmemi_my_pe) || (pe == (ishmemi_my_pe ^ 1))) {
-        // use main copy engine
-        cmd_queue = ishmemi_ze_cmd_queue;
-        cmd_list_desc.commandQueueGroupOrdinal = 1; /* main copy engine ordinal */
-        /* create command list for the main command queue */
-        ZE_CHECK(
-            zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
-        ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
-        /* save the command list for later destruction on synchronize */
-        outstanding = ishmemi_ze_cmd_lists.push_back_thread_safe(cmd_list);
+        queue_type = COPY_QUEUE;
     } else {
-        // rotate through link copy engines
-        unsigned int idx = ishmemi_next_link_engine_index();
-        cmd_queue = ishmemi_ze_link_cmd_queue[idx];
-        cmd_list_desc.commandQueueGroupOrdinal = 2; /* link engines ordinal */
-        /* create command list for the chosen link command queue */
-        ZE_CHECK(
-            zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
-        ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
-        /* save the command list for later destruction on synchronize */
-        outstanding = ishmemi_ze_link_cmd_lists[idx].push_back_thread_safe(cmd_list);
+        queue_type = LINK_QUEUE;
     }
 
-    /* We can assume that dst is a GPU buffer since it has to be on the symmetric heap */
+    ret = ishmemi_create_command_list_nbi(queue_type, &cmd_list);
+    ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
     ZE_CHECK(zeCommandListAppendMemoryCopy(cmd_list, ipc_dst, src, bytes, nullptr, 0, nullptr));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
@@ -210,10 +163,10 @@ int ishmemi_ipc_put_nbi(TYPENAME *dst, const TYPENAME *src, size_t nelems, int p
     ZE_CHECK(zeCommandListClose(cmd_list));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
-    ZE_CHECK(zeCommandQueueExecuteCommandLists(cmd_queue, 1, &cmd_list, nullptr));
+    ret = ishmemi_execute_command_lists(queue_type, 1, &cmd_list);
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
-    if (outstanding >= ishmemi_params.NBI_COUNT) ishmemi_level_zero_sync();
+    /* TODO: Should we sync here or check periodically in proxy thread? */
 
 fn_exit:
     return ret;
@@ -224,35 +177,27 @@ int ishmemi_ipc_get_immediate_cl(TYPENAME *dst, const TYPENAME *src, size_t nele
 {
     int ret = 0;
     size_t bytes = nelems * size_of<TYPENAME>();
-    ze_command_queue_desc_t cmd_queue_desc = {.stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
-                                              .pNext = nullptr,
-                                              .ordinal = 1,
-                                              .index = 0,
-                                              .flags = ZE_COMMAND_QUEUE_FLAG_EXPLICIT_ONLY,
-                                              .mode = ZE_COMMAND_QUEUE_MODE_SYNCHRONOUS,
-                                              .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL};
+
     ze_command_list_handle_t cmd_list = {};
+    ishmemi_queue_type_t queue_type = UNDEFINED_QUEUE;
 
     if ((pe == ishmemi_my_pe) || (pe == (ishmemi_my_pe ^ 1))) {
-        // use main copy engine
-        cmd_queue_desc.ordinal = 1;
-        cmd_queue_desc.index = 0;
+        queue_type = COPY_QUEUE;
     } else {
-        // rotate through link copy engines<
-        cmd_queue_desc.ordinal = 2;
-        cmd_queue_desc.index = ishmemi_link_engine[ishmemi_next_link_engine_index()];
+        queue_type = LINK_QUEUE;
     }
-    void *ipc_src = get_ipc_buffer(pe, (void *) src);
-    if (ipc_src == nullptr) return (1); /* src is not ipc-able */
 
-    ZE_CHECK(zeCommandListCreateImmediate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_queue_desc,
-                                          &cmd_list));
+    void *ipc_src = get_ipc_buffer(pe, (void *) src);
+    ISHMEMI_CHECK_RESULT((ipc_src == nullptr), 0, fn_exit);
+
+    ret = ishmemi_create_command_list(queue_type, true, &cmd_list);
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
+
     ZE_CHECK(zeCommandListAppendMemoryCopy(cmd_list, dst, ipc_src, bytes, nullptr, 0, nullptr));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
+
     ZE_CHECK(zeCommandListDestroy(cmd_list));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
-    return (ret);
 
 fn_exit:
     return ret;
@@ -263,16 +208,11 @@ int ishmemi_ipc_get_regular_cl(TYPENAME *dst, const TYPENAME *src, size_t nelems
 {
     int ret = 0;
     size_t bytes = nelems * size_of<TYPENAME>();
-    ze_command_queue_handle_t cmd_queue;
-    ze_command_list_desc_t cmd_list_desc = {
-        .stype = ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,
-        .pNext = nullptr,
-        .commandQueueGroupOrdinal = 2,
-        .flags = ZE_COMMAND_QUEUE_FLAG_EXPLICIT_ONLY,
-    };
 
-    ze_command_list_handle_t cmd_list;
+    ze_command_list_handle_t cmd_list = {};
+    ishmemi_queue_type_t queue_type = UNDEFINED_QUEUE;
 
+    ze_event_handle_t event;
     ze_event_desc_t event_desc = {
         .stype = ZE_STRUCTURE_TYPE_EVENT_DESC,
         .pNext = nullptr,
@@ -280,26 +220,17 @@ int ishmemi_ipc_get_regular_cl(TYPENAME *dst, const TYPENAME *src, size_t nelems
         .signal = 0,
         .wait = 0,
     };
-    ze_event_handle_t event;
 
     void *ipc_src = get_ipc_buffer(pe, (void *) src);
-    if (ipc_src == nullptr) return (1); /* src is not ipc-able */
+    ISHMEMI_CHECK_RESULT((ipc_src == nullptr), 0, fn_exit);
 
     if ((pe == ishmemi_my_pe) || (pe == (ishmemi_my_pe ^ 1))) {
-        // use main copy engine
-        cmd_queue = ishmemi_ze_cmd_queue;
-        cmd_list_desc.commandQueueGroupOrdinal = 1; /* main copy engine ordinal */
-        cmd_list_desc.flags = 0;
-        /* create command list for the main command queue */
+        queue_type = COPY_QUEUE;
     } else {
-        // rotate through link copy engines
-        unsigned int idx = ishmemi_next_link_engine_index();
-        cmd_queue = ishmemi_ze_link_cmd_queue[idx];
-        cmd_list_desc.commandQueueGroupOrdinal = 2; /* link engines ordinal */
-        cmd_list_desc.flags = ZE_COMMAND_QUEUE_FLAG_EXPLICIT_ONLY;
+        queue_type = LINK_QUEUE;
     }
-    ZE_CHECK(
-        zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
+
+    ret = ishmemi_create_command_list(queue_type, false, &cmd_list);
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
     ZE_CHECK(zeEventCreate(ishmemi_ze_event_pool, &event_desc, &event));
@@ -311,7 +242,7 @@ int ishmemi_ipc_get_regular_cl(TYPENAME *dst, const TYPENAME *src, size_t nelems
     ZE_CHECK(zeCommandListClose(cmd_list));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
-    ZE_CHECK(zeCommandQueueExecuteCommandLists(cmd_queue, 1, &cmd_list, nullptr));
+    ret = ishmemi_execute_command_lists(queue_type, 1, &cmd_list);
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
     ZE_CHECK(zeEventHostSynchronize(event, UINT64_MAX));
@@ -319,8 +250,6 @@ int ishmemi_ipc_get_regular_cl(TYPENAME *dst, const TYPENAME *src, size_t nelems
 
     ZE_CHECK(zeCommandListDestroy(cmd_list));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
-
-    return (ret);
 
 fn_exit:
     return ret;
@@ -340,44 +269,22 @@ template <typename TYPENAME>
 int ishmemi_ipc_get_nbi(TYPENAME *dst, const TYPENAME *src, size_t nelems, int pe)
 {
     int ret = 0;
-    size_t outstanding = 0;
     size_t bytes = nelems * size_of<TYPENAME>();
-    void *ipc_src = get_ipc_buffer(pe, (void *) src);
-    if (ipc_src == nullptr) return (1); /* src is not ipc-able */
-    /* Check if src is a GPU buffer */
-    ze_command_queue_handle_t cmd_queue;
+
     ze_command_list_handle_t cmd_list = {};
-    ze_command_list_desc_t cmd_list_desc = {
-        .stype = ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,
-        .pNext = nullptr,
-        .commandQueueGroupOrdinal = 2,
-        .flags = 0,
-    };
+    ishmemi_queue_type_t queue_type = UNDEFINED_QUEUE;
+
+    void *ipc_src = get_ipc_buffer(pe, (void *) src);
+    ISHMEMI_CHECK_RESULT((ipc_src == nullptr), 0, fn_exit);
 
     if ((pe == ishmemi_my_pe) || (pe == (ishmemi_my_pe ^ 1))) {
-        // use main copy engine
-        cmd_queue = ishmemi_ze_cmd_queue;
-        cmd_list_desc.commandQueueGroupOrdinal = 1; /* main copy engine ordinal */
-        /* create command list for the main command queue */
-        ZE_CHECK(
-            zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
-        ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
-        /* save the command list for later destruction on synchronize */
-        outstanding = ishmemi_ze_cmd_lists.push_back_thread_safe(cmd_list);
+        queue_type = COPY_QUEUE;
     } else {
-        // rotate through link copy engines
-        unsigned int idx = ishmemi_next_link_engine_index();
-        cmd_queue = ishmemi_ze_link_cmd_queue[idx];
-        cmd_list_desc.commandQueueGroupOrdinal = 2; /* link engines ordinal */
-        /* create command list for the chosen link command queue */
-        ZE_CHECK(
-            zeCommandListCreate(ishmemi_ze_context, ishmemi_gpu_device, &cmd_list_desc, &cmd_list));
-        ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
-        /* save the command list for later destruction on synchronize */
-        outstanding = ishmemi_ze_link_cmd_lists[idx].push_back_thread_safe(cmd_list);
+        queue_type = LINK_QUEUE;
     }
 
-    /* We can assume that dst is a GPU buffer since it has to be on the symmetric heap */
+    ret = ishmemi_create_command_list_nbi(queue_type, &cmd_list);
+    ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
     ZE_CHECK(zeCommandListAppendMemoryCopy(cmd_list, dst, ipc_src, bytes, nullptr, 0, nullptr));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
@@ -385,11 +292,10 @@ int ishmemi_ipc_get_nbi(TYPENAME *dst, const TYPENAME *src, size_t nelems, int p
     ZE_CHECK(zeCommandListClose(cmd_list));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
-    ZE_CHECK(zeCommandQueueExecuteCommandLists(cmd_queue, 1, &cmd_list, nullptr));
+    ret = ishmemi_execute_command_lists(queue_type, 1, &cmd_list);
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
-    if (outstanding >= ishmemi_params.NBI_COUNT) ishmemi_level_zero_sync();
-    goto fn_exit;
+    /* TODO: Should we sync here or check periodically in proxy thread? */
 
 fn_exit:
     return ret;

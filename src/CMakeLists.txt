@@ -56,7 +56,6 @@ set(ISHMEM_SRC
     proxy.cpp
     proxy_func.cpp
     runtime.cpp
-    collectives.cpp
     nbi.cpp
     signaling.cpp
     synchronization.cpp
@@ -66,6 +65,7 @@ set(ISHMEM_SRC
     collectives/broadcast.cpp
     collectives/collect.cpp
     collectives/reduce.cpp
+    collectives/scan.cpp
     collectives/sync.cpp
     err.cpp
     timestamp.cpp
