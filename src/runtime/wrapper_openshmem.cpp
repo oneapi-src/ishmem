@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -339,6 +339,35 @@ namespace ishmemi_openshmem_wrappers {
     reduce_type<double> double_min_reduce;
     reduce_type<double> double_sum_reduce;
     reduce_type<double> double_prod_reduce;
+
+    /* Scan */
+    bool inscan_exists;
+    scan_type<uint8_t> uint8_sum_inscan;
+    scan_type<uint16_t> uint16_sum_inscan;
+    scan_type<uint32_t> uint32_sum_inscan;
+    scan_type<uint64_t> uint64_sum_inscan;
+    scan_type<unsigned long long> ulonglong_sum_inscan;
+    scan_type<int8_t> int8_sum_inscan;
+    scan_type<int16_t> int16_sum_inscan;
+    scan_type<int32_t> int32_sum_inscan;
+    scan_type<int64_t> int64_sum_inscan;
+    scan_type<long long> longlong_sum_inscan;
+    scan_type<float> float_sum_inscan;
+    scan_type<double> double_sum_inscan;
+
+    bool exscan_exists;
+    scan_type<uint8_t> uint8_sum_exscan;
+    scan_type<uint16_t> uint16_sum_exscan;
+    scan_type<uint32_t> uint32_sum_exscan;
+    scan_type<uint64_t> uint64_sum_exscan;
+    scan_type<unsigned long long> ulonglong_sum_exscan;
+    scan_type<int8_t> int8_sum_exscan;
+    scan_type<int16_t> int16_sum_exscan;
+    scan_type<int32_t> int32_sum_exscan;
+    scan_type<int64_t> int64_sum_exscan;
+    scan_type<long long> longlong_sum_exscan;
+    scan_type<float> float_sum_exscan;
+    scan_type<double> double_sum_exscan;
 
     /* Point-to-Point Synchronization */
     test_type<int32_t> int32_test;
@@ -795,6 +824,35 @@ namespace ishmemi_openshmem_wrappers {
         ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, double_min_reduce);
         ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, double_sum_reduce);
         ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, double_prod_reduce);
+
+        /* Scan */
+        inscan_exists = true;
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, uint8_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, uint16_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, uint32_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, uint64_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, ulonglong_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, int8_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, int16_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, int32_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, int64_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, longlong_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, float_sum_inscan, inscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, double_sum_inscan, inscan_exists);
+
+        exscan_exists = true;
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, uint8_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, uint16_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, uint32_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, uint64_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, ulonglong_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, int8_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, int16_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, int32_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, int64_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, longlong_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, float_sum_exscan, exscan_exists);
+        ISHMEMI_TRY_LINK_SYMBOL(shmem_handle, shmemx, double_sum_exscan, exscan_exists);
 
         /* Point-to-Point Synchronization */
         ISHMEMI_LINK_SYMBOL(shmem_handle, shmem, int32_test);

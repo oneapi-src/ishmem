@@ -5,12 +5,12 @@
 #define BW_TEST_HEADER
 
 #define BW_TEST_FUNCTION                                                                           \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmem_team_sync(ISHMEM_TEAM_WORLD);                                                       \
     }
 
 #define BW_TEST_FUNCTION_WORK_GROUP                                                                \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmemx_team_sync_work_group(ISHMEM_TEAM_WORLD, grp);                                      \
     }
 #include "ishmem_tester.h"

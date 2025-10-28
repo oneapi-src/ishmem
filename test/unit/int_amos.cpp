@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -17,8 +17,8 @@ int main(int argc, char **argv)
 
     ishmem_init();
 
-    int my_pe = ishmem_my_pe();
-    int npes = ishmem_n_pes();
+    uint32_t my_pe = static_cast<uint32_t>(ishmem_my_pe());
+    uint32_t npes = static_cast<uint32_t>(ishmem_n_pes());
 
     sycl::queue q;
 
@@ -38,8 +38,8 @@ int main(int argc, char **argv)
     auto e_init = q.submit([&](sycl::handler &h) {
         h.parallel_for(sycl::nd_range<1>{data_size, data_size}, [=](sycl::nd_item<1> idx) {
             uint32_t i = static_cast<uint32_t>(idx.get_global_id()[0]);
-            source[i] = (static_cast<uint32_t>(my_pe) << 16) + i;
-            target[i] = (static_cast<uint32_t>(my_pe) << 16) + 0xface;
+            source[i] = (my_pe << 16) + i;
+            target[i] = (my_pe << 16) + 0xface;
         });
     });
     e_init.wait_and_throw();
@@ -103,8 +103,8 @@ int main(int argc, char **argv)
      * correctness (0 for correct, 1 for error) for 14 operations */
     auto e_verify = q.submit([&](sycl::handler &h) {
         h.single_task([=]() {
-            int target_pe = ((my_pe + 1) % npes) << 16;
-            int source_pe = ((my_pe - 1 + npes) % npes) << 16;
+            uint32_t target_pe = static_cast<uint32_t>(((my_pe + 1) % npes) << 16);
+            uint32_t source_pe = static_cast<uint32_t>(((my_pe - 1 + npes) % npes) << 16);
             /* Fetch verify */
             if (target[0] != ((target_pe) + 0)) {
                 *errors = *errors + (1 << 0);
@@ -180,8 +180,8 @@ int main(int argc, char **argv)
         q.memcpy(hosttarget, target, sizeof(uint32_t) * data_size).wait_and_throw();
         q.memcpy(hostsource, source, sizeof(uint32_t) * data_size).wait_and_throw();
         int err_val = *errors;
-        int exp1 = ((my_pe + 1) % npes) << 16;
-        int exp2 = ((my_pe - 1 + npes) % npes) << 16;
+        uint32_t exp1 = ((my_pe + 1) % npes) << 16;
+        uint32_t exp2 = ((my_pe - 1 + npes) % npes) << 16;
 
         if (check_error_bit(err_val, 0))
             fprintf(stdout, "[PE %d] Fetch failed: target[0] = 0x%08x, Expected = 0x%08x\n", my_pe,

@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Portions derived from Sandia OpenSHMEM (https://github.com/Sandia-OpenSHMEM/SOS)
@@ -73,7 +73,7 @@ int ishmemi_team_local_pes(int start, int stride, int size)
 static int team_init(ishmem_team_t team, int my_pe, int start, int stride, int size)
 {
     /* team_host is in the device symmetric heap, so we need to copy to it, rather than store */
-    if (team < 0 || team >= ISHMEMI_N_TEAMS) return -1;
+    if (team < 0 || team >= (long) ISHMEMI_N_TEAMS) return -1;
     ishmemi_team_host_t *team_host = &ishmemi_cpu_info->team_host_pool[team];
     /* team_host is in the device symmetric heap, so we need to copy to it, rather than store */
 
@@ -251,14 +251,14 @@ int ishmemi_team_init(void)
 
 cleanup:
     ISHMEMI_FREE(ishmemi_runtime->free, ishmemi_cpu_info->team_host_pool);
-    ISHMEMI_FREE(ishmem_free, ishmemi_mmap_gpu_info->team_device_pool);
+    ISHMEMI_FREE(ishmemi_free, ishmemi_mmap_gpu_info->team_device_pool);
 
     return -1;
 }
 
 void ishmemi_team_destroy(ishmem_team_t team)
 {
-    if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return;
+    if (team <= ISHMEM_TEAM_INVALID || team >= (long) ISHMEMI_N_TEAMS) return;
 
     if (team == ISHMEM_TEAM_WORLD || team == ISHMEM_TEAM_SHARED || team == ISHMEMX_TEAM_NODE) {
         ISHMEM_WARN_MSG("User attempted to destroy a pre-defined team.\n");
@@ -284,7 +284,7 @@ int ishmemi_team_fini(void)
     }
 
     /* Free the device team resources */
-    ISHMEMI_FREE(ishmem_free, ishmemi_mmap_gpu_info->team_device_pool);
+    ISHMEMI_FREE(ishmemi_free, ishmemi_mmap_gpu_info->team_device_pool);
     /* Free the host team resources */
     ISHMEMI_FREE(ishmemi_runtime->free, ishmemi_cpu_info->team_host_pool);
 
@@ -366,7 +366,7 @@ int ishmemi_team_split_strided(ishmem_team_t parent_team_idx, int PE_start, int 
                               N_PSYNC_BYTES);
         ISHMEM_DEBUG_MSG("All pSyncs [ %s ], allocated %d\n", bit_str, *new_team);
 
-        if (*new_team == ISHMEM_TEAM_INVALID || *new_team >= ishmemi_params.TEAMS_MAX) {
+        if (*new_team == ISHMEM_TEAM_INVALID || *new_team >= (long) ishmemi_params.TEAMS_MAX) {
             ISHMEM_WARN_MSG("No more teams available (max = %ld), try increasing SHMEM_TEAMS_MAX\n",
                             ishmemi_params.TEAMS_MAX);
             /* No psync was available, but must call barrier across parent team before returning. */
@@ -521,7 +521,7 @@ int ishmemi_team_split_2d(ishmem_team_t parent_team_idx, int xrange,
 int ishmem_team_my_pe(ishmem_team_t team)
 {
     if constexpr (enable_error_checking) validate_init();
-    if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return -1;
+    if (team <= ISHMEM_TEAM_INVALID || team >= (long) ISHMEMI_N_TEAMS) return -1;
     else
 #ifdef __SYCL_DEVICE_ONLY__
         return global_info->team_device_pool[team].my_pe;
@@ -533,7 +533,7 @@ int ishmem_team_my_pe(ishmem_team_t team)
 int ishmem_team_n_pes(ishmem_team_t team)
 {
     if constexpr (enable_error_checking) validate_init();
-    if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return -1;
+    if (team <= ISHMEM_TEAM_INVALID || team >= (long) ISHMEMI_N_TEAMS) return -1;
     else
 #ifdef __SYCL_DEVICE_ONLY__
         return global_info->team_device_pool[team].size;
@@ -545,7 +545,7 @@ int ishmem_team_n_pes(ishmem_team_t team)
 int ishmem_team_get_config(ishmem_team_t team, long config_mask, ishmem_team_config_t *config)
 {
     if constexpr (enable_error_checking) validate_init();
-    if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return -1;
+    if (team <= ISHMEM_TEAM_INVALID || team >= (long) ISHMEMI_N_TEAMS) return -1;
 
 #ifdef __SYCL_DEVICE_ONLY__
     ishmemi_team_device_t *team_ptr = &global_info->team_device_pool[team];
@@ -573,7 +573,7 @@ int ishmem_team_translate_pe(ishmem_team_t src_team, int src_pe, ishmem_team_t d
 {
     if constexpr (enable_error_checking) validate_init();
     if (src_team <= ISHMEM_TEAM_INVALID || dest_team <= ISHMEM_TEAM_INVALID ||
-        src_team >= ISHMEMI_N_TEAMS || dest_team >= ISHMEMI_N_TEAMS)
+        src_team >= (long) ISHMEMI_N_TEAMS || dest_team >= (long) ISHMEMI_N_TEAMS)
         return -1;
 
 #if __SYCL_DEVICE_ONLY__
@@ -617,7 +617,7 @@ int ishmem_team_split_strided(ishmem_team_t parent_team, int PE_start, int PE_st
                               ishmem_team_t *new_team)
 {
     if constexpr (enable_error_checking) validate_init();
-    if (parent_team <= ISHMEM_TEAM_INVALID || parent_team >= ISHMEMI_N_TEAMS ||
+    if (parent_team <= ISHMEM_TEAM_INVALID || parent_team >= (long) ISHMEMI_N_TEAMS ||
         (PE_stride == 0 && PE_size != 1))
         return -1;
 
@@ -631,7 +631,7 @@ int ishmem_team_split_2d(ishmem_team_t parent_team, int xrange,
                          long yaxis_mask, ishmem_team_t *yaxis_team)
 {
     if constexpr (enable_error_checking) validate_init();
-    if (parent_team <= ISHMEM_TEAM_INVALID || parent_team >= ISHMEMI_N_TEAMS) return -1;
+    if (parent_team <= ISHMEM_TEAM_INVALID || parent_team >= (long) ISHMEMI_N_TEAMS) return -1;
 
     return ishmemi_team_split_2d(parent_team, xrange, xaxis_config, xaxis_mask, xaxis_team,
                                  yaxis_config, yaxis_mask, yaxis_team);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -61,10 +61,10 @@ constexpr int N = 5;
         int *errors = sycl::malloc_host<int>(1, q);                                                \
         ishmem_barrier_all();                                                                      \
         auto e_run = q.parallel_for(sycl::nd_range<1>{N, N}, [=](sycl::nd_item<1> idx) {           \
-            size_t i = idx.get_global_id(0);                                                       \
-            for (size_t j = 0; j < npes; j++)                                                      \
-                fetched_val[j + i * (size_t) npes] = ishmem_##TYPENAME##_atomic_fetch_or(          \
-                    &remote[i], (TYPE) (1LLU << mype), static_cast<int>(j));                       \
+            int i = static_cast<int>(idx.get_global_id(0));                                        \
+            for (int j = 0; j < npes; j++)                                                         \
+                fetched_val[j + i * npes] =                                                        \
+                    ishmem_##TYPENAME##_atomic_fetch_or(&remote[i], (TYPE) (1LLU << mype), j);     \
         });                                                                                        \
         e_run.wait_and_throw();                                                                    \
         ishmem_barrier_all();                                                                      \

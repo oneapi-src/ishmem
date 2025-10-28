@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -70,6 +70,8 @@ typedef enum : uint16_t {
     MIN_REDUCE,
     SUM_REDUCE,
     PROD_REDUCE,
+    INSCAN,
+    EXSCAN,
     WAIT,
     WAIT_ALL,
     WAIT_ALL_VECTOR,
@@ -150,6 +152,8 @@ constexpr ishmemi_op_t ISHMEMI_OP_max_reduce = MAX_REDUCE;
 constexpr ishmemi_op_t ISHMEMI_OP_min_reduce = MIN_REDUCE;
 constexpr ishmemi_op_t ISHMEMI_OP_sum_reduce = SUM_REDUCE;
 constexpr ishmemi_op_t ISHMEMI_OP_prod_reduce = PROD_REDUCE;
+constexpr ishmemi_op_t ISHMEMI_OP_in_scan = INSCAN;
+constexpr ishmemi_op_t ISHMEMI_OP_ex_scan = EXSCAN;
 constexpr ishmemi_op_t ISHMEMI_OP_wait_until = WAIT;
 constexpr ishmemi_op_t ISHMEMI_OP_wait_until_all = WAIT_ALL;
 constexpr ishmemi_op_t ISHMEMI_OP_wait_until_all_vector = WAIT_ALL_VECTOR;

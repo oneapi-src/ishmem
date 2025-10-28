@@ -1,10 +1,11 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "ishmem/err.h"
 #include "proxy_impl.h"
 #include "collectives.h"
+#include "sync_impl.h"
 #include "runtime.h"
 #include "on_queue.h"
 
@@ -18,7 +19,7 @@ void ishmem_barrier_all()
     if (info->only_intra_node) req.op = QUIET;
     ishmemi_proxy_blocking_request(req);
     if (info->only_intra_node) {
-        ishmem_team_sync(ISHMEM_TEAM_WORLD);
+        ishmemi_team_sync(ISHMEM_TEAM_WORLD);
     }
 #else
     ishmemi_drain_ring();
@@ -34,7 +35,7 @@ sycl::event ishmemx_barrier_all_on_queue(sycl::queue &q, const std::vector<sycl:
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.host_task([=]() { ishmem_barrier_all(); });
+        cgh.single_task([=]() { ishmem_barrier_all(); });
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;

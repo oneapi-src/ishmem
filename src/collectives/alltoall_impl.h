@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -6,6 +6,7 @@
 #define COLLECTIVES_ALLTOALL_IMPL_H
 
 #include "collectives.h"
+#include "sync_impl.h"
 #include "runtime.h"
 #include "on_queue.h"
 
@@ -43,8 +44,9 @@ int ishmem_alltoall(ishmem_team_t team, T *dest, const T *src, size_t nelems)
             /* compute our address of our section of dest in each PE */
             int idx = 0;
             for (int pe = team_ptr->start; idx < team_ptr->size; pe += team_ptr->stride, idx++) {
+                uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
                 dptr[idx] = ISHMEMI_ADJUST_PTR(
-                    T, (pe + 1), &dest[nelems * static_cast<size_t>(team_ptr->my_pe)]);
+                    T, local_index, &dest[nelems * static_cast<size_t>(team_ptr->my_pe)]);
                 sptr[idx] = &src[nelems * static_cast<size_t>(idx)];
             }
             /* The idea for the inner loop being over local team PEs is that the outstanding stores
@@ -56,7 +58,7 @@ int ishmem_alltoall(ishmem_team_t team, T *dest, const T *src, size_t nelems)
                     dptr[pe][offset] = sptr[pe][offset];
                 }
             }
-            ishmem_team_sync(team); /* assure destination buffers complete */
+            ishmemi_team_sync(team); /* assure destination buffers complete */
             return ret;
         }
     }
@@ -86,7 +88,7 @@ int ishmem_alltoall(ishmem_team_t team, T *dest, const T *src, size_t nelems)
         int ret = ishmemi_ipc_put_v(team_ptr->size, items);
         ISHMEM_CHECK_GOTO_MSG(ret, fn_fail, "ishmemi_ipc_put_v within team alltoall failed\n");
     fn_fail:
-        ishmem_team_sync(team); /* assure destination buffers complete */
+        ishmemi_team_sync(team); /* assure destination buffers complete */
         return ret;
     }
     ishmemi_ringcompletion_t comp;
@@ -120,7 +122,7 @@ sycl::event ishmemx_alltoall_on_queue(ishmem_team_t team, T *dest, const T *src,
                     if (ret) *ret = tmp_ret;
                 });
         } else {
-            cgh.host_task([=]() {
+            cgh.single_task([=]() {
                 int tmp_ret = ishmem_alltoall(team, dest, src, nelems);
                 if (ret) *ret = tmp_ret;
             });
@@ -170,8 +172,9 @@ int ishmemx_alltoall_work_group(ishmem_team_t team, T *dest, const T *src, size_
             T *dptr[MAX_LOCAL_PES];       /* destination pointer for each pe*/
             int idx = 0;
             for (int pe = team_ptr->start; idx < team_ptr->size; pe += team_ptr->stride, idx++) {
+                uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
                 dptr[idx] = ISHMEMI_ADJUST_PTR(
-                    T, (pe + 1), &dest[nelems * static_cast<size_t>(team_ptr->my_pe)]);
+                    T, local_index, &dest[nelems * static_cast<size_t>(team_ptr->my_pe)]);
                 sptr[idx] = &src[nelems * static_cast<size_t>(idx)];
             }
             for (size_t offset = work_item_start_idx;

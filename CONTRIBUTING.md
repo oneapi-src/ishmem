@@ -34,13 +34,11 @@ Contributed code must be:
 
 ### Coding style
 
-The code style and consistency is maintained using `clang-format`. When submitting a contribution, please make sure that it adheres to the existing coding style by using the following command:
+The code style and consistency is maintained using `clang-format`. When submitting a contribution, please ensure it adheres to the existing coding style by using the following command from the top-level directory of the repository:
 
 ```
 clang-format -style=file -i <FILE>
 ```
-
-This will format the code using the `.clang-format` file found in the top-level directory of this repository.
 
 ### Unit tests
 
@@ -90,7 +88,9 @@ By making a contribution to this project, I certify that:
 
 Then add a line to every git commit message:
 
-    Signed-off-by: Kris Smith <kris.smith@email.com>
+```
+Signed-off-by: Kris Smith <kris.smith@email.com>
+```
 
 **Note**: Use your real name.
 

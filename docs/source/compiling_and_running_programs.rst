@@ -4,29 +4,32 @@
 Compiling and Running Programs
 ==============================
 
-Let's consider the simple example program from Section :ref:`Writing Intel® 
-SHMEM Programs<writing_programs>` and assume the code is in a file called 
+Consider the simple example program from Section :ref:`Writing Intel® SHMEM
+Programs<writing_programs>` and assume the code is in a file called
 ``ishmem_example.cpp``.
 
-To compile the program, we must pass the necessary flags to the Intel®
-oneAPI DPC++/C++ Compiler.
-For example::
+To compile the program, the necessary flags must be passed to the Intel®
+oneAPI DPC++/C++ Compiler. For example::
 
-$ icpx -I${ISHMEM_INSTALL_DIR}/include -L${ISHMEM_INSTALL_DIR}/lib -fsycl -std=gnu++1z ishmem_example.cpp -o ishmem_example -lsma -lpmi -lze_loader -ldl
+$ icpx -I${ISHMEM_INSTALL_DIR}/include -fsycl -std=gnu++1z ishmem_example.cpp ${ISHMEM_INSTALL_DIR}/lib/libishmem.a -o ishmem_example -lpthread -lze_loader
 
-where ``ISHMEM_INSTALL_DIR`` is the path to the Intel® SHMEM
-installation directory.
+where ``ISHMEM_INSTALL_DIR`` is the path to the Intel® SHMEM installation
+directory.
 
-While building Intel® SHMEM with the ``ENABLE_OPENSHMEM`` CMake option enabled, it
-may be convenient to use the ``oshc++`` compiler wrapper (instead of ``icpx``
-directly) to easily include the necessary compilation flags that enable the host
-OpenSHMEM back-end.
+Alternatively, when building with CMake, the ``find_package`` command may be
+used to define all necessary compiler flags. For example::
 
-Intel® SHMEM provides a launcher script, ``ishmrun`` that
-assigns the environment variable **ZE_AFFINITY_MASK** so that each PE is
-assigned a single SYCL device.
-To invoke the ``ishmrun`` script, pass it as the first argument to your
-process launcher.
+    find_package(ISHMEM REQUIRED)
+    add_executable(ishmem_example ishmem_example.cpp)
+    target_link_libraries(ishmem_example PRIVATE ISHMEM::ISHMEM)
+
+If Intel® SHMEM is not sourced via the installed environment script, it may
+be necessary to prepend the installation path to ``CMAKE_PREFIX_PATH``.
+
+Intel® SHMEM provides a launcher script, ``ishmrun``, that sets CPU and GPU
+affinity so that each PE is assigned a single SYCL device and a corresponding
+set of CPU cores with close affinity. To invoke the ``ishmrun`` script, pass it
+as the first argument to your process launcher.
 The following example assumes the ``ISHMEM_INSTALL_DIR/bin`` directory is
 on your user path and use of the Portable Batch System launcher::
 
@@ -39,6 +42,7 @@ following environment variables may be required for execution, depending on the
 Intel® SHMEM build configuration::
 
     ISHMEM_RUNTIME
+    ISHMEM_MPI_LIB_NAME
     ISHMEM_SHMEM_LIB_NAME
     ISHMEM_RUNTIME_USE_OSHMPI
 
@@ -49,7 +53,7 @@ Selecting SPIR-V Compilation Targets
 ------------------------------------
 
 On some systems, you may encounter an error in which the correct SPIR-V targets
-are not successfully selected when linking with Intel® SHMEM.  This may result in
+are not successfully selected when linking with Intel® SHMEM. This may result in
 problems when using device-initiated communication including compilation
 warnings: ::
 
@@ -65,8 +69,14 @@ as well as runtime errors: ::
     Module <0x29941d0>:  Unresolved Symbol <_Z13ishmem_putmemPvPKvmi>
     Module <0x29941d0>:  Unresolved Symbol <_Z13ishmem_putmemPvPKvmi> -11 (PI_ERROR_BUILD_PROGRAM_FAILURE)
 
-This error can be resolved by indicating the desired target at compile time. To
-compile with the appropriate target for a Intel® Data Center GPU Max 1550 (PVC)
-GPU, add the following flags when linking: ::
+These errors can be resolved by ensuring the desired target(s) match those
+compiled into the Intel® SHMEM library. The target(s) are specified at
+Intel® SHMEM's configure time using ``-DISHMEM_AOT_DEVICE_TYPES``. The default
+value is ``xe-hpc,xe2`` to target Intel® Data Center Max and Intel® Arc™
+B-Series GPUs, respectively. Below is an example set of flags to add to the
+linking process for adding these target devices::
 
-    -fsycl-targets=spir64_gen --start-no-unused-arguments -Xs "-device pvc" --end-no-unused-arguments --start-no-unused-arguments -Xsycl-target-backend "-q" --end-no-unused-arguments
+    -fsycl-targets=spir64_gen --start-no-unused-arguments -Xs "-device xe-hpc,xe2" --end-no-unused-arguments --start-no-unused-arguments -Xsycl-target-backend "-q" --end-no-unused-arguments
+
+When building with CMake, the ``ISHMEM::ISHMEM`` interface automatically adds
+the corresponding target devices to the compilation command.

@@ -189,9 +189,9 @@ int ishmemi_proxy_init()
         ISHMEM_DEBUG_MSG("can't get proxy thread affinity\n");
     } else {
         off = snprintf(str, sizeof(str), "proxy thread affinity: ");
-        for (int i = 0; i < sizeof(cpu_set_t) * 8; i += 1) {
+        for (size_t i = 0; i < sizeof(cpu_set_t) * 8; i += 1) {
             if (CPU_ISSET(i, &cpuset))
-                off += snprintf(str + off, sizeof(str) - static_cast<size_t>(off), "%d, ", i);
+                off += snprintf(str + off, sizeof(str) - static_cast<size_t>(off), "%ld, ", i);
         }
         ISHMEM_DEBUG_MSG("%s\n", str);
     }

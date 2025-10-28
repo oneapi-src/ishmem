@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -50,19 +50,19 @@ constexpr int N = 5;
         ishmem_barrier_all();                                                                      \
         auto e_init = q.submit([&](sycl::handler &h) {                                             \
             h.parallel_for(sycl::nd_range<1>{N, N}, [=](sycl::nd_item<1> idx) {                    \
-                size_t i = idx.get_global_id()[0];                                                 \
+                int i = static_cast<int>(idx.get_global_id()[0]);                                  \
                 remote[i] = (TYPE) 0;                                                              \
-                for (size_t j = 0; j < npes; j++)                                                  \
-                    val[j + i * (size_t) npes] = (TYPE) 999;                                       \
+                for (int j = 0; j < npes; j++)                                                     \
+                    val[j + i * npes] = (TYPE) 999;                                                \
             });                                                                                    \
         });                                                                                        \
         e_init.wait_and_throw();                                                                   \
         ishmem_barrier_all();                                                                      \
         auto e_run = q.parallel_for(sycl::nd_range<1>{N, N}, [=](sycl::nd_item<1> idx) {           \
-            size_t i = idx.get_global_id(0);                                                       \
-            for (size_t j = 0; j < npes; j++)                                                      \
-                val[j + i * (size_t) npes] = ishmem_##TYPENAME##_atomic_fetch_add(                 \
-                    &remote[i], (TYPE) (1), static_cast<int>(j));                                  \
+            int i = static_cast<int>(idx.get_global_id(0));                                        \
+            for (int j = 0; j < npes; j++)                                                         \
+                val[j + i * npes] =                                                                \
+                    ishmem_##TYPENAME##_atomic_fetch_add(&remote[i], (TYPE) (1), j);               \
         });                                                                                        \
         e_run.wait_and_throw();                                                                    \
         ishmem_barrier_all();                                                                      \

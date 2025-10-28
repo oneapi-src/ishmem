@@ -4,11 +4,11 @@
 
 #define BW_TEST_HEADER
 #define BW_TEST_FUNCTION                                                                           \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmem_long_collect(ISHMEM_TEAM_WORLD, (long *) dest, (long *) src, nelems);               \
     }
 #define BW_TEST_FUNCTION_WORK_GROUP                                                                \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmemx_long_collect_work_group(ISHMEM_TEAM_WORLD, (long *) dest, (long *) src, nelems,    \
                                         grp);                                                      \
     }

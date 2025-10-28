@@ -5,17 +5,17 @@
 #define BW_TEST_HEADER
 
 #define BW_TEST_FUNCTION                                                                           \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmem_long_broadcast(ISHMEM_TEAM_WORLD, (long *) dest, (long *) src, nelems, 0);          \
     }
 
 #define BW_TEST_FUNCTION_ON_QUEUE                                                                  \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmemx_long_broadcast_on_queue((long *) dest, (long *) src, nelems, 0, test_return, q);   \
     }
 
 #define BW_TEST_FUNCTION_WORK_GROUP                                                                \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmemx_long_broadcast_work_group(ISHMEM_TEAM_WORLD, (long *) dest, (long *) src, nelems,  \
                                           0, grp);                                                 \
     }

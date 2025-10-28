@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -60,8 +60,8 @@ size_t alltoall_tester::create_source_pattern(ishmemi_type_t t, ishmemi_op_t op,
     size_t from_pe = (size_t) my_pe;
     for (size_t to_pe = 0; to_pe < (size_t) n_pes; to_pe += 1) {
         for (size_t idx = 0; idx < ((test_size_per_pe / sizeof(long)) + 1); idx += 1) {
-            host_source[idx] =
-                (long) ((nelems << 48) + ((0x80L + from_pe) << 40) + ((0x80L + to_pe) << 32) + idx);
+            host_source[idx] = (long) (((long) nelems << 48) + ((long) (0x80L + from_pe) << 40) +
+                                       ((long) (0x80L + to_pe) << 32) + (long) idx);
         }
         memcpy((void *) (((uintptr_t) aligned_source) + (to_pe * test_size_per_pe)), host_source,
                test_size_per_pe);
@@ -78,10 +78,10 @@ size_t alltoall_tester::create_check_pattern(ishmemi_type_t t, ishmemi_op_t op, 
     /* this is not offset, because the copy from test_dest to host_result does the alignment */
     size_t test_size_per_pe = nelems * typesize(t);
     size_t to_pe = (size_t) my_pe;
-    for (size_t from_pe = 0; from_pe < n_pes; from_pe += 1) {
+    for (size_t from_pe = 0; from_pe < (size_t) n_pes; from_pe += 1) {
         for (size_t idx = 0; idx < ((test_size_per_pe / sizeof(long)) + 1); idx += 1) {
-            host_source[idx] =
-                (long) ((nelems << 48) + ((0x80L + from_pe) << 40) + ((0x80L + to_pe) << 32) + idx);
+            host_source[idx] = (long) (((long) nelems << 48) + ((long) (0x80L + from_pe) << 40) +
+                                       ((long) (0x80L + to_pe) << 32) + (long) idx);
         }
         memcpy((void *) (((uintptr_t) host_check) + (from_pe * test_size_per_pe)), host_source,
                test_size_per_pe);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -8,6 +8,7 @@
 #include "ishmem/err.h"
 #include "ishmem/copy.h"
 #include "collectives.h"
+#include "sync_impl.h"
 #include <type_traits>
 #include "memory.h"
 #include "runtime.h"
@@ -142,8 +143,8 @@ template <typename T, ishmemi_op_t OP, typename Group>
 inline void vector_reduce_work_group(T *d, const T *s, size_t count, const Group &grp)
 {
     size_t stride = grp.get_local_linear_range();
-    long linear_id = static_cast<long>(grp.get_local_linear_id());
-    long idx = linear_id;
+    size_t linear_id = grp.get_local_linear_id();
+    size_t idx = linear_id;
     T *aligned_s = (T *) sycl::min(((((uintptr_t) s) + ISHMEMI_ALIGNMASK) & (~ISHMEMI_ALIGNMASK)),
                                    (uintptr_t) (s + count));
     while (((uintptr_t) &s[idx]) < ((uintptr_t) (aligned_s))) {
@@ -168,15 +169,15 @@ inline void vector_reduce_work_group(T *d, const T *s, size_t count, const Group
     sycl::vec<T, 16> vs;
     sycl::vec<T, 16> vd;
     while ((idx + ishmemi_vec_length) <= count) {
-        vs.load(0, ds + idx);
-        vd.load(0, dd + idx);
+        vs.load(0, ds + static_cast<long>(idx));
+        vd.load(0, dd + static_cast<long>(idx));
         reduce_op<T, 16, OP>(vd, vs);
-        vd.store(0, dd + idx);
+        vd.store(0, dd + static_cast<long>(idx));
         idx += vstride;
     }
-    idx = linear_id + (static_cast<long>(count) & (~(static_cast<long>(ishmemi_vec_length) - 1)));
+    idx = linear_id + static_cast<size_t>((static_cast<long>(count) & (~(ishmemi_vec_length - 1))));
     while (idx < count) {
-        reduce_op<T, OP>(dd[idx], ds[idx]);
+        reduce_op<T, OP>(dd[static_cast<long>(idx)], ds[static_cast<long>(idx)]);
         idx += stride;
     }
 }
@@ -192,9 +193,9 @@ int ishmemi_generic_op_reduce(ishmem_team_t team, T *dest, const T *src, size_t 
     while (nreduce > 0) {
         size_t this_reduce = nreduce;
         if (this_reduce > max_reduce) this_reduce = max_reduce;
-        void *cdst = ishmem_copy((void *) team_ptr->source, (void *) src, this_reduce * sizeof(T));
+        void *cdst = ishmemi_copy((void *) team_ptr->source, (void *) src, this_reduce * sizeof(T));
         if ((uintptr_t) cdst != (uintptr_t) team_ptr->source) {
-            ISHMEM_DEBUG_MSG("ishmem_copy in failed\n");
+            ISHMEM_DEBUG_MSG("ishmemi_copy in failed\n");
             return (1);
         }
 
@@ -214,9 +215,9 @@ int ishmemi_generic_op_reduce(ishmem_team_t team, T *dest, const T *src, size_t 
             ISHMEM_DEBUG_MSG("runtime reduction failed\n");
             return ret;
         }
-        cdst = ishmem_copy((void *) dest, (void *) team_ptr->dest, this_reduce * sizeof(T));
+        cdst = ishmemi_copy((void *) dest, (void *) team_ptr->dest, this_reduce * sizeof(T));
         if ((uintptr_t) cdst != (uintptr_t) dest) {
-            ISHMEM_DEBUG_MSG("ishmem_copy out failed\n");
+            ISHMEM_DEBUG_MSG("ishmemi_copy out failed\n");
             return 1;
         }
         dest += this_reduce;
@@ -240,16 +241,17 @@ inline int ishmemi_sub_reduce(ishmem_team_t team, T *dest, const T *source, size
 #endif
     int my_world_pe = ishmem_team_translate_pe(team, team_ptr->my_pe, ISHMEM_TEAM_WORLD);
 
-    ishmem_team_sync(team); /* assure all source buffers are ready for use */
+    ishmemi_team_sync(team); /* assure all source buffers are ready for use */
 
     int idx = 0;
     for (int pe = team_ptr->start; idx < team_ptr->size; pe += team_ptr->stride, idx++) {
         if (pe == my_world_pe) continue;
-        T *remote = ISHMEMI_FAST_ADJUST(T, info, info->local_pes[pe], source);
+        uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+        T *remote = ISHMEMI_FAST_ADJUST(T, info, local_index, source);
 
         vector_reduce_helper(vector_reduce, dest, remote, nreduce);
     }
-    ishmem_team_sync(team);
+    ishmemi_team_sync(team);
     return ret;
 }
 
@@ -349,7 +351,8 @@ inline int ishmemi_sub_reduce_work_group(ishmem_team_t team, T *dest, const T *s
             int my_world_pe = ishmem_team_translate_pe(team, team_ptr->my_pe, ISHMEM_TEAM_WORLD);
             for (int pe = team_ptr->start; idx < team_ptr->size; pe += team_ptr->stride, idx++) {
                 if (pe == my_world_pe) continue;
-                T *remote = ISHMEMI_FAST_ADJUST(T, info, info->local_pes[pe], source);
+                uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
+                T *remote = ISHMEMI_FAST_ADJUST(T, info, local_index, source);
 
                 vector_reduce_helper(vector_reduce_work_group, dest, remote, nreduce, grp);
             }
@@ -460,7 +463,7 @@ sycl::event ishmemi_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, s
                     if (ret) *ret = tmp_ret;
                 });
         } else {
-            cgh.host_task([=]() {
+            cgh.single_task([=]() {
                 int tmp_ret = ishmemi_reduce<T, OP>(team, dest, src, nreduce);
                 if (ret) *ret = tmp_ret;
             });

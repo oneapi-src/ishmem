@@ -75,7 +75,7 @@ sycl::event ishmemx_quiet_on_queue(sycl::queue &q, const std::vector<sycl::event
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.host_task([=]() { ishmem_quiet(); });
+        cgh.single_task([=]() { ishmem_quiet(); });
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;

@@ -116,6 +116,7 @@ size_t test_any_tester::create_check_pattern(ishmemi_type_t t, ishmemi_op_t op, 
 int main(int argc, char **argv)
 {
     class test_any_tester t(argc, argv);
+    t.max_nelems = 512;
 
     size_t bufsize =
         std::max(NUM_COMPARISON_OPERATORS * sizeof(uint64_t), t.max_nelems * sizeof(uint64_t));

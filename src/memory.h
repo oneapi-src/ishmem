@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -9,33 +9,27 @@
 #include <cstdint>
 
 #define ISHMEMI_HEAP_OVERHEAD 1024
+#define ISHMEMI_ALLOC_ALIGN   ((size_t) 64)
 
-#ifdef __cplusplus
+/* dlmalloc definitions */
 extern "C" {
-#endif
-
 typedef void *mspace;
-/* mspace routines */
+
 mspace create_mspace_with_base(void *, size_t, int);
 void *mspace_memalign(mspace, size_t, size_t);
 void mspace_free(mspace, void *);
-
-#define ISHMEMI_ALLOC_ALIGN ((size_t) 64)
-void *ishmemi_get_next(size_t incr, size_t alignment = ISHMEMI_ALLOC_ALIGN);
+}
 
 /* Memory routines */
-/* Initialize memory */
 int ishmemi_memory_init();
-
-/* Finalize memory */
 int ishmemi_memory_fini();
 
-void *ishmemi_calloc(size_t count, size_t size);
-void *ishmemi_ptr(const void *dest, int pe);
-
-#ifdef __cplusplus
-}
-#endif
+void *ishmemi_alloc(size_t, size_t alignment = ISHMEMI_ALLOC_ALIGN);
+void *ishmemi_calloc(size_t count, size_t);
+void *ishmemi_copy(void *, const void *, size_t);
+void *ishmemi_zero(void *, size_t);
+void *ishmemi_ptr(const void *, int);
+void ishmemi_free(void *);
 
 #define ISHMEMI_FAST_ADJUST(TYPENAME, info, index, p)                                              \
     ((TYPENAME *) (reinterpret_cast<ptrdiff_t>(p) +                                                \

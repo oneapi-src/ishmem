@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -6,6 +6,7 @@
 #define COLLECTIVES_COLLECT_IMPL_H
 
 #include "collectives.h"
+#include "sync_impl.h"
 #include "runtime.h"
 #include "runtime_ipc.h"
 #include "on_queue.h"
@@ -37,7 +38,7 @@ int ishmem_collect(ishmem_team_t team, T *dest, const T *src, size_t nelems)
         ishmemi_info_t *info = global_info;  // duplicate load from above
         if (team_ptr->only_intra) {
             team_ptr->collect_mynelems = nelems;  // save our nelems into symmetric space
-            ishmem_team_sync(
+            ishmemi_team_sync(
                 team);  // fcollect requires input buffer be ready everywhere when fcollect starts
             ishmem_fcollect(team, team_ptr->collect_nelems, &team_ptr->collect_mynelems, 1);
             size_t total_nelems = 0;
@@ -59,7 +60,8 @@ int ishmem_collect(ishmem_team_t team, T *dest, const T *src, size_t nelems)
                 /* compute our address of our section of dest in each PE */
                 for (int teampe = 0, globalpe = team_ptr->start; teampe < team_ptr->size;
                      globalpe += team_ptr->stride, teampe += 1) {
-                    ptr[teampe] = ISHMEMI_ADJUST_PTR(T, (globalpe + 1), &dest[base_nelems]);
+                    uint8_t local_index = ISHMEMI_LOCAL_PES[globalpe];
+                    ptr[teampe] = ISHMEMI_ADJUST_PTR(T, local_index, &dest[base_nelems]);
                 }
                 /* The idea for the inner loop being over local PEs is that the outstanding stores
                  * will use different links */
@@ -70,7 +72,7 @@ int ishmem_collect(ishmem_team_t team, T *dest, const T *src, size_t nelems)
                     }
                 }
                 /* assure all destination buffers complete */
-                ishmem_team_sync(team);
+                ishmemi_team_sync(team);
                 return ret;
             }
         }
@@ -92,7 +94,7 @@ int ishmem_collect(ishmem_team_t team, T *dest, const T *src, size_t nelems)
         struct put_item items[MAX_LOCAL_PES];
         size_t base_nelems = 0;               // nelem index of where our data goes
         team_ptr->collect_mynelems = nelems;  // save our nelems into symmetric space
-        ishmem_team_sync(
+        ishmemi_team_sync(
             team);  // fcollect requires input buffer be ready everywhere when fcollect starts
         ishmem_fcollect(team, team_ptr->collect_nelems, &team_ptr->collect_mynelems, 1);
         ISHMEM_CHECK_GOTO_MSG(ret, fn_fail, "shmem_size_fcollect on team collect failed\n");
@@ -108,7 +110,7 @@ int ishmem_collect(ishmem_team_t team, T *dest, const T *src, size_t nelems)
         ret = ishmemi_ipc_put_v(team_ptr->size, items);
         ISHMEM_CHECK_GOTO_MSG(ret, fn_fail, "ishmemi_ipc_put_v within team collect failed\n");
     fn_fail:
-        ishmem_team_sync(team); /* assure all destination buffers complete */
+        ishmemi_team_sync(team); /* assure all destination buffers complete */
         return ret;
     }
     ishmemi_ringcompletion_t comp;
@@ -172,8 +174,8 @@ int ishmemx_collect_work_group(ishmem_team_t team, T *dest, const T *src, size_t
         if (team_ptr->only_intra) {
             if (grp.leader()) {
                 team_ptr->collect_mynelems = nelems;  // save our nelems into symmetric space
-                ishmem_team_sync(team);  // fcollect requires input buffer be ready everywhere when
-                                         // fcollect starts
+                ishmemi_team_sync(team);  // fcollect requires input buffer be ready everywhere when
+                                          // fcollect starts
                 ishmem_fcollect(team, team_ptr->collect_nelems, &team_ptr->collect_mynelems, 1);
                 if constexpr (enable_error_checking) {
                     /* this copy of total_nelems is only available to the leader thread */
@@ -202,7 +204,8 @@ int ishmemx_collect_work_group(ishmem_team_t team, T *dest, const T *src, size_t
                 T *ptr[MAX_LOCAL_PES];
                 for (int teampe = 0, globalpe = team_ptr->start; teampe < team_ptr->size;
                      globalpe += team_ptr->stride, teampe += 1) {
-                    ptr[teampe] = ISHMEMI_ADJUST_PTR(T, (globalpe + 1), &dest[base_nelems]);
+                    uint8_t local_index = ISHMEMI_LOCAL_PES[globalpe];
+                    ptr[teampe] = ISHMEMI_ADJUST_PTR(T, local_index, &dest[base_nelems]);
                 }
                 for (size_t offset = work_item_start_idx;
                      offset < work_item_start_idx + my_nelems_work_item; offset += 1) {
@@ -372,7 +375,8 @@ int ishmem_fcollect(ishmem_team_t team, T *dest, const T *src, size_t nelems)
             /* compute our address of our section of dest in each PE */
             for (int teampe = 0, globalpe = team_ptr->start; teampe < team_ptr->size;
                  globalpe += team_ptr->stride, teampe++) {
-                ptr[teampe] = ISHMEMI_ADJUST_PTR(T, (globalpe + 1), (&dest[base_nelems]));
+                uint8_t local_index = ISHMEMI_LOCAL_PES[globalpe];
+                ptr[teampe] = ISHMEMI_ADJUST_PTR(T, local_index, (&dest[base_nelems]));
             }
             /* The idea for the inner loop being over local PEs is that the outstanding stores will
              * use different links */
@@ -382,7 +386,7 @@ int ishmem_fcollect(ishmem_team_t team, T *dest, const T *src, size_t nelems)
                     ptr[teampe][offset] = data;
                 }
             }
-            ishmem_team_sync(team); /* assure all destination buffers complete */
+            ishmemi_team_sync(team); /* assure all destination buffers complete */
             return ret;
         }
     }
@@ -411,7 +415,7 @@ int ishmem_fcollect(ishmem_team_t team, T *dest, const T *src, size_t nelems)
         int ret = ishmemi_ipc_put_v(team_ptr->size, items);
         ISHMEM_CHECK_GOTO_MSG(ret, fn_fail, "ishmemi_ipc_put_v within team fcollect failed\n");
     fn_fail:
-        ishmem_team_sync(team); /* assure all destination buffers complete */
+        ishmemi_team_sync(team); /* assure all destination buffers complete */
         return ret;
     }
     ishmemi_ringcompletion_t comp;
@@ -445,7 +449,7 @@ sycl::event ishmemx_fcollect_on_queue(ishmem_team_t team, T *dest, const T *src,
                     if (ret) *ret = tmp_ret;
                 });
         } else {
-            cgh.host_task([=]() {
+            cgh.single_task([=]() {
                 int tmp_ret = ishmem_fcollect(team, dest, src, nelems);
                 if (ret) *ret = tmp_ret;
             });
@@ -494,7 +498,8 @@ int ishmemx_fcollect_work_group(ishmem_team_t team, T *dest, const T *src, size_
             T *ptr[MAX_LOCAL_PES];
             for (int teampe = 0, globalpe = team_ptr->start; teampe < team_ptr->size;
                  globalpe += team_ptr->stride, teampe++) {
-                ptr[teampe] = ISHMEMI_ADJUST_PTR(T, (globalpe + 1), &dest[base]);
+                uint8_t local_index = ISHMEMI_LOCAL_PES[globalpe];
+                ptr[teampe] = ISHMEMI_ADJUST_PTR(T, local_index, &dest[base]);
             }
             for (size_t offset = work_item_start_idx;
                  offset < work_item_start_idx + my_nelems_work_item; offset += 1) {

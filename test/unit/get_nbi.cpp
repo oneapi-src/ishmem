@@ -15,7 +15,7 @@
 #define TEST_BRANCH_ON_QUEUE(testname, typeenum, typename, type, op, opname)                       \
     int pe = (ishmem_my_pe() + ishmem_n_pes() - 1) % ishmem_n_pes();                               \
     ishmemx_##typename##_##testname##_on_queue((type *) dest, (type *) src, nelems, pe, q);        \
-    ishmem_quiet();
+    ishmemx_quiet_on_queue(q);
 
 #define TEST_BRANCH_WORK_GROUP(testname, typeenum, typename, type, op, opname)                     \
     int pe = (ishmem_my_pe() + ishmem_n_pes() - 1) % ishmem_n_pes();                               \

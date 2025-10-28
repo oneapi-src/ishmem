@@ -245,7 +245,7 @@ void vec_copy_work_group_strided_push(T *d, const T *s, size_t count, Group grp)
     if constexpr (ishmemi_is_device) {
         size_t stride = grp.get_local_linear_range();
         size_t linear_id = grp.get_local_linear_id();
-        long idx = (long) linear_id;
+        size_t idx = linear_id;
         T *aligned_d =
             (T *) sycl::min(((((uintptr_t) d) + ISHMEMI_ALIGNMASK) & (~ISHMEMI_ALIGNMASK)),
                             (uintptr_t) (d + count));
@@ -256,11 +256,11 @@ void vec_copy_work_group_strided_push(T *d, const T *s, size_t count, Group grp)
             d[idx] = s[idx];
             idx += stride;
         }
-        count -= (unsigned long) (aligned_d - d);  // pointer difference is in units of T
+        count -= (size_t) (aligned_d - d);  // pointer difference is in units of T
         s += (aligned_d - d);
         /* at this point, if count > 0, then d is aligned, s may not be aligned */
         if (count == 0) return;
-        idx = (long) (linear_id * ishmemi_vec_length);
+        idx = (linear_id * ishmemi_vec_length);
         size_t vstride = stride * ishmemi_vec_length;
 
         sycl::multi_ptr<T, sycl::access::address_space::global_space, sycl::access::decorated::yes>
@@ -285,7 +285,7 @@ void vec_copy_work_group_strided_push(T *d, const T *s, size_t count, Group grp)
          * back to item at a time
          */
         /* idx here should be the postfix index + linear_id */
-        idx = (long) (linear_id + (count & (~((unsigned long) ishmemi_vec_length - 1))));
+        idx = (linear_id + (count & (~((unsigned long) ishmemi_vec_length - 1))));
         while (idx < count) {
             dd[idx] = ds[idx];
             idx += stride;
@@ -324,7 +324,7 @@ void vec_copy_work_group_strided_pull(T *d, const T *s, size_t count, Group grp)
     if constexpr (ishmemi_is_device) {
         size_t stride = grp.get_local_linear_range();
         size_t linear_id = grp.get_local_linear_id();
-        long idx = (long) linear_id;
+        size_t idx = linear_id;
         T *aligned_s =
             (T *) sycl::min(((((uintptr_t) s) + ISHMEMI_ALIGNMASK) & (~ISHMEMI_ALIGNMASK)),
                             (uintptr_t) (s + count));
@@ -339,7 +339,7 @@ void vec_copy_work_group_strided_pull(T *d, const T *s, size_t count, Group grp)
         d += (aligned_s - s);
         /* at this point, if count > 0, then d is aligned, s may not be aligned */
         if (count == 0) return;
-        idx = (long) (linear_id * ishmemi_vec_length);
+        idx = (linear_id * ishmemi_vec_length);
         size_t vstride = stride * ishmemi_vec_length;
 
         sycl::multi_ptr<T, sycl::access::address_space::global_space, sycl::access::decorated::yes>
@@ -363,7 +363,7 @@ void vec_copy_work_group_strided_pull(T *d, const T *s, size_t count, Group grp)
          * count & (ishmemi_vec_length-1) items
          * back to item at a time
          */
-        idx = (long) (linear_id + (count & (~((unsigned long) ishmemi_vec_length - 1))));
+        idx = (linear_id + (count & (~((unsigned long) ishmemi_vec_length - 1))));
         while (idx < count) {
             dd[idx] = ds[idx];
             idx += stride;

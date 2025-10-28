@@ -16,7 +16,7 @@ struct ishmemi_on_queue_map_entry_t {
     }
 };
 
-inline void set_cmd_grp_dependencies(sycl::handler &cgh, bool entry_already_exists, sycl::event e,
+inline void set_cmd_grp_dependencies(sycl::handler &cgh, bool entry_already_exists, sycl::event &e,
                                      const std::vector<sycl::event> &deps)
 {
     if (entry_already_exists) {

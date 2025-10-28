@@ -12,7 +12,7 @@ set(PROJECT_NAME "ishmem")
 set(PROJECT_FULL_NAME "Intel® SHMEM")
 
 set(ISHMEM_MAJOR_VERSION "1")
-set(ISHMEM_MINOR_VERSION "4")
+set(ISHMEM_MINOR_VERSION "5")
 set(ISHMEM_PATCH_VERSION "0")
 set(PROJECT_VERSION "${ISHMEM_MAJOR_VERSION}.${ISHMEM_MINOR_VERSION}.${ISHMEM_PATCH_VERSION}")
 
@@ -40,7 +40,9 @@ option(ENABLE_AOT_COMPILATION "Enables AOT compilation for GPU kernels" TRUE)
 
 # Set default device type(s) for AOT compilation
 if (NOT ISHMEM_AOT_DEVICE_TYPES)
-    set(ISHMEM_AOT_DEVICE_TYPES "pvc")
+    # xe-hpc: Intel(R) Data Center GPU Max Series
+    # xe2: Intel(R) Arc(TM) B-Series GPU Family
+    set(ISHMEM_AOT_DEVICE_TYPES "xe-hpc,xe2")
 endif()
 
 # -------------------------------------------------------------------
@@ -87,6 +89,7 @@ if (ENABLE_AOT_COMPILATION)
 endif()
 message(STATUS "Enable OpenSHMEM support:    ${ENABLE_OPENSHMEM}")
 message(STATUS "Enable MPI support:          ${ENABLE_MPI}")
+message(STATUS "Default Runtime:             ${ISHMEM_DEFAULT_RUNTIME_STR}")
 message(STATUS "===================================\n")
 
 # -------------------------------------------------------------------
@@ -116,7 +119,7 @@ set(ISHMEM_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/src")
 
 # -------------------------------------------------------------------
 # Generate and install files
-configure_file(${PROJECT_SOURCE_DIR}/src/ishmem_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/ishmem/config.h)
+configure_file(${PROJECT_SOURCE_DIR}/src/ishmem_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/ishmem/config.h @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/ishmem ${CMAKE_CURRENT_BINARY_DIR}/ishmem @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/vars.sh.in ${CMAKE_CURRENT_BINARY_DIR}/vars.sh @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/pkgconfig/ishmem.pc.in ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/ishmem.pc @ONLY)

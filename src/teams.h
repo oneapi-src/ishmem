@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Portions derived from Sandia OpenSHMEM (https://github.com/Sandia-OpenSHMEM/SOS)
@@ -46,7 +46,7 @@
  * buffer, then an out of place reduction is used.
  */
 
-#define SET_HEAP_FIELD(to, value) ishmem_copy(&to, &value, sizeof(to))
+#define SET_HEAP_FIELD(to, value) ishmemi_copy(&to, &value, sizeof(to))
 
 /* Create two different team data structures, one for host memory and one for device memory
  * They contain duplicate fields as needed to avoid remote references.

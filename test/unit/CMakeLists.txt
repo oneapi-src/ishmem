@@ -32,28 +32,33 @@ set(ISHMEM_PE_COUNTS_UNIT_TESTS "2" CACHE STRING "Number of PEs to use for each 
 set(ISHMEM_NON_STANDARD_CTEST_FILES "")
 set(ISHMEM_SKIP_CTEST_FILES "")
 
-set(ISHMEM_TESTER_MODES device)
+set(ISHMEM_TESTER_MODES host_device_device device)
 set(ISHMEM_TESTER_CTEST_FILES
-    get
-    put
-    ibget
-    ibput
     alltoall
     broadcast
     collect
+    exscan
     fcollect
-    reduce_sum
-    reduce_prod
+    get
+    get_nbi
+    ibget
+    ibput
+    inscan
+    put
+    put_nbi
+    reduce_and
     reduce_max
     reduce_min
-    reduce_and
     reduce_or
+    reduce_prod
+    reduce_sum
     reduce_xor
-    test
+    signal_wait_until
     test_all
     test_all_vector
     test_any
     test_any_vector
+    test_single
     test_some
     test_some_vector
     wait_until
@@ -62,8 +67,7 @@ set(ISHMEM_TESTER_CTEST_FILES
     wait_until_any
     wait_until_any_vector
     wait_until_some
-    wait_until_some_vector
-    signal_wait_until)
+    wait_until_some_vector)
 
 set(ISHMEM_TESTER_GROUP_MODES device_grp1)
 set(ISHMEM_TESTER_GROUP_TESTS
@@ -72,28 +76,33 @@ set(ISHMEM_TESTER_GROUP_TESTS
 
 set(ISHMEM_TESTER_ON_QUEUE_MODES on_queue)
 set(ISHMEM_TESTER_ON_QUEUE_TESTS
-    get
-    put
-    ibget
-    ibput
     alltoall
     broadcast
+    collect
+    exscan
     fcollect
-    reduce_sum
-    reduce_prod
+    get
+    get_nbi
+    ibget
+    ibput
+    inscan
+    put
+    put_nbi
+    reduce_and
     reduce_max
     reduce_min
-    reduce_and
     reduce_or
+    reduce_prod
+    reduce_sum
     reduce_xor
+    signal_wait_until
     wait_until
     wait_until_all
     wait_until_all_vector
     wait_until_any
     wait_until_any_vector
     wait_until_some
-    wait_until_some_vector
-    signal_wait_until)
+    wait_until_some_vector)
 
 enable_testing()
 
@@ -136,11 +145,10 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCE_FILES})
         # Default test settings
         foreach (MODE IN LISTS ISHMEM_TESTER_MODES)
             foreach (N ${ISHMEM_PE_COUNTS_UNIT_TESTS})
-                add_test(NAME ${EXE}-${N} COMMAND ${CTEST_WRAPPER} ${N} ${ISHMEM_RUN_SCRIPT}
+                add_test(NAME ${EXE}-${MODE}-${N} COMMAND ${CTEST_WRAPPER} ${N} ${ISHMEM_RUN_SCRIPT}
                     ./${EXE} --test_modes ${MODE} --csv COMMAND_EXPAND_LISTS)
             endforeach()
         endforeach()
-
         # Special test settings
         if (${EXE} IN_LIST ISHMEM_TESTER_GROUP_TESTS)
             foreach (MODE IN LISTS ISHMEM_TESTER_GROUP_MODES)

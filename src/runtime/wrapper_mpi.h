@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -64,6 +64,8 @@ namespace ishmemi_mpi_wrappers {
     extern int (*Allgatherv)(const void *, int, MPI_Datatype, void *, const int[], const int[],
                              MPI_Datatype, MPI_Comm);
     extern int (*Allreduce)(const void *, void *, int, MPI_Datatype, MPI_Op, MPI_Comm);
+    extern int (*Scan)(const void *, void *, int, MPI_Datatype, MPI_Op, MPI_Comm);
+    extern int (*Exscan)(const void *, void *, int, MPI_Datatype, MPI_Op, MPI_Comm);
     extern int (*Alltoall)(const void *, int, MPI_Datatype, void *, int, MPI_Datatype, MPI_Comm);
     extern int (*Barrier)(MPI_Comm);
     extern int (*Bcast)(void *, int, MPI_Datatype, int, MPI_Comm);

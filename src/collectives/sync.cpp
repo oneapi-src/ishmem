@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -7,63 +7,10 @@
 #include "ishmem/types.h"
 #include "proxy_impl.h"
 #include "collectives.h"
+#include "sync_impl.h"
 #include "runtime.h"
 #include "teams.h"
 #include "on_queue.h"
-
-static inline void sync_team_fallback(ishmem_team_t team)
-{
-    ishmemi_request_t req;
-    ishmemi_ringcompletion_t comp __attribute__((unused));
-    req.op = TEAM_SYNC;
-    req.type = NONE;
-    req.team = team;
-
-#ifdef __SYCL_DEVICE_ONLY__
-    ishmemi_proxy_blocking_request(req);
-    atomic_fence(sycl::memory_order::seq_cst, sycl::memory_scope::system);
-#else
-    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
-#endif
-}
-
-inline void ishmemi_team_sync(ishmem_team_t team)
-{
-    /* Node-local, on-device implementation */
-    if constexpr (ishmemi_is_device) {
-        ishmemi_info_t *info = global_info;
-        ishmemi_team_device_t *team_ptr = &info->team_device_pool[team];
-        if (team_ptr->only_intra) {
-            int index = team_ptr->psync_idx;
-            long *my_psync = &team_ptr->psync[index];
-            int last_i = team_ptr->last_pe + 1;
-            int stride = team_ptr->stride;
-            for (int i = team_ptr->start + 1; i <= last_i; i += stride) {
-                long *psync = ISHMEMI_FAST_ADJUST(long, info, i, my_psync);
-                /* These atomics can be relaxed because we don't care about their ordering */
-                sycl::atomic_ref<long, sycl::memory_order::relaxed, sycl::memory_scope::system,
-                                 sycl::access::address_space::global_space>
-                    atomic_psync(*psync);
-                atomic_psync += 1L; /* atomic increment info->ipc_buffers[pOffset] */
-            }
-            team_ptr->psync_idx = (index + 1) & (ISHMEM_SYNC_NUM_PSYNC_ARRS - 1);
-            /* This atomic has to be seq_cst because we definitely want it to happen in order */
-            sycl::atomic_ref<long, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_psync(*my_psync);
-            long expected;
-            int size = team_ptr->size;
-            do {
-                expected = size;
-            } while (!atomic_psync.compare_exchange_strong(
-                expected, 0L, sycl::memory_order::seq_cst, sycl::memory_order::seq_cst));
-            return;
-        }
-    }
-
-    /* Otherwise */
-    sync_team_fallback(team);
-}
 
 void ishmem_sync_all()
 {
@@ -96,7 +43,9 @@ ISHMEM_DEVICE_ATTRIBUTES int ishmem_team_sync(ishmem_team_t team)
     if constexpr (enable_error_checking) {
         if (team <= ISHMEM_TEAM_INVALID || team >= ISHMEMI_N_TEAMS) return -1;
     }
+
     ishmemi_team_sync(team);
+
     return 0;
 }
 
@@ -112,13 +61,13 @@ sycl::event ishmemx_team_sync_on_queue(ishmem_team_t team, int *ret, sycl::queue
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
         if (myteam->only_intra) {
             cgh.single_task([=]() {
-                int tmp_ret = ishmem_team_sync(team);
-                if (ret) *ret = tmp_ret;
+                ishmemi_team_sync(team);
+                if (ret) *ret = 0;
             });
         } else {
-            cgh.host_task([=]() {
-                int tmp_ret = ishmem_team_sync(team);
-                if (ret) *ret = tmp_ret;
+            cgh.single_task([=]() {
+                ishmemi_team_sync(team);
+                if (ret) *ret = 0;
             });
         }
     });

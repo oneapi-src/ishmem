@@ -4,17 +4,17 @@
 
 #define BW_TEST_HEADER int pe = n_pes - 1;
 #define BW_TEST_FUNCTION                                                                           \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmem_long_put((long *) dest, (long *) src, nelems, pe);                                  \
     }
 
 #define BW_TEST_FUNCTION_ON_QUEUE                                                                  \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmemx_long_put_on_queue((long *) dest, (long *) src, nelems, pe, q);                     \
     }
 
 #define BW_TEST_FUNCTION_WORK_GROUP                                                                \
-    for (int i = 0; i < iterations; i += 1) {                                                      \
+    for (size_t i = 0; i < iterations; i += 1) {                                                   \
         ishmemx_long_put_work_group((long *) dest, (long *) src, nelems, pe, grp);                 \
     }
 

@@ -133,7 +133,7 @@ sycl::event ishmemx_put_signal_on_queue(T *dest, const T *src, size_t nelems, ui
                                                   it.get_group());
                 });
         } else {
-            cgh.host_task(
+            cgh.single_task(
                 [=]() { ishmem_put_signal(dest, src, nelems, sig_addr, signal, sig_op, pe); });
         }
     });
@@ -455,7 +455,7 @@ sycl::event ishmemx_put_signal_nbi_on_queue(T *dest, const T *src, size_t nelems
                                                       pe, it.get_group());
                 });
         } else {
-            cgh.host_task(
+            cgh.single_task(
                 [=]() { ishmem_put_signal_nbi(dest, src, nelems, sig_addr, signal, sig_op, pe); });
         }
     });

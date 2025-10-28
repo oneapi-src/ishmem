@@ -33,6 +33,11 @@ constexpr size_t max_wg = 16;
 ishmemi_type_t bitwise_reduction_types[] = {UCHAR,  USHORT, UINT,   ULONG, ULONGLONG,
                                             INT8,   INT16,  INT32,  INT64, UINT8,
                                             UINT16, UINT32, UINT64, SIZE,  ISHMEMI_TYPE_END};
+
+ishmemi_type_t scan_types[] = {SHORT,  INT,       LONG,  LONGLONG, PTRDIFF,         USHORT, UINT,
+                               ULONG,  ULONGLONG, INT16, INT32,    INT64,           UINT16, UINT32,
+                               UINT64, SIZE,      FLOAT, DOUBLE,   ISHMEMI_TYPE_END};
+
 ishmemi_type_t compare_reduction_types[] = {
     CHAR,   SCHAR,  SHORT,  INT,       LONG, LONGLONG, PTRDIFF, UCHAR,
     USHORT, UINT,   ULONG,  ULONGLONG, INT8, INT16,    INT32,   INT64,

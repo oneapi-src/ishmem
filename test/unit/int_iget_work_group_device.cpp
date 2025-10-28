@@ -141,7 +141,7 @@ int main(int argc, char **argv)
         h.single_task([=]() {
             int source_idx = 0;
             int expected_value = 0;
-            for (int i = 0; i < array_size; ++i) {
+            for (size_t i = 0; i < array_size; ++i) {
                 if (((i % dst) == 0) && (i < (dst * elems_to_copy))) {
                     expected_value = 0x4000000 + (((my_pe + 2) % npes) << 24) +
                                      (((my_pe + 1) % npes) << 20) + (source_idx);

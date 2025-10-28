@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -56,6 +56,9 @@ namespace ishmemi_openshmem_wrappers {
 
     /* Reductions */
     template <typename T> using reduce_type = int (*)(shmem_team_t, T *, const T *, size_t);
+
+    /* Scan */
+    template <typename T> using scan_type = int (*)(shmem_team_t, T *, const T *, size_t);
 
     /* Point-to-Point Synchronization */
     template <typename T> using test_type = int (*)(T *, int, T);
@@ -394,6 +397,35 @@ namespace ishmemi_openshmem_wrappers {
     extern reduce_type<double> double_min_reduce;
     extern reduce_type<double> double_sum_reduce;
     extern reduce_type<double> double_prod_reduce;
+
+    /* Scan */
+    extern bool inscan_exists;
+    extern scan_type<uint8_t> uint8_sum_inscan;
+    extern scan_type<uint16_t> uint16_sum_inscan;
+    extern scan_type<uint32_t> uint32_sum_inscan;
+    extern scan_type<uint64_t> uint64_sum_inscan;
+    extern scan_type<unsigned long long> ulonglong_sum_inscan;
+    extern scan_type<int8_t> int8_sum_inscan;
+    extern scan_type<int16_t> int16_sum_inscan;
+    extern scan_type<int32_t> int32_sum_inscan;
+    extern scan_type<int64_t> int64_sum_inscan;
+    extern scan_type<long long> longlong_sum_inscan;
+    extern scan_type<float> float_sum_inscan;
+    extern scan_type<double> double_sum_inscan;
+
+    extern bool exscan_exists;
+    extern scan_type<uint8_t> uint8_sum_exscan;
+    extern scan_type<uint16_t> uint16_sum_exscan;
+    extern scan_type<uint32_t> uint32_sum_exscan;
+    extern scan_type<uint64_t> uint64_sum_exscan;
+    extern scan_type<unsigned long long> ulonglong_sum_exscan;
+    extern scan_type<int8_t> int8_sum_exscan;
+    extern scan_type<int16_t> int16_sum_exscan;
+    extern scan_type<int32_t> int32_sum_exscan;
+    extern scan_type<int64_t> int64_sum_exscan;
+    extern scan_type<long long> longlong_sum_exscan;
+    extern scan_type<float> float_sum_exscan;
+    extern scan_type<double> double_sum_exscan;
 
     /* Point-to-Point Synchronization */
     extern test_type<int32_t> int32_test;
@@ -813,6 +845,35 @@ return ulonglong_atomic_compare_swap_nbi;
     template <> inline auto reduce<double, MIN_REDUCE>() -> reduce_type<double> { return double_min_reduce; }
     template <> inline auto reduce<double, SUM_REDUCE>() -> reduce_type<double> { return double_sum_reduce; }
     template <> inline auto reduce<double, PROD_REDUCE>() -> reduce_type<double> { return double_prod_reduce; }
+
+    template <typename T> static constexpr scan_type<T> inscan() { static_assert(assert_dependency<T>::value, "Undefined wrapper function"); }
+    template <> inline auto inscan<uint8_t>() -> scan_type<uint8_t> { return uint8_sum_inscan; }
+    template <> inline auto inscan<uint16_t>() -> scan_type<uint16_t> { return uint16_sum_inscan; }
+    template <> inline auto inscan<uint32_t>() -> scan_type<uint32_t> { return uint32_sum_inscan; }
+    template <> inline auto inscan<uint64_t>() -> scan_type<uint64_t> { return uint64_sum_inscan; }
+    template <> inline auto inscan<unsigned long long>() -> scan_type<unsigned long long> { return ulonglong_sum_inscan; }
+    template <> inline auto inscan<int8_t>() -> scan_type<int8_t> { return int8_sum_inscan; }
+    template <> inline auto inscan<int16_t>() -> scan_type<int16_t> { return int16_sum_inscan; }
+    template <> inline auto inscan<int32_t>() -> scan_type<int32_t> { return int32_sum_inscan; }
+    template <> inline auto inscan<int64_t>() -> scan_type<int64_t> { return int64_sum_inscan; }
+    template <> inline auto inscan<long long>() -> scan_type<long long> { return longlong_sum_inscan; }
+    template <> inline auto inscan<float>() -> scan_type<float> { return float_sum_inscan; }
+    template <> inline auto inscan<double>() -> scan_type<double> { return double_sum_inscan; }
+
+    template <typename T> static constexpr scan_type<T> exscan() { static_assert(assert_dependency<T>::value, "Undefined wrapper function"); }
+    template <> inline auto exscan<uint8_t>() -> scan_type<uint8_t> { return uint8_sum_exscan; }
+    template <> inline auto exscan<uint16_t>() -> scan_type<uint16_t> { return uint16_sum_exscan; }
+    template <> inline auto exscan<uint32_t>() -> scan_type<uint32_t> { return uint32_sum_exscan; }
+    template <> inline auto exscan<uint64_t>() -> scan_type<uint64_t> { return uint64_sum_exscan; }
+    template <> inline auto exscan<unsigned long long>() -> scan_type<unsigned long long> { return ulonglong_sum_exscan; }
+    template <> inline auto exscan<int8_t>() -> scan_type<int8_t> { return int8_sum_exscan; }
+    template <> inline auto exscan<int16_t>() -> scan_type<int16_t> { return int16_sum_exscan; }
+    template <> inline auto exscan<int32_t>() -> scan_type<int32_t> { return int32_sum_exscan; }
+    template <> inline auto exscan<int64_t>() -> scan_type<int64_t> { return int64_sum_exscan; }
+    template <> inline auto exscan<long long>() -> scan_type<long long> { return longlong_sum_exscan; }
+    template <> inline auto exscan<float>() -> scan_type<float> { return float_sum_exscan; }
+    template <> inline auto exscan<double>() -> scan_type<double> { return double_sum_exscan; }
+    
 
     template <typename T> static constexpr test_type<T> test() { static_assert(assert_dependency<T>::value, "Undefined wrapper function"); }
     template <> inline auto test<uint32_t>() -> test_type<uint32_t> { return uint32_test; }

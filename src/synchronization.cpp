@@ -683,7 +683,7 @@ void ishmem_wait_until_all(T *ivars, size_t nelems, const int *status, int cmp, 
                             nelems * sizeof(int), ishmemi_op_t::WAIT_ALL);
     }
 #ifdef __SYCL_DEVICE_ONLY__
-    for (int i = 0; i < nelems; i++) {
+    for (size_t i = 0; i < nelems; i++) {
         if (!status || !status[i]) {
             ishmem_wait_until(&ivars[i], cmp, cmp_value);
         }
@@ -999,7 +999,7 @@ void ishmem_wait_until_all_vector(T *ivars, size_t nelems, const int *status, in
                             nelems * sizeof(int), ishmemi_op_t::WAIT_ALL_VECTOR);
     }
 #ifdef __SYCL_DEVICE_ONLY__
-    for (int i = 0; i < nelems; i++) {
+    for (size_t i = 0; i < nelems; i++) {
         if (!status || !status[i]) {
             ishmem_wait_until(&ivars[i], cmp, cmp_values[i]);
         }

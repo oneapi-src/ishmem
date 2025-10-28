@@ -142,7 +142,7 @@ int main(int argc, char **argv)
             int source_pe = (my_pe > 0) ? (my_pe - 1) : (npes - 1);
             int source_idx = 0;
             int expected_value = 0;
-            for (int i = 0; i < array_size; ++i) {
+            for (size_t i = 0; i < array_size; ++i) {
                 if (((i % dst) == 0) && (i < (dst * elems_to_copy))) {
                     expected_value = 0x4000000 + (((source_pe + 1) % npes) << 24) +
                                      ((source_pe % npes) << 20) + (source_idx);
