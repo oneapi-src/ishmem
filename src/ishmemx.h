@@ -25,6 +25,8 @@ typedef struct ishmemx_attr_t {
     bool initialize_runtime = true;
     /* By default, gpu is used */
     bool gpu = true;
+    /* By default, select the only visible GPU device */
+    int device_id = -1;
     /* By default, the base team/comm is uninitialized, representing the default global team/comm */
     union {
         /* TODO: add support for user-provided shmem_team as global team */

@@ -280,7 +280,7 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
     ishmemi_cpu_info->n_pes = ishmemi_n_pes;
 
     if (attr->gpu) {
-        ret = ishmemi_accelerator_init();
+        ret = ishmemi_accelerator_init(attr);
         if (ret == ISHMEMI_NO_DEVICE_ACCESS) {
             attr->gpu = false;
             /* TODO need to enable SHARED HEAP config */

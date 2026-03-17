@@ -1,0 +1,8 @@
+#!/bin/bash
+
+export ZE_FLAT_DEVICE_HIERARCHY=FLAT
+export SYCL_DEVICE_FILTER=:gpu
+unset ZE_AFFINITY_MASK
+unset ONEAPI_DEVICE_SELECTOR
+
+exec "$@"
