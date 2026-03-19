@@ -1,4 +1,8 @@
 .*.sw*
 build
+build-*/
 tags
 ishmem/config.h
+*.pyc
+__pycache__/
+*.egg-info/

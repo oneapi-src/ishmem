@@ -1,0 +1,4 @@
+# Copyright (C) 2026 Intel Corporation
+# SPDX-License-Identifier: BSD-3-Clause
+
+__version__ = "0.2.0a0"

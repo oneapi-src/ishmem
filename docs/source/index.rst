@@ -45,6 +45,12 @@ Intel® SHMEM
    memory_ordering
    utility
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Python Bindings
+
+   ishmem4py
+
 .. ---------------
 .. Team Management
 .. ---------------

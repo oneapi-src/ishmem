@@ -10,6 +10,8 @@
 # -- Packages ----------------------------------------------------------------
 
 import datetime
+import os
+import sys
 
 # -- Project information -----------------------------------------------------
 
@@ -24,8 +26,15 @@ version = release
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+sys.path.insert(0, os.path.abspath('../../ishmem4py/python'))
+
 extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
 ]
+
+autosummary_generate = False
+autodoc_member_order = 'bysource'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

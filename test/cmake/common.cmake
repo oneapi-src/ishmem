@@ -88,6 +88,7 @@ endif()
 
 list(APPEND ISHMEM_TEST_INCLUDE_DIRS
     "${ISHMEM_INCLUDE}"
+    "${ISHMEM_ROOT_DIR}/src"
     "${ISHMEM_TEST_ROOT_DIR}/include"
     "${CMAKE_CURRENT_BINARY_DIR}/include")
 

@@ -6,6 +6,7 @@
 #include "accelerator.h"
 #include <level_zero/ze_api.h>
 #include <atomic>
+#include <vector>
 
 /* TODO: Workaround to resolve compiler limitation. Need to be fixed later */
 #if __INTEL_CLANG_COMPILER <= 20210400
@@ -15,12 +16,21 @@
 #endif
 
 namespace {
+    struct ishmemi_visible_gpu_t {
+        ze_driver_handle_t driver = nullptr;
+        ze_device_handle_t device = nullptr;
+        ze_device_properties_t properties = {};
+        uint32_t driver_idx = 0;
+    };
+
     /* L0 driver */
     ze_driver_handle_t *all_drivers = nullptr;
     ze_device_handle_t **all_devices = nullptr;
     uint32_t driver_count = 0;
     uint32_t driver_idx = 0;
     bool driver_found = false;
+    std::vector<ishmemi_visible_gpu_t> visible_gpus;
+    int selected_device_id = -1;
 
     /* L0 device */
     ze_device_properties_t device_properties = {};
@@ -95,10 +105,30 @@ static inline uint32_t get_next_link_index()
     return index;
 }
 
+sycl::device ishmemi_get_selected_sycl_device()
+{
+    return sycl::make_device<sycl::backend::ext_oneapi_level_zero>(ishmemi_gpu_device);
+}
+
+void ishmemi_validate_queue_device(const sycl::queue &q)
+{
+    try {
+        auto queue_device =
+            sycl::get_native<sycl::backend::ext_oneapi_level_zero>(q.get_device());
+        if (queue_device != ishmemi_gpu_device) {
+            RAISE_ERROR_MSG(
+                "Queue device does not match the selected ISHMEM device. Set "
+                "ishmemx_attr_t.device_id to the queue device ordinal.\n");
+        }
+    } catch (const sycl::exception &) {
+        RAISE_ERROR_MSG("Queue device is not a Level Zero GPU device\n");
+    }
+}
+
 int ishmemi_accelerator_preinit()
 {
     int ret = 0;
-    uint32_t i;
+    uint32_t i, j;
     uint32_t device_count = 0;
     ze_init_flag_t flags = ZE_INIT_FLAG_GPU_ONLY;
 
@@ -134,43 +164,43 @@ int ishmemi_accelerator_preinit()
     ZE_CHECK(zeDriverGet(&driver_count, all_drivers));
     ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
 
-    /* Parse the drivers for a suitable driver */
+    visible_gpus.clear();
+
+    /* Parse the drivers for visible GPU devices */
     for (i = 0; i < driver_count; i++) {
         device_count = 0;
         ZE_CHECK(zeDeviceGet(all_drivers[i], &device_count, nullptr));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
         if (device_count == 0) continue;
 
-        /* Ensure a single device is detected */
-        ISHMEM_CHECK_GOTO_MSG(device_count != 1, fn_fail, "Detected more than one device\n");
         all_devices[i] = (ze_device_handle_t *) ::malloc(device_count * sizeof(ze_device_handle_t));
-        ISHMEM_CHECK_GOTO_MSG(all_devices == nullptr, fn_fail,
+        ISHMEM_CHECK_GOTO_MSG(all_devices[i] == nullptr, fn_fail,
                               "Allocation of all_drivers[%d] failed\n", i);
 
         ZE_CHECK(zeDeviceGet(all_drivers[i], &device_count, all_devices[i]));
         ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
 
-        ZE_CHECK(zeDeviceGetProperties(all_devices[i][0], &device_properties));
-        ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+        for (j = 0; j < device_count; ++j) {
+            ze_device_properties_t props = {};
+            ZE_CHECK(zeDeviceGetProperties(all_devices[i][j], &props));
+            ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
 
-        if (ZE_DEVICE_TYPE_GPU == device_properties.type && !driver_found) {
-            ishmemi_gpu_driver = all_drivers[i];
-            driver_idx = i;
-            driver_found = true;
+            if (ZE_DEVICE_TYPE_GPU == props.type) {
+                visible_gpus.push_back({
+                    .driver = all_drivers[i],
+                    .device = all_devices[i][j],
+                    .properties = props,
+                    .driver_idx = i,
+                });
+            }
         }
     }
 
-    if (!driver_found) {
+    if (visible_gpus.empty()) {
         ISHMEM_ERROR_MSG("No ZE driver found for GPU\n");
         ret = ISHMEMI_NO_DEVICES;
         goto fn_fail;
     }
-
-    /* Create the ZE context */
-    ishmemi_ze_context_desc.stype = ZE_STRUCTURE_TYPE_CONTEXT_DESC;
-
-    ZE_CHECK(zeContextCreate(ishmemi_gpu_driver, &ishmemi_ze_context_desc, &ishmemi_ze_context));
-    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
 
 fn_exit:
     ishmemi_accelerator_preinitialized = true;
@@ -181,7 +211,7 @@ fn_fail:
     goto fn_exit;
 }
 
-int ishmemi_accelerator_init()
+int ishmemi_accelerator_init(const ishmemx_attr_t *attr)
 {
     int ret = 0;
     uint32_t i, j;
@@ -192,9 +222,37 @@ int ishmemi_accelerator_init()
     ret = ishmemi_accelerator_preinit();
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
-    if (driver_found) {
-        /* Set the default GPU */
-        ishmemi_gpu_device = all_devices[driver_idx][0];
+    if (!ishmemi_accelerator_initialized) {
+        ISHMEM_CHECK_GOTO_MSG(attr == nullptr, fn_fail,
+                              "Accelerator initialization requires non-null attributes\n");
+        ISHMEM_CHECK_GOTO_MSG(attr->device_id < -1, fn_fail,
+                              "Invalid device_id %d provided in ishmemx_attr_t\n",
+                              attr->device_id);
+
+        if (attr->device_id == -1) {
+            ISHMEM_CHECK_GOTO_MSG(
+                visible_gpus.size() != 1, fn_fail,
+                "Detected %zu visible GPU devices. Set ishmemx_attr_t.device_id to select one.\n",
+                visible_gpus.size());
+            selected_device_id = 0;
+        } else {
+            ISHMEM_CHECK_GOTO_MSG(
+                static_cast<size_t>(attr->device_id) >= visible_gpus.size(), fn_fail,
+                "Requested device_id %d is out of range for %zu visible GPU devices\n",
+                attr->device_id, visible_gpus.size());
+            selected_device_id = attr->device_id;
+        }
+
+        const auto &selected_device = visible_gpus[static_cast<size_t>(selected_device_id)];
+        ishmemi_gpu_driver = selected_device.driver;
+        ishmemi_gpu_device = selected_device.device;
+        device_properties = selected_device.properties;
+        driver_idx = selected_device.driver_idx;
+        driver_found = true;
+
+        ishmemi_ze_context_desc.stype = ZE_STRUCTURE_TYPE_CONTEXT_DESC;
+        ZE_CHECK(zeContextCreate(ishmemi_gpu_driver, &ishmemi_ze_context_desc, &ishmemi_ze_context));
+        ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
 
         /* Discover command queue groups */
         ZE_CHECK(
@@ -289,10 +347,11 @@ int ishmemi_accelerator_init()
     ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
 
 fn_exit:
-    ishmemi_accelerator_initialized = true;
+    ishmemi_accelerator_initialized = (ret == 0);
     return ret;
 fn_fail:
     ishmemi_accelerator_fini();
+    if (!ret) ret = 1;
     goto fn_exit;
 }
 
@@ -326,12 +385,17 @@ int ishmemi_accelerator_fini(void)
         ISHMEMI_FREE(::free, all_devices[i]);
     ISHMEMI_FREE(::free, all_devices);
     ISHMEMI_FREE(::free, all_drivers);
+    visible_gpus.clear();
 
     ishmemi_accelerator_preinitialized = false;
     ishmemi_accelerator_initialized = false;
     driver_found = false;
     driver_idx = 0;
     driver_count = 0;
+    selected_device_id = -1;
+    ishmemi_gpu_driver = nullptr;
+    ishmemi_gpu_device = nullptr;
+    device_properties = {};
 
     if (ishmemi_ze_context) {
         ZE_CHECK(zeContextDestroy(ishmemi_ze_context));

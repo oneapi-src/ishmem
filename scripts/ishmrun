@@ -179,8 +179,8 @@ gpu_binding()
 
     # Determine how to set ZE_AFFINITY_MASK
     if [ $which_sycl_ls -eq 0 ]; then
-        local root_count=$(ONEAPI_DEVICE_SELECTOR=level_zero:* sycl-ls 2>/dev/null | wc -l)
-        local sub_count=$(ONEAPI_DEVICE_SELECTOR=level_zero:*.* sycl-ls 2>/dev/null | wc -l)
+        local root_count=$(ONEAPI_DEVICE_SELECTOR=level_zero:* sycl-ls 2>/dev/null | grep -c "\[level_zero")
+        local sub_count=$(ONEAPI_DEVICE_SELECTOR=level_zero:*.* sycl-ls 2>/dev/null | grep -c "\[level_zero")
     elif [ $which_clinfo -eq 0 ]; then
         local platforms=$(clinfo -l | grep -i Platform | wc -l)
 
@@ -313,6 +313,8 @@ gpu_env()
         # Intel(R) Arc(TM) B-Series GPU Family
         # Necessary for GPU IPC
         export RenderCompressedBuffersEnabled=0
+        # Atomic ops from the GPU require Xe-Links - instead route atomic ops through the host
+        export ISHMEM_ENABLE_DEVICE_ATOMICS=0
     elif [ $(echo $output | grep -Po "Intel.*Data.*Center.*GPU" | wc -l) -gt 0 ]; then
         # Intel(R) Data Center GPU Max Series
         # No support for Implicit Scaling

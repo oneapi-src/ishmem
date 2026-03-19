@@ -59,11 +59,15 @@ static inline void ishmemi_print_device_properties(const ze_device_properties_t 
 
 /* Initialize accelerator */
 int ishmemi_accelerator_preinit(void);
-int ishmemi_accelerator_init(void);
+int ishmemi_accelerator_init(const ishmemx_attr_t *attr);
 
 /* Finalize accelerator */
 int ishmemi_accelerator_fini(void);
 int ishmemi_accelerator_postfini(void);
+
+/* Selected-device helpers */
+sycl::device ishmemi_get_selected_sycl_device();
+void ishmemi_validate_queue_device(const sycl::queue &q);
 
 /* Query allocation memory type */
 int ishmemi_get_memory_type(const void *ptr, ze_memory_type_t *type);

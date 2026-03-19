@@ -146,8 +146,8 @@ ISHMEM_RUNTIME=<backend> mpiexec.hydra -n 2 -hosts <allocated_node_id> ./scripts
 
 - *Note:* Current supported launchers include: MPI process launchers (i.e. `mpiexec`, `mpiexec.hydra`, `mpirun`, etc.), Slurm (i.e. `srun`, `salloc`, etc.), and PBS (i.e. `qsub`).
 
-- *Note:* Intel® SHMEM execution model requires applications to use a 1:1 mapping between PEs and GPU devices. Attempting to run an application without the `ishmrun` launch script may result in failure if this mapping is not maintained.
-  - For further details on device selection, please see [the ONEAPI_DEVICE_SELECTOR](https://github.com/intel/llvm/blob/sycl/sycl/doc/EnvironmentVariables.md#oneapi_device_selector).
+- *Note:* Intel® SHMEM execution model requires applications to use a 1:1 mapping between PEs and GPU devices. The default `ishmrun` launcher maintains that mapping by restricting each PE to a single visible GPU device. When multiple GPUs remain visible to a PE, set `ishmemx_attr_t.device_id` explicitly before calling `ishmemx_init_attr`.
+  - For further details on launcher-based device selection, please see [the ONEAPI_DEVICE_SELECTOR](https://github.com/intel/llvm/blob/sycl/sycl/doc/EnvironmentVariables.md#oneapi_device_selector).
 
 3. Validate the application ran successfully; example output:
 

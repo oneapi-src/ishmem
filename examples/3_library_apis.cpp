@@ -16,8 +16,10 @@ int main()
               << std::endl;
 
     /* Initialize ISHMEM
-     * The ISHMEM launch script will set things up so that ishmem uses
-     * the same GPU device as the SYCL queue above
+     * The default ishmrun launch script will set things up so that ishmem uses
+     * the same GPU device as the SYCL queue above. When multiple GPUs are
+     * visible to each PE, use ishmemx_attr_t.device_id to select the device
+     * explicitly before calling ishmemx_init_attr().
      */
     ishmem_init();
 

@@ -29,7 +29,9 @@ target_link_libraries(ishmem-test-common-unit PUBLIC ${ISHMEM_TEST_LINK_LIBS})
 # Setup default test values
 
 set(ISHMEM_PE_COUNTS_UNIT_TESTS "2" CACHE STRING "Number of PEs to use for each test")
-set(ISHMEM_NON_STANDARD_CTEST_FILES "")
+set(ISHMEM_NON_STANDARD_CTEST_FILES
+    init_attr_device_id
+    init_attr_device_id_required)
 set(ISHMEM_SKIP_CTEST_FILES "")
 
 set(ISHMEM_TESTER_MODES host_device_device device)
@@ -104,6 +106,8 @@ set(ISHMEM_TESTER_ON_QUEUE_TESTS
     wait_until_some
     wait_until_some_vector)
 
+set(ISHMEM_ALL_VISIBLE_RUN_SCRIPT "${SCRIPTS_DIR}/ctest/all_visible_wrapper")
+
 enable_testing()
 
 # -------------------------------------------------------------------
@@ -129,6 +133,18 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCE_FILES})
     set_target_properties(${EXE} PROPERTIES ENABLE_EXPORTS TRUE)
     target_link_libraries(${EXE} PRIVATE ishmem-test-common-unit)
 endforeach()
+
+foreach (N ${ISHMEM_PE_COUNTS_UNIT_TESTS})
+    add_test(NAME init_attr_device_id-flat-${N} COMMAND ${CTEST_WRAPPER} ${N}
+        ${ISHMEM_ALL_VISIBLE_RUN_SCRIPT} ./init_attr_device_id${CMAKE_EXECUTABLE_SUFFIX})
+    set_tests_properties(init_attr_device_id-flat-${N} PROPERTIES SKIP_RETURN_CODE 77)
+endforeach()
+
+add_test(NAME init_attr_device_id_required-flat COMMAND ${CMAKE_COMMAND} -E env
+    ZE_FLAT_DEVICE_HIERARCHY=FLAT
+    SYCL_DEVICE_FILTER=:gpu
+    ${CMAKE_CURRENT_BINARY_DIR}/init_attr_device_id_required${CMAKE_EXECUTABLE_SUFFIX})
+set_tests_properties(init_attr_device_id_required-flat PROPERTIES SKIP_RETURN_CODE 77)
 
 # -------------------------------------------------------------------
 # Add ctests

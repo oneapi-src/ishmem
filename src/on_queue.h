@@ -5,6 +5,7 @@
 #ifndef ISHMEM_ON_QUEUE_H
 #define ISHMEM_ON_QUEUE_H
 
+#include "accelerator.h"
 #include <map>
 
 struct ishmemi_on_queue_map_entry_t {
@@ -38,6 +39,8 @@ class ishmemi_on_queue_map : public std::map<sycl::queue *, ishmemi_on_queue_map
 
     inline ishmemi_on_queue_map::iterator get_entry_info(sycl::queue &q, bool &entry_already_exists)
     {
+        ishmemi_validate_queue_device(q);
+
         auto iter = find(&q);
         if (iter != end()) {
             entry_already_exists = true;

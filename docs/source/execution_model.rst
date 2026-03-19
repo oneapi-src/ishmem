@@ -21,7 +21,9 @@ library<ishmemx_runtime_type_t>`.
    that assigns the environment variable **ZE_AFFINITY_MASK** so that each
    PE is assigned a single SYCL device. Usage of this script is described in
    Section :ref:`Compiling and Running
-   Programs<compiling_and_running_programs>`.
+   Programs<compiling_and_running_programs>`. When multiple GPUs remain
+   visible to a PE, applications must select one explicitly with
+   ``ishmemx_attr_t.device_id`` before calling ``ishmemx_init_attr``.
 
 .. note:: Intel® Data Center GPU Max Series devices utilize a multi-tile
    architecture (as of Intel®  SHMEM v1.0.0 with 1 or 2 tiles).  By default,
@@ -110,4 +112,3 @@ operations, see :ref:`Memory Ordering<memory_ordering>`.
 .. segment.
 .. For example, objects located in the symmetric data segment and objects
 .. located in the symmetric heap can be provided as arguments to the same OpenSHMEM operation.
-

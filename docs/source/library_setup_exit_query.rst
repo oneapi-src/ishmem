@@ -58,6 +58,7 @@ OpenSHMEM, MPI, or PMI.
   .. c:var:: ishmemx_runtime_type_t runtime
   .. c:var:: bool initialize_runtime = true
   .. c:var:: bool gpu = true
+  .. c:var:: int device_id = -1
   .. c:var:: void *mpi_comm
 
 **Description:**
@@ -68,7 +69,11 @@ library.
 By default, the parallel runtime is initialized by Intel® SHMEM
 (**initialize_runtime** default is ``true``).
 The **gpu** boolean indicates whether to use GPU memory for the symmetric
-heap (default is ``true``). **mpi_comm** is a pointer to the corresponding
+heap (default is ``true``). ``device_id`` selects the visible GPU ordinal to
+use when multiple GPU devices are visible to a PE. The default value of ``-1``
+preserves the traditional single-visible-device behavior: Intel® SHMEM will
+auto-select the device only when exactly one GPU is visible. **mpi_comm** is a
+pointer to the corresponding
 MPI communicator for representing ``ISHMEM_TEAM_WORLD`` when used with
 ``ISHMEM_RUNTIME_MPI`` (default is ``MPI_COMM_WORLD``).
 
@@ -283,4 +288,3 @@ character.  If the **name** memory buffer is provided with size less than
 ISHMEM_MAX_NAME_LEN, behavior is undefined. For a given library
 implementation, the vendor string returned is consistent with the library
 constant ISHMEM_VENDOR_STRING.
-

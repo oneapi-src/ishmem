@@ -98,7 +98,7 @@ int ishmemi_memory_init()
 
     /* SYCL queue to initialize global_info */
     try {
-        sycl::queue q;
+        sycl::queue q(ishmemi_get_selected_sycl_device());
         q.copy(&ishmemi_gpu_info, global_info).wait_and_throw();
     } catch (...) {
         ret = -1;
