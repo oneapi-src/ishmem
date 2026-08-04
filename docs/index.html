@@ -1,354 +1,313 @@
 
 <!DOCTYPE html>
 
-
-<html lang="en" data-content_root="./" >
-
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Intel® SHMEM &#8212; Documentation for Intel® SHMEM</title>
-  
-  
-  
-  <script data-cfasync="false">
-    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+    
+  <link href="_static/css/theme.css" rel="stylesheet">
+  <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
-  
-  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
-  
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+    
+      
 
-    <script src="_static/documentation_options.js?v=40912020"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=84ace793992934648b4de8eed757e5a2" />
+    
+  <link rel="preload" as="script" href="_static/js/index.be7d3bbb2ef33a8344ce.js">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx-book-theme.9d8b4a8b9bb19db25eeaddc40d639ba2.js"></script>
     <link rel="canonical" href="oneapi-src.github.io/ishmem/index.html" />
-    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Introduction" href="intro.html" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
 
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+    
 
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
-<form class="bd-search d-flex align-items-center"
-      action="search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         id="search-input"
-         placeholder="Search..."
-         aria-label="Search..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<div class="col-12 col-md-3 bd-sidebar site-navigation " id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="#">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/logo-classicblue-400px.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Documentation for Intel® SHMEM</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Introduction / Essentials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="intro.html">
+   Introduction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="programming_model.html">
+   Programming Model Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="memory_model.html">
+   Memory Model
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="execution_model.html">
+   Execution Model
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="supported_features.html">
+   Supported/Unsupported Features
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Library Constants and Env Vars
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="library_constants.html">
+   Library Constants
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Intel® SHMEM API
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="library_setup_exit_query.html">
+   Library Setup, Exit, and Query Routines
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="thread_support.html">
+   Thread Support
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="memory_management.html">
+   Memory Management
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="teams.html">
+   Team Management Routines
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="rma.html">
+   Remote Memory Access (RMA)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="atomics.html">
+   Atomic Memory Operations (AMO)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="signaling.html">
+   Signaling Operations
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="collectives.html">
+   Collective Operations
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="pt2pt_sync.html">
+   Point-To-Point Synchronization
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="memory_ordering.html">
+   Memory Ordering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="utility.html">
+   Utility Routines
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Build, Write, and Run Programs
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="building_ishmem.html">
+   Building Intel® SHMEM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="writing_programs.html">
+   Writing Intel® SHMEM Programs
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="compiling_and_running_programs.html">
+   Compiling and Running Programs
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ishmem_in_devcloud.html">
+   Using Intel® SHMEM in Intel® Tiber™ AI Cloud
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Acknowledgements / Copyright
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="acknowledgements.html">
+   Acknowledgements
+  </a>
+ </li>
+</ul>
 
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
 </div>
 
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-        
-      
-      <div class="bd-sidebar-primary bd-sidebar">
-        
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-    
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-  
-    
-  
-
-<a class="navbar-brand logo" href="#">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="_static/logo-classicblue-400px.png" class="logo__image only-light" alt="Documentation for Intel® SHMEM - Home"/>
-    <script>document.write(`<img src="_static/logo-classicblue-400px.png" class="logo__image only-dark" alt="Documentation for Intel® SHMEM - Home"/>`);</script>
-  
-  
-</a></div>
-        <div class="sidebar-primary-item">
-
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
-        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
-    <div class="bd-toc-item navbar-nav active">
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="programming_model.html">Programming Model Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="memory_model.html">Memory Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="execution_model.html">Execution Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="supported_features.html">Supported/Unsupported Features</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library Constants and Env Vars</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="library_constants.html">Library Constants</a></li>
+</div>
 
 
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a></li>
-<li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a></li>
-<li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="atomics.html">Atomic Memory Operations (AMO)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="signaling.html">Signaling Operations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build, Write, and Run Programs</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="building_ishmem.html">Building Intel® SHMEM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ishmem_in_devcloud.html">Using Intel® SHMEM in Intel® Tiber™ AI Cloud</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Acknowledgements / Copyright</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+          
 
 
-</ul>
-
-    </div>
-</nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-  
-  <div id="rtd-footer-container"></div>
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-
+          
+<!-- This is an invisible pixel that we watch to see if we've scrolled. -->
 <div class="sbt-scroll-pixel-helper"></div>
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            <div class="topbar-left">
+                
+                <label class="nav-toggle-button" for="__navigation">
+                    <div class="visually-hidden">Toggle navigation</div>
+                    <i class="fas fa-bars"></i>
+                </label>
+                
+            </div>
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
 
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
-<div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <span class="fa-solid fa-bars"></span>
-</button></div>
-      
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/index.rst.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+                onclick="printPdf(this)" data-toggle="tooltip" data-placement="left">.pdf</button>
     </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
-
-<div class="article-header-buttons">
-
-
-
-
-
-<div class="dropdown dropdown-download-buttons">
-  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
-    <i class="fas fa-download"></i>
-  </button>
-  <ul class="dropdown-menu">
-      
-      
-      
-      <li><a href="_sources/index.rst" target="_blank"
-   class="btn btn-sm btn-download-source-button dropdown-item"
-   title="Download source file"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-file"></i>
-  </span>
-<span class="btn__text-container">.rst</span>
-</a>
-</li>
-      
-      
-      
-      
-      <li>
-<button onclick="window.print()"
-  class="btn btn-sm btn-download-pdf-button dropdown-item"
-  title="Print to PDF"
-  data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-file-pdf"></i>
-  </span>
-<span class="btn__text-container">.pdf</span>
-</button>
-</li>
-      
-  </ul>
 </div>
 
+            <!-- Source interaction buttons -->
 
+            <!-- Full screen (wrap in <a> to have style consistency -->
 
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
 
-<button onclick="toggleFullScreen()"
-  class="btn btn-sm btn-fullscreen-button"
-  title="Fullscreen mode"
-  data-bs-placement="bottom" data-bs-toggle="tooltip"
->
-  
+            <!-- Launch buttons -->
 
-<span class="btn__icon-container">
-  <i class="fas fa-expand"></i>
-  </span>
+        </div>
 
-</button>
-
-
-
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script>
-
-
-<script>
-document.write(`
-  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
-
-</div></div>
-      
-    </div>
-  
-</div>
-</div>
-              
-              
-
-<div id="jb-print-docs-body" class="onlyprint">
-    <h1>Intel® SHMEM</h1>
-    <!-- Table of contents -->
-    <div id="print-main-content">
-        <div id="jb-print-toc">
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show noprint">
             
         </div>
     </div>
 </div>
-
-              
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Intel® SHMEM</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            
+              <div>
                 
-<div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="intel-shmem">
-<h1>Intel® SHMEM<a class="headerlink" href="#intel-shmem" title="Link to this heading">#</a></h1>
+  <div class="section" id="intel-shmem">
+<h1>Intel® SHMEM<a class="headerlink" href="#intel-shmem" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction / Essentials</span></p>
 <ul>
@@ -387,74 +346,28 @@ document.write(`
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Intel® SHMEM API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="library_setup_exit_query.html">Library Setup, Exit, and Query Routines</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-init">ISHMEM_INIT</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv411ishmem_initv"><code class="docutils literal notranslate"><span class="pre">ishmem_init()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmemx-init-attr">ISHMEMX_INIT_ATTR</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv422ishmemx_runtime_type_t"><code class="docutils literal notranslate"><span class="pre">ishmemx_runtime_type_t</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv414ishmemx_attr_t"><code class="docutils literal notranslate"><span class="pre">ishmemx_attr_t</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv417ishmemx_init_attrP14ishmemx_attr_t"><code class="docutils literal notranslate"><span class="pre">ishmemx_init_attr()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-my-pe">ISHMEM_MY_PE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv412ishmem_my_pev"><code class="docutils literal notranslate"><span class="pre">ishmem_my_pe()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-n-pes">ISHMEM_N_PES</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv412ishmem_n_pesv"><code class="docutils literal notranslate"><span class="pre">ishmem_n_pes()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-finalize">ISHMEM_FINALIZE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv415ishmem_finalizev"><code class="docutils literal notranslate"><span class="pre">ishmem_finalize()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-query-initialized">ISHMEM_QUERY_INITIALIZED</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv424ishmem_query_initializedPi"><code class="docutils literal notranslate"><span class="pre">ishmem_query_initialized()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-ptr">ISHMEM_PTR</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv410ishmem_ptrPKvi"><code class="docutils literal notranslate"><span class="pre">ishmem_ptr()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-info-get-version">ISHMEM_INFO_GET_VERSION</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv423ishmem_info_get_versionPiPi"><code class="docutils literal notranslate"><span class="pre">ishmem_info_get_version()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-info-get-name">ISHMEM_INFO_GET_NAME</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="library_setup_exit_query.html#_CPPv420ishmem_info_get_namePc"><code class="docutils literal notranslate"><span class="pre">ishmem_info_get_name()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-init">ISHMEM_INIT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmemx-init-attr">ISHMEMX_INIT_ATTR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-my-pe">ISHMEM_MY_PE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-n-pes">ISHMEM_N_PES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-finalize">ISHMEM_FINALIZE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-query-initialized">ISHMEM_QUERY_INITIALIZED</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmemx-my-device">ISHMEMX_MY_DEVICE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-ptr">ISHMEM_PTR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-info-get-version">ISHMEM_INFO_GET_VERSION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_setup_exit_query.html#ishmem-info-get-name">ISHMEM_INFO_GET_NAME</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="thread_support.html">Thread Support</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="thread_support.html#ishmem-init-thread">ISHMEM_INIT_THREAD</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="thread_support.html#_CPPv418ishmem_init_threadiPi"><code class="docutils literal notranslate"><span class="pre">ishmem_init_thread()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="thread_support.html#ishmem-query-thread">ISHMEM_QUERY_THREAD</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="thread_support.html#_CPPv419ishmem_query_threadPi"><code class="docutils literal notranslate"><span class="pre">ishmem_query_thread()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="thread_support.html#ishmem-init-thread">ISHMEM_INIT_THREAD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thread_support.html#ishmem-query-thread">ISHMEM_QUERY_THREAD</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_management.html">Memory Management</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-malloc">ISHMEM_MALLOC</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="memory_management.html#_CPPv413ishmem_malloc6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_malloc()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-free">ISHMEM_FREE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="memory_management.html#_CPPv411ishmem_freePv"><code class="docutils literal notranslate"><span class="pre">ishmem_free()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-align">ISHMEM_ALIGN</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="memory_management.html#_CPPv412ishmem_align6size_t6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_align()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-calloc">ISHMEM_CALLOC</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="memory_management.html#_CPPv413ishmem_calloc6size_t6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_calloc()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-malloc">ISHMEM_MALLOC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-free">ISHMEM_FREE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-align">ISHMEM_ALIGN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management.html#ishmem-calloc">ISHMEM_CALLOC</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="teams.html">Team Management Routines</a><ul>
@@ -463,38 +376,14 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="teams.html#thread-safety">Thread Safety</a></li>
 <li class="toctree-l2"><a class="reference internal" href="teams.html#collective-ordering">Collective Ordering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="teams.html#team-creation">Team Creation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-my-pe">ISHMEM_TEAM_MY_PE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="teams.html#_CPPv417ishmem_team_my_pe13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_my_pe()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-n-pes">ISHMEM_TEAM_N_PES</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="teams.html#_CPPv417ishmem_team_n_pes13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_n_pes()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-config-t">ISHMEM_TEAM_CONFIG_T</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="teams.html#_CPPv420ishmem_team_config_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_config_t</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-get-config">ISHMEM_TEAM_GET_CONFIG</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="teams.html#_CPPv422ishmem_team_get_config13ishmem_team_tlP20ishmem_team_config_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_get_config()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-translate-pe">ISHMEM_TEAM_TRANSLATE_PE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="teams.html#_CPPv424ishmem_team_translate_pe13ishmem_team_ti13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_translate_pe()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-split-strided">ISHMEM_TEAM_SPLIT_STRIDED</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="teams.html#_CPPv425ishmem_team_split_strided13ishmem_team_tiiiPK20ishmem_team_config_tlP13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_split_strided()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-split-2d">ISHMEM_TEAM_SPLIT_2D</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="teams.html#_CPPv420ishmem_team_split_2d13ishmem_team_tiPK20ishmem_team_config_tlP13ishmem_team_tPK20ishmem_team_config_tlP13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_split_2d()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-destroy">ISHMEM_TEAM_DESTROY</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="teams.html#_CPPv419ishmem_team_destroy13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_destroy()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-my-pe">ISHMEM_TEAM_MY_PE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-n-pes">ISHMEM_TEAM_N_PES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-config-t">ISHMEM_TEAM_CONFIG_T</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-get-config">ISHMEM_TEAM_GET_CONFIG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-translate-pe">ISHMEM_TEAM_TRANSLATE_PE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-split-strided">ISHMEM_TEAM_SPLIT_STRIDED</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-split-2d">ISHMEM_TEAM_SPLIT_2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teams.html#ishmem-team-destroy">ISHMEM_TEAM_DESTROY</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="rma.html">Remote Memory Access (RMA)</a><ul>
@@ -578,497 +467,89 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="signaling.html#ishmemx-put-signal-nbi-work-group">ISHMEMX_PUT_SIGNAL_NBI_WORK_GROUP</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmemx-signal-add">ISHMEMX_SIGNAL_ADD</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="signaling.html#_CPPv418ishmemx_signal_addP8uint64_t8uint64_ti"><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_add()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmem-signal-fetch">ISHMEM_SIGNAL_FETCH</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="signaling.html#_CPPv419ishmem_signal_fetchPK8uint64_t"><code class="docutils literal notranslate"><span class="pre">ishmem_signal_fetch()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmemx-signal-set">ISHMEMX_SIGNAL_SET</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="signaling.html#_CPPv418ishmemx_signal_setP8uint64_t8uint64_ti"><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_set()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmemx-signal-add">ISHMEMX_SIGNAL_ADD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmem-signal-fetch">ISHMEM_SIGNAL_FETCH</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signaling.html#ishmemx-signal-set">ISHMEMX_SIGNAL_SET</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="collectives.html">Collective Operations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-barrier-all">ISHMEM_BARRIER_ALL</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv418ishmem_barrier_allv"><code class="docutils literal notranslate"><span class="pre">ishmem_barrier_all()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-barrier-all-on-queue">ISHMEMX_BARRIER_ALL_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv428ishmemx_barrier_all_on_queueRKN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_barrier_all_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-barrier-all-work-group">ISHMEMX_BARRIER_ALL_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E30ishmemx_barrier_all_work_groupvRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_barrier_all_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-sync-all">ISHMEM_SYNC_ALL</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv415ishmem_sync_allv"><code class="docutils literal notranslate"><span class="pre">ishmem_sync_all()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-sync-all-on-queue">ISHMEMX_SYNC_ALL_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv425ishmemx_sync_all_on_queueRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_sync_all_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-sync-all-work-group">ISHMEMX_SYNC_ALL_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_sync_all_work_groupvRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_sync_all_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-team-sync">ISHMEM_TEAM_SYNC</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv416ishmem_team_sync13ishmem_team_t"><code class="docutils literal notranslate"><span class="pre">ishmem_team_sync()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-team-sync-on-queue">ISHMEMX_TEAM_SYNC_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmemx_team_sync_on_queue13ishmem_team_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_team_sync_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-team-sync-work-group">ISHMEMX_TEAM_SYNC_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E28ishmemx_team_sync_work_groupv13ishmem_team_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_team_sync_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-alltoall">ISHMEM_ALLTOALL</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E15ishmem_alltoalliP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_alltoall()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E15ishmem_alltoalli13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_alltoall()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv424ishmem_TYPENAME_alltoallP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_alltoall()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv424ishmem_TYPENAME_alltoall13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_alltoall()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv418ishmem_alltoallmemPvPKv6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_alltoallmem()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv418ishmem_alltoallmem13ishmem_team_tPvPKv6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_alltoallmem()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-alltoall-on-queue">ISHMEMX_ALLTOALL_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E25ishmemx_alltoall_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoall_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E25ishmemx_alltoall_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoall_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv434ishmemx_TYPENAME_alltoall_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_alltoall_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv434ishmemx_TYPENAME_alltoall_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_alltoall_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv428ishmemx_alltoallmem_on_queuePvPKv6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoallmem_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv428ishmemx_alltoallmem_on_queue13ishmem_team_tPvPKv6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoallmem_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-alltoall-work-group">ISHMEMX_ALLTOALL_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E27ishmemx_alltoall_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoall_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E27ishmemx_alltoall_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoall_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_alltoall_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_alltoall_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_alltoall_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_alltoall_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E30ishmemx_alltoallmem_work_groupiPvPKv6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoallmem_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E30ishmemx_alltoallmem_work_groupi13ishmem_team_tPvPKv6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_alltoallmem_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-broadcast">ISHMEM_BROADCAST</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E16ishmem_broadcastiP4TYPEPK4TYPE6size_ti"><code class="docutils literal notranslate"><span class="pre">ishmem_broadcast()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E16ishmem_broadcasti13ishmem_team_tP4TYPEPK4TYPE6size_ti"><code class="docutils literal notranslate"><span class="pre">ishmem_broadcast()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv425ishmem_TYPENAME_broadcastP4TYPEPK4TYPE6size_ti"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_broadcast()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv425ishmem_TYPENAME_broadcast13ishmem_team_tP4TYPEPK4TYPE6size_ti"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_broadcast()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv419ishmem_broadcastmemPvPKv6size_ti"><code class="docutils literal notranslate"><span class="pre">ishmem_broadcastmem()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv419ishmem_broadcastmem13ishmem_team_tPvPKv6size_ti"><code class="docutils literal notranslate"><span class="pre">ishmem_broadcastmem()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-broadcast-on-queue">ISHMEMX_BROADCAST_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E26ishmemx_broadcast_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tiPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcast_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E26ishmemx_broadcast_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tiPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcast_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv435ishmemx_TYPENAME_broadcast_on_queueP4TYPEPK4TYPE6size_tiPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_broadcast_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv435ishmemx_TYPENAME_broadcast_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tiPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_broadcast_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv429ishmemx_broadcastmem_on_queuePvPKv6size_tiPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv429ishmemx_broadcastmem_on_queue13ishmem_team_tPvPKv6size_tiPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-broadcast-work-group">ISHMEMX_BROADCAST_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E28ishmemx_broadcast_work_groupiP4TYPEPK4TYPE6size_tiRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcast_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E28ishmemx_broadcast_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tiRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcast_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_broadcast_work_groupiP4TYPEPK4TYPE6size_tiRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_broadcast_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_broadcast_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tiRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_broadcast_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E31ishmemx_broadcastmem_work_groupiPvPKv6size_tiRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E31ishmemx_broadcastmem_work_groupi13ishmem_team_tPvPKv6size_tiRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_broadcastmem_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-collect-ishmem-fcollect">ISHMEM_COLLECT, ISHMEM_FCOLLECT</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E14ishmem_collectiP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_collect()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E14ishmem_collecti13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_collect()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E15ishmem_fcollectiP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_fcollect()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E15ishmem_fcollecti13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_fcollect()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv423ishmem_TYPENAME_collectP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_collect()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv423ishmem_TYPENAME_collect13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_collect()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv424ishmem_TYPENAME_fcollectP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_fcollect()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv424ishmem_TYPENAME_fcollect13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_fcollect()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv417ishmem_collectmemPvPKv6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_collectmem()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv417ishmem_collectmem13ishmem_team_tPvPKv6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_collectmem()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv418ishmem_fcollectmemPvPKv6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_fcollectmem()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv418ishmem_fcollectmem13ishmem_team_tPvPKv6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_fcollectmem()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-collect-on-queue-ishmemx-fcollect-on-queue">ISHMEMX_COLLECT_ON_QUEUE, ISHMEMX_FCOLLECT_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E24ishmemx_collect_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_collect_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E24ishmemx_collect_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_collect_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E25ishmemx_fcollect_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollect_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E25ishmemx_fcollect_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollect_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv433ishmemx_TYPENAME_collect_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_collect_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv433ishmemx_TYPENAME_collect_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_collect_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv434ishmemx_TYPENAME_fcollect_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_fcollect_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv434ishmemx_TYPENAME_fcollect_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_fcollect_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv427ishmemx_collectmem_on_queuePvPKv6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_collectmem_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv427ishmemx_collectmem_on_queue13ishmem_team_tPvPKv6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_collectmem_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv428ishmemx_fcollectmem_on_queuePvPKv6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollectmem_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv428ishmemx_fcollectmem_on_queue13ishmem_team_tPvPKv6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollectmem_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-collect-work-group-ishmemx-fcollect-work-group">ISHMEMX_COLLECT_WORK_GROUP, ISHMEMX_FCOLLECT_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E26ishmemx_collect_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_collect_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E26ishmemx_collect_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_collect_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E27ishmemx_fcollect_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollect_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E27ishmemx_fcollect_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollect_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E35ishmemx_TYPENAME_collect_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_collect_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E35ishmemx_TYPENAME_collect_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_collect_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_fcollect_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_fcollect_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E36ishmemx_TYPENAME_fcollect_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_fcollect_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E29ishmemx_collectmem_work_groupiPvPKv6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_collectmem_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E29ishmemx_collectmem_work_groupi13ishmem_team_tPvPKv6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_collectmem_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E30ishmemx_fcollectmem_work_groupiPvPKv6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollectmem_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E30ishmemx_fcollectmem_work_groupi13ishmem_team_tPvPKv6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_fcollectmem_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-reduce">ISHMEM_REDUCE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_and_reduceiP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_and_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_and_reducei13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_and_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E16ishmem_or_reduceiP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_or_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E16ishmem_or_reducei13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_or_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_xor_reduceiP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_xor_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_xor_reducei13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_xor_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_max_reduceiP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_max_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_max_reducei13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_max_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_min_reduceiP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_min_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_min_reducei13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_min_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_sum_reduceiP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_sum_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_sum_reducei13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_sum_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E18ishmem_prod_reduceiP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_prod_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E18ishmem_prod_reducei13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_prod_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_and_reduceP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_and_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_and_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_and_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv425ishmem_TYPENAME_or_reduceP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_or_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv425ishmem_TYPENAME_or_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_or_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_xor_reduceP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_xor_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_xor_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_xor_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_max_reduceP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_max_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_max_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_max_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_min_reduceP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_min_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_min_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_min_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_sum_reduceP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_sum_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_sum_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_sum_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv427ishmem_TYPENAME_prod_reduceP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_prod_reduce()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv427ishmem_TYPENAME_prod_reduce13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_prod_reduce()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-reduce-on-queue">ISHMEMX_REDUCE_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_and_reduce_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_and_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_and_reduce_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_and_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E26ishmemx_or_reduce_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_or_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E26ishmemx_or_reduce_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_or_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_xor_reduce_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_xor_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_xor_reduce_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_xor_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_max_reduce_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_max_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_max_reduce_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_max_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_min_reduce_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_min_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_min_reduce_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_min_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_sum_reduce_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_sum_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_sum_reduce_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_sum_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E28ishmemx_prod_reduce_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_prod_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E28ishmemx_prod_reduce_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_prod_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_and_reduce_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_and_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_and_reduce_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_and_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv435ishmemx_TYPENAME_or_reduce_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_or_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv435ishmemx_TYPENAME_or_reduce_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_or_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_xor_reduce_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_xor_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_xor_reduce_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_xor_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_max_reduce_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_max_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_max_reduce_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_max_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_min_reduce_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_min_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_min_reduce_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_min_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_sum_reduce_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_sum_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_sum_reduce_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_sum_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv437ishmemx_TYPENAME_prod_reduce_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_prod_reduce_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv437ishmemx_TYPENAME_prod_reduce_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_prod_reduce_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-reduce-work-group">ISHMEMX_REDUCE_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_and_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_and_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_and_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_and_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E28ishmemx_or_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_or_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E28ishmemx_or_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_or_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_xor_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_xor_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_xor_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_xor_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_max_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_max_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_max_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_max_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_min_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_min_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_min_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_min_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_sum_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_sum_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E29ishmemx_sum_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_sum_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E30ishmemx_prod_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_prod_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I00E30ishmemx_prod_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_prod_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_and_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_and_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_and_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_and_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_or_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_or_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E37ishmemx_TYPENAME_or_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_or_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_xor_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_xor_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_xor_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_xor_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_max_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_max_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_max_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_max_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_min_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_min_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_min_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_min_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_sum_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_sum_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E38ishmemx_TYPENAME_sum_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_sum_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E39ishmemx_TYPENAME_prod_reduce_work_groupiP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_prod_reduce_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E39ishmemx_TYPENAME_prod_reduce_work_groupi13ishmem_team_tP4TYPEPK4TYPE6size_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_prod_reduce_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-inscan-ishmem-exscan">ISHMEM_INSCAN, ISHMEM_EXSCAN</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_sum_inscaniP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_sum_inscan()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_sum_inscani13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_sum_inscan()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_sum_exscaniP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_sum_exscan()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E17ishmem_sum_exscani13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_sum_exscan()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_sum_inscanP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_sum_inscan()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_sum_inscan13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_sum_inscan()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_sum_exscanP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_sum_exscan()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv426ishmem_TYPENAME_sum_exscan13ishmem_team_tP4TYPEPK4TYPE6size_t"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_sum_exscan()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-sum-inscan-on-queue-ishmemx-sum-exscan-on-queue">ISHMEMX_SUM_INSCAN_ON_QUEUE, ISHMEMX_SUM_EXSCAN_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_sum_inscan_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_sum_inscan_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_sum_inscan_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_sum_inscan_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_sum_exscan_on_queueN4sycl5eventEP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_sum_exscan_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv4I0E27ishmemx_sum_exscan_on_queueN4sycl5eventE13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_sum_exscan_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_sum_inscan_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_sum_inscan_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_sum_inscan_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_sum_inscan_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_sum_exscan_on_queueP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_sum_exscan_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="collectives.html#_CPPv436ishmemx_TYPENAME_sum_exscan_on_queue13ishmem_team_tP4TYPEPK4TYPE6size_tPiRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_sum_exscan_on_queue()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-barrier-all">ISHMEM_BARRIER_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-barrier-all-on-queue">ISHMEMX_BARRIER_ALL_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-barrier-all-work-group">ISHMEMX_BARRIER_ALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-sync-all">ISHMEM_SYNC_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-sync-all-on-queue">ISHMEMX_SYNC_ALL_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-sync-all-work-group">ISHMEMX_SYNC_ALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-team-sync">ISHMEM_TEAM_SYNC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-team-sync-on-queue">ISHMEMX_TEAM_SYNC_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-team-sync-work-group">ISHMEMX_TEAM_SYNC_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-alltoall">ISHMEM_ALLTOALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-alltoall-on-queue">ISHMEMX_ALLTOALL_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-alltoall-work-group">ISHMEMX_ALLTOALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-broadcast">ISHMEM_BROADCAST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-broadcast-on-queue">ISHMEMX_BROADCAST_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-broadcast-work-group">ISHMEMX_BROADCAST_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-collect-ishmem-fcollect">ISHMEM_COLLECT, ISHMEM_FCOLLECT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-collect-on-queue-ishmemx-fcollect-on-queue">ISHMEMX_COLLECT_ON_QUEUE, ISHMEMX_FCOLLECT_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-collect-work-group-ishmemx-fcollect-work-group">ISHMEMX_COLLECT_WORK_GROUP, ISHMEMX_FCOLLECT_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-reduce">ISHMEM_REDUCE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-reduce-on-queue">ISHMEMX_REDUCE_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-reduce-work-group">ISHMEMX_REDUCE_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmem-inscan-ishmem-exscan">ISHMEM_INSCAN, ISHMEM_EXSCAN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectives.html#ishmemx-sum-inscan-on-queue-ishmemx-sum-exscan-on-queue">ISHMEMX_SUM_INSCAN_ON_QUEUE, ISHMEMX_SUM_EXSCAN_ON_QUEUE</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pt2pt_sync.html">Point-To-Point Synchronization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until">ISHMEM_WAIT_UNTIL</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E17ishmem_wait_untilvP4TYPEi4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv426ishmem_TYPENAME_wait_untilP4TYPEi4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_wait_until()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-on-queue">ISHMEMX_WAIT_UNTIL_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E27ishmemx_wait_until_on_queueN4sycl5eventEP4TYPEi4TYPERN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv436ishmemx_TYPENAME_wait_until_on_queueP4TYPEi4TYPERN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-work-group">ISHMEMX_WAIT_UNTIL_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E29ishmemx_wait_until_work_groupvP4TYPEi4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E38ishmemx_TYPENAME_wait_until_work_groupvP4TYPEi4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-all">ISHMEM_WAIT_UNTIL_ALL</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E21ishmem_wait_until_allvP4TYPE6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_all()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv430ishmem_TYPENAME_wait_until_allP4TYPE6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_wait_until_all()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-all-on-queue">ISHMEMX_WAIT_UNTIL_ALL_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E31ishmemx_wait_until_all_on_queueN4sycl5eventEP4TYPE6size_tPKii4TYPERN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_all_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv440ishmemx_TYPENAME_wait_until_all_on_queueP4TYPE6size_tPKii4TYPERN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_all_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-all-work-group">ISHMEMX_WAIT_UNTIL_ALL_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E33ishmemx_wait_until_all_work_groupvP4TYPE6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_all_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E42ishmemx_TYPENAME_wait_until_all_work_groupvP4TYPE6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_all_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-any">ISHMEM_WAIT_UNTIL_ANY</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E21ishmem_wait_until_any6size_tP4TYPE6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_any()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv430ishmem_TYPENAME_wait_until_anyP4TYPE6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_wait_until_any()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-any-on-queue">ISHMEMX_WAIT_UNTIL_ANY_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E31ishmemx_wait_until_any_on_queueN4sycl5eventEP4TYPE6size_tPKii4TYPEP6size_tRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_any_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv440ishmemx_TYPENAME_wait_until_any_on_queueP4TYPE6size_tPKii4TYPEP6size_tRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_any_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-any-work-group">ISHMEMX_WAIT_UNTIL_ANY_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E33ishmemx_wait_until_any_work_group6size_tP4TYPE6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_any_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E42ishmemx_TYPENAME_wait_until_any_work_group6size_tP4TYPE6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_any_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-some">ISHMEM_WAIT_UNTIL_SOME</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E22ishmem_wait_until_some6size_tP4TYPE6size_tP6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_some()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv431ishmem_TYPENAME_wait_until_someP4TYPE6size_tP6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_wait_until_some()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-some-on-queue">ISHMEMX_WAIT_UNTIL_SOME_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E32ishmemx_wait_until_some_on_queueN4sycl5eventEP4TYPE6size_tP6size_tPKii4TYPEP6size_tRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_some_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv441ishmemx_TYPENAME_wait_until_some_on_queueP4TYPE6size_tP6size_tPKii4TYPEP6size_tRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_some_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-some-work-group">ISHMEMX_WAIT_UNTIL_SOME_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E34ishmemx_wait_until_some_work_group6size_tP4TYPE6size_tP6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_some_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E43ishmemx_TYPENAME_wait_until_some_work_group6size_tP4TYPE6size_tP6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_some_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-all-vector">ISHMEM_WAIT_UNTIL_ALL_VECTOR</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E28ishmem_wait_until_all_vectorvP4TYPE6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_all_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv437ishmem_TYPENAME_wait_until_all_vectorP4TYPE6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_wait_until_all_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-all-vector-on-queue">ISHMEMX_WAIT_UNTIL_ALL_VECTOR_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E38ishmemx_wait_until_all_vector_on_queueN4sycl5eventEP4TYPE6size_tPKiiPK4TYPERN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_all_vector_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv447ishmemx_TYPENAME_wait_until_all_on_vector_queueP4TYPE6size_tPKiiPK4TYPERN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_all_on_vector_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-all-vector-work-group">ISHMEMX_WAIT_UNTIL_ALL_VECTOR_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E40ishmemx_wait_until_all_vector_work_groupvP4TYPE6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_all_vector_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E49ishmemx_TYPENAME_wait_until_all_vector_work_groupvP4TYPE6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_all_vector_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-any-vector">ISHMEM_WAIT_UNTIL_ANY_VECTOR</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E28ishmem_wait_until_any_vector6size_tP4TYPE6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_any_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv437ishmem_TYPENAME_wait_until_any_vectorP4TYPE6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_wait_until_any_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-any-vector-on-queue">ISHMEMX_WAIT_UNTIL_ANY_VECTOR_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E38ishmemx_wait_until_any_vector_on_queueN4sycl5eventEP4TYPE6size_tPKiiPK4TYPEP6size_tRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_any_vector_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv447ishmemx_TYPENAME_wait_until_any_vector_on_queueP4TYPE6size_tPKiiPK4TYPEP6size_tRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_any_vector_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-any-vector-work-group">ISHMEMX_WAIT_UNTIL_ANY_VECTOR_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E40ishmemx_wait_until_any_vector_work_group6size_tP4TYPE6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_any_vector_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E49ishmemx_TYPENAME_wait_until_any_vector_work_group6size_tP4TYPE6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_any_vector_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-some-vector">ISHMEM_WAIT_UNTIL_SOME_VECTOR</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E29ishmem_wait_until_some_vector6size_tP4TYPE6size_tP6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_wait_until_some_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv439ishmem_TYPENAME_wait_until_some_vector_P4TYPE6size_tP6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_wait_until_some_vector_()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-some-vector-on-queue">ISHMEMX_WAIT_UNTIL_SOME_VECTOR_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E39ishmemx_wait_until_some_vector_on_queueN4sycl5eventEP4TYPE6size_tP6size_tPKiiPK4TYPEP6size_tRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_some_vector_on_queue()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv448ishmemx_TYPENAME_wait_until_some_vector_on_queueP4TYPE6size_tP6size_tPKiiPK4TYPEP6size_tRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_some_vector_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-some-vector-work-group">ISHMEMX_WAIT_UNTIL_SOME_VECTOR_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E41ishmemx_wait_until_some_vector_work_group6size_tP4TYPE6size_tP6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_wait_until_some_vector_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E50ishmemx_TYPENAME_wait_until_some_vector_work_group6size_tP4TYPE6size_tP6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_wait_until_some_vector_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test">ISHMEM_TEST</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E11ishmem_testiP4TYPEi4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_test()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv420ishmem_TYPENAME_testP4TYPEi4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_test()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-work-group">ISHMEMX_TEST_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E23ishmemx_test_work_groupiP4TYPEi4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_test_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E32ishmemx_TYPENAME_test_work_groupiP4TYPEi4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_test_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-all">ISHMEM_TEST_ALL</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E15ishmem_test_alliP4TYPE6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_test_all()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv424ishmem_TYPENAME_test_allP4TYPE6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_test_all()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-all-work-group">ISHMEMX_TEST_ALL_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E27ishmemx_test_all_work_groupiP4TYPE6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_test_all_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E36ishmemx_TYPENAME_test_all_work_groupiP4TYPE6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_test_all_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-any">ISHMEM_TEST_ANY</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E15ishmem_test_any6size_tP4TYPE6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_test_any()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv424ishmem_TYPENAME_test_anyP4TYPE6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_test_any()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-any-work-group">ISHMEMX_TEST_ANY_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E27ishmemx_test_any_work_group6size_tP4TYPE6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_test_any_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E36ishmemx_TYPENAME_test_any_work_group6size_tP4TYPE6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_test_any_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-some">ISHMEM_TEST_SOME</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E16ishmem_test_some6size_tP4TYPE6size_tP6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_test_some()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv425ishmem_TYPENAME_test_someP4TYPE6size_tP6size_tPKii4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_test_some()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-some-work-group">ISHMEMX_TEST_SOME_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E28ishmemx_test_some_work_group6size_tP4TYPE6size_tP6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_test_some_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E37ishmemx_TYPENAME_test_some_work_group6size_tP4TYPE6size_tP6size_tPKii4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_test_some_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-all-vector">ISHMEM_TEST_ALL_VECTOR</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E22ishmem_test_all_vectoriP4TYPE6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_test_all_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv431ishmem_TYPENAME_test_all_vectorP4TYPE6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_test_all_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-all-vector-work-group">ISHMEMX_TEST_ALL_VECTOR_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E34ishmemx_test_all_vector_work_groupiP4TYPE6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_test_all_vector_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E43ishmemx_TYPENAME_test_all_vector_work_groupiP4TYPE6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_test_all_vector_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-any-vector">ISHMEM_TEST_ANY_VECTOR</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E22ishmem_test_any_vector6size_tP4TYPE6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_test_any_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv431ishmem_TYPENAME_test_any_vectorP4TYPE6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_test_any_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-any-vector-work-group">ISHMEMX_TEST_ANY_VECTOR_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E34ishmemx_test_any_vector_work_group6size_tP4TYPE6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_test_any_vector_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E43ishmemx_TYPENAME_test_any_vector_work_group6size_tP4TYPE6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_test_any_vector_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-some-vector">ISHMEM_TEST_SOME_VECTOR</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E23ishmem_test_some_vector6size_tP4TYPE6size_tP6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_test_some_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv432ishmem_TYPENAME_test_some_vectorP4TYPE6size_tP6size_tPKiiPK4TYPE"><code class="docutils literal notranslate"><span class="pre">ishmem_TYPENAME_test_some_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-some-vector-work-group">ISHMEMX_TEST_SOME_VECTOR_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I00E35ishmemx_test_some_vector_work_group6size_tP4TYPE6size_tP6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_test_some_vector_work_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv4I0E44ishmemx_TYPENAME_test_some_vector_work_group6size_tP4TYPE6size_tP6size_tPKiiPK4TYPERK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_TYPENAME_test_some_vector_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-signal-wait-until">ISHMEM_SIGNAL_WAIT_UNTIL</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv424ishmem_signal_wait_untilP8uint64_ti8uint64_t"><code class="docutils literal notranslate"><span class="pre">ishmem_signal_wait_until()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-signal-wait-until-on-queue">ISHMEMX_SIGNAL_WAIT_UNTIL_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv434ishmemx_signal_wait_until_on_queueP8uint64_ti8uint64_tP8uint64_tRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_wait_until_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-signal-wait-until-work-group">ISHMEMX_SIGNAL_WAIT_UNTIL_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pt2pt_sync.html#_CPPv436ishmemx_signal_wait_until_work_groupP8uint64_ti8uint64_tRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_signal_wait_until_work_group()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until">ISHMEM_WAIT_UNTIL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-on-queue">ISHMEMX_WAIT_UNTIL_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-work-group">ISHMEMX_WAIT_UNTIL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-all">ISHMEM_WAIT_UNTIL_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-all-on-queue">ISHMEMX_WAIT_UNTIL_ALL_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-all-work-group">ISHMEMX_WAIT_UNTIL_ALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-any">ISHMEM_WAIT_UNTIL_ANY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-any-on-queue">ISHMEMX_WAIT_UNTIL_ANY_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-any-work-group">ISHMEMX_WAIT_UNTIL_ANY_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-some">ISHMEM_WAIT_UNTIL_SOME</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-some-on-queue">ISHMEMX_WAIT_UNTIL_SOME_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-some-work-group">ISHMEMX_WAIT_UNTIL_SOME_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-all-vector">ISHMEM_WAIT_UNTIL_ALL_VECTOR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-all-vector-on-queue">ISHMEMX_WAIT_UNTIL_ALL_VECTOR_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-all-vector-work-group">ISHMEMX_WAIT_UNTIL_ALL_VECTOR_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-any-vector">ISHMEM_WAIT_UNTIL_ANY_VECTOR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-any-vector-on-queue">ISHMEMX_WAIT_UNTIL_ANY_VECTOR_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-any-vector-work-group">ISHMEMX_WAIT_UNTIL_ANY_VECTOR_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-wait-until-some-vector">ISHMEM_WAIT_UNTIL_SOME_VECTOR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-some-vector-on-queue">ISHMEMX_WAIT_UNTIL_SOME_VECTOR_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-wait-until-some-vector-work-group">ISHMEMX_WAIT_UNTIL_SOME_VECTOR_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test">ISHMEM_TEST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-work-group">ISHMEMX_TEST_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-all">ISHMEM_TEST_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-all-work-group">ISHMEMX_TEST_ALL_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-any">ISHMEM_TEST_ANY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-any-work-group">ISHMEMX_TEST_ANY_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-some">ISHMEM_TEST_SOME</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-some-work-group">ISHMEMX_TEST_SOME_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-all-vector">ISHMEM_TEST_ALL_VECTOR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-all-vector-work-group">ISHMEMX_TEST_ALL_VECTOR_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-any-vector">ISHMEM_TEST_ANY_VECTOR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-any-vector-work-group">ISHMEMX_TEST_ANY_VECTOR_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-test-some-vector">ISHMEM_TEST_SOME_VECTOR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-test-some-vector-work-group">ISHMEMX_TEST_SOME_VECTOR_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmem-signal-wait-until">ISHMEM_SIGNAL_WAIT_UNTIL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-signal-wait-until-on-queue">ISHMEMX_SIGNAL_WAIT_UNTIL_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pt2pt_sync.html#ishmemx-signal-wait-until-work-group">ISHMEMX_SIGNAL_WAIT_UNTIL_WORK_GROUP</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="memory_ordering.html">Memory Ordering</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmem-fence">ISHMEM_FENCE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="memory_ordering.html#_CPPv412ishmem_fencev"><code class="docutils literal notranslate"><span class="pre">ishmem_fence()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-fence-work-group">ISHMEMX_FENCE_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="memory_ordering.html#_CPPv424ishmemx_fence_work_groupRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_fence_work_group()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmem-quiet">ISHMEM_QUIET</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="memory_ordering.html#_CPPv412ishmem_quietv"><code class="docutils literal notranslate"><span class="pre">ishmem_quiet()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-quiet-on-queue">ISHMEMX_QUIET_ON_QUEUE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="memory_ordering.html#_CPPv422ishmemx_quiet_on_queueRN4sycl5queueERKNSt6vectorIN4sycl5eventEEE"><code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_on_queue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group">ISHMEMX_QUIET_WORK_GROUP</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="memory_ordering.html#_CPPv424ishmemx_quiet_work_groupRK5Group"><code class="docutils literal notranslate"><span class="pre">ishmemx_quiet_work_group()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmem-fence">ISHMEM_FENCE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-fence-work-group">ISHMEMX_FENCE_WORK_GROUP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmem-quiet">ISHMEM_QUIET</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-quiet-on-queue">ISHMEMX_QUIET_ON_QUEUE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_ordering.html#ishmemx-quiet-work-group">ISHMEMX_QUIET_WORK_GROUP</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utility.html">Utility Routines</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="utility.html#ishmemx-print-msg-type-t">ISHMEMX_PRINT_MSG_TYPE_T</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="utility.html#_CPPv424ishmemx_print_msg_type_t"><code class="docutils literal notranslate"><span class="pre">ishmemx_print_msg_type_t</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="utility.html#ishmemx-print">ISHMEMX_PRINT</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="utility.html#_CPPv413ishmemx_printPKc"><code class="docutils literal notranslate"><span class="pre">ishmemx_print()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="utility.html#_CPPv413ishmemx_printPKc24ishmemx_print_msg_type_t"><code class="docutils literal notranslate"><span class="pre">ishmemx_print()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="utility.html#_CPPv413ishmemx_printPKclPKcPKc24ishmemx_print_msg_type_t"><code class="docutils literal notranslate"><span class="pre">ishmemx_print()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="utility.html#ishmemx-print-msg-type-t">ISHMEMX_PRINT_MSG_TYPE_T</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utility.html#ishmemx-print">ISHMEMX_PRINT</a></li>
 </ul>
 </li>
 </ul>
@@ -1084,6 +565,7 @@ document.write(`
 </li>
 <li class="toctree-l1"><a class="reference internal" href="writing_programs.html">Writing Intel® SHMEM Programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compiling_and_running_programs.html">Compiling and Running Programs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compiling_and_running_programs.html#launcher-independent-mpi-initialization">Launcher-Independent MPI Initialization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="compiling_and_running_programs.html#selecting-spir-v-compilation-targets">Selecting SPIR-V Compilation Targets</a></li>
 </ul>
 </li>
@@ -1098,82 +580,40 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="acknowledgements.html#copyright">Copyright</a></li>
 </ul>
 </div>
-</section>
+</div>
 
 
-                </article>
+              </div>
               
-
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
-<div class="prev-next-area">
-    <a class="right-next"
-       href="intro.html"
-       title="next page">
-      <div class="prev-next-info">
+            
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='right-next' id="next-link" href="intro.html" title="next page">
+    <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
         <p class="prev-next-title">Introduction</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
+    </div>
+    <i class="fas fa-angle-right"></i>
     </a>
 </div>
-                </footer>
-              
-            </div>
             
-            
-              
-            
-          </div>
-          <footer class="bd-footer-content">
-            
-<div class="bd-footer-content__inner container">
-  
-  <div class="footer-item">
-    
-<p class="component-author">
-By Intel Corporation
-</p>
-
-  </div>
-  
-  <div class="footer-item">
-    
-
-  <p class="copyright">
-    
-      © Copyright 2024 Intel Corporation licensed under Creative Commons BY 4.0.
-      <br/>
-    
-  </p>
-
-  </div>
-  
-  <div class="footer-item">
-    
-  </div>
-  
-  <div class="footer-item">
-    
-  </div>
-  
-</div>
-          </footer>
-        
-
-      </main>
+        </div>
     </div>
-  </div>
-  
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+    <footer class="footer">
+  <p>
+    
+      By Intel Corporation<br/>
+    
+        &copy; Copyright 2025 Intel Corporation licensed under Creative Commons BY 4.0.<br/>
+  </p>
+</footer>
+</main>
 
-  <footer class="bd-footer">
-  </footer>
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+
   </body>
 </html>
