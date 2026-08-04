@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2023-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -15,6 +15,11 @@ typedef enum {
     SHARED,
     NODE
 } ishmemi_runtime_team_predefined_t;
+
+/* Internal UID implementation */
+struct ishmemi_uid {
+    int rank;
+};
 
 int ishmemi_runtime_init(ishmemx_attr_t *);
 int ishmemi_runtime_fini(void);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -156,7 +156,8 @@ struct CMD {
     testmode_t mode;
 };
 
-sycl::property_list prop_list{sycl::property::queue::enable_profiling()};
+sycl::property_list prop_list{sycl::property::queue::enable_profiling(),
+                              sycl::property::queue::in_order()};
 
 typedef void (*ishmem_test_fn_t)(sycl::queue q, ishmem_team_t *p_wg_teams, int *res, void *dest,
                                  void *src, size_t nelems);

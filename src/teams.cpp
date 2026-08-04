@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Portions derived from Sandia OpenSHMEM (https://github.com/Sandia-OpenSHMEM/SOS)
@@ -22,10 +22,17 @@
 #define ISHMEMI_SYNC_SIZE 32
 #define PSYNC_CHUNK_SIZE  (N_PSYNCS_PER_TEAM * ISHMEMI_SYNC_SIZE)
 
-static int team_ret_val; /* These are globals so they can be used in a collective */
-static int team_ret_val_reduced;
-static unsigned char psync_pool_avail[N_PSYNC_BYTES];
-static unsigned char psync_pool_avail_reduced[N_PSYNC_BYTES];
+/* Source/destination operands for the team-management reductions in
+ * ishmemi_team_split_strided. They must live in the runtime's symmetric heap: OpenSHMEM
+ * reductions require symmetric operands, and only the executable's data segment (plus the
+ * symmetric heap) is symmetric. When ishmem is built as a shared library these buffers would
+ * otherwise land in libishmem_host.so's BSS, which is not part of the symmetric region, so the
+ * runtime rejects them ("address outside of symmetric areas"). Allocating them from the
+ * symmetric heap keeps team creation working for both static and shared host linking. */
+static int *team_ret_val;
+static int *team_ret_val_reduced;
+static unsigned char *psync_pool_avail;
+static unsigned char *psync_pool_avail_reduced;
 
 /* Checks whether a PE has a consistent stride given (start, stride, size).
  * This function is useful within a loop across PE IDs, and sets 'start',
@@ -119,6 +126,15 @@ int ishmemi_team_init(void)
     if (ishmemi_params.TEAMS_MAX < ISHMEMI_TEAMS_MIN) ishmemi_params.TEAMS_MAX = ISHMEMI_TEAMS_MIN;
     ishmemi_cpu_info->n_teams = n_teams;
     ishmemi_mmap_gpu_info->n_teams = n_teams;
+
+    /* Allocate the reduction operands from the symmetric heap (see declaration comment). */
+    psync_pool_avail = (unsigned char *) ishmemi_runtime->malloc(N_PSYNC_BYTES);
+    psync_pool_avail_reduced = (unsigned char *) ishmemi_runtime->malloc(N_PSYNC_BYTES);
+    team_ret_val = (int *) ishmemi_runtime->malloc(sizeof(int));
+    team_ret_val_reduced = (int *) ishmemi_runtime->malloc(sizeof(int));
+    ISHMEM_CHECK_GOTO_MSG(psync_pool_avail == nullptr || psync_pool_avail_reduced == nullptr ||
+                              team_ret_val == nullptr || team_ret_val_reduced == nullptr,
+                          cleanup, "Allocation of team-management reduction buffers failed\n");
 
     ::memset(psync_pool_avail, 0, N_PSYNC_BYTES);
     for (size_t i = 0; i < ishmemi_mmap_gpu_info->n_teams; i++) {
@@ -252,6 +268,10 @@ int ishmemi_team_init(void)
 cleanup:
     ISHMEMI_FREE(ishmemi_runtime->free, ishmemi_cpu_info->team_host_pool);
     ISHMEMI_FREE(ishmemi_free, ishmemi_mmap_gpu_info->team_device_pool);
+    ISHMEMI_FREE(ishmemi_runtime->free, psync_pool_avail);
+    ISHMEMI_FREE(ishmemi_runtime->free, psync_pool_avail_reduced);
+    ISHMEMI_FREE(ishmemi_runtime->free, team_ret_val);
+    ISHMEMI_FREE(ishmemi_runtime->free, team_ret_val_reduced);
 
     return -1;
 }
@@ -287,6 +307,11 @@ int ishmemi_team_fini(void)
     ISHMEMI_FREE(ishmemi_free, ishmemi_mmap_gpu_info->team_device_pool);
     /* Free the host team resources */
     ISHMEMI_FREE(ishmemi_runtime->free, ishmemi_cpu_info->team_host_pool);
+    /* Free the symmetric team-management reduction buffers */
+    ISHMEMI_FREE(ishmemi_runtime->free, psync_pool_avail);
+    ISHMEMI_FREE(ishmemi_runtime->free, psync_pool_avail_reduced);
+    ISHMEMI_FREE(ishmemi_runtime->free, team_ret_val);
+    ISHMEMI_FREE(ishmemi_runtime->free, team_ret_val_reduced);
 
     return 0;
 }
@@ -326,8 +351,8 @@ int ishmemi_team_split_strided(ishmem_team_t parent_team_idx, int PE_start, int 
 
     /* do the bit reduction to find a team slot, then fill it in */
 
-    team_ret_val = 0;
-    team_ret_val_reduced = 0;
+    *team_ret_val = 0;
+    *team_ret_val_reduced = 0;
     bool psync_pool_bit_cleared = false;
 
     int my_team_pe =
@@ -371,7 +396,7 @@ int ishmemi_team_split_strided(ishmem_team_t parent_team_idx, int PE_start, int 
                             ishmemi_params.TEAMS_MAX);
             /* No psync was available, but must call barrier across parent team before returning. */
             *new_team = ISHMEM_TEAM_INVALID;
-            team_ret_val = 1;
+            *team_ret_val = 1;
         } else {
             /* Set the selected psync bit to 0, reserving that slot */
             ishmemi_bit_clear(psync_pool_avail, N_PSYNC_BYTES, static_cast<size_t>(*new_team));
@@ -426,8 +451,8 @@ int ishmemi_team_split_strided(ishmem_team_t parent_team_idx, int PE_start, int 
     ISHMEM_CHECK_RETURN_MSG(ret, "Call to ishmemi_runtime->team_sync failed\n");
 
     /* This MAX reduction assures all PEs return the same value.  */
-    ret = ishmemi_runtime->int_max_reduce(parent_team->runtime_team, &team_ret_val_reduced,
-                                          &team_ret_val, 1);
+    ret = ishmemi_runtime->int_max_reduce(parent_team->runtime_team, team_ret_val_reduced,
+                                          team_ret_val, 1);
     ISHMEM_CHECK_RETURN_MSG(ret, "Call to ishmemi_int_max_reduce failed\n");
 
     /* If no team was available, print some team triplet info and return nonzero. */
@@ -441,7 +466,7 @@ int ishmemi_team_split_strided(ishmem_team_t parent_team_idx, int PE_start, int 
         }
         goto cleanup;
     }
-    return team_ret_val_reduced;
+    return *team_ret_val_reduced;
 
 cleanup:
     if (runtime_team_set) ishmemi_runtime->team_destroy(new_runtime_team);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -33,7 +33,7 @@ ISHMEM_DEVICE_ATTRIBUTES inline void ishmemi_team_sync(ishmem_team_t team)
     if constexpr (ishmemi_is_device) {
         ishmemi_info_t *info = global_info;
         ishmemi_team_device_t *team_ptr = &info->team_device_pool[team];
-        if (team_ptr->only_intra) {
+        if (team_ptr->only_intra && info->device_atomics) {
             sycl::atomic_fence(sycl::memory_order::seq_cst, sycl::memory_scope::system);
 
             int index = team_ptr->psync_idx;

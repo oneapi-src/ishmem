@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2024-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -46,12 +46,14 @@ int ishmemi_runtime_init(ishmemx_attr_t *attr)
     switch (attr->runtime) {
         case ISHMEMX_RUNTIME_MPI:
 #if defined(ENABLE_MPI)
-            ishmemi_runtime = new ishmemi_runtime_mpi(attr->initialize_runtime, attr->mpi_comm);
+            ishmemi_runtime =
+                new ishmemi_runtime_mpi(attr->initialize_runtime, attr->mpi_comm, attr->use_uid,
+                                        attr->uid, attr->nranks, attr->rank);
             ISHMEM_CHECK_GOTO_MSG(ishmemi_runtime == nullptr, fn_fail,
                                   "MPI runtime instance allocation failed\n");
 #else
             ISHMEM_ERROR_MSG(
-                "MPI runtime was selected, but Intel® SHMEM is not built with MPI support\n");
+                "MPI runtime was selected, but Intel(R) SHMEM is not built with MPI support\n");
             ret = -1;
 #endif
             break;
@@ -63,7 +65,7 @@ int ishmemi_runtime_init(ishmemx_attr_t *attr)
                                   "SHMEM runtime instance allocation failed\n");
 #else
             ISHMEM_ERROR_MSG(
-                "OpenSHMEM runtime was selected, but Intel® SHMEM is not built with OpenSHMEM "
+                "OpenSHMEM runtime was selected, but Intel(R) SHMEM is not built with OpenSHMEM "
                 "support\n");
             ret = -1;
 #endif
@@ -75,7 +77,7 @@ int ishmemi_runtime_init(ishmemx_attr_t *attr)
                                   "PMI runtime instance allocation failed\n");
 #else
             ISHMEM_ERROR_MSG(
-                "PMI runtime was selected, but Intel® SHMEM is not built with PMI support\n");
+                "PMI runtime was selected, but Intel(R) SHMEM is not built with PMI support\n");
             ret = -1;
 #endif
             break;

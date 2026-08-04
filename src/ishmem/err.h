@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2024-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -14,7 +14,7 @@
 #define ISHMEMI_ERROR_ZE   2
 #define ISHMEMI_ERROR_SOCK 3
 
-#define RAISE_PE_PREFIX     "[%04d]        "
+#define RAISE_PE_PREFIX     "[%4s]        "
 #define ISHMEMI_DIAG_STRLEN 1024
 
 void ishmemi_print_trace();
@@ -49,15 +49,21 @@ void ishmemi_print_trace();
 #define ISHMEM_COMMON_MSG_INTERNAL(typestring, file, line, func, ...)                              \
     do {                                                                                           \
         char str[ISHMEMI_DIAG_STRLEN];                                                             \
+        char pe_label[5];                                                                          \
         size_t off;                                                                                \
+        if (ishmemi_my_pe < 0) {                                                                   \
+            (void) snprintf(pe_label, sizeof(pe_label), "%s", "INIT");                             \
+        } else {                                                                                   \
+            (void) snprintf(pe_label, sizeof(pe_label), "%04d", ishmemi_my_pe);                    \
+        }                                                                                          \
         if (ishmemi_params.ENABLE_VERBOSE_PRINT) {                                                 \
-            off = (size_t) snprintf(str, sizeof(str), "[%04d] %s:  %s:%ld: %s\n", ishmemi_my_pe,   \
+            off = (size_t) snprintf(str, sizeof(str), "[%4s] %s:  %s:%ld: %s\n", pe_label,         \
                                     typestring, file, line, func);                                 \
         } else {                                                                                   \
-            off = (size_t) snprintf(str, sizeof(str), "[%04d] %s: %s\n", ishmemi_my_pe,            \
-                                    typestring, func);                                             \
+            off =                                                                                  \
+                (size_t) snprintf(str, sizeof(str), "[%4s] %s: %s\n", pe_label, typestring, func); \
         }                                                                                          \
-        off += (size_t) snprintf(str + off, sizeof(str) - off, RAISE_PE_PREFIX, ishmemi_my_pe);    \
+        off += (size_t) snprintf(str + off, sizeof(str) - off, RAISE_PE_PREFIX, pe_label);         \
         off += (size_t) snprintf(str + off, sizeof(str) - off, __VA_ARGS__);                       \
         fprintf(stderr, "%s", str);                                                                \
     } while (0)

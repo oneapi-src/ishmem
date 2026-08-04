@@ -1,11 +1,11 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2024-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef ISHMEM_INTRINSIC_H
 #define ISHMEM_INTRINSIC_H
 
-/* This block of code enables the Intel® Graphics Compiler
+/* This block of code enables the Intel(R) Graphics Compiler
  * intrinsic instruction for an uncached store
  *
  * if USE_BUILTIN==1, then the intrinsic is used

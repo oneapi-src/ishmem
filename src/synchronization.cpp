@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -8,21 +8,51 @@
 #include "ishmem/util.h"
 #include "on_queue.h"
 
-/* Test */
 template <typename T>
-int ishmem_test(T *ivar, int cmp, T cmp_value)
+static inline int ishmemi_device_test(T *ivar, int cmp, T cmp_value)
 {
-    if constexpr (enable_error_checking) {
-        validate_parameters((void *) ivar, sizeof(T));
-    }
-#ifdef __SYCL_DEVICE_ONLY__
     sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
                      sycl::access::address_space::global_space>
         atomic_ivar(*ivar);
     T atomic_val = atomic_ivar.load();
     return (ishmemi_comparison<T>(atomic_val, cmp_value, cmp) > 0);
-#else
+}
+
+template <typename T>
+static inline void ishmemi_device_wait(T *ivar, int cmp, T cmp_value)
+{
+    sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
+                     sycl::access::address_space::global_space>
+        atomic_ivar(*ivar);
+    T atomic_val = 0;
+    do {
+        atomic_val = atomic_ivar.load();
+        if (ishmemi_comparison<T>(atomic_val, cmp_value, cmp) > 0) return;
+        while (atomic_ivar.load(sycl::memory_order::seq_cst, sycl::memory_scope::system) ==
+               atomic_val) {
+        }
+    } while (true);
+}
+
+/* Test */
+template <typename T>
+int ishmem_test(T *ivar, int cmp, T cmp_value)
+{
     int ret = 0;
+
+    if constexpr (enable_error_checking) {
+        validate_parameters((void *) ivar, sizeof(T));
+    }
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            return ishmemi_device_test(ivar, cmp, cmp_value);
+        }
+    }
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivar;
     req.nelems = 1;
@@ -30,29 +60,36 @@ int ishmem_test(T *ivar, int cmp, T cmp_value)
     ishmemi_union_set_field_value<T, TEST>(req.cmp_value, cmp_value);
     req.op = TEST;
     req.type = ishmemi_union_get_base_type<T, TEST>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<int, TEST>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.i;
-    return ret;
 #endif
+    return ret;
 }
 
 /* Test (work-group) */
 template <typename T, typename Group>
 int ishmemx_test_work_group(T *ivar, int cmp, T cmp_value, const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    int result = 0;
-    sycl::group_barrier(grp);
-    if (grp.leader()) {
-        result = ishmem_test(ivar, cmp, cmp_value);
+    int ret = 0;
+
+    if constexpr (ishmemi_is_device) {
+        sycl::group_barrier(grp);
+        if (grp.leader()) {
+            ret = ishmem_test(ivar, cmp, cmp_value);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        sycl::group_barrier(grp); /* TODO not needed if group_broadcast actually works */
+
+        return ret;
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_TEST_WORK_GROUP routines are not callable from host\n");
+        return -1;
     }
-    result = sycl::group_broadcast(grp, result);
-    sycl::group_barrier(grp); /* TODO not needed if group_broadcast actually works */
-    return result;
-#else
-    RAISE_ERROR_MSG("ISHMEMX_TEST_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -82,24 +119,27 @@ ISHMEMI_API_IMPL_TEST(ptrdiff, ptrdiff_t)
 template <typename T>
 int ishmem_test_all(T *ivars, size_t nelems, const int *status, int cmp, T cmp_value)
 {
+    int ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(int), ishmemi_op_t::TEST_ALL);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    T atomic_val = 0;
-    for (size_t i = 0; i < nelems; i++) {
-        if (!status || !status[i]) {
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_ivar(ivars[i]);
-            atomic_val = atomic_ivar.load();
-            if (ishmemi_comparison<T>(atomic_val, cmp_value, cmp) == 0) return 0;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            for (size_t i = 0; i < nelems; i++) {
+                if (!status || !status[i]) {
+                    if (ishmemi_device_test(&ivars[i], cmp, cmp_value) == 0) return 0;
+                }
+            }
+            return 1;
         }
     }
-    return 1;
-#else
-    int ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -108,11 +148,15 @@ int ishmem_test_all(T *ivars, size_t nelems, const int *status, int cmp, T cmp_v
     ishmemi_union_set_field_value<T, TEST_ALL>(req.cmp_value, cmp_value);
     req.op = TEST_ALL;
     req.type = ishmemi_union_get_base_type<T, TEST_ALL>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<int, TEST_ALL>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.i;
-    return ret;
 #endif
+    return ret;
 }
 
 /* Test-All (work-group) */
@@ -120,24 +164,48 @@ template <typename T, typename Group>
 int ishmemx_test_all_work_group(T *ivars, size_t nelems, const int *status, int cmp, T cmp_value,
                                 const Group &grp)
 {
+    int ret = 1;
+
     if constexpr (enable_error_checking) {
         if (grp.leader())
             validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                                 nelems * sizeof(int), ishmemi_op_t::TEST_ALL);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    int result = 1;
-    sycl::group_barrier(grp);
-    size_t id = grp.get_local_linear_id();
-    size_t num_threads = grp.get_local_linear_range();
-    for (size_t i = id; i < nelems; i += num_threads) {
-        if (!status || !status[i]) result &= ishmem_test(&ivars[i], cmp, cmp_value);
+
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        sycl::group_barrier(grp);
+        if (info->device_atomics) {
+            size_t id = grp.get_local_linear_id();
+            size_t num_threads = grp.get_local_linear_range();
+
+            for (size_t i = id; i < nelems; i += num_threads) {
+                if (!status || !status[i]) {
+                    ret &= (ishmemi_device_test(&ivars[i], cmp, cmp_value) > 0);
+                }
+            }
+
+            ret = sycl::reduce_over_group(grp, ret, sycl::bit_and<>());
+        } else {
+            if (grp.leader()) {
+                ishmemi_request_t req;
+                req.dst = ivars;
+                req.nelems = nelems;
+                req.status = status;
+                req.cmp = cmp;
+                ishmemi_union_set_field_value<T, TEST_ALL>(req.cmp_value, cmp_value);
+                req.op = TEST_ALL;
+                req.type = ishmemi_union_get_base_type<T, TEST_ALL>();
+
+                ret = ishmemi_proxy_blocking_request_return<int, TEST_ALL>(req);
+            }
+            ret = sycl::group_broadcast(grp, ret);
+        }
+        return ret;
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_TEST_ALL_WORK_GROUP routines are not callable from host\n");
+        return -1;
     }
-    result = sycl::reduce_over_group(grp, result, sycl::bit_and<>());
-    return result;
-#else
-    RAISE_ERROR_MSG("ISHMEMX_TEST_ALL_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -167,31 +235,33 @@ ISHMEMI_API_IMPL_TEST_ALL(ptrdiff, ptrdiff_t)
 template <typename T>
 size_t ishmem_test_any(T *ivars, size_t nelems, const int *status, int cmp, T cmp_value)
 {
+    size_t ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(int), ishmemi_op_t::TEST_ANY);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    T atomic_val = 0;
-    ishmemi_info_t *info = global_info;
-    size_t cur_idx = info->sync_last_idx_checked;
-    for (size_t i = 0; i < nelems; i++) {
-        cur_idx += 1;
-        if (cur_idx >= nelems) cur_idx = 0;
-        if (!status || !status[cur_idx]) {
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_ivar(ivars[cur_idx]);
-            atomic_val = atomic_ivar.load();
-            if (ishmemi_comparison<T>(atomic_val, cmp_value, cmp) > 0) {
-                info->sync_last_idx_checked = cur_idx;
-                return cur_idx;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            size_t cur_idx = info->sync_last_idx_checked;
+            for (size_t i = 0; i < nelems; i++) {
+                cur_idx += 1;
+                if (cur_idx >= nelems) cur_idx = 0;
+                if (!status || !status[cur_idx]) {
+                    if (ishmemi_device_test(&ivars[cur_idx], cmp, cmp_value) > 0) {
+                        info->sync_last_idx_checked = cur_idx;
+                        return cur_idx;
+                    }
+                }
             }
+            return SIZE_MAX;
         }
     }
-    return SIZE_MAX;
-#else
-    size_t ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -200,11 +270,15 @@ size_t ishmem_test_any(T *ivars, size_t nelems, const int *status, int cmp, T cm
     ishmemi_union_set_field_value<T, TEST_ANY>(req.cmp_value, cmp_value);
     req.op = TEST_ANY;
     req.type = ishmemi_union_get_base_type<T, TEST_ANY>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<size_t, TEST_ANY>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.szt;
-    return ret;
 #endif
+    return ret;
 }
 
 /* Test-Any (work-group) */
@@ -212,17 +286,18 @@ template <typename T, typename Group>
 size_t ishmemx_test_any_work_group(T *ivars, size_t nelems, const int *status, int cmp, T cmp_value,
                                    const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    size_t result = SIZE_MAX;
-    if (grp.leader()) {
-        result = ishmem_test_any(ivars, nelems, status, cmp, cmp_value);
+    if constexpr (ishmemi_is_device) {
+        sycl::group_barrier(grp);
+        size_t ret = SIZE_MAX;
+        if (grp.leader()) {
+            ret = ishmem_test_any(ivars, nelems, status, cmp, cmp_value);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        return ret;
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_TEST_ANT_WORK_GROUP routines are not callable from host\n");
+        return SIZE_MAX;
     }
-    result = sycl::group_broadcast(grp, result);
-    return result;
-#else
-    RAISE_ERROR_MSG("ISHMEMX_TEST_ANY_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -253,27 +328,29 @@ template <typename T>
 size_t ishmem_test_some(T *ivars, size_t nelems, size_t *indices, const int *status, int cmp,
                         T cmp_value)
 {
+    size_t ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) indices, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(size_t), nelems * sizeof(int));
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    size_t cmp_counter = 0;
-    T atomic_val = 0;
-    for (size_t i = 0; i < nelems; i++) {
-        if (!status || !status[i]) {
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_ivar(ivars[i]);
-            atomic_val = atomic_ivar.load();
-            if (ishmemi_comparison<T>(atomic_val, cmp_value, cmp) > 0) {
-                indices[cmp_counter++] = i;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            for (size_t i = 0; i < nelems; i++) {
+                if (!status || !status[i]) {
+                    if (ishmemi_device_test(&ivars[i], cmp, cmp_value) > 0) {
+                        indices[ret++] = i;
+                    }
+                }
             }
+            return ret;
         }
     }
-    return cmp_counter;
-#else
-    size_t ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -283,11 +360,15 @@ size_t ishmem_test_some(T *ivars, size_t nelems, size_t *indices, const int *sta
     ishmemi_union_set_field_value<T, TEST_SOME>(req.cmp_value, cmp_value);
     req.op = TEST_SOME;
     req.type = ishmemi_union_get_base_type<T, TEST_SOME>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<size_t, TEST_SOME>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.szt;
-    return ret;
 #endif
+    return ret;
 }
 
 /* Test-Some (work-group) */
@@ -295,17 +376,18 @@ template <typename T, typename Group>
 size_t ishmemx_test_some_work_group(T *ivars, size_t nelems, size_t *indices, const int *status,
                                     int cmp, T cmp_value, const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    size_t cmp_counter = 0;
-    if (grp.leader()) {
-        cmp_counter = ishmem_test_some(ivars, nelems, indices, status, cmp, cmp_value);
+    if constexpr (ishmemi_is_device) {
+        sycl::group_barrier(grp);
+        size_t ret = 0;
+        if (grp.leader()) {
+            ret = ishmem_test_some(ivars, nelems, indices, status, cmp, cmp_value);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        return ret;
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_TEST_SOME_WORK_GROUP routines are not callable from host\n");
+        return SIZE_MAX;
     }
-    cmp_counter = sycl::group_broadcast(grp, cmp_counter);
-    return cmp_counter;
-#else
-    RAISE_ERROR_MSG("ISHMEMX_TEST_SOME_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -335,24 +417,27 @@ ISHMEMI_API_IMPL_TEST_SOME(ptrdiff, ptrdiff_t)
 template <typename T>
 int ishmem_test_all_vector(T *ivars, size_t nelems, const int *status, int cmp, const T *cmp_values)
 {
+    int ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(int), ishmemi_op_t::TEST_ALL_VECTOR);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    T atomic_val = 0;
-    for (size_t i = 0; i < nelems; i++) {
-        if (!status || !status[i]) {
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_ivar(ivars[i]);
-            atomic_val = atomic_ivar.load();
-            if (ishmemi_comparison<T>(atomic_val, cmp_values[i], cmp) == 0) return 0;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            for (size_t i = 0; i < nelems; i++) {
+                if (!status || !status[i]) {
+                    if (ishmemi_device_test(&ivars[i], cmp, cmp_values[i]) == 0) return 0;
+                }
+            }
+            return 1;
         }
     }
-    return 1;
-#else
-    int ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -361,11 +446,15 @@ int ishmem_test_all_vector(T *ivars, size_t nelems, const int *status, int cmp, 
     req.cmp_values = cmp_values;
     req.op = TEST_ALL_VECTOR;
     req.type = ishmemi_union_get_base_type<T, TEST_ALL_VECTOR>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<int, TEST_ALL_VECTOR>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.i;
-    return ret;
 #endif
+    return ret;
 }
 
 /* Test-All-Vector (work-group) */
@@ -373,24 +462,48 @@ template <typename T, typename Group>
 int ishmemx_test_all_vector_work_group(T *ivars, size_t nelems, const int *status, int cmp,
                                        const T *cmp_values, const Group &grp)
 {
+    int ret = 1;
+
     if constexpr (enable_error_checking) {
         if (grp.leader())
             validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                                 nelems * sizeof(int), ishmemi_op_t::TEST_ALL_VECTOR);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    int result = 1;
-    sycl::group_barrier(grp);
-    size_t id = grp.get_local_linear_id();
-    size_t num_threads = grp.get_local_linear_range();
-    for (size_t i = id; i < nelems; i += num_threads) {
-        if (!status || !status[i]) result &= ishmem_test(&ivars[i], cmp, cmp_values[i]);
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        sycl::group_barrier(grp);
+        if (info->device_atomics) {
+            size_t id = grp.get_local_linear_id();
+            size_t num_threads = grp.get_local_linear_range();
+            for (size_t i = id; i < nelems; i += num_threads) {
+                if (!status || !status[i]) {
+                    ret &= (ishmemi_device_test(&ivars[i], cmp, cmp_values[i]) > 0);
+                }
+            }
+            ret = sycl::reduce_over_group(grp, ret, sycl::bit_and<>());
+        } else {
+            if (grp.leader()) {
+                ishmemi_request_t req;
+                req.dst = ivars;
+                req.nelems = nelems;
+                req.status = status;
+                req.cmp = cmp;
+                req.cmp_values = cmp_values;
+                req.op = TEST_ALL_VECTOR;
+                req.type = ishmemi_union_get_base_type<T, TEST_ALL_VECTOR>();
+
+                ret = ishmemi_proxy_blocking_request_return<int, TEST_ALL_VECTOR>(req);
+            }
+            ret = sycl::group_broadcast(grp, ret);
+        }
+
+        return ret;
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_TEST_ALL_VECTOR_WORK_GROUP routines are not callable from host\n");
+        return -1;
     }
-    result = sycl::reduce_over_group(grp, result, sycl::bit_and<>());
-    return result;
-#else
-    RAISE_ERROR_MSG("ISHMEMX_TEST_ALL_VECTOR_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -421,31 +534,33 @@ template <typename T>
 size_t ishmem_test_any_vector(T *ivars, size_t nelems, const int *status, int cmp,
                               const T *cmp_values)
 {
+    size_t ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(int), ishmemi_op_t::TEST_ANY_VECTOR);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    T atomic_val = 0;
-    ishmemi_info_t *info = global_info;
-    size_t cur_idx = info->sync_last_idx_checked;
-    for (size_t i = 0; i < nelems; i++) {
-        cur_idx += 1;
-        if (cur_idx >= nelems) cur_idx = 0;
-        if (!status || !status[cur_idx]) {
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_ivar(ivars[cur_idx]);
-            atomic_val = atomic_ivar.load();
-            if (ishmemi_comparison<T>(atomic_val, cmp_values[cur_idx], cmp) > 0) {
-                info->sync_last_idx_checked = cur_idx;
-                return cur_idx;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            ret = info->sync_last_idx_checked;
+            for (size_t i = 0; i < nelems; i++) {
+                ret += 1;
+                if (ret >= nelems) ret = 0;
+                if (!status || !status[ret]) {
+                    if (ishmemi_device_test(&ivars[ret], cmp, cmp_values[ret]) > 0) {
+                        info->sync_last_idx_checked = ret;
+                        return ret;
+                    }
+                }
             }
+            return SIZE_MAX;
         }
     }
-    return SIZE_MAX;
-#else
-    size_t ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -454,11 +569,15 @@ size_t ishmem_test_any_vector(T *ivars, size_t nelems, const int *status, int cm
     req.cmp_values = cmp_values;
     req.op = TEST_ANY_VECTOR;
     req.type = ishmemi_union_get_base_type<T, TEST_ANY_VECTOR>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<size_t, TEST_ANY_VECTOR>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.szt;
-    return ret;
 #endif
+    return ret;
 }
 
 /* Test-Any-Vector (work-group) */
@@ -466,17 +585,18 @@ template <typename T, typename Group>
 size_t ishmemx_test_any_vector_work_group(T *ivars, size_t nelems, const int *status, int cmp,
                                           const T *cmp_values, const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    size_t result = SIZE_MAX;
-    if (grp.leader()) {
-        result = ishmem_test_any_vector(ivars, nelems, status, cmp, cmp_values);
+    if constexpr (ishmemi_is_device) {
+        size_t ret = SIZE_MAX;
+        sycl::group_barrier(grp);
+        if (grp.leader()) {
+            ret = ishmem_test_any_vector(ivars, nelems, status, cmp, cmp_values);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        return ret;
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_TEST_ANY_VECTOR_WORK_GROUP routines are not callable from host\n");
+        return SIZE_MAX;
     }
-    result = sycl::group_broadcast(grp, result);
-    return result;
-#else
-    RAISE_ERROR_MSG("ISHMEMX_TEST_ANY_VECTOR_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -507,27 +627,29 @@ template <typename T>
 size_t ishmem_test_some_vector(T *ivars, size_t nelems, size_t *indices, const int *status, int cmp,
                                const T *cmp_values)
 {
+    size_t ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) indices, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(size_t), nelems * sizeof(int));
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    size_t cmp_counter = 0;
-    T atomic_val = 0;
-    for (size_t i = 0; i < nelems; i++) {
-        if (!status || !status[i]) {
-            sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                             sycl::access::address_space::global_space>
-                atomic_ivar(ivars[i]);
-            atomic_val = atomic_ivar.load();
-            if (ishmemi_comparison<T>(atomic_val, cmp_values[i], cmp) > 0) {
-                indices[cmp_counter++] = i;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            for (size_t i = 0; i < nelems; i++) {
+                if (!status || !status[i]) {
+                    if (ishmemi_device_test(&ivars[i], cmp, cmp_values[i]) > 0) {
+                        indices[ret++] = i;
+                    }
+                }
             }
+            return ret;
         }
     }
-    return cmp_counter;
-#else
-    size_t ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -537,11 +659,15 @@ size_t ishmem_test_some_vector(T *ivars, size_t nelems, size_t *indices, const i
     req.cmp_values = cmp_values;
     req.op = TEST_SOME_VECTOR;
     req.type = ishmemi_union_get_base_type<T, TEST_SOME_VECTOR>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<size_t, TEST_SOME_VECTOR>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.szt;
-    return ret;
 #endif
+    return ret;
 }
 
 /* Test-Some-Vector (work-group) */
@@ -550,17 +676,19 @@ size_t ishmemx_test_some_vector_work_group(T *ivars, size_t nelems, size_t *indi
                                            const int *status, int cmp, const T *cmp_values,
                                            const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    size_t cmp_counter = 0;
-    if (grp.leader()) {
-        cmp_counter = ishmem_test_some_vector(ivars, nelems, indices, status, cmp, cmp_values);
+    if constexpr (ishmemi_is_device) {
+        sycl::group_barrier(grp);
+        size_t ret = 0;
+        if (grp.leader()) {
+            ret = ishmem_test_some_vector(ivars, nelems, indices, status, cmp, cmp_values);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        return ret;
+    } else {
+        RAISE_ERROR_MSG(
+            "ISHMEMX_TEST_SOME_VECTOR_WORK_GROUP routines are not callable from host\n");
+        return SIZE_MAX;
     }
-    cmp_counter = sycl::group_broadcast(grp, cmp_counter);
-    return cmp_counter;
-#else
-    RAISE_ERROR_MSG("ISHMEMX_TEST_SOME_VECTOR_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -593,19 +721,17 @@ void ishmem_wait_until(T *ivar, int cmp, T cmp_value)
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivar, sizeof(T));
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                     sycl::access::address_space::global_space>
-        atomic_ivar(*ivar);
-    T atomic_val = 0;
-    do {
-        atomic_val = atomic_ivar.load();
-        if (ishmemi_comparison<T>(atomic_val, cmp_value, cmp) > 0) return;
-        while (atomic_ivar.load(sycl::memory_order::seq_cst, sycl::memory_scope::system) ==
-               atomic_val) {
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            ishmemi_device_wait(ivar, cmp, cmp_value);
+            return;
         }
-    } while (true);
-#else
+    }
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivar;
     req.nelems = 1;
@@ -613,6 +739,10 @@ void ishmem_wait_until(T *ivar, int cmp, T cmp_value)
     ishmemi_union_set_field_value<T, WAIT>(req.cmp_value, cmp_value);
     req.op = WAIT;
     req.type = ishmemi_union_get_base_type<T, WAIT>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ishmemi_proxy_blocking_request(req);
+#else
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
 }
@@ -627,7 +757,7 @@ sycl::event ishmemx_wait_until_on_queue(T *ivar, int cmp, T cmp_value, sycl::que
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() { ishmem_wait_until(ivar, cmp, cmp_value); });
+        ishmemi_submit_on_queue<true>([=]() { ishmem_wait_until(ivar, cmp, cmp_value); }, cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -637,15 +767,15 @@ sycl::event ishmemx_wait_until_on_queue(T *ivar, int cmp, T cmp_value, sycl::que
 template <typename T, typename Group>
 void ishmemx_wait_until_work_group(T *ivar, int cmp, T cmp_value, const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    if (grp.leader()) {
-        ishmem_wait_until(ivar, cmp, cmp_value);
+    if constexpr (ishmemi_is_device) {
+        sycl::group_barrier(grp);
+        if (grp.leader()) {
+            ishmem_wait_until(ivar, cmp, cmp_value);
+        }
+        sycl::group_barrier(grp);
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_WAIT_UNTIL_WORK_GROUP routines are not callable from host\n");
     }
-    sycl::group_barrier(grp);
-#else
-    RAISE_ERROR_MSG("ISHMEMX_WAIT_UNTIL_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -682,13 +812,22 @@ void ishmem_wait_until_all(T *ivars, size_t nelems, const int *status, int cmp, 
         validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(int), ishmemi_op_t::WAIT_ALL);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    for (size_t i = 0; i < nelems; i++) {
-        if (!status || !status[i]) {
-            ishmem_wait_until(&ivars[i], cmp, cmp_value);
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            for (size_t i = 0; i < nelems; i++) {
+                if (!status || !status[i]) {
+                    ishmemi_device_wait(&ivars[i], cmp, cmp_value);
+                }
+            }
+
+            return;
         }
     }
-#else
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -697,6 +836,10 @@ void ishmem_wait_until_all(T *ivars, size_t nelems, const int *status, int cmp, 
     ishmemi_union_set_field_value<T, WAIT_ALL>(req.cmp_value, cmp_value);
     req.op = WAIT_ALL;
     req.type = ishmemi_union_get_base_type<T, WAIT_ALL>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ishmemi_proxy_blocking_request(req);
+#else
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
 }
@@ -712,7 +855,8 @@ sycl::event ishmemx_wait_until_all_on_queue(T *ivars, size_t nelems, const int *
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() { ishmem_wait_until_all(ivars, nelems, status, cmp, cmp_value); });
+        ishmemi_submit_on_queue<true>(
+            [=]() { ishmem_wait_until_all(ivars, nelems, status, cmp, cmp_value); }, cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -723,22 +867,41 @@ template <typename T, typename Group>
 void ishmemx_wait_until_all_work_group(T *ivars, size_t nelems, const int *status, int cmp,
                                        T cmp_value, const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
     if constexpr (enable_error_checking) {
         if (grp.leader())
             validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                                 nelems * sizeof(int), ishmemi_op_t::WAIT_ALL);
     }
-    size_t id = grp.get_local_linear_id();
-    size_t num_threads = grp.get_local_linear_range();
-    for (size_t idx = id; idx < nelems; idx += num_threads) {
-        if (!status || !status[idx]) ishmem_wait_until(&ivars[idx], cmp, cmp_value);
+
+    if constexpr (ishmemi_is_device) {
+        sycl::group_barrier(grp);
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            size_t id = grp.get_local_linear_id();
+            size_t num_threads = grp.get_local_linear_range();
+            for (size_t idx = id; idx < nelems; idx += num_threads) {
+                if (!status || !status[idx]) {
+                    ishmemi_device_wait(&ivars[idx], cmp, cmp_value);
+                }
+            }
+        } else {
+            if (grp.leader()) {
+                ishmemi_request_t req;
+                req.dst = ivars;
+                req.nelems = nelems;
+                req.status = status;
+                req.cmp = cmp;
+                ishmemi_union_set_field_value<T, WAIT_ALL>(req.cmp_value, cmp_value);
+                req.op = WAIT_ALL;
+                req.type = ishmemi_union_get_base_type<T, WAIT_ALL>();
+
+                ishmemi_proxy_blocking_request(req);
+            }
+        }
+        sycl::group_barrier(grp);
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_WAIT_UNTIL_ALL_WORK_GROUP routines are not callable from host\n");
     }
-    sycl::group_barrier(grp);
-#else
-    RAISE_ERROR_MSG("ISHMEMX_WAIT_UNTIL_ALL_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -771,36 +934,37 @@ ISHMEMI_API_IMPL_WAIT_UNTIL_ALL(ptrdiff, ptrdiff_t)
 template <typename T>
 size_t ishmem_wait_until_any(T *ivars, size_t nelems, const int *status, int cmp, T cmp_value)
 {
+    size_t ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(int), ishmemi_op_t::WAIT_ANY);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    if (nelems != 0) {
-        T atomic_val = 0;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
         ishmemi_info_t *info = global_info;
-        size_t cur_idx = info->sync_last_idx_checked;
-        do {
-            for (size_t i = 0; i < nelems; i++) {
-                cur_idx += 1;
-                if (cur_idx >= nelems) cur_idx = 0;
-                if (!status || !status[cur_idx]) {
-                    sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                                     sycl::access::address_space::global_space>
-                        atomic_ivar(ivars[cur_idx]);
-                    atomic_val =
-                        atomic_ivar.load(sycl::memory_order::seq_cst, sycl::memory_scope::system);
-                    if (ishmemi_comparison<T>(atomic_val, cmp_value, cmp) > 0) {
-                        info->sync_last_idx_checked = cur_idx;
-                        return cur_idx;
+        if (info->device_atomics) {
+            if (nelems != 0) {
+                ret = info->sync_last_idx_checked;
+                do {
+                    for (size_t i = 0; i < nelems; i++) {
+                        ret += 1;
+                        if (ret >= nelems) ret = 0;
+                        if (!status || !status[ret]) {
+                            if (ishmemi_device_test(&ivars[ret], cmp, cmp_value) > 0) {
+                                info->sync_last_idx_checked = ret;
+                                return ret;
+                            }
+                        }
                     }
-                }
+                } while (true);
             }
-        } while (true);
+            return SIZE_MAX;
+        }
     }
-    return SIZE_MAX;
-#else
-    size_t ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -809,11 +973,15 @@ size_t ishmem_wait_until_any(T *ivars, size_t nelems, const int *status, int cmp
     ishmemi_union_set_field_value<T, WAIT_ANY>(req.cmp_value, cmp_value);
     req.op = WAIT_ANY;
     req.type = ishmemi_union_get_base_type<T, WAIT_ANY>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<size_t, WAIT_ANY>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.szt;
-    return ret;
 #endif
+    return ret;
 }
 
 template <typename T>
@@ -827,8 +995,8 @@ sycl::event ishmemx_wait_until_any_on_queue(T *ivars, size_t nelems, const int *
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task(
-            [=]() { *ret = ishmem_wait_until_any(ivars, nelems, status, cmp, cmp_value); });
+        ishmemi_submit_on_queue<true>(
+            [=]() { *ret = ishmem_wait_until_any(ivars, nelems, status, cmp, cmp_value); }, cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -839,17 +1007,18 @@ template <typename T, typename Group>
 size_t ishmemx_wait_until_any_work_group(T *ivars, size_t nelems, const int *status, int cmp,
                                          T cmp_value, const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    size_t result = SIZE_MAX;
-    if (grp.leader()) {
-        result = ishmem_wait_until_any(ivars, nelems, status, cmp, cmp_value);
+    if constexpr (ishmemi_is_device) {
+        size_t ret = SIZE_MAX;
+        sycl::group_barrier(grp);
+        if (grp.leader()) {
+            ret = ishmem_wait_until_any(ivars, nelems, status, cmp, cmp_value);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        return ret;
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_WAIT_UNTIL_ANY_WORK_GROUP routines are not callable from host\n");
+        return SIZE_MAX;
     }
-    result = sycl::group_broadcast(grp, result);
-    return result;
-#else
-    RAISE_ERROR_MSG("ISHMEMX_WAIT_UNTIL_ANY_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -883,33 +1052,34 @@ template <typename T>
 size_t ishmem_wait_until_some(T *ivars, size_t nelems, size_t *indices, const int *status, int cmp,
                               T cmp_value)
 {
+    size_t ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) indices, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(size_t), nelems * sizeof(int));
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    size_t cmp_counter = 0;
-    if (nelems != 0) {
-        T atomic_val = 0;
-        do {
-            for (size_t i = 0; i < nelems; i++) {
-                if (!status || !status[i]) {
-                    sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                                     sycl::access::address_space::global_space>
-                        atomic_ivar(ivars[i]);
-                    atomic_val =
-                        atomic_ivar.load(sycl::memory_order::seq_cst, sycl::memory_scope::system);
-                    if (ishmemi_comparison<T>(atomic_val, cmp_value, cmp) > 0) {
-                        indices[cmp_counter++] = i;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            if (nelems != 0) {
+                do {
+                    for (size_t i = 0; i < nelems; i++) {
+                        if (!status || !status[i]) {
+                            if (ishmemi_device_test(&ivars[i], cmp, cmp_value) > 0) {
+                                indices[ret++] = i;
+                            }
+                        }
                     }
-                }
+                    if (ret) break;
+                } while (true);
             }
-            if (cmp_counter) break;
-        } while (true);
+            return ret;
+        }
     }
-    return cmp_counter;
-#else
-    size_t ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -919,11 +1089,15 @@ size_t ishmem_wait_until_some(T *ivars, size_t nelems, size_t *indices, const in
     ishmemi_union_set_field_value<T, WAIT_SOME>(req.cmp_value, cmp_value);
     req.op = WAIT_SOME;
     req.type = ishmemi_union_get_base_type<T, WAIT_SOME>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<size_t, WAIT_SOME>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.szt;
-    return ret;
 #endif
+    return ret;
 }
 
 template <typename T>
@@ -937,9 +1111,11 @@ sycl::event ishmemx_wait_until_some_on_queue(T *ivars, size_t nelems, size_t *in
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() {
-            *ret = ishmem_wait_until_some(ivars, nelems, indices, status, cmp, cmp_value);
-        });
+        ishmemi_submit_on_queue<true>(
+            [=]() {
+                *ret = ishmem_wait_until_some(ivars, nelems, indices, status, cmp, cmp_value);
+            },
+            cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -950,17 +1126,18 @@ template <typename T, typename Group>
 size_t ishmemx_wait_until_some_work_group(T *ivars, size_t nelems, size_t *indices,
                                           const int *status, int cmp, T cmp_value, const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    size_t cmp_counter = 0;
-    if (grp.leader()) {
-        cmp_counter = ishmem_wait_until_some(ivars, nelems, indices, status, cmp, cmp_value);
+    if constexpr (ishmemi_is_device) {
+        size_t ret = 0;
+        sycl::group_barrier(grp);
+        if (grp.leader()) {
+            ret = ishmem_wait_until_some(ivars, nelems, indices, status, cmp, cmp_value);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        return ret;
+    } else {
+        RAISE_ERROR_MSG("ISHMEMX_WAIT_UNTIL_SOME_WORK_GROUP routines are not callable from host\n");
+        return SIZE_MAX;
     }
-    cmp_counter = sycl::group_broadcast(grp, cmp_counter);
-    return cmp_counter;
-#else
-    RAISE_ERROR_MSG("ISHMEMX_WAIT_UNTIL_SOME_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -998,13 +1175,22 @@ void ishmem_wait_until_all_vector(T *ivars, size_t nelems, const int *status, in
         validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(int), ishmemi_op_t::WAIT_ALL_VECTOR);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    for (size_t i = 0; i < nelems; i++) {
-        if (!status || !status[i]) {
-            ishmem_wait_until(&ivars[i], cmp, cmp_values[i]);
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            for (size_t i = 0; i < nelems; i++) {
+                if (!status || !status[i]) {
+                    ishmemi_device_wait(&ivars[i], cmp, cmp_values[i]);
+                }
+            }
+
+            return;
         }
     }
-#else
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -1013,8 +1199,11 @@ void ishmem_wait_until_all_vector(T *ivars, size_t nelems, const int *status, in
     req.cmp_values = cmp_values;
     req.op = WAIT_ALL_VECTOR;
     req.type = ishmemi_union_get_base_type<T, WAIT_ALL_VECTOR>();
-    ishmemi_ringcompletion_t comp;
-    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ishmemi_proxy_blocking_request(req);
+#else
+    ishmemi_runtime->proxy_funcs[req.op][req.type](&req, nullptr);
 #endif
 }
 
@@ -1029,8 +1218,8 @@ sycl::event ishmemx_wait_until_all_vector_on_queue(T *ivars, size_t nelems, cons
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task(
-            [=]() { ishmem_wait_until_all_vector(ivars, nelems, status, cmp, cmp_values); });
+        ishmemi_submit_on_queue<true>(
+            [=]() { ishmem_wait_until_all_vector(ivars, nelems, status, cmp, cmp_values); }, cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -1041,23 +1230,42 @@ template <typename T, typename Group>
 void ishmemx_wait_until_all_vector_work_group(T *ivars, size_t nelems, const int *status, int cmp,
                                               const T *cmp_values, const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
     if constexpr (enable_error_checking) {
         if (grp.leader())
             validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                                 nelems * sizeof(int), ishmemi_op_t::WAIT_ALL_VECTOR);
     }
-    size_t id = grp.get_local_linear_id();
-    size_t num_threads = grp.get_local_linear_range();
-    for (size_t idx = id; idx < nelems; idx += num_threads) {
-        if (!status || !status[idx]) ishmem_wait_until(&ivars[idx], cmp, cmp_values[idx]);
+
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        sycl::group_barrier(grp);
+        if (info->device_atomics) {
+            size_t id = grp.get_local_linear_id();
+            size_t num_threads = grp.get_local_linear_range();
+            for (size_t idx = id; idx < nelems; idx += num_threads) {
+                if (!status || !status[idx]) {
+                    ishmemi_device_wait(&ivars[idx], cmp, cmp_values[idx]);
+                }
+            }
+        } else {
+            if (grp.leader()) {
+                ishmemi_request_t req;
+                req.dst = ivars;
+                req.nelems = nelems;
+                req.status = status;
+                req.cmp = cmp;
+                req.cmp_values = cmp_values;
+                req.op = WAIT_ALL_VECTOR;
+                req.type = ishmemi_union_get_base_type<T, WAIT_ALL_VECTOR>();
+
+                ishmemi_proxy_blocking_request(req);
+            }
+        }
+        sycl::group_barrier(grp);
+    } else {
+        RAISE_ERROR_MSG(
+            "ISHMEMX_WAIT_UNTIL_ALL_VECTOR_WORK_GROUP routines are not callable from host\n");
     }
-    sycl::group_barrier(grp);
-#else
-    RAISE_ERROR_MSG(
-        "ISHMEMX_WAIT_UNTIL_ALL_VECTOR_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -1091,36 +1299,38 @@ template <typename T>
 size_t ishmem_wait_until_any_vector(T *ivars, size_t nelems, const int *status, int cmp,
                                     const T *cmp_values)
 {
+    size_t ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(int), ishmemi_op_t::WAIT_ANY_VECTOR);
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    if (nelems != 0) {
-        T atomic_val = 0;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
         ishmemi_info_t *info = global_info;
-        size_t cur_idx = info->sync_last_idx_checked;
-        do {
-            for (size_t i = 0; i < nelems; i++) {
-                cur_idx += 1;
-                if (cur_idx >= nelems) cur_idx = 0;
-                if (!status || !status[cur_idx]) {
-                    sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                                     sycl::access::address_space::global_space>
-                        atomic_ivar(ivars[cur_idx]);
-                    atomic_val =
-                        atomic_ivar.load(sycl::memory_order::seq_cst, sycl::memory_scope::system);
-                    if (ishmemi_comparison<T>(atomic_val, cmp_values[cur_idx], cmp) > 0) {
-                        info->sync_last_idx_checked = cur_idx;
-                        return cur_idx;
+        if (info->device_atomics) {
+            if (nelems != 0) {
+                ishmemi_info_t *info = global_info;
+                ret = info->sync_last_idx_checked;
+                do {
+                    for (size_t i = 0; i < nelems; i++) {
+                        ret += 1;
+                        if (ret >= nelems) ret = 0;
+                        if (!status || !status[ret]) {
+                            if (ishmemi_device_test(&ivars[ret], cmp, cmp_values[ret]) > 0) {
+                                info->sync_last_idx_checked = ret;
+                                return ret;
+                            }
+                        }
                     }
-                }
+                } while (true);
             }
-        } while (true);
+            return SIZE_MAX;
+        }
     }
-    return SIZE_MAX;
-#else
-    size_t ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -1129,11 +1339,15 @@ size_t ishmem_wait_until_any_vector(T *ivars, size_t nelems, const int *status, 
     req.cmp_values = cmp_values;
     req.op = WAIT_ANY_VECTOR;
     req.type = ishmemi_union_get_base_type<T, WAIT_ANY_VECTOR>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<size_t, WAIT_ANY_VECTOR>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.szt;
-    return ret;
 #endif
+    return ret;
 }
 
 template <typename T>
@@ -1148,8 +1362,9 @@ sycl::event ishmemx_wait_until_any_vector_on_queue(T *ivars, size_t nelems, cons
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task(
-            [=]() { *ret = ishmem_wait_until_any_vector(ivars, nelems, status, cmp, cmp_values); });
+        ishmemi_submit_on_queue<true>(
+            [=]() { *ret = ishmem_wait_until_any_vector(ivars, nelems, status, cmp, cmp_values); },
+            cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -1160,18 +1375,19 @@ template <typename T, typename Group>
 size_t ishmemx_wait_until_any_vector_work_group(T *ivars, size_t nelems, const int *status, int cmp,
                                                 const T *cmp_values, const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    size_t result = SIZE_MAX;
-    if (grp.leader()) {
-        result = ishmem_wait_until_any_vector(ivars, nelems, status, cmp, cmp_values);
+    if constexpr (ishmemi_is_device) {
+        size_t ret = SIZE_MAX;
+        sycl::group_barrier(grp);
+        if (grp.leader()) {
+            ret = ishmem_wait_until_any_vector(ivars, nelems, status, cmp, cmp_values);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        return ret;
+    } else {
+        RAISE_ERROR_MSG(
+            "ISHMEMX_WAIT_UNTIL_ANY_VECTOR_WORK_GROUP routines are not callable from host\n");
+        return SIZE_MAX;
     }
-    result = sycl::group_broadcast(grp, result);
-    return result;
-#else
-    RAISE_ERROR_MSG(
-        "ISHMEMX_WAIT_UNTIL_ANY_VECTOR_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -1205,33 +1421,34 @@ template <typename T>
 size_t ishmem_wait_until_some_vector(T *ivars, size_t nelems, size_t *indices, const int *status,
                                      int cmp, const T *cmp_values)
 {
+    size_t ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) ivars, (void *) indices, (void *) status, nelems * sizeof(T),
                             nelems * sizeof(size_t), nelems * sizeof(int));
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    size_t cmp_counter = 0;
-    if (nelems != 0) {
-        T atomic_val = 0;
-        do {
-            for (size_t i = 0; i < nelems; i++) {
-                if (!status || !status[i]) {
-                    sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                                     sycl::access::address_space::global_space>
-                        atomic_ivar(ivars[i]);
-                    atomic_val =
-                        atomic_ivar.load(sycl::memory_order::seq_cst, sycl::memory_scope::system);
-                    if (ishmemi_comparison<T>(atomic_val, cmp_values[i], cmp) > 0) {
-                        indices[cmp_counter++] = i;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            if (nelems != 0) {
+                do {
+                    for (size_t i = 0; i < nelems; i++) {
+                        if (!status || !status[i]) {
+                            if (ishmemi_device_test(&ivars[i], cmp, cmp_values[i]) > 0) {
+                                indices[ret++] = i;
+                            }
+                        }
                     }
-                }
+                    if (ret) break;
+                } while (true);
             }
-            if (cmp_counter) break;
-        } while (true);
+            return ret;
+        }
     }
-    return cmp_counter;
-#else
-    size_t ret = 0;
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.dst = ivars;
     req.nelems = nelems;
@@ -1241,11 +1458,15 @@ size_t ishmem_wait_until_some_vector(T *ivars, size_t nelems, size_t *indices, c
     req.cmp_values = cmp_values;
     req.op = WAIT_SOME_VECTOR;
     req.type = ishmemi_union_get_base_type<T, WAIT_SOME_VECTOR>();
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<size_t, WAIT_SOME_VECTOR>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.szt;
-    return ret;
 #endif
+    return ret;
 }
 
 template <typename T>
@@ -1260,9 +1481,12 @@ sycl::event ishmemx_wait_until_some_vector_on_queue(T *ivars, size_t nelems, siz
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() {
-            *ret = ishmem_wait_until_some_vector(ivars, nelems, indices, status, cmp, cmp_values);
-        });
+        ishmemi_submit_on_queue<true>(
+            [=]() {
+                *ret =
+                    ishmem_wait_until_some_vector(ivars, nelems, indices, status, cmp, cmp_values);
+            },
+            cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -1274,19 +1498,19 @@ size_t ishmemx_wait_until_some_vector_work_group(T *ivars, size_t nelems, size_t
                                                  const int *status, int cmp, const T *cmp_values,
                                                  const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    size_t cmp_counter = 0;
-    if (grp.leader()) {
-        cmp_counter =
-            ishmem_wait_until_some_vector(ivars, nelems, indices, status, cmp, cmp_values);
+    if constexpr (ishmemi_is_device) {
+        size_t ret = 0;
+        sycl::group_barrier(grp);
+        if (grp.leader()) {
+            ret = ishmem_wait_until_some_vector(ivars, nelems, indices, status, cmp, cmp_values);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        return ret;
+    } else {
+        RAISE_ERROR_MSG(
+            "ISHMEMX_WAIT_UNTIL_SOME_VECTOR_WORK_GROUP routines are not callable from host\n");
+        return SIZE_MAX;
     }
-    cmp_counter = sycl::group_broadcast(grp, cmp_counter);
-    return cmp_counter;
-#else
-    RAISE_ERROR_MSG(
-        "ISHMEMX_WAIT_UNTIL_SOME_VECTOR_WORK_GROUP routines are not callable from host\n");
-#endif
 }
 
 /* clang-format off */
@@ -1318,33 +1542,47 @@ ISHMEMI_API_IMPL_WAIT_UNTIL_SOME_VECTOR(ptrdiff, ptrdiff_t)
 /* Signal-Wait-Until */
 uint64_t ishmem_signal_wait_until(uint64_t *sig_addr, int cmp, uint64_t cmp_value)
 {
+    uint64_t ret = 0;
+
     if constexpr (enable_error_checking) {
         validate_parameters((void *) sig_addr, sizeof(uint64_t));
     }
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::atomic_ref<uint64_t, sycl::memory_order::seq_cst, sycl::memory_scope::system,
-                     sycl::access::address_space::global_space>
-        atomic_sig_addr(*sig_addr);
-    uint64_t atomic_val = UINT64_MAX;
-    do {
-        atomic_val = atomic_sig_addr.load();
-        if (ishmemi_comparison<uint64_t>(atomic_val, cmp_value, cmp) > 0) return atomic_val;
-        while (atomic_sig_addr.load() == atomic_val)
-            ;
-    } while (true);
-#else
-    uint64_t ret = 0;
+
+    /* On-device implementation */
+    if constexpr (ishmemi_is_device) {
+        ishmemi_info_t *info = global_info;
+        if (info->device_atomics) {
+            sycl::atomic_ref<uint64_t, sycl::memory_order::seq_cst, sycl::memory_scope::system,
+                             sycl::access::address_space::global_space>
+                atomic_sig_addr(*sig_addr);
+            ret = UINT64_MAX;
+            do {
+                ret = atomic_sig_addr.load();
+                if (ishmemi_comparison<uint64_t>(ret, cmp_value, cmp) > 0) return ret;
+                while (atomic_sig_addr.load() == ret)
+                    ;
+            } while (true);
+
+            return ret;
+        }
+    }
+
+    /* Otherwise */
     ishmemi_request_t req;
     req.sig_addr = sig_addr;
     req.cmp = cmp;
     req.cmp_value.ui64 = cmp_value;
     req.op = SIGNAL_WAIT_UNTIL;
     req.type = UINT64;
+
+#ifdef __SYCL_DEVICE_ONLY__
+    ret = ishmemi_proxy_blocking_request_return<uint64_t, SIGNAL_WAIT_UNTIL>(req);
+#else
     ishmemi_ringcompletion_t comp;
     ishmemi_runtime->proxy_funcs[req.op][req.type](&req, &comp);
     ret = comp.completion.ret.ui64;
-    return ret;
 #endif
+    return ret;
 }
 
 sycl::event ishmemx_signal_wait_until_on_queue(uint64_t *sig_addr, int cmp, uint64_t cmp_value,
@@ -1357,10 +1595,12 @@ sycl::event ishmemx_signal_wait_until_on_queue(uint64_t *sig_addr, int cmp, uint
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() {
-            uint64_t tmp_ret = ishmem_signal_wait_until(sig_addr, cmp, cmp_value);
-            if (ret) *ret = tmp_ret;
-        });
+        ishmemi_submit_on_queue<true>(
+            [=]() {
+                uint64_t tmp_ret = ishmem_signal_wait_until(sig_addr, cmp, cmp_value);
+                if (ret) *ret = tmp_ret;
+            },
+            cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -1377,15 +1617,16 @@ template <typename Group>
 uint64_t ishmemx_signal_wait_until_work_group(uint64_t *sig_addr, int cmp, uint64_t cmp_value,
                                               const Group &grp)
 {
-#ifdef __SYCL_DEVICE_ONLY__
-    sycl::group_barrier(grp);
-    uint64_t result = UINT64_MAX;
-    if (grp.leader()) {
-        result = ishmem_signal_wait_until(sig_addr, cmp, cmp_value);
+    if constexpr (ishmemi_is_device) {
+        uint64_t ret = UINT64_MAX;
+        sycl::group_barrier(grp);
+        if (grp.leader()) {
+            ret = ishmem_signal_wait_until(sig_addr, cmp, cmp_value);
+        }
+        ret = sycl::group_broadcast(grp, ret);
+        return ret;
+    } else {
+        RAISE_ERROR_MSG("ishmemx_signal_wait_until_work_group not callable from host\n");
+        return UINT64_MAX;
     }
-    result = sycl::group_broadcast(grp, result);
-    return result;
-#else
-    RAISE_ERROR_MSG("ishmemx_signal_wait_until_work_group not callable from host\n");
-#endif
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2023-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -18,6 +18,10 @@ typedef enum : uint8_t {
     ISHMEMX_RUNTIME_INVALID,
 } ishmemx_runtime_type_t;
 
+typedef struct ishmemx_uniqueid_t {
+    char uniqueid[128];
+} ishmemx_uniqueid_t;
+
 typedef struct ishmemx_attr_t {
     /* By default, the runtime is assumed to be MPI */
     ishmemx_runtime_type_t runtime = ISHMEM_DEFAULT_RUNTIME;
@@ -25,6 +29,16 @@ typedef struct ishmemx_attr_t {
     bool initialize_runtime = true;
     /* By default, gpu is used */
     bool gpu = true;
+    /* By default, select the only visible GPU device */
+    int device_idx = -1;
+    /* By default, use_uid is false */
+    bool use_uid = false;
+    /* By default, nranks is -1. Init with UID requires this field. */
+    int nranks = -1;
+    /* By default, rank is -1. Init with UID requires this field. */
+    int rank = -1;
+    /* By default, uid is null. Initialize with uid currently only supports MPI backend */
+    ishmemx_uniqueid_t *uid = nullptr;
     /* By default, the base team/comm is uninitialized, representing the default global team/comm */
     union {
         /* TODO: add support for user-provided shmem_team as global team */
@@ -37,6 +51,8 @@ typedef struct ishmemx_attr_t {
 void ishmemx_init_attr(ishmemx_attr_t *attr);
 ishmemx_runtime_type_t ishmemx_runtime_get_type();
 void ishmemx_query_initialized(int *initialized);
+sycl::device ishmemx_my_device();
+int ishmemx_get_uniqueid(ishmemx_uniqueid_t *uid);
 
 /* clang-format off */
 /* put_on_queue */

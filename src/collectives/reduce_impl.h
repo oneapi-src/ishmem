@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -463,10 +463,12 @@ sycl::event ishmemi_reduce_on_queue(ishmem_team_t team, T *dest, const T *src, s
                     if (ret) *ret = tmp_ret;
                 });
         } else {
-            cgh.single_task([=]() {
-                int tmp_ret = ishmemi_reduce<T, OP>(team, dest, src, nreduce);
-                if (ret) *ret = tmp_ret;
-            });
+            ishmemi_submit_on_queue<false>(
+                [=]() {
+                    int tmp_ret = ishmemi_reduce<T, OP>(team, dest, src, nreduce);
+                    if (ret) *ret = tmp_ret;
+                },
+                cgh);
         }
     });
     ishmemi_on_queue_events_map[&q]->event = e;
@@ -1153,5 +1155,72 @@ ISHMEMI_API_IMPL_TEAM_PROD_REDUCE_WORK_GROUP(uint64, uint64_t)
 ISHMEMI_API_IMPL_TEAM_PROD_REDUCE_WORK_GROUP(size, size_t)
 ISHMEMI_API_IMPL_TEAM_PROD_REDUCE_WORK_GROUP(float, float)
 ISHMEMI_API_IMPL_TEAM_PROD_REDUCE_WORK_GROUP(double, double)
+
+/* Explicit instantiations of the primary ishmemx_<op>_reduce_work_group<TYPE, Group>
+ * template, declared SYCL_EXTERNAL in ishmemx.h. These are emitted once per distinct
+ * C++ type (not per ishmem TYPENAME) to avoid duplicate-instantiation errors caused
+ * by C++ type aliases that collapse on a given platform (e.g. on LP64
+ * unsigned long == uint64_t == size_t). User code that calls e.g.
+ * ishmemx_sum_reduce_work_group<float>(...) needs the primary symbol resolved
+ * at link/JIT time. */
+/* clang-format off */
+#define ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, TYPE)                                                                                                              \
+    template int ishmemx_##OP##_reduce_work_group<TYPE, sycl::group<1>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);                          \
+    template int ishmemx_##OP##_reduce_work_group<TYPE, sycl::group<2>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);                          \
+    template int ishmemx_##OP##_reduce_work_group<TYPE, sycl::group<3>>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);                          \
+    template int ishmemx_##OP##_reduce_work_group<TYPE, sycl::sub_group>(TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp);                        \
+    template int ishmemx_##OP##_reduce_work_group<TYPE, sycl::group<1>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<1> &grp);      \
+    template int ishmemx_##OP##_reduce_work_group<TYPE, sycl::group<2>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<2> &grp);      \
+    template int ishmemx_##OP##_reduce_work_group<TYPE, sycl::group<3>>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::group<3> &grp);      \
+    template int ishmemx_##OP##_reduce_work_group<TYPE, sycl::sub_group>(ishmem_team_t team, TYPE *dest, const TYPE *src, size_t nreduce, const sycl::sub_group &grp);
+/* clang-format on */
+
+/* Bitwise ops: matches the C++ types covered by the AND/OR/XOR typed-wrapper
+ * macros above, modulo aliases that collapse to the same C++ type (e.g. on LP64
+ * unsigned long ≡ uint64_t ≡ size_t — the primary template can only be
+ * instantiated once per distinct C++ type, so each is listed once). Spelling
+ * follows the typed-wrapper convention: unsigned fundamentals + signed fixed-width. */
+#define ISHMEMI_INSTANTIATE_BITWISE_PRIMARY(OP)                                                    \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned char)                                  \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned short)                                 \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned int)                                   \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned long)                                  \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned long long)                             \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, int8_t)                                         \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, int16_t)                                        \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, int32_t)                                        \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, int64_t)
+
+ISHMEMI_INSTANTIATE_BITWISE_PRIMARY(and)
+ISHMEMI_INSTANTIATE_BITWISE_PRIMARY(or)
+ISHMEMI_INSTANTIATE_BITWISE_PRIMARY(xor)
+
+/* Arithmetic ops: matches the C++ types covered by the MAX/MIN/SUM/PROD typed-
+ * wrapper macros above, modulo aliases that collapse to the same C++ type (e.g. on
+ * LP64 long ≡ int64_t ≡ ptrdiff_t, unsigned long ≡ uint64_t ≡ size_t — the primary
+ * template can only be instantiated once per distinct C++ type, so each is listed
+ * once). char is a distinct C++ type from both signed char and unsigned char, so
+ * it is listed separately. Spelling follows the typed-wrapper convention: signed
+ * and unsigned fundamentals (the fixed-width int8/int16/.../uint64 and size/ptrdiff
+ * rows in the typed-wrapper macros are aliases of these). */
+#define ISHMEMI_INSTANTIATE_ARITHMETIC_PRIMARY(OP)                                                 \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, char)                                           \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, signed char)                                    \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, short)                                          \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, int)                                            \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, long)                                           \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, long long)                                      \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned char)                                  \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned short)                                 \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned int)                                   \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned long)                                  \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, unsigned long long)                             \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, float)                                          \
+    ISHMEMI_API_IMPL_REDUCE_WORK_GROUP_PRIMARY(OP, double)
+
+ISHMEMI_INSTANTIATE_ARITHMETIC_PRIMARY(max)
+ISHMEMI_INSTANTIATE_ARITHMETIC_PRIMARY(min)
+ISHMEMI_INSTANTIATE_ARITHMETIC_PRIMARY(sum)
+ISHMEMI_INSTANTIATE_ARITHMETIC_PRIMARY(prod)
 
 #endif  // ifndef COLLECTIVES_REDUCE_IMPL_H

@@ -52,12 +52,27 @@ OpenSHMEM, MPI, or PMI.
 
 .. important:: As of Intel® SHMEM |version| only ISHMEM_RUNTIME_OPENSHMEM and ISHMEM_RUNTIME_MPI are supported.
 
+.. _ishmemx_uniqueid_t:
+.. cpp:struct:: ishmemx_uniqueid_t
+
+  .. c:var:: char uniqueid[128]
+
+**Description:**
+Opaque unique ID used by :ref:`ishmemx_init_attr<ishmemx_init_attr>` when
+``ishmemx_attr_t.use_uid`` is enabled. The value is obtained using
+:ref:`ishmemx_get_uniqueid<ishmemx_get_uniqueid>`.
+
 .. _ishmemx_attr_t:
 .. cpp:struct:: ishmemx_attr_t
 
   .. c:var:: ishmemx_runtime_type_t runtime
   .. c:var:: bool initialize_runtime = true
   .. c:var:: bool gpu = true
+  .. c:var:: int device_idx = -1
+  .. c:var:: bool use_uid = false
+  .. c:var:: int nranks = -1
+  .. c:var:: int rank = -1
+  .. c:var:: ishmemx_uniqueid_t *uid = nullptr
   .. c:var:: void *mpi_comm
 
 **Description:**
@@ -68,9 +83,21 @@ library.
 By default, the parallel runtime is initialized by Intel® SHMEM
 (**initialize_runtime** default is ``true``).
 The **gpu** boolean indicates whether to use GPU memory for the symmetric
-heap (default is ``true``). **mpi_comm** is a pointer to the corresponding
+heap (default is ``true``). ``device_idx`` selects the visible GPU ordinal to
+use when multiple GPU devices are visible to a PE. The default value of ``-1``
+preserves the traditional single-visible-device behavior: Intel® SHMEM will
+auto-select the device only when exactly one GPU is visible. **mpi_comm** is a
+pointer to the corresponding
 MPI communicator for representing ``ISHMEM_TEAM_WORLD`` when used with
 ``ISHMEM_RUNTIME_MPI`` (default is ``MPI_COMM_WORLD``).
+
+``use_uid`` enables UID-based initialization for launcher-independent MPI
+workflows. This mode is only supported with ``ISHMEM_RUNTIME_MPI`` and requires
+``nranks > 0``, ``0 <= rank < nranks``, and ``uid != nullptr``.
+
+When Intel® SHMEM initializes MPI itself, ``MPI_THREAD_MULTIPLE`` is required.
+When MPI has already been initialized externally, Intel® SHMEM verifies the
+existing MPI thread level and ignores ``rank``/``nranks`` if they are provided.
 
 .. _ishmemx_init_attr:
 .. cpp:function:: void ishmemx_init_attr(ishmemx_attr_t * attr)
@@ -90,6 +117,26 @@ At the end of the ``ishmem`` program which it initialized, the call to
 After the first call to ``ishmemx_init_attr``, a subsequent call to
 ``ishmemx_init_attr`` or ``ishmem_init`` in the same program results in
 undefined behavior.
+
+.. _ishmemx_get_uniqueid:
+.. cpp:function:: int ishmemx_get_uniqueid(ishmemx_uniqueid_t * uid)
+
+  :param uid: pointer to :ref:`ishmemx_uniqueid_t<ishmemx_uniqueid_t>` that receives a unique ID
+  :returns: ``0`` on success, nonzero on failure.
+
+Callable from the **host**.
+
+**Description:**
+Builds a unique ID used with ``ishmemx_attr_t.use_uid``.
+
+The server host is taken from ``I_MPI_MPCP_SERVER_NAME`` when set; otherwise,
+``MASTER_ADDR`` is used.
+
+``I_MPI_MPCP_SERVER_PORT`` is used as the server port when set. If it is not
+set, Intel® SHMEM uses ``35555`` by default.
+
+When ``MASTER_PORT`` is set, ``I_MPI_MPCP_SERVER_PORT`` must be different from
+``MASTER_PORT``.
 
 .. _ishmem_my_pe:
 
@@ -203,6 +250,30 @@ returns nonzero. Otherwise, it returns zero.
 This function may be called at any time, regardless of the thread safety level 
 or the current initialized state of the library.
 
+.. _ishmemx_my_device:
+
+^^^^^^^^^^^^^^^^^
+ISHMEMX_MY_DEVICE
+^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: sycl::device ishmemx_my_device(void)
+
+  :parameters: None.
+  :returns: The SYCL device selected for the calling PE.
+
+Callable from the **host**.
+
+**Description:**
+Returns the SYCL device chosen during ``ishmem`` initialization for the
+calling PE.
+
+This routine is useful for creating a matching ``sycl::queue`` for kernels and
+``on_queue`` APIs so that user-submitted work and ``ishmem`` operations
+target the same device.
+
+Calling ``ishmemx_my_device`` before initialization or after
+``ishmem_finalize`` is an error.
+
 .. _ishmem_ptr:
 
 ^^^^^^^^^^
@@ -283,4 +354,3 @@ character.  If the **name** memory buffer is provided with size less than
 ISHMEM_MAX_NAME_LEN, behavior is undefined. For a given library
 implementation, the vendor string returned is consistent with the library
 constant ISHMEM_VENDOR_STRING.
-

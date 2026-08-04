@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+if [[ $# -ne 2 ]]; then
+    echo "Error: Expected 2 arguments (num_pes and test_exe)" >&2
+    exit 1
+fi
+
+num_pes=$1
+test_exe=$2
+
+export ZE_FLAT_DEVICE_HIERARCHY=FLAT
+export ONEAPI_DEVICE_SELECTOR=level_zero:*
+unset ZE_AFFINITY_MASK
+
+export MASTER_ADDR=localhost
+#export I_MPI_MPCP_SERVER_PORT=35555
+export WORLD_SIZE=$num_pes
+
+# Manual launch (simulates torchrun)
+for ((i=0; i < $num_pes; i++)); do
+    RANK=$i ${test_exe} &
+done
+
+# Wait for all processes and check if any failed
+declare -i rc=0
+for pid in $(jobs -p); do
+    wait $pid || ((rc++))
+done
+
+exit $rc

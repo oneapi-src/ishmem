@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2023-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -7,6 +7,34 @@
 #define ARRAY_SIZE     5
 #define NUM_WORK_ITEMS 4
 #define NUM_TESTS      12
+
+static bool is_valid_test_any_result(size_t test_idx, size_t value)
+{
+    static const size_t valid_results[NUM_TESTS][ARRAY_SIZE] = {
+        {0, SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX},
+        {1, 2, 3, 4, SIZE_MAX},
+        {2, 3, 4, SIZE_MAX, SIZE_MAX},
+        {1, 2, 3, 4, SIZE_MAX},
+        {0, 1, SIZE_MAX, SIZE_MAX, SIZE_MAX},
+        {0, 1, SIZE_MAX, SIZE_MAX, SIZE_MAX},
+        {SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX},
+        {SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX},
+        {SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX},
+        {SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX},
+        {SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX},
+        {SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX},
+    };
+    static const size_t valid_result_counts[NUM_TESTS] = {
+        1, 4, 3, 4, 2, 2, 1, 1, 1, 1, 1, 1,
+    };
+
+    if (test_idx >= NUM_TESTS) return false;
+    for (size_t i = 0; i < valid_result_counts[test_idx]; ++i) {
+        size_t candidate = valid_results[test_idx][i];
+        if (candidate == value) return true;
+    }
+    return false;
+}
 
 int main(int argc, char **argv)
 {
@@ -29,8 +57,6 @@ int main(int argc, char **argv)
     CHECK_ALLOC(status);
     size_t *ret = sycl::malloc_host<size_t>(NUM_TESTS, q);
     CHECK_ALLOC(ret);
-    size_t *ret_check = sycl::malloc_host<size_t>(NUM_TESTS, q);
-    CHECK_ALLOC(ret_check);
     int *errors = sycl::malloc_host<int>(1, q);
     CHECK_ALLOC(errors);
 
@@ -39,19 +65,7 @@ int main(int argc, char **argv)
         h.single_task([=]() {
             for (int i = 0; i < ARRAY_SIZE; i++) {
                 source[i] = i;
-                if (i != 1) status[i] = 1;
-            }
-
-            for (size_t i = 0; i < (NUM_TESTS / 2); i++) {
-                if (i == 0) ret_check[i] = 0;
-                else if (i == 1) ret_check[i] = 1;
-                else if (i == 2) ret_check[i] = 2;
-                else if (i == 3) ret_check[i] = 3;
-                else if (i == 4) ret_check[i] = 0;
-                else if (i == 5) ret_check[i] = 1;
-            }
-            for (size_t i = (NUM_TESTS / 2); i < NUM_TESTS; i++) {
-                ret_check[i] = SIZE_MAX;
+                status[i] = (i != 1) ? 1 : 0;
             }
         });
     });
@@ -84,7 +98,7 @@ int main(int argc, char **argv)
     auto e_verify = q.submit([&](sycl::handler &h) {
         h.single_task([=]() {
             for (size_t i = 0; i < NUM_TESTS; ++i) {
-                if (ret[i] != ret_check[i]) {
+                if (!is_valid_test_any_result(i, ret[i])) {
                     (*errors) += 1;
                 }
             }
@@ -94,9 +108,9 @@ int main(int argc, char **argv)
     if (*errors > 0) {
         std::cerr << "[ERROR] Validation check(s) failed: " << *errors << std::endl;
         for (size_t i = 0; i < NUM_TESTS; i += 1) {
-            if (ret[i] != ret_check[i]) {
-                std::cerr << "[" << my_pe << "]: ret[" << i << "] = " << ret[i] << ", expected "
-                          << ret_check[i] << std::endl;
+            if (!is_valid_test_any_result(i, ret[i])) {
+                std::cerr << "[" << my_pe << "]: ret[" << i << "] = " << ret[i]
+                          << ", expected a valid matching index" << std::endl;
             }
         }
         exit_code = 1;
@@ -143,7 +157,7 @@ int main(int argc, char **argv)
     auto e_verify_wg = q.submit([&](sycl::handler &h) {
         h.single_task([=]() {
             for (size_t i = 0; i < NUM_TESTS; ++i) {
-                if (ret[i] != ret_check[i]) {
+                if (!is_valid_test_any_result(i, ret[i])) {
                     (*errors) += 1;
                 }
             }
@@ -154,9 +168,9 @@ int main(int argc, char **argv)
         std::cerr << "[" << my_pe << "] ERROR, work_group validation check(s) failed: " << *errors
                   << std::endl;
         for (size_t i = 0; i < NUM_TESTS; i += 1) {
-            if (ret[i] != ret_check[i]) {
-                std::cerr << "[" << my_pe << "]: ret[" << i << "] = " << ret[i] << ", expected "
-                          << ret_check[i] << std::endl;
+            if (!is_valid_test_any_result(i, ret[i])) {
+                std::cerr << "[" << my_pe << "]: ret[" << i << "] = " << ret[i]
+                          << ", expected a valid matching index" << std::endl;
             }
         }
         exit_code = 1;
@@ -168,7 +182,6 @@ int main(int argc, char **argv)
     sycl::free(errors, q);
     sycl::free(status, q);
     sycl::free(ret, q);
-    sycl::free(ret_check, q);
     ishmem_free(source);
 
     ishmem_finalize();

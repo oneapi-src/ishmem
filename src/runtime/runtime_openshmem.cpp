@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -781,7 +781,7 @@ int ishmemi_openshmem_test(ishmemi_request_t *msg, ishmemi_ringcompletion_t *com
     }
 
     comp->completion.ret.i = wrapper(dest, cmp, cmp_value);
-    return comp->completion.ret.i;
+    return 0;
 }
 
 template <typename T, bool OSHMPI>
@@ -800,7 +800,7 @@ int ishmemi_openshmem_test_all(ishmemi_request_t *msg, ishmemi_ringcompletion_t 
     }
 
     comp->completion.ret.i = wrapper(dest, nelems, status, cmp, cmp_value);
-    return comp->completion.ret.i;
+    return 0;
 }
 
 template <typename T, bool OSHMPI>
@@ -939,7 +939,7 @@ int ishmemi_openshmem_test_all_vector(ishmemi_request_t *msg, ishmemi_ringcomple
     }
 
     comp->completion.ret.i = wrapper(dest, nelems, status, cmp, const_cast<T *>(cmp_values));
-    return comp->completion.ret.i;
+    return 0;
 }
 
 template <typename T, bool OSHMPI>

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -14,6 +14,7 @@ namespace ishmemi_mpi_wrappers {
     /* Runtime */
     extern int (*Init)(int *, char ***);
     extern int (*Init_thread)(int *, char ***, int, int *);
+    extern int (*Initialized)(int *);
     extern int (*Finalize)(void);
     extern int (*Abort)(MPI_Comm, int);
     extern int (*Comm_group)(MPI_Comm, MPI_Group *);
@@ -30,6 +31,7 @@ namespace ishmemi_mpi_wrappers {
     extern int (*Info_create)(MPI_Info *);
     extern int (*Info_set)(MPI_Info, const char *, const char *);
     extern int (*Info_free)(MPI_Info *);
+    extern int (*Query_thread)(int *);
 
     /* Window management */
     extern int (*Win_create)(void *, MPI_Aint, int, MPI_Info, MPI_Comm, MPI_Win *);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -308,6 +308,7 @@ typedef struct ishmemi_info_t {
     struct ishmemi_message_t *messages;
 
     /* Other variables */
+    bool device_atomics = true;
     size_t sync_last_idx_checked = 0;
     long debug[64]; /* For development convenice. TODO: remove */
 
@@ -333,7 +334,8 @@ inline void ishmemi_drain_ring()
         next_send_checkpoint.store(temp);
         temp.store(ishmemi_mmap_gpu_info->ring.next_send);
     }
-    while ((int) next_send_checkpoint - (int) ishmemi_cpu_info->ring.next_receive > 0) {
+    volatile unsigned int *nr = &ishmemi_cpu_info->ring.next_receive;
+    while ((int) next_send_checkpoint - (int) *nr > 0) {
     }
 }
 

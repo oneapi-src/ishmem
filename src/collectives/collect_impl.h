@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -449,10 +449,12 @@ sycl::event ishmemx_fcollect_on_queue(ishmem_team_t team, T *dest, const T *src,
                     if (ret) *ret = tmp_ret;
                 });
         } else {
-            cgh.single_task([=]() {
-                int tmp_ret = ishmem_fcollect(team, dest, src, nelems);
-                if (ret) *ret = tmp_ret;
-            });
+            ishmemi_submit_on_queue<false>(
+                [=]() {
+                    int tmp_ret = ishmem_fcollect(team, dest, src, nelems);
+                    if (ret) *ret = tmp_ret;
+                },
+                cgh);
         }
     });
     ishmemi_on_queue_events_map[&q]->event = e;

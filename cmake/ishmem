@@ -71,7 +71,7 @@ set componentroot "[file dirname [file dirname [file dirname [file dirname "${sc
 # Component-specific environment variable setup
 # Define environment variables needed for an isolated component install.
 
-module-whatis "Name: Intel® SHMEM"
+module-whatis "Name: Intel(R) SHMEM"
 
 set             topdir              "$componentroot/$modulefilever"
 setenv          ISHMEM_ROOT         "$topdir"

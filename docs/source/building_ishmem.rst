@@ -95,6 +95,9 @@ As of version |release|, Intel® SHMEM supports the following MPI libraries:
 
 - |impi_url| - please use the ``2021.14.0`` release or newer.
 
+.. note:: UID-based launcher-independent initialization
+    (``ishmemx_attr_t.use_uid = true``) requires the ``2021.18`` release or newer.
+
 .. |impi_url| raw:: html
 
    <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library-download.html" target="_blank">Intel® MPI Library</a>
@@ -164,3 +167,8 @@ CMake Build Options
 +---------------------------------+------------------------------------------------------------+---------+
 | ``SKIP_COMPILER_CHECK``         | Skips compiler validation (NOT RECOMMENDED)                | OFF     |
 +---------------------------------+------------------------------------------------------------+---------+
+
+The static Intel® SHMEM build installs separate host and device archives:
+``libishmem_host.a`` contains host objects, while ``libishmem_device.a``
+contains the bundled SYCL device objects. Applications should link both
+archives directly or use the ``ISHMEM::ISHMEM`` CMake target.

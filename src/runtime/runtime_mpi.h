@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2024-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -21,7 +21,7 @@
 
 class ishmemi_runtime_mpi : public ishmemi_runtime_type {
   public:
-    ishmemi_runtime_mpi(bool, void *);
+    ishmemi_runtime_mpi(bool, void *, bool, ishmemx_uniqueid_t *, int, int);
 
     ~ishmemi_runtime_mpi(void);
 
@@ -95,7 +95,8 @@ class ishmemi_runtime_mpi : public ishmemi_runtime_type {
 
     /* Variables that are only needed within class methods */
     bool initialized = false;
-    bool gpu_non_contig_support = false; /* TODO: add check once supported by Intel® MPI Library */
+    bool gpu_non_contig_support =
+        false; /* TODO: add check once supported by Intel(R) MPI Library */
     static datatype_entry_t *datatype_map;
 
   public:

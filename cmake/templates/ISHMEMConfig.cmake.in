@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Intel Corporation
+# Copyright (C) 2025-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 #==============================================
@@ -19,6 +19,9 @@
 # ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT
 #     Whether or not to suppress `Compilation from IR - skipping loading of FCL`
 #     default: @ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT@ (determined at ishmem build time)
+# ISHMEM_HOST_LINK_TYPE
+#     Host library link type for ISHMEM::ISHMEM, STATIC or SHARED.
+#     default: STATIC
 #==================
 # Output parameters
 #==================
@@ -34,16 +37,34 @@
 #     ishmem compilation flags.
 # ISHMEM_LINK_FLAGS
 #     ishmem link flags.
+# ISHMEM_HOST_LIBRARY
+#     selected ishmem host library path.
+# ISHMEM_HOST_STATIC_LIBRARY
+#     ishmem host static library path.
+# ISHMEM_HOST_SHARED_LIBRARY
+#     ishmem host shared library path.
+# ISHMEM_DEVICE_LIBRARY
+#     ishmem device library path.
 # ISHMEM_LIBRARY
-#     ishmem library path.
+#     ishmem library paths.
 #
 # The below INTERFACE target provides full compilation/link interfaces for
 # direct use.
 # Example:
-#      target_link_options(<my_target> PUBLIC ISHMEM::ISHMEM)
+#      target_link_libraries(<my_target> PUBLIC ISHMEM::ISHMEM)
 #
+# ISHMEM::HOST
+#     Target for using the ishmem host static library directly.
+# ISHMEM::HOST_SHARED
+#     Target for using the ishmem host shared library directly.
+# ISHMEM::DEVICE
+#     Target for using the ishmem device static library directly.
+# ISHMEM::ISHMEM_STATIC
+#     Target for using the ishmem host and device static libraries.
+# ISHMEM::ISHMEM_SHARED
+#     Target for using the ishmem host shared library and device static library.
 # ISHMEM::ISHMEM
-#     Target for using ishmem. The following properties are defined for the
+#     Target for using ishmem with the selected ISHMEM_HOST_LINK_TYPE. The following properties are defined for the
 #     target: INTERFACE_INCLUDE_DIRECTORIES, INTERFACE_LINK_DIRECTORIES,
 #     INTERFACE_COMPILE_OPTIONS, INTERFACE_LINK_OPTIONS, and
 #     INTERFACE_LINK_LIBRARIES
@@ -97,6 +118,14 @@ option(ISHMEM_ENABLE_SPIRV_COMPILATION          "Enables SPIR-V compilation"    
 option(ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT "Suppress SPIR-V compilation messages" @ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT@)
 
 ishmem_set_default_var(ISHMEM_SPIRV_COMPILATION_TARGETS "@ISHMEM_SPIRV_COMPILATION_TARGETS@")
+ishmem_set_default_var(ISHMEM_HOST_LINK_TYPE "STATIC")
+
+set(_ISHMEM_VALID_HOST_LINK_TYPES STATIC SHARED)
+string(TOUPPER "${ISHMEM_HOST_LINK_TYPE}" ISHMEM_HOST_LINK_TYPE)
+if (NOT ISHMEM_HOST_LINK_TYPE IN_LIST _ISHMEM_VALID_HOST_LINK_TYPES)
+    string(REPLACE ";" ", " _ISHMEM_VALID_HOST_LINK_TYPES_CSV "${_ISHMEM_VALID_HOST_LINK_TYPES}")
+    ishmem_not_found_return("Invalid value for ISHMEM_HOST_LINK_TYPE: ${ISHMEM_HOST_LINK_TYPE}. Supported values: ${_ISHMEM_VALID_HOST_LINK_TYPES_CSV}")
+endif()
 
 # Compiler checks
 include(CheckCXXSourceCompiles)
@@ -158,31 +187,76 @@ ishmem_message(STATUS "${CMAKE_FIND_PACKAGE_NAME}_VERSION: ${${CMAKE_FIND_PACKAG
 ishmem_message(STATUS "ISHMEM_ROOT: ${ISHMEM_ROOT}")
 
 # Define properties
-add_library(ISHMEM::ISHMEM STATIC IMPORTED)
+add_library(ISHMEM::HOST STATIC IMPORTED)
+add_library(ISHMEM::HOST_SHARED SHARED IMPORTED)
+add_library(ISHMEM::DEVICE STATIC IMPORTED)
+add_library(ISHMEM::ISHMEM_STATIC INTERFACE IMPORTED)
+add_library(ISHMEM::ISHMEM_SHARED INTERFACE IMPORTED)
+add_library(ISHMEM::ISHMEM INTERFACE IMPORTED)
 
 get_filename_component(ISHMEM_INCLUDE "${ISHMEM_ROOT}/include" ABSOLUTE)
+set_property(TARGET ISHMEM::HOST PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES ${ISHMEM_INCLUDE})
+set_property(TARGET ISHMEM::HOST_SHARED PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES ${ISHMEM_INCLUDE})
+set_property(TARGET ISHMEM::DEVICE PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES ${ISHMEM_INCLUDE})
+set_property(TARGET ISHMEM::ISHMEM_STATIC PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES ${ISHMEM_INCLUDE})
+set_property(TARGET ISHMEM::ISHMEM_SHARED PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES ${ISHMEM_INCLUDE})
 set_property(TARGET ISHMEM::ISHMEM PROPERTY
     INTERFACE_INCLUDE_DIRECTORIES ${ISHMEM_INCLUDE})
 
 get_filename_component(ISHMEM_LIBRARY_DIR "${ISHMEM_ROOT}/lib" ABSOLUTE)
-get_filename_component(ISHMEM_LIBRARY "${ISHMEM_LIBRARY_DIR}/libishmem.a" ABSOLUTE)
-set(ISHMEM_LINK_LIBRARIES ${ISHMEM_LIBRARY})
+get_filename_component(ISHMEM_HOST_STATIC_LIBRARY "${ISHMEM_LIBRARY_DIR}/libishmem_host.a" ABSOLUTE)
+get_filename_component(ISHMEM_HOST_SHARED_LIBRARY "${ISHMEM_LIBRARY_DIR}/libishmem_host.so" ABSOLUTE)
+get_filename_component(ISHMEM_DEVICE_LIBRARY "${ISHMEM_LIBRARY_DIR}/libishmem_device.a" ABSOLUTE)
+set(ISHMEM_DEVICE_LIBRARY_SECOND_SCAN "${ISHMEM_LIBRARY_DIR}/./libishmem_device.a")
+# The host library does not provide usable device IR to the SYCL device-link step:
+# host-static is compiled host-only, and host-shared is a .so. List libishmem_device.a
+# twice so icpx gets a second archive scan for device-library dependencies introduced
+# by objects extracted in the first scan, without forcing every archive member into
+# every executable.
+# Spell the second path differently so CMake does not de-duplicate the archive entries.
+if (ISHMEM_HOST_LINK_TYPE STREQUAL "SHARED")
+    set(ISHMEM_HOST_LIBRARY ${ISHMEM_HOST_SHARED_LIBRARY})
+    set(ISHMEM_LINK_TARGET ISHMEM::ISHMEM_SHARED)
+    set(ISHMEM_LIBRARY ${ISHMEM_HOST_LIBRARY}
+        ${ISHMEM_DEVICE_LIBRARY} ${ISHMEM_DEVICE_LIBRARY_SECOND_SCAN})
+else()
+    set(ISHMEM_HOST_LIBRARY ${ISHMEM_HOST_STATIC_LIBRARY})
+    set(ISHMEM_LINK_TARGET ISHMEM::ISHMEM_STATIC)
+    set(ISHMEM_LIBRARY ${ISHMEM_HOST_LIBRARY}
+        ${ISHMEM_DEVICE_LIBRARY} ${ISHMEM_DEVICE_LIBRARY_SECOND_SCAN})
+endif()
 
 set(ISHMEM_FLAGS ${SYCL_FLAGS})
 set(ISHMEM_LINK_FLAGS ${SYCL_LINK_FLAGS})
 
 if (ISHMEM_ENABLE_SPIRV_COMPILATION)
-    list(APPEND _ISHMEM_SPIRV_ARGS -fsycl-targets=spir64_gen --start-no-unused-arguments -Xs "-device @ISHMEM_SPIRV_COMPILATION_TARGETS@" --end-no-unused-arguments)
+    list(APPEND _ISHMEM_SPIRV_ARGS
+        -fsycl-targets=spir64_gen
+        "SHELL:--start-no-unused-arguments -Xs \"-device ${ISHMEM_SPIRV_COMPILATION_TARGETS}\" --end-no-unused-arguments")
     if (ISHMEM_SPIRV_SUPPRESS_COMPILATION_OUTPUT)
-        list(APPEND _ISHMEM_SPIRV_ARGS --start-no-unused-arguments -Xsycl-target-backend "-q" --end-no-unused-arguments)
+        list(APPEND _ISHMEM_SPIRV_ARGS
+            "SHELL:--start-no-unused-arguments -Xsycl-target-backend -q --end-no-unused-arguments")
     endif()
     list(APPEND ISHMEM_FLAGS ${_ISHMEM_SPIRV_ARGS})
     list(APPEND ISHMEM_LINK_FLAGS ${_ISHMEM_SPIRV_ARGS})
     unset(_ISHMEM_SPIRV_ARGS)
 endif()
 
+set_property(TARGET ISHMEM::ISHMEM_STATIC PROPERTY
+    INTERFACE_COMPILE_OPTIONS ${ISHMEM_FLAGS})
+set_property(TARGET ISHMEM::ISHMEM_SHARED PROPERTY
+    INTERFACE_COMPILE_OPTIONS ${ISHMEM_FLAGS})
 set_property(TARGET ISHMEM::ISHMEM PROPERTY
     INTERFACE_COMPILE_OPTIONS ${ISHMEM_FLAGS})
+set_property(TARGET ISHMEM::ISHMEM_STATIC PROPERTY
+    INTERFACE_LINK_OPTIONS ${ISHMEM_LINK_FLAGS})
+set_property(TARGET ISHMEM::ISHMEM_SHARED PROPERTY
+    INTERFACE_LINK_OPTIONS ${ISHMEM_LINK_FLAGS})
 set_property(TARGET ISHMEM::ISHMEM PROPERTY
     INTERFACE_LINK_OPTIONS ${ISHMEM_LINK_FLAGS})
 
@@ -205,11 +279,22 @@ if (LEVEL_ZERO_VERSION LESS 1.20)
 endif()
 
 # Add ishmem link dependencies
-list(APPEND ISHMEM_LINK_LIBRARIES ${CMAKE_DL_LIBS} pthread ${LEVEL_ZERO_LIBRARIES})
+set(ISHMEM_EXTRA_LINK_LIBRARIES ${CMAKE_DL_LIBS} pthread ${LEVEL_ZERO_LIBRARIES})
+set(ISHMEM_LINK_LIBRARIES ${ISHMEM_LINK_TARGET} ${ISHMEM_EXTRA_LINK_LIBRARIES})
 
+set_property(TARGET ISHMEM::ISHMEM_STATIC PROPERTY
+    INTERFACE_LINK_LIBRARIES
+    "ISHMEM::HOST;${ISHMEM_DEVICE_LIBRARY};${ISHMEM_DEVICE_LIBRARY_SECOND_SCAN};${ISHMEM_EXTRA_LINK_LIBRARIES}")
+set_property(TARGET ISHMEM::ISHMEM_SHARED PROPERTY
+    INTERFACE_LINK_LIBRARIES
+    "ISHMEM::HOST_SHARED;${ISHMEM_DEVICE_LIBRARY};${ISHMEM_DEVICE_LIBRARY_SECOND_SCAN};${ISHMEM_EXTRA_LINK_LIBRARIES}")
 set_property(TARGET ISHMEM::ISHMEM PROPERTY
-    INTERFACE_LINK_LIBRARIES ${ISHMEM_LINK_LIBRARIES})
-set_property(TARGET ISHMEM::ISHMEM PROPERTY
-    IMPORTED_LOCATION ${ISHMEM_LIBRARY})
+    INTERFACE_LINK_LIBRARIES ${ISHMEM_LINK_TARGET})
+set_property(TARGET ISHMEM::HOST PROPERTY
+    IMPORTED_LOCATION ${ISHMEM_HOST_STATIC_LIBRARY})
+set_property(TARGET ISHMEM::HOST_SHARED PROPERTY
+    IMPORTED_LOCATION ${ISHMEM_HOST_SHARED_LIBRARY})
+set_property(TARGET ISHMEM::DEVICE PROPERTY
+    IMPORTED_LOCATION ${ISHMEM_DEVICE_LIBRARY})
 
 endif() # ISHMEM::ISHMEM
