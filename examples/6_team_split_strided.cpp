@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2024-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * This program is derived from the shmem_team_split_strided example in the
@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
                 }
             });
         });
+        e_verify.wait_and_throw();
     }
 
     ishmem_barrier_all();

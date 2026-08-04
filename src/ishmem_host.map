@@ -1,0 +1,24 @@
+{
+    global:
+        extern "C++" {
+            ishmem;
+            ishmem[_a-hj-zA-HJ-Z0-9]*;
+            ishmemi*;
+            ishmemx*;
+        };
+        ishmem;
+        ishmem[_a-hj-zA-HJ-Z0-9]*;
+        ishmemi*;
+        ishmemx*;
+        /* The extern "C++" globs above are anchored at the symbol name, but
+         * a function template instantiation demangles with a leading return
+         * type (e.g. "void ishmemx_sync_all_work_group<sycl::group<1>>(...)"),
+         * so they never match the templated device-collective API. Match the
+         * mangled names instead: free functions in the global namespace are
+         * "_Z<len><name>...", so "_Z[0-9]*ishmem*" exports every ishmem* free
+         * function (templated or not) while leaving namespaced internals
+         * (_ZN4impl*, _ZNSt*, ...) hidden. */
+        _Z[0-9]*ishmem*;
+    local:
+        *;
+};

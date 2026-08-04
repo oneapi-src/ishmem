@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -13,6 +13,7 @@
 #include <sys/unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <iomanip>
 #include <sstream>
 
 #define ISHMEMI_NO_DEVICES       -1
@@ -34,24 +35,26 @@ typedef enum : uint32_t {
     UNDEFINED_QUEUE,
 } ishmemi_queue_type_t;
 
+static inline std::string ishmemi_get_device_uuid(const ze_device_properties_t &props)
+{
+    std::stringstream stream;
+    for (int i = 0; i < ZE_MAX_DEVICE_UUID_SIZE; i++) {
+        if (i % 2 == 0 && i != 0) stream << "-";
+        stream << std::hex << std::setw(2) << std::setfill('0')
+               << static_cast<int>(props.uuid.id[i]) << std::dec;
+    }
+    return stream.str();
+}
+
 static inline void ishmemi_print_device_properties(const ze_device_properties_t &props)
 {
     std::stringstream stream;
-    stream << "PE : " << ishmemi_my_pe << " Device info: " << std::endl
-           << "    name : " << props.name << std::endl
-           << "    type : " << ((props.type == ZE_DEVICE_TYPE_GPU) ? "GPU" : "Unknown") << std::endl
-           << "    vendorId : " << props.vendorId << std::endl
-           << "    deviceId : " << props.deviceId << std::endl
-           << "    subdeviceId : " << props.subdeviceId << std::endl
-           << "    coreClockRate : " << props.coreClockRate << std::endl;
-    char bytestr[8];
-    stream << "    uuid : ";
-    for (int i = 0; i < ZE_MAX_DEVICE_UUID_SIZE; i += 1) {
-        uint8_t b = props.uuid.id[i];
-        snprintf(bytestr, sizeof(bytestr), " %02x", b);
-        stream << bytestr;
-    }
-    stream << std::endl;
+    stream << "PE : " << ishmemi_my_pe << " Device name: " << props.name << " ("
+           << ishmemi_get_device_uuid(props) << ")"
+           << "  type : " << ((props.type == ZE_DEVICE_TYPE_GPU) ? "GPU" : "Unknown")
+           << "  vendorId : " << props.vendorId << "  deviceId : " << props.deviceId
+           << "  subdeviceId : " << props.subdeviceId << "  coreClockRate : " << props.coreClockRate
+           << std::endl;
     std::cout << stream.str();
 }
 
@@ -59,11 +62,15 @@ static inline void ishmemi_print_device_properties(const ze_device_properties_t 
 
 /* Initialize accelerator */
 int ishmemi_accelerator_preinit(void);
-int ishmemi_accelerator_init(void);
+int ishmemi_accelerator_init(const ishmemx_attr_t *attr);
 
 /* Finalize accelerator */
 int ishmemi_accelerator_fini(void);
 int ishmemi_accelerator_postfini(void);
+
+/* Selected-device helpers */
+sycl::device ishmemi_get_selected_sycl_device();
+void ishmemi_validate_queue_device(const sycl::queue &q);
 
 /* Query allocation memory type */
 int ishmemi_get_memory_type(const void *ptr, ze_memory_type_t *type);
@@ -96,11 +103,18 @@ T *ishmemi_get_mmap_address(T *device_ptr, size_t size, ze_ipc_mem_handle_t *ze_
 
     memcpy(&fd, ze_ipc_handle, sizeof(fd));
     base = mmap(NULL, size, PROT_READ | PROT_WRITE, flags, fd, 0);
+
+    /* Release the IPC handle immediately after mmap — the mapping stays valid without it,
+     * and holding multiple handles simultaneously may cause driver issues. */
+    ZE_CHECK(zeMemPutIpcHandle(ishmemi_ze_context, *ze_ipc_handle));
+    ::memset(ze_ipc_handle, 0, sizeof(*ze_ipc_handle));
+
     if (base == (void *) MAP_FAILED) {
         ISHMEM_CHECK_GOTO_MSG(1, fn_fail, "mmap failed with description: %s\n", strerror(errno));
         /* there is a level zero implicit scaling issue with mmap, such that mmap will fail when
          * memory is mapped across two tiles.  If this triggers that is probably the reason. */
     }
+    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
     return (T *) base;
 fn_fail:
     return (T *) nullptr;
@@ -114,8 +128,7 @@ int ishmemi_close_mmap_address(ze_ipc_mem_handle_t ze_ipc_handle, T *host_ptr, s
     ISHMEM_CHECK_GOTO_MSG(ret != 0, fn_fail, "munmap failed with description: %s\n",
                           strerror(errno));
 
-    ZE_CHECK(zeMemPutIpcHandle(ishmemi_ze_context, ze_ipc_handle));
-    ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
+    /* IPC handle has been released in ishmemi_get_mmap_address. */
 
 fn_exit:
     return ret;

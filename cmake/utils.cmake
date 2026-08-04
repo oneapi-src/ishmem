@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2024-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # CMake utility functions
@@ -30,31 +30,87 @@ function(setup_compiler_options)
     check_compiler_flag(-mavx512f COMPILER_FLAG_AVX512F TRUE)
     check_compiler_flag(-mwaitpkg COMPILER_FLAG_WAITPKG TRUE)
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SYCL_FLAGS}")
+    separate_arguments(ISHMEM_SYCL_COMPILE_OPTIONS UNIX_COMMAND "${SYCL_FLAGS}")
+    separate_arguments(ISHMEM_SYCL_LINK_OPTIONS UNIX_COMMAND "${SYCL_LINK_FLAGS}")
+
+    set(ISHMEM_CMAKE_REQUIRED_FLAGS_SAVE "${CMAKE_REQUIRED_FLAGS}")
+    string(REPLACE ";" " " ISHMEM_SYCL_REQUIRED_FLAGS "${ISHMEM_SYCL_COMPILE_OPTIONS}")
+    set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} ${ISHMEM_SYCL_REQUIRED_FLAGS}")
+    check_cxx_compiler_flag(-fsycl-host-only COMPILER_FLAG_FSYCL_HOST_ONLY)
+    if (COMPILER_FLAG_FSYCL_HOST_ONLY)
+        set(ISHMEM_SYCL_HOST_ONLY_FLAG -fsycl-host-only PARENT_SCOPE)
+    else()
+        check_cxx_compiler_flag(--offload-host-only COMPILER_FLAG_OFFLOAD_HOST_ONLY)
+        if (NOT COMPILER_FLAG_OFFLOAD_HOST_ONLY)
+            message(FATAL_ERROR
+                "Neither '-fsycl-host-only' nor '--offload-host-only' is supported by your compiler")
+        endif()
+        set(ISHMEM_SYCL_HOST_ONLY_FLAG --offload-host-only PARENT_SCOPE)
+    endif()
+    set(CMAKE_REQUIRED_FLAGS "${ISHMEM_CMAKE_REQUIRED_FLAGS_SAVE}")
 
     # Set compiler settings
-    set(COMPILER_WARN_FLAGS "-Wall -Wextra -Wconversion -Wno-unused-parameter -Wformat -Wformat-security")
+    set(ISHMEM_CPU_COMPILE_OPTIONS
+        -mmovdir64b
+        -mavx512f
+        -mwaitpkg)
+    set(ISHMEM_WARN_COMPILE_OPTIONS
+        -Wall
+        -Wextra
+        -Wconversion
+        -Wno-unused-parameter
+        -Wformat
+        -Wformat-security)
+    set(ISHMEM_DEFAULT_COMPILE_OPTIONS
+        -D_GNU_SOURCE
+        -fvisibility=internal)
+    set(ISHMEM_DEBUG_COMPILE_OPTIONS
+        -g
+        -DENABLE_DEBUG
+        -Rno-debug-disables-optimization)
+    set(ISHMEM_RELEASE_COMPILE_OPTIONS
+        -O3)
+    set(ISHMEM_RELWITHDEBINFO_COMPILE_OPTIONS
+        -O2
+        -g)
 
-    set(COMPILER_DEFAULT_FLAGS "-D_GNU_SOURCE -fvisibility=internal")
-    set(COMPILER_DEBUG_FLAGS "-g -DENABLE_DEBUG -Rno-debug-disables-optimization")
-    set(COMPILER_RELEASE_FLAGS "-O3")
-    set(COMPILER_RELWITH_DEBINFO_FLAGS "-O2 -g")
+    set(ISHMEM_RELEASE_LINK_OPTIONS
+        LINKER:-z,noexecstack
+        LINKER:-z,nodlopen)
 
-    set(LINKER_RELEASE_FLAGS "-Wl,-z,noexecstack -Wl,-z,nodlopen")
-
+    set(ISHMEM_AOT_COMPILE_OPTIONS)
+    set(ISHMEM_AOT_INTERFACE_OPTIONS)
     if (ENABLE_AOT_COMPILATION)
-        set(COMPILER_DEFAULT_FLAGS "${COMPILER_DEFAULT_FLAGS} -fsycl-targets=spir64_gen")
-        set(COMPILER_DEFAULT_FLAGS "${COMPILER_DEFAULT_FLAGS} --start-no-unused-arguments -Xs \"-device ${ISHMEM_AOT_DEVICE_TYPES}\" --end-no-unused-arguments")
+        list(APPEND ISHMEM_AOT_COMPILE_OPTIONS
+            -fsycl-targets=spir64_gen
+            --start-no-unused-arguments
+            -Xs
+            "-device ${ISHMEM_AOT_DEVICE_TYPES}"
+            --end-no-unused-arguments)
+        list(APPEND ISHMEM_AOT_INTERFACE_OPTIONS
+            -fsycl-targets=spir64_gen
+            "SHELL:--start-no-unused-arguments -Xs \"-device ${ISHMEM_AOT_DEVICE_TYPES}\" --end-no-unused-arguments")
         # Suppress the `Compilation from IR - skipping loading of FCL` outputs:
-        set(COMPILER_DEFAULT_FLAGS "${COMPILER_DEFAULT_FLAGS} --start-no-unused-arguments -Xsycl-target-backend \"-q\" --end-no-unused-arguments")
+        list(APPEND ISHMEM_AOT_COMPILE_OPTIONS
+            --start-no-unused-arguments
+            -Xsycl-target-backend
+            -q
+            --end-no-unused-arguments)
+        list(APPEND ISHMEM_AOT_INTERFACE_OPTIONS
+            "SHELL:--start-no-unused-arguments -Xsycl-target-backend -q --end-no-unused-arguments")
     endif()
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILER_WARN_FLAGS} ${COMPILER_DEFAULT_FLAGS}" PARENT_SCOPE)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${COMPILER_DEBUG_FLAGS}" PARENT_SCOPE)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${COMPILER_RELEASE_FLAGS}" PARENT_SCOPE)
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${COMPILER_RELWITHDEBINFO_FLAGS}" PARENT_SCOPE)
-
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} ${LINKER_RELEASE_FLAGS}" PARENT_SCOPE)
+    set(ISHMEM_CPU_COMPILE_OPTIONS ${ISHMEM_CPU_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_WARN_COMPILE_OPTIONS ${ISHMEM_WARN_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_DEFAULT_COMPILE_OPTIONS ${ISHMEM_DEFAULT_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_DEBUG_COMPILE_OPTIONS ${ISHMEM_DEBUG_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_RELEASE_COMPILE_OPTIONS ${ISHMEM_RELEASE_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_RELWITHDEBINFO_COMPILE_OPTIONS ${ISHMEM_RELWITHDEBINFO_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_RELEASE_LINK_OPTIONS ${ISHMEM_RELEASE_LINK_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_SYCL_COMPILE_OPTIONS ${ISHMEM_SYCL_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_SYCL_LINK_OPTIONS ${ISHMEM_SYCL_LINK_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_AOT_COMPILE_OPTIONS ${ISHMEM_AOT_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(ISHMEM_AOT_INTERFACE_OPTIONS ${ISHMEM_AOT_INTERFACE_OPTIONS} PARENT_SCOPE)
 endfunction(setup_compiler_options)
 
 function(setup_dependencies)
@@ -124,7 +180,10 @@ function(setup_runtime_backends)
         if (EXISTS ${MPI_DIR})
             set(ENV{MPI_HOME} ${MPI_DIR})
             if (DEFINED ENV{I_MPI_ROOT} AND NOT "$ENV{I_MPI_ROOT}" STREQUAL "")
-                if (NOT ENV{I_MPI_ROOT} STREQUAL MPI_DIR)
+                # Normalize paths for accurate comparison
+                get_filename_component(normalized_i_mpi_root "$ENV{I_MPI_ROOT}" REALPATH)
+                get_filename_component(normalized_mpi_dir "${MPI_DIR}" REALPATH)
+                if (NOT normalized_i_mpi_root STREQUAL normalized_mpi_dir)
                     message(WARNING " \${MPI_DIR} is set but does not match \${I_MPI_ROOT}.\n"
                                     " FindMPI will likely select \${I_MPI_ROOT} over \${MPI_DIR}.\n"
                                     " To ensure \${MPI_DIR} is used, please remove \${I_MPI_ROOT} from your environment.\n"
@@ -134,7 +193,6 @@ function(setup_runtime_backends)
             endif()
         endif()
 
-        set(MPI_CXX_SKIP_MPICXX TRUE)
         find_package(MPI COMPONENTS REQUIRED CXX)
 
         if (NOT DEFINED ISHMEM_DEFAULT_RUNTIME_UPPER)

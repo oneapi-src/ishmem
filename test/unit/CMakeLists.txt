@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2024-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 cmake_minimum_required(VERSION 3.17)
@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.17)
 file(GLOB TEST_SOURCE_FILES *.cpp)
 
 set(PROJECT_NAME "ishmem unit tests")
-set(PROJECT_FULL_NAME "Intel® SHMEM unit tests")
+set(PROJECT_FULL_NAME "Intel(R) SHMEM unit tests")
 
 project(${PROJECT_NAME})
 
@@ -29,7 +29,8 @@ target_link_libraries(ishmem-test-common-unit PUBLIC ${ISHMEM_TEST_LINK_LIBS})
 # Setup default test values
 
 set(ISHMEM_PE_COUNTS_UNIT_TESTS "2" CACHE STRING "Number of PEs to use for each test")
-set(ISHMEM_NON_STANDARD_CTEST_FILES "")
+set(ISHMEM_NON_STANDARD_CTEST_FILES
+    init_attr_device_idx)
 set(ISHMEM_SKIP_CTEST_FILES "")
 
 set(ISHMEM_TESTER_MODES host_device_device device)
@@ -104,6 +105,8 @@ set(ISHMEM_TESTER_ON_QUEUE_TESTS
     wait_until_some
     wait_until_some_vector)
 
+set(ISHMEM_ALL_VISIBLE_RUN_SCRIPT "${SCRIPTS_DIR}/ctest/all_visible_wrapper")
+
 enable_testing()
 
 # -------------------------------------------------------------------
@@ -112,6 +115,7 @@ message(STATUS "\n======= Unit tests summary =======")
 message(STATUS "Build type:                  ${CMAKE_BUILD_TYPE_CASE_INSENSITIVE}")
 message(STATUS "PE count(s):                 ${ISHMEM_PE_COUNTS_UNIT_TESTS}")
 message(STATUS "CTest launcher:              ${CTEST_LAUNCHER}")
+message(STATUS "Host link type:              ${ISHMEM_HOST_LINK_TYPE}")
 message(STATUS "Enable AOT compilation:      ${ENABLE_AOT_COMPILATION}")
 if (ENABLE_AOT_COMPILATION)
     message(STATUS "    AOT Device type(s): ${ISHMEM_AOT_DEVICE_TYPES}")
@@ -128,6 +132,12 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCE_FILES})
     add_executable(${EXE} ${TEST_SOURCE_FILE})
     set_target_properties(${EXE} PROPERTIES ENABLE_EXPORTS TRUE)
     target_link_libraries(${EXE} PRIVATE ishmem-test-common-unit)
+endforeach()
+
+foreach (N ${ISHMEM_PE_COUNTS_UNIT_TESTS})
+    add_test(NAME init_attr_device_idx-flat-${N} COMMAND ${CTEST_WRAPPER} ${N}
+        ${ISHMEM_ALL_VISIBLE_RUN_SCRIPT} ./init_attr_device_idx${CMAKE_EXECUTABLE_SUFFIX})
+    set_tests_properties(init_attr_device_idx-flat-${N} PROPERTIES SKIP_RETURN_CODE 77)
 endforeach()
 
 # -------------------------------------------------------------------

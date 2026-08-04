@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -16,9 +16,9 @@
 
 #define ISHMEM_MAJOR_VERSION 1
 #define ISHMEM_MINOR_VERSION 5
-#define ISHMEM_PATCH_VERSION 1
+#define ISHMEM_PATCH_VERSION 2
 #define ISHMEM_MAX_NAME_LEN  256
-#define ISHMEM_VENDOR_STRING "Intel® SHMEM"
+#define ISHMEM_VENDOR_STRING "Intel(R) SHMEM"
 
 #define ISHMEM_THREAD_SINGLE     0
 #define ISHMEM_THREAD_FUNNELED   1

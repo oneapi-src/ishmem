@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -52,6 +52,12 @@ int ishmemi_memory_init()
         ISHMEMI_CHECK_RESULT(ret, 0, fn_fail);
         ISHMEM_CHECK_GOTO_MSG(ishmemi_heap_base == nullptr, fn_fail,
                               "Unable to allocate ishmemi_heap_base\n");
+        /* The heap is already host-accessible; mmap translation is a no-op.
+         * Set mmap_heap_base == heap_base so ISHMEMI_DEVICE_TO_MMAP_ADDR returns
+         * the pointer unchanged: mmap_base + (ptr - heap_base) == ptr. */
+        ishmemi_mmap_heap_base = ishmemi_heap_base;
+        ::memset(ishmemi_heap_base, 0, ishmemi_heap_length);
+        ishmemi_heap_last = (uintptr_t) pointer_offset(ishmemi_heap_base, ishmemi_heap_length - 1);
     } else {
         /* Device memory alloc */
         ret = ishmemi_usm_alloc_device(&ishmemi_heap_base, ishmemi_heap_length);
@@ -98,7 +104,7 @@ int ishmemi_memory_init()
 
     /* SYCL queue to initialize global_info */
     try {
-        sycl::queue q;
+        sycl::queue q(ishmemi_get_selected_sycl_device());
         q.copy(&ishmemi_gpu_info, global_info).wait_and_throw();
     } catch (...) {
         ret = -1;
@@ -141,14 +147,13 @@ int ishmemi_memory_fini()
                                              ishmemi_heap_length);
             ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
         }
-
-        ishmemi_mmap_heap_base = nullptr;
     }
 
     ret = ishmemi_usm_free(ishmemi_heap_base);
     ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);
 
     ishmemi_heap_base = nullptr;
+    ishmemi_mmap_heap_base = nullptr;
     ishmemi_heap_length = 0;
 
     ret = ishmemi_close_mmap_address(info_handle, ishmemi_mmap_gpu_info, ishmemi_info_size);

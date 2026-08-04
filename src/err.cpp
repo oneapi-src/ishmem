@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2023-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -26,7 +26,7 @@ static inline void validate_pe(const char *file, long int line, const char *func
 {
     if ((pe < 0) || (pe >= ishmem_n_pes())) {
         ishmemx_print(file, line, func,
-                      "Attempting to call Intel® SHMEM API using invalid PE value\n",
+                      "Attempting to call Intel(R) SHMEM API using invalid PE value\n",
                       ishmemx_print_msg_type_t::ERROR);
     }
 }
@@ -43,11 +43,11 @@ static inline void validate_object_is_symmetric(const char *file, long int line,
     uintptr_t loheap = (uintptr_t) heap_base;
     uintptr_t hiheap = loheap + heap_length - 1;
 
-    // Check if object on Intel® SHMEM heap
+    // Check if object on Intel(R) SHMEM heap
     if ((loptr >= loheap) && (loptr < hiheap)) {
         if (hiptr > hiheap) {
             ishmemx_print(file, line, func,
-                          "Attempting to call Intel® SHMEM API using object that exceeds device "
+                          "Attempting to call Intel(R) SHMEM API using object that exceeds device "
                           "symmetric heap "
                           "region.\n",
                           ishmemx_print_msg_type_t::ERROR);
@@ -62,19 +62,19 @@ static inline void validate_object_is_symmetric(const char *file, long int line,
     // Check if object on runtime heap
     if (ishmemi_runtime->is_symmetric_address((void *) loptr)) {
         if (!ishmemi_runtime->is_symmetric_address((void *) hiptr)) {
-            ishmemx_print(
-                file, line, func,
-                "Attempting to call Intel® SHMEM API using object that exceeds host symmetric heap "
-                "region.\n",
-                ishmemx_print_msg_type_t::ERROR);
+            ishmemx_print(file, line, func,
+                          "Attempting to call Intel(R) SHMEM API using object that exceeds host "
+                          "symmetric heap "
+                          "region.\n",
+                          ishmemx_print_msg_type_t::ERROR);
         }
     }
 
-    // Check if object on Intel® SHMEM heap
+    // Check if object on Intel(R) SHMEM heap
     else if ((loptr >= loheap) && (loptr <= hiheap)) {
         if (hiptr > hiheap) {
             ishmemx_print(file, line, func,
-                          "Attempting to call Intel® SHMEM API using object that exceeds device "
+                          "Attempting to call Intel(R) SHMEM API using object that exceeds device "
                           "symmetric heap "
                           "region.\n",
                           ishmemx_print_msg_type_t::ERROR);
@@ -83,7 +83,7 @@ static inline void validate_object_is_symmetric(const char *file, long int line,
 #endif /* end __SYCL_DEVICE_ONLY__ */
     else {
         ishmemx_print(file, line, func,
-                      "Attempting to call Intel® SHMEM API using object that is not symmetric.\n",
+                      "Attempting to call Intel(R) SHMEM API using object that is not symmetric.\n",
                       ishmemx_print_msg_type_t::ERROR);
     }
 }
@@ -98,7 +98,7 @@ static inline void validate_objects_dont_overlap(const char *file, long int line
     uintptr_t hi2 = lo2 + size2 - 1;
     if ((lo1 <= hi2) && (lo2 <= hi1)) {
         ishmemx_print(file, line, func,
-                      "Attempting to call Intel® SHMEM API using overlapping arguments.\n",
+                      "Attempting to call Intel(R) SHMEM API using overlapping arguments.\n",
                       ishmemx_print_msg_type_t::ERROR);
     }
 }
@@ -115,7 +115,7 @@ static inline void validate_objects_dont_overlap(const char *file, long int line
         uintptr_t hi2 = lo2 + size2 - 1;
         if ((lo1 <= hi2) && (lo2 <= hi1)) {
             ishmemx_print(file, line, func,
-                          "Attempting to call Intel® SHMEM API using overlapping arguments.\n",
+                          "Attempting to call Intel(R) SHMEM API using overlapping arguments.\n",
                           ishmemx_print_msg_type_t::ERROR);
         }
     }
@@ -126,14 +126,15 @@ static inline void validate_stride(const char *file, long int line, const char *
 {
     if (stride <= 0) {
         ishmemx_print(file, line, func,
-                      "Attempting to call ISHMEM API with nonpositive stride value.\n",
+                      "Attempting to call Intel(R) SHMEM API with nonpositive stride value.\n",
                       ishmemx_print_msg_type_t::ERROR);
     }
 
     if (static_cast<size_t>(stride) < bsize) {
-        ishmemx_print(file, line, func,
-                      "Attempting to call ISHMEM API with stride value less than block size\n",
-                      ishmemx_print_msg_type_t::ERROR);
+        ishmemx_print(
+            file, line, func,
+            "Attempting to call Intel(R) SHMEM API with stride value less than block size\n",
+            ishmemx_print_msg_type_t::ERROR);
     }
 }
 

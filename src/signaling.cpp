@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -26,7 +26,8 @@ void ishmem_put_signal(T *dest, const T *src, size_t nelems, uint64_t *sig_addr,
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
+        ishmemi_info_t *info = global_info;
+        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER && info->device_atomics) {
             vec_copy_push(ISHMEMI_ADJUST_PTR(T, local_index, dest), src, nelems);
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
             sycl::atomic_ref<uint64_t, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -74,7 +75,8 @@ void ishmem_putmem_signal(void *dest, const void *src, size_t nelems, uint64_t *
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
+        ishmemi_info_t *info = global_info;
+        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER && info->device_atomics) {
             vec_copy_push(ISHMEMI_ADJUST_PTR(uint8_t, local_index, (uint8_t *) dest),
                           (uint8_t *) src, nelems);
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
@@ -123,7 +125,9 @@ sycl::event ishmemx_put_signal_on_queue(T *dest, const T *src, size_t nelems, ui
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        if ((nelems != 0) && (local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+        ishmemi_info_t *info = ishmemi_mmap_gpu_info;
+        if ((nelems != 0) && (local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER &&
+            info->device_atomics) {
             size_t max_work_group_size = iter->second->max_work_group_size;
             size_t range_size = (nelems < max_work_group_size) ? nelems : max_work_group_size;
             cgh.parallel_for(
@@ -133,8 +137,8 @@ sycl::event ishmemx_put_signal_on_queue(T *dest, const T *src, size_t nelems, ui
                                                   it.get_group());
                 });
         } else {
-            cgh.single_task(
-                [=]() { ishmem_put_signal(dest, src, nelems, sig_addr, signal, sig_op, pe); });
+            ishmemi_submit_on_queue<true>(
+                [=]() { ishmem_put_signal(dest, src, nelems, sig_addr, signal, sig_op, pe); }, cgh);
         }
     });
     ishmemi_on_queue_events_map[&q]->event = e;
@@ -156,15 +160,17 @@ void ishmemx_put_signal_work_group(T *dest, const T *src, size_t nelems, uint64_
 {
     size_t nbytes = nelems * sizeof(T);
 
+    if constexpr (enable_error_checking) {
+        if (grp.leader())
+            validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                                sizeof(uint64_t));
+    }
+
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
-        if constexpr (enable_error_checking) {
-            if (grp.leader())
-                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
-                                    sizeof(uint64_t));
-        }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+        ishmemi_info_t *info = global_info;
+        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER && info->device_atomics) {
             size_t my_nelems_work_item;
             size_t work_item_start_idx;
             ishmemi_work_item_calculate_offset(nelems, grp, my_nelems_work_item,
@@ -219,15 +225,17 @@ void ishmemx_putmem_signal_work_group(void *dest, const void *src, size_t nelems
 {
     size_t nbytes = nelems * sizeof(char);
 
+    if constexpr (enable_error_checking) {
+        if (grp.leader())
+            validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                                sizeof(uint64_t));
+    }
+
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
-        if constexpr (enable_error_checking) {
-            if (grp.leader())
-                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
-                                    sizeof(uint64_t));
-        }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+        ishmemi_info_t *info = global_info;
+        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER && info->device_atomics) {
             size_t my_nelems_work_item;
             size_t work_item_start_idx;
             ishmemi_work_item_calculate_offset(nelems, grp, my_nelems_work_item,
@@ -348,7 +356,8 @@ void ishmem_put_signal_nbi(T *dest, const T *src, size_t nelems, uint64_t *sig_a
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
+        ishmemi_info_t *info = global_info;
+        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER && info->device_atomics) {
             vec_copy_push(ISHMEMI_ADJUST_PTR(T, local_index, dest), src, nelems);
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
             sycl::atomic_ref<uint64_t, sycl::memory_order::seq_cst, sycl::memory_scope::system,
@@ -396,7 +405,8 @@ void ishmem_putmem_signal_nbi(void *dest, const void *src, size_t nelems, uint64
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER) {
+        ishmemi_info_t *info = global_info;
+        if ((local_index != 0) && !ISHMEM_RMA_CUTOVER && info->device_atomics) {
             vec_copy_push(ISHMEMI_ADJUST_PTR(uint8_t, local_index, (uint8_t *) dest),
                           (uint8_t *) src, nelems);
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
@@ -445,7 +455,9 @@ sycl::event ishmemx_put_signal_nbi_on_queue(T *dest, const T *src, size_t nelems
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        if ((nelems != 0) && (local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+        ishmemi_info_t *info = ishmemi_mmap_gpu_info;
+        if ((nelems != 0) && (local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER &&
+            info->device_atomics) {
             size_t max_work_group_size = iter->second->max_work_group_size;
             size_t range_size = (nelems < max_work_group_size) ? nelems : max_work_group_size;
             cgh.parallel_for(
@@ -455,8 +467,9 @@ sycl::event ishmemx_put_signal_nbi_on_queue(T *dest, const T *src, size_t nelems
                                                       pe, it.get_group());
                 });
         } else {
-            cgh.single_task(
-                [=]() { ishmem_put_signal_nbi(dest, src, nelems, sig_addr, signal, sig_op, pe); });
+            ishmemi_submit_on_queue<true>(
+                [=]() { ishmem_put_signal_nbi(dest, src, nelems, sig_addr, signal, sig_op, pe); },
+                cgh);
         }
     });
     ishmemi_on_queue_events_map[&q]->event = e;
@@ -479,15 +492,17 @@ void ishmemx_put_signal_nbi_work_group(T *dest, const T *src, size_t nelems, uin
 {
     size_t nbytes = nelems * sizeof(T);
 
+    if constexpr (enable_error_checking) {
+        if (grp.leader())
+            validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                                sizeof(uint64_t));
+    }
+
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
-        if constexpr (enable_error_checking) {
-            if (grp.leader())
-                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
-                                    sizeof(uint64_t));
-        }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+        ishmemi_info_t *info = global_info;
+        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER && info->device_atomics) {
             size_t my_nelems_work_item;
             size_t work_item_start_idx;
             ishmemi_work_item_calculate_offset(nelems, grp, my_nelems_work_item,
@@ -549,15 +564,17 @@ void ishmemx_putmem_signal_nbi_work_group(void *dest, const void *src, size_t ne
 {
     size_t nbytes = nelems * sizeof(char);
 
+    if constexpr (enable_error_checking) {
+        if (grp.leader())
+            validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
+                                sizeof(uint64_t));
+    }
+
     if constexpr (ishmemi_is_device) {
         sycl::group_barrier(grp);
-        if constexpr (enable_error_checking) {
-            if (grp.leader())
-                validate_parameters(pe, (void *) dest, (void *) src, (void *) sig_addr, nbytes,
-                                    sizeof(uint64_t));
-        }
         uint8_t local_index = ISHMEMI_LOCAL_PES[pe];
-        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER) {
+        ishmemi_info_t *info = global_info;
+        if ((local_index != 0) && !ISHMEM_RMA_GROUP_CUTOVER && info->device_atomics) {
             size_t my_nelems_work_item;
             size_t work_item_start_idx;
             ishmemi_work_item_calculate_offset(nelems, grp, my_nelems_work_item,
@@ -669,7 +686,8 @@ uint64_t ishmem_signal_fetch(uint64_t *sig_addr)
 
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
-        if (global_info->only_intra_node) {
+        ishmemi_info_t *info = global_info;
+        if (info->only_intra_node && info->device_atomics) {
             sycl::atomic_ref<uint64_t, sycl::memory_order::seq_cst, sycl::memory_scope::system,
                              sycl::access::address_space::global_space>
                 atomic_sig(*sig_addr);
@@ -705,7 +723,7 @@ void ishmemx_signal_set(uint64_t *sig_addr, uint64_t val, int pe)
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
         ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
+        if (local_index != 0 && info->only_intra_node && info->device_atomics) {
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
             sycl::atomic_ref<uint64_t, sycl::memory_order::seq_cst, sycl::memory_scope::system,
                              sycl::access::address_space::global_space>
@@ -742,7 +760,7 @@ void ishmemx_signal_add(uint64_t *sig_addr, uint64_t val, int pe)
     /* Node-local, on-device implementation */
     if constexpr (ishmemi_is_device) {
         ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
+        if (local_index != 0 && info->only_intra_node && info->device_atomics) {
             uint64_t *p = ISHMEMI_ADJUST_PTR(uint64_t, local_index, sig_addr);
             sycl::atomic_ref<uint64_t, sycl::memory_order::seq_cst, sycl::memory_scope::system,
                              sycl::access::address_space::global_space>

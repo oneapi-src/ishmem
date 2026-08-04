@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Intel Corporation
+# Copyright (C) 2025-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Common CMakeLists.txt to build ishmem, tests, examples
@@ -9,14 +9,29 @@ set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 set(PROJECT_NAME "ishmem")
-set(PROJECT_FULL_NAME "Intel® SHMEM")
+set(PROJECT_FULL_NAME "Intel(R) SHMEM")
 
 set(ISHMEM_MAJOR_VERSION "1")
 set(ISHMEM_MINOR_VERSION "5")
-set(ISHMEM_PATCH_VERSION "1")
+set(ISHMEM_PATCH_VERSION "2")
 set(PROJECT_VERSION "${ISHMEM_MAJOR_VERSION}.${ISHMEM_MINOR_VERSION}.${ISHMEM_PATCH_VERSION}")
 
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
+
+set(ISHMEM_GIT_HASH "unknown")
+find_package(Git QUIET)
+if (GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --short=12 HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        RESULT_VARIABLE ISHMEM_GIT_HASH_RESULT
+        OUTPUT_VARIABLE ISHMEM_GIT_HASH_OUTPUT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+    if (ISHMEM_GIT_HASH_RESULT EQUAL 0 AND NOT ISHMEM_GIT_HASH_OUTPUT STREQUAL "")
+        set(ISHMEM_GIT_HASH "${ISHMEM_GIT_HASH_OUTPUT}")
+    endif()
+endif()
 
 set(COMMON_CMAKE_DIR "${PROJECT_SOURCE_DIR}/cmake")
 include(${COMMON_CMAKE_DIR}/utils.cmake)
@@ -32,6 +47,8 @@ option(ENABLE_ERROR_CHECKING "Validate API inputs" FALSE)
 option(ENABLE_DLMALLOC "Enable dlmalloc for shared heap" TRUE)
 option(ENABLE_REDUCED_LINK_ENGINES "Enable reduced link engines (i.e. for single tile devices)" FALSE)
 option(ENABLE_AOT_COMPILATION "Enables AOT compilation for GPU kernels" TRUE)
+set(ISHMEM_HOST_LINK_TYPE "STATIC" CACHE STRING "Host library link type for tests, examples, and CMake package consumers (STATIC or SHARED)")
+set_property(CACHE ISHMEM_HOST_LINK_TYPE PROPERTY STRINGS STATIC SHARED)
 
 # Other options defined elsewhere
 # - SKIP_COMPILER_CHECK - default: FALSE  (cmake/utils.cmake)
@@ -43,6 +60,17 @@ if (NOT ISHMEM_AOT_DEVICE_TYPES)
     # xe-hpc: Intel(R) Data Center GPU Max Series
     # xe2: Intel(R) Arc(TM) B-Series GPU Family
     set(ISHMEM_AOT_DEVICE_TYPES "xe-hpc,xe2")
+endif()
+
+set(_ISHMEM_VALID_HOST_LINK_TYPES STATIC SHARED)
+string(TOUPPER "${ISHMEM_HOST_LINK_TYPE}" ISHMEM_HOST_LINK_TYPE)
+set(ISHMEM_HOST_LINK_TYPE "${ISHMEM_HOST_LINK_TYPE}" CACHE STRING
+    "Host library link type for tests, examples, and CMake package consumers (STATIC or SHARED)" FORCE)
+if (NOT ISHMEM_HOST_LINK_TYPE IN_LIST _ISHMEM_VALID_HOST_LINK_TYPES)
+    string(REPLACE ";" ", " _ISHMEM_VALID_HOST_LINK_TYPES_CSV "${_ISHMEM_VALID_HOST_LINK_TYPES}")
+    message(FATAL_ERROR
+        "Invalid value for ISHMEM_HOST_LINK_TYPE: ${ISHMEM_HOST_LINK_TYPE}\n"
+        "Supported values: ${_ISHMEM_VALID_HOST_LINK_TYPES_CSV}")
 endif()
 
 # -------------------------------------------------------------------
@@ -80,6 +108,7 @@ message(STATUS "Build performance tests:     ${BUILD_PERF_TESTS}")
 message(STATUS "Build examples:              ${BUILD_EXAMPLES}")
 message(STATUS "Build apps:                  ${BUILD_APPS}")
 message(STATUS "Build CMake configs:         ${BUILD_CMAKE_CONFIG}")
+message(STATUS "Host link type:              ${ISHMEM_HOST_LINK_TYPE}")
 message(STATUS "Enable input validation:     ${ENABLE_ERROR_CHECKING}")
 message(STATUS "Enable dlmalloc:             ${ENABLE_DLMALLOC}")
 message(STATUS "Enable reduced link engines: ${ENABLE_REDUCED_LINK_ENGINES}")
@@ -90,6 +119,7 @@ endif()
 message(STATUS "Enable OpenSHMEM support:    ${ENABLE_OPENSHMEM}")
 message(STATUS "Enable MPI support:          ${ENABLE_MPI}")
 message(STATUS "Default Runtime:             ${ISHMEM_DEFAULT_RUNTIME_STR}")
+message(STATUS "Git hash:                    ${ISHMEM_GIT_HASH}")
 message(STATUS "===================================\n")
 
 # -------------------------------------------------------------------
@@ -123,6 +153,7 @@ configure_file(${PROJECT_SOURCE_DIR}/src/ishmem_config.h.in ${CMAKE_CURRENT_BINA
 configure_file(${PROJECT_SOURCE_DIR}/cmake/ishmem ${CMAKE_CURRENT_BINARY_DIR}/ishmem @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/vars.sh.in ${CMAKE_CURRENT_BINARY_DIR}/vars.sh @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/pkgconfig/ishmem.pc.in ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/ishmem.pc @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/pkgconfig/ishmem-shared.pc.in ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/ishmem-shared.pc @ONLY)
 
 install(PROGRAMS scripts/ishmrun DESTINATION bin)
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/ishmem DESTINATION ${ISHMEM_INSTALL_MODULE})
@@ -130,6 +161,7 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/vars.sh DESTINATION ${ISHMEM_INSTAL
 install(FILES ${PROJECT_SOURCE_DIR}/third-party-programs.txt DESTINATION ${ISHMEM_INSTALL_LICENSE})
 install(FILES ${PROJECT_SOURCE_DIR}/LICENSE DESTINATION ${ISHMEM_INSTALL_LICENSE} RENAME license.txt)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/ishmem.pc DESTINATION ${ISHMEM_INSTALL_LIB}/pkgconfig)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/ishmem-shared.pc DESTINATION ${ISHMEM_INSTALL_LIB}/pkgconfig)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/examples/ DESTINATION ${ISHMEM_INSTALL_EXAMPLES}
         FILES_MATCHING PATTERN "*.cpp"
                        PATTERN "build" EXCLUDE)

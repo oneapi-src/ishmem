@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -15,8 +15,13 @@
 #include "collectives/collect_impl.h"
 #include "collectives/alltoall_impl.h"
 #include <cstdlib>  // abort
+#include <unistd.h>
 
-int ishmemi_my_pe;
+#ifndef ISHMEM_GIT_HASH
+#define ISHMEM_GIT_HASH "unknown"
+#endif
+
+int ishmemi_my_pe = -1;
 int ishmemi_n_pes;
 
 int ishmemi_initialized;
@@ -62,6 +67,20 @@ const char *ishmemi_type_str[ISHMEMI_TYPE_END + 1];
 sycl::ext::oneapi::experimental::device_global<ishmemi_info_t *> global_info;
 
 ishmemi_on_queue_map ishmemi_on_queue_events_map;
+
+static const char *ishmemi_runtime_to_str(ishmemx_runtime_type_t runtime)
+{
+    switch (runtime) {
+        case ISHMEMX_RUNTIME_MPI:
+            return "MPI";
+        case ISHMEMX_RUNTIME_OPENSHMEM:
+            return "OPENSHMEM";
+        case ISHMEMX_RUNTIME_PMI:
+            return "PMI";
+        default:
+            return "INVALID";
+    }
+}
 
 #define ISHMEMI_API_IMPL(SUFFIX)                                                                   \
     void ishmemx_##SUFFIX()                                                                        \
@@ -221,6 +240,11 @@ void ishmemx_query_initialized(int *initialized)
 #endif  // end !__SYCL_DEVICE_ONLY__
 }
 
+sycl::device ishmemx_my_device()
+{
+    return ishmemi_get_selected_sycl_device();
+}
+
 static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
 {
     int ret = -1;
@@ -230,6 +254,7 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
     int ipc_initialized = 0;
     int teams_initialized = 0;
     ishmemx_runtime_type_t env_runtime;
+    char host_name[256] = "unknown";
 
     ishmemi_init_op_str();
     ishmemi_init_type_str();
@@ -258,6 +283,9 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
     ret = ishmemi_parse_env();
     ISHMEM_CHECK_GOTO_MSG(ret, cleanup, "Parsing env variables failed '%d'\n", ret);
 
+    ISHMEM_DEBUG_MSG("Build version %d.%d.%d (git %s)\n", ISHMEM_MAJOR_VERSION,
+                     ISHMEM_MINOR_VERSION, ISHMEM_PATCH_VERSION, ISHMEM_GIT_HASH);
+
     /* Check if environment ISHMEM_RUNTIME and value in attr conflict */
     env_runtime = ishmemi_env_get_runtime();
     if (env_runtime != attr->runtime) {
@@ -269,6 +297,12 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
         attr->runtime = env_runtime;
     }
 
+    /* Only MPI runtime supports uid */
+    ret = (attr->runtime != ISHMEMX_RUNTIME_MPI) && attr->use_uid;
+    ISHMEM_CHECK_GOTO_MSG(ret, cleanup,
+                          "uid is only supported for the MPI runtime. Set ISHMEM_RUNTIME=MPI "
+                          "or attr.runtime to ISHMEMX_RUNTIME_MPI.\n");
+
     /* Initialize the runtime */
     ret = ishmemi_runtime_init(attr);
     ISHMEM_CHECK_GOTO_MSG(ret, cleanup, "Runtime initialization failed '%d'\n", ret);
@@ -279,8 +313,14 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
     ishmemi_cpu_info->my_pe = ishmemi_my_pe;
     ishmemi_cpu_info->n_pes = ishmemi_n_pes;
 
+    if (gethostname(host_name, sizeof(host_name) - 1) == 0) {
+        host_name[sizeof(host_name) - 1] = '\0';
+    }
+    ISHMEM_DEBUG_MSG("Init placement: runtime %s, host %s\n", ishmemi_runtime_to_str(attr->runtime),
+                     host_name);
+
     if (attr->gpu) {
-        ret = ishmemi_accelerator_init();
+        ret = ishmemi_accelerator_init(attr);
         if (ret == ISHMEMI_NO_DEVICE_ACCESS) {
             attr->gpu = false;
             /* TODO need to enable SHARED HEAP config */
@@ -311,6 +351,7 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
     ishmemi_mmap_gpu_info->n_pes = ishmemi_n_pes;
     ishmemi_mmap_gpu_info->heap_base = ishmemi_heap_base;
     ishmemi_mmap_gpu_info->heap_length = ishmemi_heap_length;
+    ishmemi_mmap_gpu_info->device_atomics = ishmemi_params.ENABLE_DEVICE_ATOMICS;
 
     /* Setup local_pes info for host use */
     ishmemi_local_pes = (uint8_t *) ::malloc(static_cast<size_t>(ishmemi_n_pes));
@@ -322,6 +363,10 @@ static void ishmemi_init(ishmemx_attr_t *attr, bool user_attr)
             ISHMEM_WARN_MSG("Disabling IPC - it is unsupported when shared heap is enabled\n");
         ishmemi_params.ENABLE_GPU_IPC = 0;
     }
+
+    ISHMEM_DEBUG_MSG("Init options: IPC=%d, device_atomics=%d, accessible_host_heap=%d\n",
+                     ishmemi_params.ENABLE_GPU_IPC, ishmemi_params.ENABLE_DEVICE_ATOMICS,
+                     ishmemi_params.ENABLE_ACCESSIBLE_HOST_HEAP);
 
     if (attr->gpu && ishmemi_params.ENABLE_GPU_IPC) {
         ret = ishmemi_ipc_init();
@@ -456,6 +501,7 @@ void ishmem_finalize()
     ISHMEMI_FREE(::free, ishmemi_cpu_info);
 
     ishmemi_initialized = 0;
+    ishmemi_my_pe = -1;
 
     return;
 

@@ -130,6 +130,11 @@ Enabling both the OpenSHMEM and MPI backends is also supported. You may specify 
 ### Launching Example Application
 
 Validate that Intel® SHMEM was built correctly by running an example program.
+Intel® SHMEM installs `libishmem_host.a`, `libishmem_host.so`, and
+`libishmem_device.a`. Application builds use the static host archive by default
+and always use the static device archive. CMake consumers may select the shared
+host library with `-DISHMEM_HOST_LINK_TYPE=SHARED`, and pkg-config consumers may
+use `ishmem-shared.pc`.
 
 1. Add the path for the backend library to the environment, for example:
 
@@ -144,10 +149,38 @@ source <impi_dir>/env/vars.sh
 ISHMEM_RUNTIME=<backend> mpiexec.hydra -n 2 -hosts <allocated_node_id> ./scripts/ishmrun ./test/unit/int_get_device
 ```
 
+To build source-tree tests or examples with the shared host library, configure
+with:
+
+```
+cmake .. -DISHMEM_HOST_LINK_TYPE=SHARED
+```
+
+For launcher-independent execution (for example, manual launch or ``torchrun``-style launchers),
+use UID-based initialization via ``ishmemx_attr_t.use_uid``. The
+``examples/7_uid_mpcp.cpp`` sample demonstrates this mode.
+
+Example manual launch:
+
+```
+export WORLD_SIZE=4
+export MASTER_ADDR=localhost
+export ISHMEM_RUNTIME=MPI
+RANK=0 ./build/examples/7_uid_mpcp &
+RANK=1 ./build/examples/7_uid_mpcp &
+RANK=2 ./build/examples/7_uid_mpcp &
+RANK=3 ./build/examples/7_uid_mpcp &
+wait
+```
+
+MPCP uses ``I_MPI_MPCP_SERVER_PORT`` if provided, otherwise it defaults to
+``35555``. If ``MASTER_PORT`` is set, it must be different from
+``I_MPI_MPCP_SERVER_PORT``.
+
 - *Note:* Current supported launchers include: MPI process launchers (i.e. `mpiexec`, `mpiexec.hydra`, `mpirun`, etc.), Slurm (i.e. `srun`, `salloc`, etc.), and PBS (i.e. `qsub`).
 
-- *Note:* Intel® SHMEM execution model requires applications to use a 1:1 mapping between PEs and GPU devices. Attempting to run an application without the `ishmrun` launch script may result in failure if this mapping is not maintained.
-  - For further details on device selection, please see [the ONEAPI_DEVICE_SELECTOR](https://github.com/intel/llvm/blob/sycl/sycl/doc/EnvironmentVariables.md#oneapi_device_selector).
+- *Note:* Intel® SHMEM execution model requires applications to use a 1:1 mapping between PEs and GPU devices. The default `ishmrun` launcher maintains that mapping by restricting each PE to a single visible GPU device. When multiple GPUs remain visible to a PE, GPU 0 is selected by default. Users may set `ishmemx_attr_t.device_idx` explicitly before calling `ishmemx_init_attr` to select a specific one.
+  - For further details on launcher-based device selection, please see [the ONEAPI_DEVICE_SELECTOR](https://github.com/intel/llvm/blob/sycl/sycl/doc/EnvironmentVariables.md#oneapi_device_selector).
 
 3. Validate the application ran successfully; example output:
 

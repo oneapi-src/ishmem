@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -15,6 +15,7 @@ namespace ishmemi_mpi_wrappers {
     /* Runtime */
     int (*Init)(int *, char ***);
     int (*Init_thread)(int *, char ***, int, int *);
+    int (*Initialized)(int *);
     int (*Finalize)(void);
     int (*Abort)(MPI_Comm, int);
     int (*Comm_group)(MPI_Comm, MPI_Group *);
@@ -31,6 +32,7 @@ namespace ishmemi_mpi_wrappers {
     int (*Info_create)(MPI_Info *);
     int (*Info_set)(MPI_Info, const char *, const char *);
     int (*Info_free)(MPI_Info *);
+    int (*Query_thread)(int *);
 
     /* Window management */
     int (*Win_create)(void *, MPI_Aint, int, MPI_Info, MPI_Comm, MPI_Win *);
@@ -109,6 +111,7 @@ namespace ishmemi_mpi_wrappers {
         /* Runtime */
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Init);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Init_thread);
+        ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Initialized);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Finalize);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Abort);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Comm_group);
@@ -125,6 +128,7 @@ namespace ishmemi_mpi_wrappers {
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Info_create);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Info_set);
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Info_free);
+        ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Query_thread);
 
         /* Window Management */
         ISHMEMI_LINK_SYMBOL(mpi_handle, MPI, Win_create);

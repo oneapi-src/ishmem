@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2023-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -81,34 +81,38 @@ sycl::event jacobi_kernel(real *__restrict__ const a_new, real *__restrict__ con
     // TODO: try-catch added to resolve issue detected by Coverity. More robust
     // error handling to be implemented later.
     try {
-        auto sum_red = sycl::reduction(l2_norm_d, sycl::plus<>());
-        auto ret = q.parallel_for(
-            sycl::range<1>{static_cast<size_t>(global_range)}, sum_red,
-            [=](sycl::id<1> idx, auto &sumr) {
-                int iy = static_cast<int>(idx) / nx + iy_start;
-                int ix = static_cast<int>(idx) % nx + 1;
-                real local_norm = static_cast<real>(0.0);
+        auto ret = q.submit([&](sycl::handler &h) {
+            h.depends_on(event_waits);
+            auto sum_red = sycl::reduction(l2_norm_d, sycl::plus<>());
+            h.parallel_for(
+                sycl::range<1>{static_cast<size_t>(global_range)}, sum_red,
+                [=](sycl::id<1> idx, auto &sumr) {
+                    int iy = static_cast<int>(idx) / nx + iy_start;
+                    int ix = static_cast<int>(idx) % nx + 1;
+                    real local_norm = static_cast<real>(0.0);
 
-                if (iy < iy_end && ix < (nx - 1)) {
-                    const real new_val =
-                        static_cast<real>(0.25) * (a[iy * nx + ix + 1] + a[iy * nx + ix - 1] +
-                                                   a[(iy + 1) * nx + ix] + a[(iy - 1) * nx + ix]);
-                    a_new[iy * nx + ix] = new_val;
+                    if (iy < iy_end && ix < (nx - 1)) {
+                        const real new_val = static_cast<real>(0.25) *
+                                             (a[iy * nx + ix + 1] + a[iy * nx + ix - 1] +
+                                              a[(iy + 1) * nx + ix] + a[(iy - 1) * nx + ix]);
+                        a_new[iy * nx + ix] = new_val;
 
-                    // apply boundary conditions
-                    if (iy_start == iy) {
-                        ishmem_float_p((real *) (a_new + top_iy * nx + ix), new_val, top_pe);
+                        // apply boundary conditions
+                        if (iy_start == iy) {
+                            ishmem_float_p((real *) (a_new + top_iy * nx + ix), new_val, top_pe);
+                        }
+
+                        if (iy_end - 1 == iy) {
+                            ishmem_float_p((real *) (a_new + bottom_iy * nx + ix), new_val,
+                                           bottom_pe);
+                        }
+
+                        real residue = a[iy * nx + ix] - new_val;
+                        local_norm = residue * residue;
+                        sumr += local_norm;
                     }
-
-                    if (iy_end - 1 == iy) {
-                        ishmem_float_p((real *) (a_new + bottom_iy * nx + ix), new_val, bottom_pe);
-                    }
-
-                    real residue = a[iy * nx + ix] - new_val;
-                    local_norm = residue * residue;
-                    sumr += local_norm;
-                }
-            });
+                });
+        });
         return ret;
     } catch (sycl::exception &e) {
         std::cout << e.what() << std::endl;
@@ -255,11 +259,6 @@ int main(int argc, char *argv[])
                           bottom_pe, iy_start_bottom, Q,
                           {compute_barrier_done[prev], reset_l2_norm_done[curr]}, global_range);
 
-        compute_barrier_done[curr] = Q.submit([&](sycl::handler &h) {
-            h.depends_on(compute_done[curr]);
-            h.single_task([=]() { ishmem_barrier_all(); });
-        });
-
         if ((iter % nccheck) == 0) {
             copy_l2_norm_done[curr] = Q.submit([&](sycl::handler &h) {
                 h.depends_on(compute_done[curr]);
@@ -269,6 +268,17 @@ int main(int argc, char *argv[])
             copy_l2_norm_done[prev].wait();
 
             ishmemi_test_runtime->float_sum_reduce(&l2_norms[prev], &l2_norms_h[prev], 1);
+
+            compute_barrier_done[curr] = Q.submit([&](sycl::handler &h) {
+                h.depends_on(compute_done[curr]);
+                h.single_task([=]() { ishmem_barrier_all(); });
+            });
+
+            copy_l2_norm_done[curr] = Q.submit([&](sycl::handler &h) {
+                h.depends_on(copy_l2_norm_done[curr]);
+                h.depends_on(compute_barrier_done[curr]);
+                h.host_task([] {});
+            });
 
             l2_norms[prev] = std::sqrt(l2_norms[prev]);
             l2_norm_greater_than_tol = (l2_norms[prev] > tol);
@@ -281,6 +291,11 @@ int main(int argc, char *argv[])
             l2_norms[prev] = static_cast<real>(0.0);
             l2_norms_h[prev] = static_cast<real>(0.0);
             reset_l2_norm_done[prev] = Q.memset(&l2_norms_d[prev], 0, sizeof(real));
+        } else {
+            compute_barrier_done[curr] = Q.submit([&](sycl::handler &h) {
+                h.depends_on(compute_done[curr]);
+                h.single_task([=]() { ishmem_barrier_all(); });
+            });
         }
 
         std::swap(a_new, a);

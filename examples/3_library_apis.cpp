@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2023-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -16,8 +16,10 @@ int main()
               << std::endl;
 
     /* Initialize ISHMEM
-     * The ISHMEM launch script will set things up so that ishmem uses
-     * the same GPU device as the SYCL queue above
+     * The default ishmrun launch script will set things up so that ishmem uses
+     * the same GPU device as the SYCL queue above. When multiple GPUs are
+     * visible to each PE, use ishmemx_attr_t.device_idx to select the device
+     * explicitly before calling ishmemx_init_attr().
      */
     ishmem_init();
 

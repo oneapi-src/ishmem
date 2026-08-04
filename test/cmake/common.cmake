@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2024-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 # -------------------------------------------------------------------
@@ -23,6 +23,18 @@ else()
 endif()
 find_package(ISHMEM REQUIRED PATHS ${ISHMEM_SEARCH_PATHS})
 
+if (NOT DEFINED ISHMEM_HOST_LINK_TYPE)
+    set(ISHMEM_HOST_LINK_TYPE STATIC)
+endif()
+set(_ISHMEM_VALID_HOST_LINK_TYPES STATIC SHARED)
+string(TOUPPER "${ISHMEM_HOST_LINK_TYPE}" ISHMEM_HOST_LINK_TYPE)
+if (NOT ISHMEM_HOST_LINK_TYPE IN_LIST _ISHMEM_VALID_HOST_LINK_TYPES)
+    string(REPLACE ";" ", " _ISHMEM_VALID_HOST_LINK_TYPES_CSV "${_ISHMEM_VALID_HOST_LINK_TYPES}")
+    message(FATAL_ERROR
+        "Invalid value for ISHMEM_HOST_LINK_TYPE: ${ISHMEM_HOST_LINK_TYPE}\n"
+        "Supported values: ${_ISHMEM_VALID_HOST_LINK_TYPES_CSV}")
+endif()
+
 # -------------------------------------------------------------------
 # Configure the ctest launcher
 
@@ -40,7 +52,9 @@ endif()
 file(RELATIVE_PATH SCRIPTS_DIR ${CMAKE_CURRENT_BINARY_DIR} "${ISHMEM_ROOT_DIR}/scripts")
 
 set(CTEST_WRAPPER "${SCRIPTS_DIR}/ctest/${CTEST_LAUNCHER}_wrapper")
-set(ISHMEM_RUN_SCRIPT "${SCRIPTS_DIR}/ishmrun")
+if (NOT DEFINED ISHMEM_RUN_SCRIPT)
+    set(ISHMEM_RUN_SCRIPT "${SCRIPTS_DIR}/ishmrun")
+endif()
 
 # -------------------------------------------------------------------
 # Setup compiler
@@ -81,13 +95,22 @@ list(APPEND ISHMEM_TEST_LINK_LIBS
     pthread)
 
 if (NOT ${CMAKE_PROJECT_NAME} STREQUAL "ishmem")
-    list(APPEND ISHMEM_TEST_LINK_LIBS ${ISHMEM_LIBRARY})
+    if (TARGET ISHMEM::ISHMEM)
+        list(APPEND ISHMEM_TEST_LINK_LIBS ISHMEM::ISHMEM)
+    else()
+        list(APPEND ISHMEM_TEST_LINK_LIBS ${ISHMEM_LIBRARY})
+    endif()
 else()
-    list(APPEND ISHMEM_TEST_LINK_LIBS ishmem-static)
+    if (ISHMEM_HOST_LINK_TYPE STREQUAL "SHARED")
+        list(APPEND ISHMEM_TEST_LINK_LIBS ishmem-shared)
+    else()
+        list(APPEND ISHMEM_TEST_LINK_LIBS ishmem-static)
+    endif()
 endif()
 
 list(APPEND ISHMEM_TEST_INCLUDE_DIRS
     "${ISHMEM_INCLUDE}"
+    "${ISHMEM_ROOT_DIR}/src"
     "${ISHMEM_TEST_ROOT_DIR}/include"
     "${CMAKE_CURRENT_BINARY_DIR}/include")
 

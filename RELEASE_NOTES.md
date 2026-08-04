@@ -1,10 +1,22 @@
 # Release Notes <!-- omit in toc -->
 This document contains a list of new features and known limitations of Intel® SHMEM releases.
 
-## Release 1.5.1
+## Release 1.5.2
 
 ### New Features and Enhancements
-- Fix a compilation issue due to missing files
+- Significant stabilization and correctness improvements across runtime, memory management, IPC, and collective operations.
+- Build and packaging improvements including split static archives, shared host library support, improved symbol export handling, and refined SYCL host/device compilation behavior.
+- Reliability fixes in GPU and IPC paths, including prevention of segmentation faults, safer device buffer handling, and improved cleanup on failure paths.
+- Collective operation updates including primary work-group reduce support and rank-0 exscan behavior alignment with validation expectations.
+- Extended multi-device and launcher flexibility through explicit device selection support and launcher-independent initialization workflows.
+- Expanded hardware support for Intel® Arc™ B-Series (BMG) GPUs.
+- Improved CI and test robustness with workflow updates, wrapper and exclusion list refinements, and environment-specific validation fixes.
+- Added UID-based MPI initialization path for launcher-independent workflows.
+- Added public API support in ``ishmemx_attr_t``: ``use_uid``, ``nranks``, ``rank``, and ``uid``.
+- Added ``ishmemx_uniqueid_t`` and ``ishmemx_get_uniqueid`` to simplify setup.
+- Added ``examples/7_uid_mpcp.cpp`` demonstrating manual rank launch and UID initialization.
+- Added runtime compatibility support for cases where MPI is initialized outside Intel® SHMEM.
+- Documentation and examples refreshed to reflect updated runtime and launcher capabilities.
 
 ### Known Limitations
 - Only [Sandia OpenSHMEM](https://github.com/Sandia-OpenSHMEM/SOS) and [Intel® MPI Library](https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library.html) are currently supported as the host back-end.
@@ -14,9 +26,10 @@ This document contains a list of new features and known limitations of Intel® S
 - To run Intel® SHMEM with SOS enabling the Slingshot provider in OFI, environment variable `FI_CXI_OPTIMIZED_MRS=0` must be used. It is also recommended to use `FI_CXI_DEFAULT_CQ_SIZE=131072`.
 - To run Intel® SHMEM with SOS enabling the verbs provider, environment variable `MLX5_SCATTER_TO_CQE=0` must be used.
 - To run Intel® SHMEM with Intel® MPI Library, environment variable `I_MPI_OFFLOAD=1` must be used. Additionally, `I_MPI_OFFLOAD_RDMA=1` may be necessary for GPU RDMA depending on the OFI provider. Please refer to the [reference guide](https://www.intel.com/content/www/us/en/docs/mpi-library/developer-reference-linux/2021-16/gpu-buffers-support.html) for further details.
-- Inter-node communication in Intel® SHMEM requires [dma-buf](https://www.kernel.org/doc/html/latest/driver-api/dma-buf.html) support in the Linux kernel. Inter-node functionality in Intel® SHMEM Release 1.5.0 is tested with SUSE Linux Enterprise Server 15 SP4.
-- Support for Intel® Arc™ B-Series GPUs is preliminary. As such, not all APIs are currently supported.
-- When using Intel® Arc™ B-Series GPUs, environment variable `RenderCompressedBuffersEnabled=0` is required. This is automatically set when running with the launcher script `ishmrun`.
+- Inter-node communication in Intel® SHMEM requires [dma-buf](https://www.kernel.org/doc/html/latest/driver-api/dma-buf.html) support in the Linux kernel. Inter-node functionality in Intel® SHMEM Release 1.5.2 is tested with SUSE Linux Enterprise Server 15 SP4.
+- Inscan and exscan collective operations are currently provided as preview features and should be considered experimental.
+- UID-based initialization is currently supported only with the MPI backend.
+- UID-based initialization requires [Intel® MPI Library](https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library.html) ``2021.18`` release or newer.
 
 ## Release 1.5.0
 

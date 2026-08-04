@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 # Configuration file for the Sphinx documentation builder.
@@ -14,9 +14,9 @@ import datetime
 # -- Project information -----------------------------------------------------
 
 project = u'Intel® SHMEM'
-copyright = u'2024 Intel Corporation licensed under Creative Commons BY 4.0'
+copyright = u'2025 Intel Corporation licensed under Creative Commons BY 4.0'
 author = u'Intel Corporation'
-release = u'1.5.1'
+release = u'1.5.2'
 version = release
 
 # -- General configuration ---------------------------------------------------

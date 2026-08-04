@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2024-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Common CMakeLists.txt to build ishmem, tests, examples
@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.17)
 
 set(PROJECT_NAME "ishmem tests")
-set(PROJECT_FULL_NAME "Intel® SHMEM tests")
+set(PROJECT_FULL_NAME "Intel(R) SHMEM tests")
 
 project(${PROJECT_NAME})
 
@@ -19,7 +19,9 @@ option(ENABLE_AOT_COMPILATION "Enables AOT compilation for GPU kernels" TRUE)
 
 # Set default device type(s) for AOT compilation
 if (NOT ISHMEM_AOT_DEVICE_TYPES)
-    set(ISHMEM_AOT_DEVICE_TYPES "pvc")
+    # xe-hpc: Intel(R) Data Center GPU Max Series
+    # xe2: Intel(R) Arc(TM) B-Series GPU Family
+    set(ISHMEM_AOT_DEVICE_TYPES "xe-hpc,xe2")
 endif()
 
 # -------------------------------------------------------------------

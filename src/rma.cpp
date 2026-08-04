@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2023-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -32,7 +32,7 @@ sycl::event ishmemx_put_on_queue(T *dest, const T *src, size_t nelems, int pe, s
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() { ishmem_put(dest, src, nelems, pe); });
+        ishmemi_submit_on_queue<false>([=]() { ishmem_put(dest, src, nelems, pe); }, cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -181,7 +181,8 @@ sycl::event ishmemx_iput_on_queue(T *dest, const T *src, ptrdiff_t dst, ptrdiff_
                     ishmemx_iput_work_group(dest, src, dst, sst, nelems, pe, it.get_group());
                 });
         } else {
-            cgh.single_task([=]() { ishmem_iput(dest, src, dst, sst, nelems, pe); });
+            ishmemi_submit_on_queue<false>([=]() { ishmem_iput(dest, src, dst, sst, nelems, pe); },
+                                           cgh);
         }
     });
     ishmemi_on_queue_events_map[&q]->event = e;
@@ -346,7 +347,8 @@ sycl::event ishmemx_ibput_on_queue(T *dest, const T *src, ptrdiff_t dst, ptrdiff
                                              it.get_group());
                 });
         } else {
-            cgh.single_task([=]() { ishmemx_ibput(dest, src, dst, sst, bsize, nblocks, pe); });
+            ishmemi_submit_on_queue<false>(
+                [=]() { ishmemx_ibput(dest, src, dst, sst, bsize, nblocks, pe); }, cgh);
         }
     });
     ishmemi_on_queue_events_map[&q]->event = e;
@@ -538,7 +540,7 @@ sycl::event ishmemx_get_on_queue(T *dest, const T *src, size_t nelems, int pe, s
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() { ishmem_get(dest, src, nelems, pe); });
+        ishmemi_submit_on_queue<false>([=]() { ishmem_get(dest, src, nelems, pe); }, cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -687,7 +689,8 @@ sycl::event ishmemx_iget_on_queue(T *dest, const T *src, ptrdiff_t dst, ptrdiff_
                     ishmemx_iget_work_group(dest, src, dst, sst, nelems, pe, it.get_group());
                 });
         } else {
-            cgh.single_task([=]() { ishmem_iget(dest, src, dst, sst, nelems, pe); });
+            ishmemi_submit_on_queue<false>([=]() { ishmem_iget(dest, src, dst, sst, nelems, pe); },
+                                           cgh);
         }
     });
     ishmemi_on_queue_events_map[&q]->event = e;
@@ -852,7 +855,8 @@ sycl::event ishmemx_ibget_on_queue(T *dest, const T *src, ptrdiff_t dst, ptrdiff
                                              it.get_group());
                 });
         } else {
-            cgh.single_task([=]() { ishmemx_ibget(dest, src, dst, sst, bsize, nblocks, pe); });
+            ishmemi_submit_on_queue<false>(
+                [=]() { ishmemx_ibget(dest, src, dst, sst, bsize, nblocks, pe); }, cgh);
         }
     });
     ishmemi_on_queue_events_map[&q]->event = e;

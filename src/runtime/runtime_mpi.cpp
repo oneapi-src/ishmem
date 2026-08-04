@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -8,12 +8,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <mpi.h>
 
 #include "accelerator.h"
 #include "runtime.h"
 #include "runtime_mpi.h"
 #include "wrapper.h"
+#include "memory.h"
 
 #define MPI_CHECK_GOTO(label, call)                                                                \
     do {                                                                                           \
@@ -63,24 +65,53 @@
 
 #define CALC_DISP(target, base) (intptr_t) target - (ptrdiff_t) base
 
-#define CONVERT_GPU_BUFFER(QUALIFIER, TYPE, var, size, constexpr_check)                            \
-    QUALIFIER TYPE *var##_host = var;                                                              \
-    bool var##_gpu = false;                                                                        \
-    ze_ipc_mem_handle_t var##_handle = {};                                                         \
+/* Make a user-provided buffer host-accessible.  Declares two locals:
+ *   QUALIFIER TYPE *var##_host       host-accessible alias for var
+ *   bool var##_needs_cleanup         a host staging buffer was allocated
+ * Symmetric heap pointers translate to the heap's existing host mapping, and
+ * host/shared USM pointers are usable as-is.  Non-heap device USM cannot be
+ * accessed from the host, so it is staged through a malloc'd host buffer; if
+ * copy_in, the current device contents are copied into the staging buffer.
+ * Staged buffers must be released with MAYBE_FREE_HOST_BUFFER on the success
+ * path, which also copies staged results back to the device for outputs. */
+#define MAYBE_ALLOCATE_HOST_BUFFER(QUALIFIER, TYPE, var, nelems, copy_in, constexpr_check)         \
+    /* declared without initializers so error gotos may legally jump past them */                  \
+    QUALIFIER TYPE *var##_host;                                                                    \
+    bool var##_needs_cleanup;                                                                      \
+    var##_host = var;                                                                              \
+    var##_needs_cleanup = false;                                                                   \
     if constexpr (constexpr_check) {                                                               \
-        if (ISHMEMI_HOST_IN_HEAP(var)) {                                                           \
-            var##_host = ISHMEMI_DEVICE_TO_MMAP_ADDR(TYPE, var);                                   \
-        } else if ((var##_gpu == is_gpu_buffer(var)) && var##_gpu) {                               \
-            var##_host = ishmemi_get_mmap_address(var, size, &var##_handle);                       \
+        if ((var) != nullptr && (nelems) > 0) {                                                    \
+            if (ISHMEMI_HOST_IN_HEAP(var)) {                                                       \
+                var##_host = ISHMEMI_DEVICE_TO_MMAP_ADDR(TYPE, var);                               \
+            } else if (is_gpu_buffer(var)) {                                                       \
+                TYPE *var##_staging = static_cast<TYPE *>(::malloc((nelems) * sizeof(TYPE)));      \
+                if (var##_staging != nullptr && (copy_in) &&                                       \
+                    ishmemi_copy(var##_staging, var, (nelems) * sizeof(TYPE)) == nullptr) {        \
+                    ::free(var##_staging);                                                         \
+                    var##_staging = nullptr;                                                       \
+                }                                                                                  \
+                if (var##_staging == nullptr) ret = -1;                                            \
+                ISHMEM_CHECK_GOTO_MSG(var##_staging == nullptr, fn_exit,                           \
+                                      "Failed to stage device buffer '%s' on the host\n", #var);   \
+                var##_host = var##_staging;                                                        \
+                var##_needs_cleanup = true;                                                        \
+            }                                                                                      \
         }                                                                                          \
     }
 
-#define CLEANUP_GPU_BUFFER(TYPE, var, size, constexpr_check)                                       \
-    if constexpr (constexpr_check) {                                                               \
-        if (var##_gpu) {                                                                           \
-            ret = ishmemi_close_mmap_address(var##_handle, (TYPE *) var##_host, size);             \
-            ISHMEMI_CHECK_RESULT(ret, 0, fn_exit);                                                 \
-        }                                                                                          \
+/* Release a staging buffer created by MAYBE_ALLOCATE_HOST_BUFFER; if
+ * copy_out, first copy the staged results back to the device buffer.  The
+ * staging buffer is freed before any error exit so failures cannot leak. */
+#define MAYBE_FREE_HOST_BUFFER(TYPE, var, nelems, copy_out)                                        \
+    if (var##_needs_cleanup) {                                                                     \
+        bool var##_copy_failed = (copy_out) && ishmemi_copy((void *) (var), (void *) var##_host,   \
+                                                            (nelems) * sizeof(TYPE)) == nullptr;   \
+        ::free(const_cast<void *>(static_cast<const void *>(var##_host)));                         \
+        var##_needs_cleanup = false;                                                               \
+        if (var##_copy_failed) ret = -1;                                                           \
+        ISHMEM_CHECK_GOTO_MSG(var##_copy_failed, fn_exit,                                          \
+                              "Failed to copy staged buffer '%s' back to the device\n", #var);     \
     }
 
 /* Runtime generic implementations */
@@ -115,12 +146,12 @@ namespace {
         if (ptr == nullptr) return false;
 
         ret = ishmemi_get_memory_type(ptr, &type);
-        ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to check memory type of pointer\n");
+        ISHMEM_CHECK_GOTO_MSG(ret != 0, fn_exit, "Failed to check memory type of pointer\n");
 
         return (type == ZE_MEMORY_TYPE_DEVICE);
 
     fn_exit:
-        return true;
+        return false;
     }
 
     inline int barrier_impl(MPI_Comm comm, MPI_Win win)
@@ -830,6 +861,24 @@ namespace impl {
         ISHMEMI_RUNTIME_MPI_REQUEST_HELPER(T, EXSCAN);
 
         MPI_CHECK(ishmemi_mpi_wrappers::Exscan(src, dest, (int) nelems, dt, MPI_SUM, comm));
+
+        if (rank == 0) {
+            /* MPI_Exscan leaves rank 0 receive data undefined; force additive identity (0) so
+             * exscan matches SHMEM semantics and deterministic unit-test expectations. */
+            size_t bytes = sizeof(T) * nelems;
+
+            if (is_gpu_buffer(dest)) {
+                /* GPU memory: use efficient GPU zeroing */
+                ret = (ishmemi_zero(dest, bytes) == nullptr) ? -1 : ret;
+                if (ret == 0) {
+                    ishmemi_level_zero_sync();
+                }
+            } else {
+                /* Host memory: use standard memset */
+                memset(dest, 0, bytes);
+            }
+        }
+
         comp->completion.ret.i = ret;
         return ret;
     }
@@ -859,8 +908,8 @@ namespace impl {
         if (nelems == 0) ret = 1;
 
         /* Get host buffers */
-        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
-        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, int, status, nelems, /* copy_in */ true, true);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, T, cmp_values, nelems, /* copy_in */ true, VECTOR);
 
         for (size_t i = 0; i < nelems; ++i) {
             if (status_host && status_host[i]) {
@@ -874,19 +923,24 @@ namespace impl {
                 ret = test_impl(cmp_value, cmp, dt, rank, disp, win);
             }
 
-            ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to execute test_all");
+            ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_fail, "Failed to execute test_all");
             if (ret == 0) break;
             disp = disp + (MPI_Aint) sizeof(T);
         }
 
-        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
-        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
 
         comp->completion.ret.i = ret;
         ret = 0;
 
     fn_exit:
         return ret;
+    fn_fail:
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
+        ret = -1;
+        goto fn_exit;
     }
 
     template <typename T, ishmemi_op_t OP, bool VECTOR>
@@ -897,8 +951,8 @@ namespace impl {
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
 
         /* Get host buffers */
-        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
-        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, int, status, nelems, /* copy_in */ true, true);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, T, cmp_values, nelems, /* copy_in */ true, VECTOR);
 
         for (size_t i = 0; i < nelems; ++i) {
             if (status_host && status_host[i]) {
@@ -912,7 +966,7 @@ namespace impl {
                 ret = test_impl(cmp_value, cmp, dt, rank, disp, win);
             }
 
-            ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to execute test_any");
+            ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_fail, "Failed to execute test_any");
             if (ret == 1) {
                 complete = i;
                 break;
@@ -920,14 +974,19 @@ namespace impl {
             disp = disp + (MPI_Aint) sizeof(T);
         }
 
-        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
-        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
 
         comp->completion.ret.szt = complete;
         ret = 0;
 
     fn_exit:
         return ret;
+    fn_fail:
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
+        ret = -1;
+        goto fn_exit;
     }
 
     template <typename T, ishmemi_op_t OP, bool VECTOR>
@@ -938,9 +997,9 @@ namespace impl {
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
 
         /* Get host buffers */
-        CONVERT_GPU_BUFFER(, size_t, indices, sizeof(size_t) * nelems, true);
-        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
-        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_ALLOCATE_HOST_BUFFER(, size_t, indices, nelems, /* copy_in */ false, true);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, int, status, nelems, /* copy_in */ true, true);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, T, cmp_values, nelems, /* copy_in */ true, VECTOR);
 
         if constexpr (VECTOR) {
             ret = test_multi_impl(cmp_values_host, cmp, dt, rank, disp, nelems, status_host,
@@ -949,17 +1008,23 @@ namespace impl {
             ret = test_multi_impl(cmp_value, cmp, dt, rank, disp, nelems, status_host, indices_host,
                                   complete, win);
         }
-        ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to run multiple test ops\n");
+        ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_fail, "Failed to run multiple test ops\n");
 
-        CLEANUP_GPU_BUFFER(size_t, indices, sizeof(size_t) * nelems, true);
-        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
-        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_FREE_HOST_BUFFER(size_t, indices, nelems, /* copy_out */ true);
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
 
         comp->completion.ret.szt = complete;
         ret = 0;
 
     fn_exit:
         return ret;
+    fn_fail:
+        MAYBE_FREE_HOST_BUFFER(size_t, indices, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
+        ret = -1;
+        goto fn_exit;
     }
 
     static int signal_wait_until(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
@@ -1013,13 +1078,13 @@ namespace impl {
     static int wait_until_all(ishmemi_request_t *msg, ishmemi_ringcompletion_t *comp)
     {
         int ret = 0;
+        size_t num_skip = 0;
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
 
         /* Get host buffers */
-        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
-        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, int, status, nelems, /* copy_in */ true, true);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, T, cmp_values, nelems, /* copy_in */ true, VECTOR);
 
-        size_t num_skip = 0;
         if (status_host) {
             for (size_t i = 0; i < nelems; ++i) {
                 num_skip += (status_host[i] == 0) ? 0 : 1;
@@ -1040,7 +1105,7 @@ namespace impl {
                         ret = test_impl(cmp_value, cmp, dt, rank, disp, win);
                     }
 
-                    ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to execute wait_until_all");
+                    ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_fail, "Failed to execute wait_until_all");
                     if (ret == 1) break;
                     force_progress(comm);
                 }
@@ -1048,13 +1113,18 @@ namespace impl {
             }
         }
 
-        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
-        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
 
         ret = 0;
 
     fn_exit:
         return ret;
+    fn_fail:
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
+        ret = -1;
+        goto fn_exit;
     }
 
     template <typename T, ishmemi_op_t OP, bool VECTOR>
@@ -1062,14 +1132,14 @@ namespace impl {
     {
         size_t complete = SIZE_MAX;
         int ret = 0;
+        size_t num_skip = 0;
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
         MPI_Aint tmp_disp = disp;
 
         /* Get host buffers */
-        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
-        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, int, status, nelems, /* copy_in */ true, true);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, T, cmp_values, nelems, /* copy_in */ true, VECTOR);
 
-        size_t num_skip = 0;
         if (status_host) {
             for (size_t i = 0; i < nelems; ++i) {
                 num_skip += (status_host[i] == 0) ? 0 : 1;
@@ -1091,7 +1161,7 @@ namespace impl {
                         ret = test_impl(cmp_value, cmp, dt, rank, tmp_disp, win);
                     }
 
-                    ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to execute wait_until_any");
+                    ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_fail, "Failed to execute wait_until_any");
                     if (ret == 1) {
                         complete = i;
                         break;
@@ -1106,14 +1176,19 @@ namespace impl {
             }
         }
 
-        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
-        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
 
         comp->completion.ret.szt = complete;
         ret = 0;
 
     fn_exit:
         return ret;
+    fn_fail:
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
+        ret = -1;
+        goto fn_exit;
     }
 
     template <typename T, ishmemi_op_t OP, bool VECTOR>
@@ -1121,15 +1196,15 @@ namespace impl {
     {
         size_t complete = 0;
         int ret = 0;
+        size_t num_skip = 0;
         ISHMEMI_RUNTIME_MPI_DISP_REQUEST_HELPER(T, OP, dest);
         MPI_Aint tmp_disp = disp;
 
         /* Get host buffers */
-        CONVERT_GPU_BUFFER(, size_t, indices, sizeof(size_t) * nelems, true);
-        CONVERT_GPU_BUFFER(const, int, status, sizeof(int) * nelems, true);
-        CONVERT_GPU_BUFFER(const, T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_ALLOCATE_HOST_BUFFER(, size_t, indices, nelems, /* copy_in */ false, true);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, int, status, nelems, /* copy_in */ true, true);
+        MAYBE_ALLOCATE_HOST_BUFFER(const, T, cmp_values, nelems, /* copy_in */ true, VECTOR);
 
-        size_t num_skip = 0;
         if (status_host) {
             for (size_t i = 0; i < nelems; ++i) {
                 num_skip += (status_host[i] == 0) ? 0 : 1;
@@ -1151,7 +1226,7 @@ namespace impl {
                         ret = test_impl(cmp_value, cmp, dt, rank, tmp_disp, win);
                     }
 
-                    ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_exit, "Failed to execute wait_until_some");
+                    ISHMEM_CHECK_GOTO_MSG(ret == -1, fn_fail, "Failed to execute wait_until_some");
                     if (ret == 1) {
                         indices_host[complete] = i;
                         ++complete;
@@ -1167,15 +1242,21 @@ namespace impl {
             }
         }
 
-        CLEANUP_GPU_BUFFER(size_t, indices, sizeof(size_t) * nelems, true);
-        CLEANUP_GPU_BUFFER(int, status, sizeof(int) * nelems, true);
-        CLEANUP_GPU_BUFFER(T, cmp_values, sizeof(T) * nelems, VECTOR);
+        MAYBE_FREE_HOST_BUFFER(size_t, indices, nelems, /* copy_out */ true);
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
 
         comp->completion.ret.szt = complete;
         ret = 0;
 
     fn_exit:
         return ret;
+    fn_fail:
+        MAYBE_FREE_HOST_BUFFER(size_t, indices, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(int, status, nelems, /* copy_out */ false);
+        MAYBE_FREE_HOST_BUFFER(T, cmp_values, nelems, /* copy_out */ false);
+        ret = -1;
+        goto fn_exit;
     }
 
     /* Memory Ordering */
@@ -1240,7 +1321,8 @@ size_t ishmemi_runtime_mpi::global_win_size = 0;
 ishmemi_runtime_mpi::datatype_entry_t *ishmemi_runtime_mpi::datatype_map = nullptr;
 
 /* Class method implementations */
-ishmemi_runtime_mpi::ishmemi_runtime_mpi(bool initialize_runtime, void *mpi_comm)
+ishmemi_runtime_mpi::ishmemi_runtime_mpi(bool initialize_runtime, void *mpi_comm, bool use_uid,
+                                         ishmemx_uniqueid_t *uid, int nranks, int rank)
 {
     int ret = 0;
     team_t temp_team = {};
@@ -1253,13 +1335,98 @@ ishmemi_runtime_mpi::ishmemi_runtime_mpi(bool initialize_runtime, void *mpi_comm
 
     /* Initialize the runtime if requested */
     if (initialize_runtime) {
-        int required = MPI_THREAD_MULTIPLE;
-        int provided = 0;
-        MPI_CHECK_GOTO(fn_exit,
-                       ishmemi_mpi_wrappers::Init_thread(nullptr, nullptr, required, &provided));
-        ISHMEM_CHECK_GOTO_MSG(required != provided, fn_exit,
-                              "Failed to initialize MPI with MPI_THREAD_MULTIPLE\n");
-        this->initialized = true;
+        // Check if MPI has already been initialized
+        int mpi_initialized = 0;
+        int required = MPI_THREAD_MULTIPLE, provided = 0;
+        MPI_CHECK_GOTO(fn_exit, ishmemi_mpi_wrappers::Initialized(&mpi_initialized));
+        if (!mpi_initialized) {
+            if (use_uid) {
+                // Set environment variables for MPCP
+                if (uid == nullptr) {
+                    RAISE_ERROR_MSG("use_uid is true but uid is nullptr!\n");
+                }
+                if (nranks <= 0) {
+                    RAISE_ERROR_MSG("use_uid is true but nranks=%d is not positive!\n", nranks);
+                }
+                if (rank < 0 || rank >= nranks) {
+                    RAISE_ERROR_MSG("use_uid is true but rank=%d is out of valid range [0, %d)!\n",
+                                    rank, nranks);
+                }
+                int overwrite = 1;
+                const char *mpcp_rank_str = getenv("I_MPI_MPCP_RANK");
+                if (mpcp_rank_str != nullptr) {
+                    ISHMEM_DEBUG_MSG(
+                        "I_MPI_MPCP_RANK is set to %s but will be overwritten to rank=%d.\n",
+                        mpcp_rank_str, rank);
+                }
+                if (setenv("I_MPI_MPCP_RANK", std::to_string(rank).c_str(), overwrite) != 0) {
+                    perror("setenv I_MPI_MPCP_RANK failed");
+                    RAISE_ERROR_MSG("Error in setenv I_MPI_MPCP_RANK=%d!\n", rank);
+                }
+                const char *mpcp_size_str = getenv("I_MPI_MPCP_SIZE");
+                if (mpcp_size_str != nullptr) {
+                    ISHMEM_DEBUG_MSG(
+                        "I_MPI_MPCP_SIZE is set to %s but will be overwritten to nranks=%d.\n",
+                        mpcp_size_str, nranks);
+                }
+                std::string nranks_str = std::to_string(nranks);
+                if (setenv("I_MPI_MPCP_SIZE", nranks_str.c_str(), overwrite) != 0) {
+                    perror("setenv I_MPI_MPCP_SIZE failed");
+                    RAISE_ERROR_MSG("Error in setenv I_MPI_MPCP_SIZE=%d!\n", nranks);
+                }
+                if (setenv("I_MPI_MPCP", "1", overwrite) != 0) {
+                    perror("setenv I_MPI_MPCP failed");
+                    RAISE_ERROR_MSG("Error in setenv I_MPI_MPCP=%s!\n", "1");
+                }
+
+                // uid is encoded as host:port and split to MPCP env variables.
+                std::string uid_value(uid->uniqueid);
+                std::string server_name = uid_value;
+                std::string server_port;
+                size_t delim_pos = uid_value.rfind(':');
+                if (delim_pos != std::string::npos && delim_pos > 0 &&
+                    delim_pos + 1 < uid_value.size()) {
+                    server_name = uid_value.substr(0, delim_pos);
+                    server_port = uid_value.substr(delim_pos + 1);
+                }
+
+                if (setenv("I_MPI_MPCP_SERVER_NAME", server_name.c_str(), overwrite) != 0) {
+                    perror("setenv I_MPI_MPCP_SERVER_NAME failed");
+                    RAISE_ERROR_MSG("Error in setenv I_MPI_MPCP_SERVER_NAME=%s!\n",
+                                    server_name.c_str());
+                }
+                if (!server_port.empty() &&
+                    setenv("I_MPI_MPCP_SERVER_PORT", server_port.c_str(), overwrite) != 0) {
+                    perror("setenv I_MPI_MPCP_SERVER_PORT failed");
+                    RAISE_ERROR_MSG("Error in setenv I_MPI_MPCP_SERVER_PORT=%s!\n",
+                                    server_port.c_str());
+                }
+                ISHMEM_DEBUG_MSG(
+                    "use_id I_MPI_MPCP_RANK=%s I_MPI_MPCP_SIZE=%s I_MPI_MPCP=%s "
+                    "I_MPI_MPCP_SERVER_NAME=%s I_MPI_MPCP_SERVER_PORT=%s ZE_AFFINITY_MASK=%s .\n",
+                    getenv("I_MPI_MPCP_RANK"), getenv("I_MPI_MPCP_SIZE"), getenv("I_MPI_MPCP"),
+                    getenv("I_MPI_MPCP_SERVER_NAME"), getenv("I_MPI_MPCP_SERVER_PORT"),
+                    getenv("ZE_AFFINITY_MASK"));
+            }
+            MPI_CHECK_GOTO(
+                fn_exit, ishmemi_mpi_wrappers::Init_thread(nullptr, nullptr, required, &provided));
+            ISHMEM_CHECK_GOTO_MSG(required != provided, fn_exit,
+                                  "Failed to initialize MPI with MPI_THREAD_MULTIPLE\n");
+            this->initialized = true;
+        } else {
+            ISHMEM_DEBUG_MSG("MPI has already been initialized outside of ishmemi_runtime_mpi\n");
+            // Check if the the already intialized MPI provides the required thread support level
+            // (MPI_THREAD_MULTIPLE).
+            MPI_CHECK_GOTO(fn_exit, ishmemi_mpi_wrappers::Query_thread(&provided));
+            ISHMEM_CHECK_GOTO_MSG(required != provided, fn_exit,
+                                  "MPI was initialized externally but does not provide "
+                                  "MPI_THREAD_MULTIPLE support\n");
+            if (rank != -1 || nranks != -1) {
+                ISHMEM_DEBUG_MSG(
+                    "MPI was initialized externally. rank and/or nranks provided will be "
+                    "ignored.\n");
+            }
+        }
     }
 
     /* Setup internal runtime info */

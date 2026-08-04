@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2024-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 cmake_minimum_required(VERSION 3.17)
@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.17)
 file(GLOB TEST_SOURCE_FILES jacobi.cpp)
 
 set(PROJECT_NAME "ishmem jacobi app")
-set(PROJECT_FULL_NAME "Intel® SHMEM jacobi app")
+set(PROJECT_FULL_NAME "Intel(R) SHMEM jacobi app")
 
 project(${PROJECT_NAME})
 
@@ -40,6 +40,7 @@ message(STATUS "\n===== Apps (Jacobi) summary =====")
 message(STATUS "Build type:                  ${CMAKE_BUILD_TYPE_CASE_INSENSITIVE}")
 message(STATUS "PE count(s):                 ${ISHMEM_PE_COUNTS_JACOBI}")
 message(STATUS "CTest launcher:              ${CTEST_LAUNCHER}")
+message(STATUS "Host link type:              ${ISHMEM_HOST_LINK_TYPE}")
 message(STATUS "Enable AOT compilation:      ${ENABLE_AOT_COMPILATION}")
 if (ENABLE_AOT_COMPILATION)
     message(STATUS "    AOT Device type(s): ${ISHMEM_AOT_DEVICE_TYPES}")

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -35,7 +35,7 @@ sycl::event ishmemx_barrier_all_on_queue(sycl::queue &q, const std::vector<sycl:
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() { ishmem_barrier_all(); });
+        ishmemi_submit_on_queue<false>([=]() { ishmem_barrier_all(); }, cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;

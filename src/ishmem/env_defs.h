@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Portions derived from Sandia OpenSHMEM (https://github.com/Sandia-OpenSHMEM/SOS)
@@ -39,3 +39,8 @@ ISHMEMI_ENV_DEF(TEAM_SHARED_ONLY_SELF, bool, false,
 ISHMEMI_ENV_DEF(RUNTIME, std::string, ISHMEM_DEFAULT_RUNTIME_STR,
                 "The default runtime to use for scale-out communication")
 ISHMEMI_ENV_DEF(RUNTIME_USE_OSHMPI, bool, false, "Specify the OpenSHMEM backend as OSHMPI")
+
+/* Atomics definitions */
+ISHMEMI_ENV_DEF(
+    ENABLE_DEVICE_ATOMICS, bool, true,
+    "Specifies if device-initiated atomics are supported or should route through the host")

@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Intel Corporation
+/* Copyright (C) 2023-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -31,7 +31,7 @@ sycl::event ishmemx_put_nbi_on_queue(T *dest, const T *src, size_t nelems, int p
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() { ishmem_put_nbi(dest, src, nelems, pe); });
+        ishmemi_submit_on_queue<false>([=]() { ishmem_put_nbi(dest, src, nelems, pe); }, cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
@@ -142,7 +142,7 @@ sycl::event ishmemx_get_nbi_on_queue(T *dest, const T *src, size_t nelems, int p
 
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        cgh.single_task([=]() { ishmem_get_nbi(dest, src, nelems, pe); });
+        ishmemi_submit_on_queue<false>([=]() { ishmem_get_nbi(dest, src, nelems, pe); }, cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;

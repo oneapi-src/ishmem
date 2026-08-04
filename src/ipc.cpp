@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -47,8 +47,9 @@ typedef ze_result_t (*fn_zexMemOpenIpcHandles)(ze_context_handle_t, ze_device_ha
                                                ze_ipc_mem_handle_t *, ze_ipc_memory_flags_t,
                                                void **);
 
-fn_zexMemGetIpcHandles zexMemGetIpcHandles;
-fn_zexMemOpenIpcHandles zexMemOpenIpcHandles;
+/* Prefixed to avoid interposing ze_loader's stub symbol of the same name when statically linked */
+static fn_zexMemGetIpcHandles ishmemi_zexMemGetIpcHandles;
+static fn_zexMemOpenIpcHandles ishmemi_zexMemOpenIpcHandles;
 bool ishmemi_only_intra_node = false;
 
 /* Number of attempts to recv IPC handle from a remote rank */
@@ -137,22 +138,28 @@ int ishmemi_ipc_init()
 
     /* Check if IPC functions for implicit scaling are present */
     ze_ret = zeDriverGetExtensionFunctionAddress(ishmemi_gpu_driver, "zexMemGetIpcHandles",
-                                                 (void **) &zexMemGetIpcHandles);
-    if (ze_ret != ZE_RESULT_SUCCESS) zexMemGetIpcHandles = NULL;
+                                                 (void **) &ishmemi_zexMemGetIpcHandles);
+    /* Guard against broken loader stubs that write the variable's own address back into itself */
+    if (ze_ret != ZE_RESULT_SUCCESS ||
+        (void *) ishmemi_zexMemGetIpcHandles == (void *) &ishmemi_zexMemGetIpcHandles)
+        ishmemi_zexMemGetIpcHandles = NULL;
 
     ze_ret = zeDriverGetExtensionFunctionAddress(ishmemi_gpu_driver, "zexMemOpenIpcHandles",
-                                                 (void **) &zexMemOpenIpcHandles);
-    if (ze_ret != ZE_RESULT_SUCCESS) zexMemOpenIpcHandles = NULL;
+                                                 (void **) &ishmemi_zexMemOpenIpcHandles);
+    if (ze_ret != ZE_RESULT_SUCCESS ||
+        (void *) ishmemi_zexMemOpenIpcHandles == (void *) &ishmemi_zexMemOpenIpcHandles)
+        ishmemi_zexMemOpenIpcHandles = NULL;
 
     /* Create IPC handle for the heap */
-    if (zexMemGetIpcHandles) {
+    if (ishmemi_zexMemGetIpcHandles) {
         /* Get the number of IPC handles (i.e. check if Implicit Scaling is turned on) */
-        ZE_CHECK(zexMemGetIpcHandles(ishmemi_ze_context, ishmemi_heap_base, &nfds, NULL));
+        ZE_CHECK(ishmemi_zexMemGetIpcHandles(ishmemi_ze_context, ishmemi_heap_base, &nfds, NULL));
 
         /* Make sure that nfds is set correctly before proceeding */
         if (nfds > 0) {
             /* Create the IPC handle(s) */
-            ZE_CHECK(zexMemGetIpcHandles(ishmemi_ze_context, ishmemi_heap_base, &nfds, ipc_handle));
+            ZE_CHECK(ishmemi_zexMemGetIpcHandles(ishmemi_ze_context, ishmemi_heap_base, &nfds,
+                                                 ipc_handle));
             zex_passed = true;
         }
     }
@@ -342,10 +349,10 @@ static int ipc_init_pidfd()
         }
 
         /* Open the IPC handle */
-        if (zexMemOpenIpcHandles) {
-            ZE_CHECK(zexMemOpenIpcHandles(ishmemi_ze_context, ishmemi_gpu_device,
-                                          static_cast<uint32_t>(local_data[i].nfds),
-                                          remote_ipc_handle, 0, &temp_ipc_buffer));
+        if (ishmemi_zexMemOpenIpcHandles) {
+            ZE_CHECK(ishmemi_zexMemOpenIpcHandles(ishmemi_ze_context, ishmemi_gpu_device,
+                                                  static_cast<uint32_t>(local_data[i].nfds),
+                                                  remote_ipc_handle, 0, &temp_ipc_buffer));
         } else {
             ZE_CHECK(zeMemOpenIpcHandle(ishmemi_ze_context, ishmemi_gpu_device,
                                         remote_ipc_handle[0], 0, &temp_ipc_buffer));
@@ -480,10 +487,10 @@ static int ipc_init_sockets()
         }
 
         /* Open the IPC handle */
-        if (zexMemOpenIpcHandles) {
-            ZE_CHECK(zexMemOpenIpcHandles(ishmemi_ze_context, ishmemi_gpu_device,
-                                          static_cast<uint32_t>(nfds), remote_ipc_handle, 0,
-                                          &temp_ipc_buffer));
+        if (ishmemi_zexMemOpenIpcHandles) {
+            ZE_CHECK(ishmemi_zexMemOpenIpcHandles(ishmemi_ze_context, ishmemi_gpu_device,
+                                                  static_cast<uint32_t>(nfds), remote_ipc_handle, 0,
+                                                  &temp_ipc_buffer));
         } else {
             ZE_CHECK(zeMemOpenIpcHandle(ishmemi_ze_context, ishmemi_gpu_device,
                                         remote_ipc_handle[0], 0, &temp_ipc_buffer));

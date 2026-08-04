@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -49,7 +49,7 @@ static inline T amo_impl_return(T *dest, T cond, T val, int pe)
 
     if constexpr (ishmemi_is_device) {
         ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
+        if (local_index != 0 && info->only_intra_node && info->device_atomics) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
                              sycl::access::address_space::global_space>
@@ -121,7 +121,7 @@ static inline void amo_impl(T *dest, T val, int pe)
 
     if constexpr (ishmemi_is_device) {
         ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
+        if (local_index != 0 && info->only_intra_node && info->device_atomics) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
                              sycl::access::address_space::global_space>
@@ -174,7 +174,7 @@ static inline void amo_nbi_impl(T *fetch, T *dest, T cond, T val, int pe)
 
     if constexpr (ishmemi_is_device) {
         ishmemi_info_t *info = global_info;
-        if (local_index != 0 && info->only_intra_node) {
+        if (local_index != 0 && info->only_intra_node && info->device_atomics) {
             T *p = ISHMEMI_ADJUST_PTR(T, local_index, dest);
             sycl::atomic_ref<T, sycl::memory_order::seq_cst, sycl::memory_scope::system,
                              sycl::access::address_space::global_space>

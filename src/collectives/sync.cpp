@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Intel Corporation
+/* Copyright (C) 2025-2026 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -56,20 +56,14 @@ sycl::event ishmemx_team_sync_on_queue(ishmem_team_t team, int *ret, sycl::queue
     const std::lock_guard<std::mutex> lock(ishmemi_on_queue_events_map.map_mtx);
     auto iter = ishmemi_on_queue_events_map.get_entry_info(q, entry_already_exists);
 
-    ishmemi_team_host_t *myteam = &ishmemi_cpu_info->team_host_pool[team];
     auto e = q.submit([&](sycl::handler &cgh) {
         set_cmd_grp_dependencies(cgh, entry_already_exists, iter->second->event, deps);
-        if (myteam->only_intra) {
-            cgh.single_task([=]() {
+        ishmemi_submit_on_queue<true>(
+            [=]() {
                 ishmemi_team_sync(team);
                 if (ret) *ret = 0;
-            });
-        } else {
-            cgh.single_task([=]() {
-                ishmemi_team_sync(team);
-                if (ret) *ret = 0;
-            });
-        }
+            },
+            cgh);
     });
     ishmemi_on_queue_events_map[&q]->event = e;
     return e;
